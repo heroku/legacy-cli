@@ -1,6 +1,6 @@
 class Wrapper
 	def list(args)
-		list = @heroku.list
+		list = heroku.list
 		if list.size > 0
 			puts "=== My Apps"
 			puts list.join("\n")
@@ -11,8 +11,8 @@ class Wrapper
 
 	def create(args)
 		name = args.shift.downcase.strip rescue nil
-		name = @heroku.create(name)
-		puts "Created http://#{name}.#{@heroku.host}/"
+		name = heroku.create(name)
+		puts "Created http://#{name}.#{heroku.host}/"
 	end
 
 	def destroy(args)
@@ -20,7 +20,7 @@ class Wrapper
 		if name.length == 0
 			puts "Usage: app destroy [appname]"
 		end
-		@heroku.destroy(name)
+		heroku.destroy(name)
 		puts "Destroyed #{name}"
 	end
 
@@ -38,12 +38,12 @@ class Wrapper
 		tgz = archive(dir)
 
 		puts "Creating new app"
-		name = @heroku.create(name)
+		name = heroku.create(name)
 
 		puts "Uploading #{(tgz.size/1024).round}kb archive"
-		@heroku.import(name, tgz)
+		heroku.import(name, tgz)
 
-		puts "Imported to http://#{name}.#{@heroku.host}/"
+		puts "Imported to http://#{name}.#{heroku.host}/"
 		write_app_config(dir, name)
 	end
 
@@ -53,7 +53,7 @@ class Wrapper
 			puts "Usage: app export [appname]"
 		end
 
-		tgz = @heroku.export(name)
+		tgz = heroku.export(name)
 		unarchive(tgz, name)
 
 		write_app_config(name, name)
@@ -69,7 +69,7 @@ class Wrapper
 
 		tgz = archive(dir)
 		puts "Uploading #{(tgz.size/1024).round}kb archive to #{name}"
-		@heroku.import(name, tgz)
+		heroku.import(name, tgz)
 	end
 
 	############
@@ -114,11 +114,23 @@ class Wrapper
 		end
 	end
 
+	def echo_off
+		system "stty -echo"
+	end
+
+	def echo_on
+		system "stty echo"
+	end
+
 	def ask_for_credentials
 		print "User: "
 		user = gets.strip
+
 		print "Password: "
+		echo_off
 		password = gets.strip
+		puts
+		echo_on
 
 		save_credentials user, password
 
