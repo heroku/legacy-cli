@@ -1,10 +1,4 @@
 class Wrapper
-	attr_reader :heroku
-
-	def initialize
-		@heroku = HerokuLink.new
-	end
-
 	def list(args)
 		list = @heroku.list
 		if list.size > 0
@@ -78,7 +72,15 @@ class Wrapper
 		@heroku.import(name, tgz)
 	end
 
-private
+	############
+
+	def heroku
+		@heroku ||= init_heroku
+	end
+
+	def init_heroku
+		HerokuLink.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
+	end
 
 	def write_app_config(dir, name)
 		File.open("#{dir}/config/heroku.yml", "w") do |f|
@@ -88,6 +90,47 @@ private
 
 	def app_config(dir)
 		YAML.load(File.read("#{dir}/config/heroku.yml"))
+	end
+
+	def user
+		@credentials ||= get_credentials
+		@credentials[0]
+	end
+
+	def password
+		@credentials ||= get_credentials
+		@credentials[1]
+	end
+
+	def credentials_file
+		"#{ENV['HOME']}/.heroku/credentials"
+	end
+
+	def get_credentials
+		if File.exists? credentials_file
+			File.read(credentials_file).split("\n")
+		else
+			ask_for_credentials
+		end
+	end
+
+	def ask_for_credentials
+		print "User: "
+		user = gets.strip
+		print "Password: "
+		password = gets.strip
+
+		save_credentials user, password
+
+		[ user, password ]
+	end
+
+	def save_credentials(user, password)
+		FileUtils.mkdir_p(File.dirname(credentials_file))
+		File.open(credentials_file, 'w') do |f|
+			f.puts user
+			f.puts password
+		end
 	end
 
 	def archive(dir)

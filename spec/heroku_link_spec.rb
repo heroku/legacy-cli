@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/base'
 
 describe HerokuLink do
 	before(:each) do
-		@client = HerokuLink.new
+		@client = HerokuLink.new(nil, nil, nil)
 	end
 
 	it "list -> get a list of this user's apps" do
@@ -52,32 +52,5 @@ EOXML
 			req.to_hash['accept'].first.should == "application/x-gtar"
 		end
 		@client.export("myapp")
-	end
-
-	it "reads username and password from the credentials file" do
-		sandbox = "/tmp/client_spec.#{Process.pid}/credentials"
-		FileUtils.rm_rf(File.dirname(sandbox))
-		FileUtils.mkdir_p(File.dirname(sandbox))
-		File.open(sandbox, "w") { |f| f.write "user\npass\n" }
-		@client.stub!(:credentials_file).and_return(sandbox)
-		@client.credentials.should == %w(user pass)
-		@client.user.should == 'user'
-		@client.password.should == 'pass'
-	end
-
-	it "asks for credentials when the file doesn't exist" do
-		sandbox = "/tmp/client_spec.#{Process.pid}/credentials"
-		FileUtils.rm_rf(File.dirname(sandbox))
-		@client.stub!(:credentials_file).and_return(sandbox)
-		@client.should_receive(:ask_for_credentials)
-		@client.credentials
-	end
-
-	it "saves the credentials to a file" do
-		sandbox = "/tmp/client_spec.#{Process.pid}/credentials"
-		FileUtils.rm_rf(File.dirname(sandbox))
-		@client.stub!(:credentials_file).and_return(sandbox)
-		@client.save_credentials('one', 'two')
-		File.read(sandbox).should == "one\ntwo\n"
 	end
 end

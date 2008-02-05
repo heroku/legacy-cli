@@ -4,6 +4,14 @@ require 'rexml/document'
 require 'fileutils'
 
 class HerokuLink
+	attr_reader :host, :user, :password
+
+	def initialize(host, user, password)
+		@host = host
+		@user = user
+		@password = password
+	end
+
 	def list
 		doc = xml(get('/apps'))
 		doc.elements.to_a("//apps/app/name").map { |a| a.text }
@@ -47,7 +55,7 @@ class HerokuLink
 
 	def transmit(req, payload=nil)
 		req.basic_auth user, password
-		Net::HTTP.start(host, port) do |http|
+		Net::HTTP.start(host) do |http|
 			res = http.request(req, payload)
 			unless %w(200 201 202).include? res.code
 				raise "HTTP transmit failed, code: #{res.code}"
@@ -57,57 +65,8 @@ class HerokuLink
 		end
 	end
 
-	def host
-		ENV['HEROKU_HOST'] || 'heroku.com'
-	end
-
-	def port
-		80
-	end
-
 	def headers
 		{ 'Accept' => 'application/xml' }
-	end
-
-	def user
-		@credentials ||= credentials
-		@credentials[0]
-	end
-
-	def password
-		@credentials ||= credentials
-		@credentials[1]
-	end
-
-	def credentials_file
-		"#{ENV['HOME']}/.heroku/credentials"
-	end
-
-	def credentials
-		if File.exists? credentials_file
-			File.read(credentials_file).split("\n")
-		else
-			ask_for_credentials
-		end
-	end
-
-	def ask_for_credentials
-		print "User: "
-		user = gets.strip
-		print "Password: "
-		password = gets.strip
-
-		save_credentials user, password
-
-		[ user, password ]
-	end
-
-	def save_credentials(user, password)
-		FileUtils.mkdir_p(File.dirname(credentials_file))
-		File.open(credentials_file, 'w') do |f|
-			f.puts user
-			f.puts password
-		end
 	end
 
 	def xml(raw)
