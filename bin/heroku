@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+
+require 'heroku_link'
+require 'wrapper'
+
+usage = <<EOTXT
+=== Heroku Commands
+Outside an app dir:
+   list - list my apps
+   create [name] - create a new app
+   export [name] - download an app into a local directory for work
+   destroy [name] - destroy an app
+
+Inside an app dir:
+   import [name] - turn the local app into a new heroku app
+   push - push the current app out to heroku for deployment
+EOTXT
+
+command = ARGV.shift.strip rescue ""
+if command.length == 0
+	puts usage
+	exit 1
+end
+
+wrapper = Wrapper.new
+unless wrapper.methods.include? command
+	puts "no such method as #{command}, run without arguments for usage"
+	exit 2
+end
+
+wrapper.send(command, ARGV)
+
