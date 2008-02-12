@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/base'
 describe Wrapper do
 	before(:each) do
 		@wrapper = Wrapper.new
+		@wrapper.stub!(:display)
 	end
 
 	it "creates without a name" do

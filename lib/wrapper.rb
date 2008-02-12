@@ -8,26 +8,26 @@ class Wrapper
 	def list(args)
 		list = @heroku.list
 		if list.size > 0
-			puts "=== My Apps"
-			puts list.join("\n")
+			display "=== My Apps"
+			display list.join("\n")
 		else
-			puts "You have no apps."
+			display "You have no apps."
 		end
 	end
 
 	def create(args)
 		name = args.shift.downcase.strip rescue nil
 		name = @heroku.create(name)
-		puts "Created http://#{name}.#{@heroku.host}/"
+		display "Created http://#{name}.#{@heroku.host}/"
 	end
 
 	def destroy(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
-			puts "Usage: app destroy [appname]"
+			display "Usage: app destroy [appname]"
 		end
 		@heroku.destroy(name)
-		puts "Destroyed #{name}"
+		display "Destroyed #{name}"
 	end
 
 	def import(args)
@@ -40,23 +40,23 @@ class Wrapper
 			raise "This is already an existing app, use \"app push\" to push your changes."
 		end
 
-		puts "Archiving current directory for upload"
+		display "Archiving current directory for upload"
 		tgz = archive(dir)
 
-		puts "Creating new app"
+		display "Creating new app"
 		name = @heroku.create(name)
 
-		puts "Uploading #{(tgz.size/1024).round}kb archive"
+		display "Uploading #{(tgz.size/1024).round}kb archive"
 		@heroku.import(name, tgz)
 
-		puts "Imported to http://#{name}.#{@heroku.host}/"
+		display "Imported to http://#{name}.#{@heroku.host}/"
 		write_app_config(dir, name)
 	end
 
 	def export(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
-			puts "Usage: app export [appname]"
+			display "Usage: app export [appname]"
 		end
 
 		tgz = @heroku.export(name)
@@ -64,7 +64,7 @@ class Wrapper
 
 		write_app_config(name, name)
 
-		puts "#{name} exported."
+		display "#{name} exported."
 	end
 
 	def push(args)
@@ -74,7 +74,7 @@ class Wrapper
 		name = config[:name]
 
 		tgz = archive(dir)
-		puts "Uploading #{(tgz.size/1024).round}kb archive to #{name}"
+		display "Uploading #{(tgz.size/1024).round}kb archive to #{name}"
 		@heroku.import(name, tgz)
 	end
 
@@ -108,5 +108,9 @@ private
 			system "rm -rf #{name}"
 			raise
 		end
+	end
+
+	def display(msg)
+		puts msg
 	end
 end

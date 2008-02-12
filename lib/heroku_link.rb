@@ -99,6 +99,8 @@ class HerokuLink
 
 		save_credentials user, password
 
+		upload_authkey
+
 		[ user, password ]
 	end
 
@@ -108,6 +110,15 @@ class HerokuLink
 			f.puts user
 			f.puts password
 		end
+	end
+
+	def upload_authkey
+		puts "Uploading ssh public key"
+		put("/user/authkey", authkey, { 'Content-Type' => 'text/ssh-authkey' })
+	end
+
+	def authkey
+		File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
 	end
 
 	def xml(raw)
