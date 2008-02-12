@@ -15,13 +15,22 @@ class Wrapper
 		display "Created http://#{name}.#{heroku.host}/"
 	end
 
+	def clone(args)
+		name = args.shift.downcase.strip rescue ""
+		if name.length == 0
+			display "Usage: heroku clone <app>"
+		end
+		system "git clone git@#{heroku.host}:#{name}.git"
+	end
+
 	def destroy(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
-			display "Usage: app destroy [appname]"
+			display "Usage: heroku destroy <app>"
+		else
+			heroku.destroy(name)
+			display "Destroyed #{name}"
 		end
-		heroku.destroy(name)
-		display "Destroyed #{name}"
 	end
 
 	def import(args)
@@ -50,15 +59,15 @@ class Wrapper
 	def export(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
-			display "Usage: app export [appname]"
+			display "Usage: heroku export <app>"
+		else
+			tgz = heroku.export(name)
+			unarchive(tgz, name)
+
+			write_app_config(name, name)
+
+			display "#{name} exported."
 		end
-
-		tgz = heroku.export(name)
-		unarchive(tgz, name)
-
-		write_app_config(name, name)
-
-		display "#{name} exported."
 	end
 
 	def push(args)
