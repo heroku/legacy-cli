@@ -134,7 +134,7 @@ class Wrapper
 
 		save_credentials user, password
 
-		[ user, password ]
+		upload_authkey
 	end
 
 	def save_credentials(user, password)
@@ -143,6 +143,15 @@ class Wrapper
 			f.puts user
 			f.puts password
 		end
+	end
+
+	def upload_authkey(*args)
+		puts "Uploading ssh public key"
+		heroku.upload_authkey(authkey)
+	end
+
+	def authkey
+		File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
 	end
 
 	def archive(dir)

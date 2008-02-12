@@ -35,6 +35,10 @@ class HerokuLink
 		get("/apps/#{name}", { 'Accept' => 'application/x-gtar' })
 	end
 
+	def upload_authkey(authkey)
+		put("/users/1/authkey", authkey, { 'Content-Type' => 'text/ssh-authkey' })
+	end
+
 	##################
 
 	def get(uri, extra_headers={})
@@ -67,58 +71,6 @@ class HerokuLink
 
 	def headers
 		{ 'Accept' => 'application/xml' }
-	end
-
-	def user
-		@credentials ||= credentials
-		@credentials[0]
-	end
-
-	def password
-		@credentials ||= credentials
-		@credentials[1]
-	end
-
-	def credentials_file
-		"#{ENV['HOME']}/.heroku/credentials"
-	end
-
-	def credentials
-		if File.exists? credentials_file
-			File.read(credentials_file).split("\n")
-		else
-			ask_for_credentials
-		end
-	end
-
-	def ask_for_credentials
-		print "User: "
-		user = gets.strip
-		print "Password: "
-		password = gets.strip
-
-		save_credentials user, password
-
-		upload_authkey
-
-		[ user, password ]
-	end
-
-	def save_credentials(user, password)
-		FileUtils.mkdir_p(File.dirname(credentials_file))
-		File.open(credentials_file, 'w') do |f|
-			f.puts user
-			f.puts password
-		end
-	end
-
-	def upload_authkey
-		puts "Uploading ssh public key"
-		put("/user/authkey", authkey, { 'Content-Type' => 'text/ssh-authkey' })
-	end
-
-	def authkey
-		File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
 	end
 
 	def xml(raw)
