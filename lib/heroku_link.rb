@@ -4,6 +4,14 @@ require 'rexml/document'
 require 'fileutils'
 
 class HerokuLink
+	attr_reader :host, :user, :password
+
+	def initialize(host, user, password)
+		@host = host
+		@user = user
+		@password = password
+	end
+
 	def list
 		doc = xml(get('/apps'))
 		doc.elements.to_a("//apps/app/name").map { |a| a.text }
@@ -47,7 +55,7 @@ class HerokuLink
 
 	def transmit(req, payload=nil)
 		req.basic_auth user, password
-		Net::HTTP.start(host, port) do |http|
+		Net::HTTP.start(host) do |http|
 			res = http.request(req, payload)
 			unless %w(200 201 202).include? res.code
 				raise "HTTP transmit failed, code: #{res.code}"
@@ -55,14 +63,6 @@ class HerokuLink
 				res.body
 			end
 		end
-	end
-
-	def host
-		ENV['HEROKU_HOST'] || 'heroku.com'
-	end
-
-	def port
-		80
 	end
 
 	def headers

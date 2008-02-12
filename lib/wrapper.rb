@@ -1,12 +1,6 @@
 class Wrapper
-	attr_reader :heroku
-
-	def initialize
-		@heroku = HerokuLink.new
-	end
-
 	def list(args)
-		list = @heroku.list
+		list = heroku.list
 		if list.size > 0
 			display "=== My Apps"
 			display list.join("\n")
@@ -17,8 +11,8 @@ class Wrapper
 
 	def create(args)
 		name = args.shift.downcase.strip rescue nil
-		name = @heroku.create(name)
-		display "Created http://#{name}.#{@heroku.host}/"
+		name = heroku.create(name)
+		display "Created http://#{name}.#{heroku.host}/"
 	end
 
 	def destroy(args)
@@ -26,7 +20,7 @@ class Wrapper
 		if name.length == 0
 			display "Usage: app destroy [appname]"
 		end
-		@heroku.destroy(name)
+		heroku.destroy(name)
 		display "Destroyed #{name}"
 	end
 
@@ -44,10 +38,10 @@ class Wrapper
 		tgz = archive(dir)
 
 		display "Creating new app"
-		name = @heroku.create(name)
+		name = heroku.create(name)
 
 		display "Uploading #{(tgz.size/1024).round}kb archive"
-		@heroku.import(name, tgz)
+		heroku.import(name, tgz)
 
 		display "Imported to http://#{name}.#{@heroku.host}/"
 		write_app_config(dir, name)
@@ -59,7 +53,7 @@ class Wrapper
 			display "Usage: app export [appname]"
 		end
 
-		tgz = @heroku.export(name)
+		tgz = heroku.export(name)
 		unarchive(tgz, name)
 
 		write_app_config(name, name)
@@ -75,10 +69,18 @@ class Wrapper
 
 		tgz = archive(dir)
 		display "Uploading #{(tgz.size/1024).round}kb archive to #{name}"
-		@heroku.import(name, tgz)
+		heroku.import(name, tgz)
 	end
 
-private
+	############
+
+	def heroku
+		@heroku ||= init_heroku
+	end
+
+	def init_heroku
+		HerokuLink.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
+	end
 
 	def write_app_config(dir, name)
 		File.open("#{dir}/config/heroku.yml", "w") do |f|
@@ -88,6 +90,59 @@ private
 
 	def app_config(dir)
 		YAML.load(File.read("#{dir}/config/heroku.yml"))
+	end
+
+	def user
+		@credentials ||= get_credentials
+		@credentials[0]
+	end
+
+	def password
+		@credentials ||= get_credentials
+		@credentials[1]
+	end
+
+	def credentials_file
+		"#{ENV['HOME']}/.heroku/credentials"
+	end
+
+	def get_credentials
+		if File.exists? credentials_file
+			File.read(credentials_file).split("\n")
+		else
+			ask_for_credentials
+		end
+	end
+
+	def echo_off
+		system "stty -echo"
+	end
+
+	def echo_on
+		system "stty echo"
+	end
+
+	def ask_for_credentials
+		print "User: "
+		user = gets.strip
+
+		print "Password: "
+		echo_off
+		password = gets.strip
+		puts
+		echo_on
+
+		save_credentials user, password
+
+		[ user, password ]
+	end
+
+	def save_credentials(user, password)
+		FileUtils.mkdir_p(File.dirname(credentials_file))
+		File.open(credentials_file, 'w') do |f|
+			f.puts user
+			f.puts password
+		end
 	end
 
 	def archive(dir)
