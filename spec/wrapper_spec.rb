@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/base'
 
 describe Wrapper do
-	context "credentials check" do
+	context "credentials" do
 		before do
 			@wrapper = Wrapper.new
 			@wrapper.stub!(:display)
@@ -34,6 +34,12 @@ describe Wrapper do
 			@wrapper.stub!(:credentials_file).and_return(sandbox)
 			@wrapper.save_credentials('one', 'two')
 			File.read(sandbox).should == "one\ntwo\n"
+		end
+
+		it "uploads the ssh authkey" do
+			@wrapper.should_receive(:authkey).and_return('my key')
+			@wrapper.heroku.should_receive(:upload_authkey).with('my key')
+			@wrapper.upload_authkey
 		end
 	end
 

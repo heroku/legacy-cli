@@ -146,7 +146,7 @@ class Wrapper
 	end
 
 	def upload_authkey(*args)
-		puts "Uploading ssh public key"
+		display "Uploading ssh public key"
 		heroku.upload_authkey(authkey)
 	end
 

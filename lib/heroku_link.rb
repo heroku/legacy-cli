@@ -35,8 +35,8 @@ class HerokuLink
 		get("/apps/#{name}", { 'Accept' => 'application/x-gtar' })
 	end
 
-	def upload_authkey(authkey)
-		put("/users/1/authkey", authkey, { 'Content-Type' => 'text/ssh-authkey' })
+	def upload_authkey(key)
+		put("/users/1/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
 
 	##################
