@@ -25,17 +25,7 @@ class Wrapper
 
 		return unless system "cd #{name}; mkdir -p log db tmp public/stylesheets"
 
-		File.open("#{name}/config/database.yml", "w") do |f|
-			f.write <<EOYAML
-development:
-  adapter: sqlite3
-  database: db/development.sqlite3
-
-test:
-  adapter: sqlite3
-  database: db/test.sqlite3
-EOYAML
-		end
+		write_generic_database_yml(name)
 
 		system "cd #{name}; rake db:migrate"
 	end
@@ -50,45 +40,12 @@ EOYAML
 		end
 	end
 
-	def import(args)
-		name = args.shift.downcase.strip rescue nil
-
-		dir = Dir.pwd
-		raise "Current dir doesn't look like a Rails app" unless File.directory? "#{dir}/config" and File.directory? "#{dir}/app"
-
-		if File.exists? "#{dir}/config/heroku.yml"
-			raise "This is already an existing app, use \"app push\" to push your changes."
-		end
-
-		display "Archiving current directory for upload"
-		tgz = archive(dir)
-
-		display "Creating new app"
-		name = heroku.create(name)
-
-		display "Uploading #{(tgz.size/1024).round}kb archive"
-		heroku.import(name, tgz)
-
-		display "Imported to http://#{name}.#{@heroku.host}/"
-		write_app_config(dir, name)
-	end
-
-	def export(args)
-		name = args.shift.strip.downcase rescue ""
-		if name.length == 0
-			display "Usage: heroku export <app>"
-		else
-			tgz = heroku.export(name)
-			unarchive(tgz, name)
-
-			write_app_config(name, name)
-
-			display "#{name} exported."
-		end
-	end
-
 	def push(args)
 		system "git push"
+	end
+
+	def pull(args)
+		system "git pull"
 	end
 
 	############
@@ -173,23 +130,17 @@ EOYAML
 		File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
 	end
 
-	def archive(dir)
-		`cd #{dir}; tar cz *`
-	end
+	def write_generic_database_yml(rails_dir)
+		File.open("#{rails_dir}/config/database.yml", "w") do |f|
+			f.write <<EOYAML
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
 
-	def unarchive(tgz, name)
-		Dir.mkdir(name)
-
-		begin
-			IO.popen("cd #{name}; tar xz", "w") do |pipe|
-				pipe.write tgz
-			end
-			first_entry = Dir.open(name).detect { |f| f.slice(0, 1) != '.' }
-			raise "couldn't find first entry" unless first_entry and first_entry.length > 0
-			system "cd #{name}; mv #{first_entry}/* .; rmdir #{first_entry}"
-		rescue
-			system "rm -rf #{name}"
-			raise
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+EOYAML
 		end
 	end
 

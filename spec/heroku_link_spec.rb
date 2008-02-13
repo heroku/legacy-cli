@@ -37,23 +37,6 @@ EOXML
 		@client.destroy("destroyme")
 	end
 
-	it "import(name, archive) -> upload an archive of a rails dir to replace a named app" do
-		@client.should_receive(:transmit) do |req, payload|
-			req.path.should == "/apps/myapp"
-			req.content_type.should == "application/x-gtar"
-			payload.should == "archive"
-		end
-		@client.import("myapp", "archive")
-	end
-
-	it "export(name) -> download an archive of the app" do
-		@client.should_receive(:transmit) do |req, payload|
-			req.path.should == "/apps/myapp"
-			req.to_hash['accept'].first.should == "application/x-gtar"
-		end
-		@client.export("myapp")
-	end
-
 	it "upload_authkey(key) -> send the ssh authkey to authorize git push/pull" do
 		@client.should_receive(:transmit) do |req, payload|
 			req.path.should == "/user/authkey"

@@ -27,14 +27,6 @@ class HerokuLink
 		delete("/apps/#{name}")
 	end
 
-	def import(name, archive)
-		put("/apps/#{name}", archive, { 'Content-Type' => 'application/x-gtar' })
-	end
-
-	def export(name)
-		get("/apps/#{name}", { 'Accept' => 'application/x-gtar' })
-	end
-
 	def upload_authkey(key)
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
