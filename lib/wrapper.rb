@@ -20,7 +20,24 @@ class Wrapper
 		if name.length == 0
 			display "Usage: heroku clone <app>"
 		end
-		system "git clone git@#{heroku.host}:#{name}.git"
+
+		return unless system "git clone git@#{heroku.host}:#{name}.git"
+
+		return unless system "cd #{name}; mkdir -p log db tmp public/stylesheets"
+
+		File.open("#{name}/config/database.yml", "w") do |f|
+			f.write <<EOYAML
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+EOYAML
+		end
+
+		system "cd #{name}; rake db:migrate"
 	end
 
 	def destroy(args)
@@ -71,14 +88,7 @@ class Wrapper
 	end
 
 	def push(args)
-		dir = Dir.pwd
-		config = app_config(dir) rescue raise("This dir is not an existing app, try import")
-
-		name = config[:name]
-
-		tgz = archive(dir)
-		display "Uploading #{(tgz.size/1024).round}kb archive to #{name}"
-		heroku.import(name, tgz)
+		system "git push"
 	end
 
 	############
