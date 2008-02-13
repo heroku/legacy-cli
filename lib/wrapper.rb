@@ -58,16 +58,6 @@ class HerokuWrapper
 		Heroku.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
 	end
 
-	def write_app_config(dir, name)
-		File.open("#{dir}/config/heroku.yml", "w") do |f|
-			f.write YAML.dump(:name => name)
-		end
-	end
-
-	def app_config(dir)
-		YAML.load(File.read("#{dir}/config/heroku.yml"))
-	end
-
 	def user
 		@credentials ||= get_credentials
 		@credentials[0]
