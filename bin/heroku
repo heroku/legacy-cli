@@ -8,14 +8,20 @@ require 'wrapper'
 usage = <<EOTXT
 === Heroku Commands
 Outside an app dir:
-   list - list my apps
-   create [name] - create a new app
-   export [name] - download an app into a local directory for work
-   destroy [name] - destroy an app
+  list - list my apps
+  create [name] - create a new app
+  destroy [name] - destroy an app
+  clone [name] - make a clone of a heroku app for local development
 
 Inside an app dir:
-   import [name] - turn the local app into a new heroku app
-   push - push the current app out to heroku for deployment
+  push - deploy local changes to heroku app
+  pull - get changes in the heroku repo
+
+Example:
+  heroku create myapp
+  heroku clone myapp
+  (make changes locally)
+  heroku push
 EOTXT
 
 command = ARGV.shift.strip rescue ""
