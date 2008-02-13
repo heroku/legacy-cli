@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/base'
 
-describe HerokuLink do
+describe Heroku do
 	before(:each) do
-		@client = HerokuLink.new(nil, nil, nil)
+		@client = Heroku.new(nil, nil, nil)
 	end
 
 	it "list -> get a list of this user's apps" do

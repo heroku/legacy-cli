@@ -2,7 +2,7 @@
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 
-require 'heroku_link'
+require 'heroku'
 require 'wrapper'
 
 usage = <<EOTXT
@@ -17,7 +17,7 @@ Inside an app dir:
   push - deploy local changes to heroku app
   pull - get changes in the heroku repo
 
-Example:
+Example story:
   heroku create myapp
   heroku clone myapp
   (make changes locally)
@@ -30,7 +30,7 @@ if command.length == 0
 	exit 1
 end
 
-wrapper = Wrapper.new
+wrapper = HerokuWrapper.new
 unless wrapper.methods.include? command
 	puts "no such method as #{command}, run without arguments for usage"
 	exit 2

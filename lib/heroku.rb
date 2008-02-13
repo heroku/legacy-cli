@@ -3,7 +3,7 @@ require 'yaml'
 require 'rexml/document'
 require 'fileutils'
 
-class HerokuLink
+class Heroku
 	attr_reader :host, :user, :password
 
 	def initialize(host, user, password)

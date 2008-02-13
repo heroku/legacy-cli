@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) + '/base'
 
-describe Wrapper do
+describe HerokuWrapper do
 	context "credentials" do
 		before do
-			@wrapper = Wrapper.new
+			@wrapper = HerokuWrapper.new
 			@wrapper.stub!(:display)
 		end
 
@@ -45,7 +45,7 @@ describe Wrapper do
 
 	context "actions" do
 		before do
-			@wrapper = Wrapper.new
+			@wrapper = HerokuWrapper.new
 			@wrapper.stub!(:display)
 			@wrapper.stub!(:get_credentials).and_return(%w(user pass))
 		end

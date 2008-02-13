@@ -1,4 +1,4 @@
-class Wrapper
+class HerokuWrapper
 	def list(args)
 		list = heroku.list
 		if list.size > 0
@@ -55,7 +55,7 @@ class Wrapper
 	end
 
 	def init_heroku
-		HerokuLink.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
+		Heroku.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
 	end
 
 	def write_app_config(dir, name)
