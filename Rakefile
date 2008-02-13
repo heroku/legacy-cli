@@ -72,7 +72,5 @@ Rake::RDocTask.new do |rdoc|
 	rdoc.rdoc_files.add ['lib/**/*.rb', 'doc/**/*.rdoc']
 end
 
-task :default => [ :test, :package ]
-
 CLEAN.include [ 'build/*', '**/*.o', '**/*.so', '**/*.a', 'lib/*-*', '**/*.log', 'pkg', 'lib/*.bundle', '*.gem', '.config' ]
 

@@ -56,7 +56,7 @@ EOXML
 
 	it "upload_authkey(key) -> send the ssh authkey to authorize git push/pull" do
 		@client.should_receive(:transmit) do |req, payload|
-			req.path.should == "/users/1/authkey"
+			req.path.should == "/user/authkey"
 			payload.should == 'my key'
 		end
 		@client.upload_authkey('my key')

@@ -36,7 +36,7 @@ class HerokuLink
 	end
 
 	def upload_authkey(key)
-		put("/users/1/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
+		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
 
 	##################
