@@ -55,7 +55,7 @@ class HerokuWrapper
 	end
 
 	def init_heroku
-		Heroku.new(ENV['HEROKU_HOST'] || 'heroku.com', user, password)
+		Heroku.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
 	end
 
 	def user

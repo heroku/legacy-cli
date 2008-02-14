@@ -6,10 +6,10 @@ require 'fileutils'
 class Heroku
 	attr_reader :host, :user, :password
 
-	def initialize(host, user, password)
-		@host = host
+	def initialize(user, password, host='heroku.com')
 		@user = user
 		@password = password
+		@host = host
 	end
 
 	def list
