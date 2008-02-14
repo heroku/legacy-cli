@@ -1,0 +1,67 @@
+<html>
+<head>
+	<title>Heroku API Docs</title>
+</head>
+<body>
+	<h1>Heroku API Docs</h1>
+
+	<div>
+		<a href="index.html">Command Line</a> |
+		<a href="gem.html">Ruby Gem</a> |
+		<a href="rest.html">REST</a>
+	</div>
+
+	<div>
+		<h2>Command Line</h2>
+
+		<h3>Setup</h3>
+
+		<p>When the heroku gem has been installed, the binary "heroku" should be in the path.  You will also need a working install of git and have already generated an ssh public key in order to use the clone, push, and pull capabilities to work with local code.</p>
+
+		<p>The first time you run a command, such as "heroku list," you will be prompted for your Heroku username and password.  These are saved to ~/heroku/credentials for future requests.  Your public key (~/.ssh/id_rsa.pub) will be uploaded to Heroku after you enter your credentials.</p>
+
+		<h3>Commands</h3>
+
+		<h4>heroku list</h4>
+
+		<p>Get a plain-text listing of apps, the same list that appears on the "My Apps" page in the web interface.</p>
+
+		<h4>heroku create [&lt;appname&gt;]</h4>
+
+		<p>Create a new app.  If you provide an argument, it will be used to name the app.  (e.g. "heroku create myapp" will produce http://myapp.heroku.com/)  If you leave off an argument, the app will be assigned an untitled name.</p>
+
+		<h4>heroku clone &lt;appname&gt;</h4>
+
+		<p>Clone the repository of the Heroku app for local work.  Note that this fetches only code that has been committed to the repo; if you have uncommitted changes inside the web code editor, these will not be pulled.  This also sets up a few items for local development, such as writing a database.yml with a sqlite3 adapater.</p>
+
+		<h4>heroku push</h4>
+
+		<p>Deploy local changes back to Heroku.  Note that this will reset the working tree in the web code editor to match the latest revision pushed, so any uncommitted changes in Heroku will be overwritten.</p>
+
+		<h4>heroku pull</h4>
+
+		<p>Pull commits from the Heroku repository into the local repository.</p>
+
+		<h4>heroku destroy &lt;appname&gt;</h4>
+
+		<p>Permenantly destroy the app named.</p>
+
+		<h3>Examples / Workflow</h3>
+
+		<p>To start a new app from scratch, work on it locally, and then deploy the changes, use the folowing sequence:</p>
+
+<pre>
+heroku create myapp
+heroku clone myapp
+cd myapp
+rake db:migrate
+ruby script/server
+[..work locally for a while..]
+git add .
+git commit -a -m "some changes made locally"
+heroku push
+</pre>
+
+	</div>
+</body>
+</html>
