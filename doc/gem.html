@@ -1,0 +1,51 @@
+<html>
+<head>
+	<title>Heroku API Docs</title>
+</head>
+<body>
+	<h1>Heroku API Docs</h1>
+
+	<div>
+		<a href="index.html">Command Line</a> |
+		<a href="gem.html">Ruby Gem</a> |
+		<a href="rest.html">REST</a>
+	</div>
+
+	<div>
+		<h2>Ruby Gem</h2>
+
+		<h3>Setup</h3>
+
+<pre>
+require 'heroku'
+heroku = Heroku.new(email, password)
+</pre>
+
+		<h3>Methods</h3>
+
+		<h4>list</h4>
+
+		<p>Returns an array of app names owned by the account.</p>
+
+		<h4>create(appname=nil)</h4>
+
+		<p>Create an app with the provided name, or untitled if nil.  Returns name of new app.</p>
+
+		<h4>destroy(appname)</h4>
+
+		<p>Permenantly destroy the named app.</p>
+
+		<h4>upload_authkey(key)</h4>
+
+		<p>Upload a new ssh public key.  The key is a string and should read something like "ssh-rsa [long base64 data] user@host".</p>
+
+		<h3>Example</h3>
+
+<pre>
+require 'heroku'
+heroku = Heroku.new('me@example.com', 'mypass')
+heroku.create('myapp')
+</pre>
+	</div>
+</body>
+</html>
