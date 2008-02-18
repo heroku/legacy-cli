@@ -76,7 +76,9 @@ class HerokuWrapper
 		if File.exists? credentials_file
 			File.read(credentials_file).split("\n")
 		else
-			ask_for_credentials
+			user, password = ask_for_credentials
+			save_credentials user, password
+			[ user, password ]
 		end
 	end
 
@@ -89,7 +91,9 @@ class HerokuWrapper
 	end
 
 	def ask_for_credentials
-		print "User: "
+		puts "Enter your Heroku credentials."
+
+		print "Email: "
 		user = gets.strip
 
 		print "Password: "
@@ -98,12 +102,15 @@ class HerokuWrapper
 		puts
 		echo_on
 
-		save_credentials user, password
-
-		upload_authkey
+		[ user, password ]
 	end
 
 	def save_credentials(user, password)
+		write_credentials(user, password)
+		upload_authkey
+	end
+
+	def write_credentials(user, password)
 		FileUtils.mkdir_p(File.dirname(credentials_file))
 		File.open(credentials_file, 'w') do |f|
 			f.puts user
