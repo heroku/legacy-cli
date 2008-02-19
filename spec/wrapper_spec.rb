@@ -45,7 +45,9 @@ describe HerokuWrapper do
 
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
-			@wrapper.heroku.should_receive(:upload_authkey).with('my key')
+			heroku = mock("heroku client")
+			@wrapper.should_receive(:init_heroku).and_return(heroku)
+			heroku.should_receive(:upload_authkey).with('my key')
 			@wrapper.upload_authkey
 		end
 	end
