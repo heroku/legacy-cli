@@ -62,7 +62,7 @@ class Heroku
 	end
 
 	def headers
-		{ 'Accept' => 'application/xml' }
+		{ 'Accept' => 'application/xml', 'X-Heroku-API-Version' => '1' }
 	end
 
 	def xml(raw)
