@@ -49,17 +49,24 @@ class Heroku
 		transmit Net::HTTP::Delete.new(uri, headers)
 	end
 
-	class RequestFailed < Exception
-		def initialize(msg); @res = msg; end
-		def to_s; "#{self.class} with HTTP code #{@res.code}"; end
+	def parse_error_xml(body)
+		xml(body).elements.to_a("//errors/error").map { |a| a.text }.join(" / ")
+	rescue
+		"unknown error"
 	end
+
+	def error_message(res)
+		"HTTP code #{res.code}: #{parse_error_xml(res.body)}"
+	end
+
+	class RequestFailed < Exception; end
 
 	def transmit(req, payload=nil)
 		req.basic_auth user, password
 		Net::HTTP.start(host) do |http|
 			res = http.request(req, payload)
 			unless %w(200 201 202).include? res.code
-				raise RequestFailed, res
+				raise RequestFailed, error_message(res)
 			else
 				res.body
 			end
