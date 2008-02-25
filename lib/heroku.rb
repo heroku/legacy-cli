@@ -49,12 +49,17 @@ class Heroku
 		transmit Net::HTTP::Delete.new(uri, headers)
 	end
 
+	class RequestFailed < Exception
+		def initialize(msg); @res = msg; end
+		def to_s; "#{self.class} with HTTP code #{@res.code}"; end
+	end
+
 	def transmit(req, payload=nil)
 		req.basic_auth user, password
 		Net::HTTP.start(host) do |http|
 			res = http.request(req, payload)
 			unless %w(200 201 202).include? res.code
-				raise "HTTP transmit failed, code: #{res.code}"
+				raise RequestFailed, res
 			else
 				res.body
 			end
