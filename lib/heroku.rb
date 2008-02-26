@@ -49,6 +49,26 @@ class Heroku
 		transmit Net::HTTP::Delete.new(uri, headers)
 	end
 
+	def transmit(req, payload=nil)
+		req.basic_auth user, password
+		Net::HTTP.start(host) do |http|
+			process_result http.request(req, payload)
+		end
+	end
+
+	class RequestFailed < Exception; end
+	class Unauthorized < Exception; end
+
+	def process_result(res)
+		if %w(200 201 202).include? res.code
+			res.body
+		elsif res.code == "401"
+			raise Unauthorized
+		else
+			raise RequestFailed, error_message(res)
+		end
+	end
+
 	def parse_error_xml(body)
 		xml(body).elements.to_a("//errors/error").map { |a| a.text }.join(" / ")
 	rescue
@@ -57,20 +77,6 @@ class Heroku
 
 	def error_message(res)
 		"HTTP code #{res.code}: #{parse_error_xml(res.body)}"
-	end
-
-	class RequestFailed < Exception; end
-
-	def transmit(req, payload=nil)
-		req.basic_auth user, password
-		Net::HTTP.start(host) do |http|
-			res = http.request(req, payload)
-			unless %w(200 201 202).include? res.code
-				raise RequestFailed, error_message(res)
-			else
-				res.body
-			end
-		end
 	end
 
 	def headers

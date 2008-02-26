@@ -107,7 +107,12 @@ class HerokuWrapper
 
 	def save_credentials(user, password)
 		write_credentials(user, password)
-		upload_authkey
+		begin
+			upload_authkey
+		rescue Heroku::Unauthorized
+			delete_credentials
+			raise
+		end
 	end
 
 	def write_credentials(user, password)
@@ -116,6 +121,10 @@ class HerokuWrapper
 			f.puts user
 			f.puts password
 		end
+	end
+
+	def delete_credentials
+		FileUtils.rm_f(credentials_file)
 	end
 
 	def upload_authkey(*args)

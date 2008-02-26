@@ -44,4 +44,24 @@ EOXML
 		end
 		@client.upload_authkey('my key')
 	end
+
+	it "process_result returns the result body on a 200" do
+		res = mock("http result")
+		res.stub!(:code).and_return("200")
+		res.stub!(:body).and_return("the body")
+		@client.process_result(res).should == "the body"
+	end
+
+	it "process_result raises an Unauthorized exception on a 401" do
+		res = mock("http result")
+		res.stub!(:code).and_return("401")
+		lambda { @client.process_result(res) }.should raise_error(Heroku::Unauthorized)
+	end
+
+	it "process_result raises a RequestFailed exception on a 422" do
+		res = mock("http result")
+		res.stub!(:code).and_return("422")
+		res.stub!(:body).and_return("some errors")
+		lambda { @client.process_result(res) }.should raise_error(Heroku::RequestFailed)
+	end
 end

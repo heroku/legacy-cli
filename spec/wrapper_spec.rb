@@ -43,6 +43,18 @@ describe HerokuWrapper do
 			@wrapper.save_credentials('a', 'b')
 		end
 
+		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
+			@wrapper.stub!(:write_credentials)
+			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Unauthorized)
+			@wrapper.should_receive(:delete_credentials)
+			lambda { @wrapper.save_credentials('a', 'b') }.should raise_error(Heroku::Unauthorized)
+		end
+
+		it "deletes the credentials file" do
+			FileUtils.should_receive(:rm_f).with(@wrapper.credentials_file)
+			@wrapper.delete_credentials
+		end
+
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")
