@@ -40,14 +40,6 @@ class HerokuWrapper
 		end
 	end
 
-	def push(args)
-		system "git push"
-	end
-
-	def pull(args)
-		system "git pull"
-	end
-
 	############
 
 	def heroku

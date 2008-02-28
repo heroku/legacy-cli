@@ -7,21 +7,18 @@ require 'wrapper'
 
 usage = <<EOTXT
 === Heroku Commands
-Outside an app dir:
   list - list my apps
   create [name] - create a new app
-  destroy [name] - destroy an app
   clone [name] - make a clone of a heroku app for local development
-
-Inside an app dir:
-  push - deploy local changes to heroku app
-  pull - get changes in the heroku repo
+  destroy [name] - destroy an app
 
 Example story:
   heroku create myapp
   heroku clone myapp
   (make changes locally)
-  heroku push
+  git add .
+  git commit -m "changes"
+  git push
 EOTXT
 
 command = ARGV.shift.strip rescue ""

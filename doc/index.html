@@ -34,11 +34,11 @@
 
 		<p>Clone the repository of the Heroku app for local work.  Note that this fetches only code that has been committed to the repo; if you have uncommitted changes inside the web code editor, these will not be pulled.  This also sets up a few items for local development, such as writing a database.yml with a sqlite3 adapater.</p>
 
-		<h4>heroku push</h4>
+		<h4>git push</h4>
 
-		<p>Deploy local changes back to Heroku.  Note that this will reset the working tree in the web code editor to match the latest revision pushed, so any uncommitted changes in Heroku will be overwritten.</p>
+		<p>Deploy local changes back to Heroku.  You must commit to your local repository first (e.g., git commit -a).  Note that this will reset the working tree in the web code editor to match the latest revision pushed, so any uncommitted changes in Heroku will be overwritten.</p>
 
-		<h4>heroku pull</h4>
+		<h4>git pull</h4>
 
 		<p>Pull commits from the Heroku repository into the local repository.</p>
 
@@ -62,8 +62,8 @@ rake db:migrate
 ruby script/server
 [..work locally for a while..]
 git add .
-git commit -a -m "some changes made locally"
-heroku push
+git commit -m "some changes made locally"
+git push
 </pre>
 
 	</div>
