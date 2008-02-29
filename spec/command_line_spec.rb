@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) + '/base'
 
-describe HerokuWrapper do
+describe Heroku::CommandLine do
 	context "credentials" do
 		before do
-			@wrapper = HerokuWrapper.new
+			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
 		end
 
@@ -45,9 +45,9 @@ describe HerokuWrapper do
 
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@wrapper.stub!(:write_credentials)
-			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Unauthorized)
+			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Client::Unauthorized)
 			@wrapper.should_receive(:delete_credentials)
-			lambda { @wrapper.save_credentials('a', 'b') }.should raise_error(Heroku::Unauthorized)
+			lambda { @wrapper.save_credentials('a', 'b') }.should raise_error(Heroku::Client::Unauthorized)
 		end
 
 		it "deletes the credentials file" do
@@ -66,7 +66,7 @@ describe HerokuWrapper do
 
 	context "actions" do
 		before do
-			@wrapper = HerokuWrapper.new
+			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
 			@wrapper.stub!(:get_credentials).and_return(%w(user pass))
 		end

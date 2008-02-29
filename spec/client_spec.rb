@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/base'
 
-describe Heroku do
-	before(:each) do
-		@client = Heroku.new(nil, nil, nil)
+describe Heroku::Client do
+	before do
+		@client = Heroku::Client.new(nil, nil)
 	end
 
 	it "list -> get a list of this user's apps" do
@@ -55,13 +55,13 @@ EOXML
 	it "process_result raises an Unauthorized exception on a 401" do
 		res = mock("http result")
 		res.stub!(:code).and_return("401")
-		lambda { @client.process_result(res) }.should raise_error(Heroku::Unauthorized)
+		lambda { @client.process_result(res) }.should raise_error(Heroku::Client::Unauthorized)
 	end
 
 	it "process_result raises a RequestFailed exception on a 422" do
 		res = mock("http result")
 		res.stub!(:code).and_return("422")
 		res.stub!(:body).and_return("some errors")
-		lambda { @client.process_result(res) }.should raise_error(Heroku::RequestFailed)
+		lambda { @client.process_result(res) }.should raise_error(Heroku::Client::RequestFailed)
 	end
 end

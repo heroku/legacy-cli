@@ -1,6 +1,6 @@
-# This wraps the Heroku class with higher-level actions suitable for use from
-# the command line, include display via puts.
-class HerokuWrapper
+# This wraps the Heroku::Client class with higher-level actions suitable for
+# use from the command line, include display via puts.
+class Heroku::CommandLine
 	def list(args)
 		list = heroku.list
 		if list.size > 0
@@ -49,7 +49,7 @@ class HerokuWrapper
 	end
 
 	def init_heroku    # :nodoc:
-		Heroku.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
+		Heroku::Client.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
 	end
 
 	def user    # :nodoc:
@@ -103,7 +103,7 @@ class HerokuWrapper
 		write_credentials(user, password)
 		begin
 			upload_authkey
-		rescue Heroku::Unauthorized
+		rescue Heroku::Client::Unauthorized
 			delete_credentials
 			raise
 		end

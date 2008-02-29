@@ -2,7 +2,5 @@ require 'rubygems'
 require 'spec'
 require 'fileutils'
 
-$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
-require 'heroku'
-require 'wrapper'
-
+require File.dirname(__FILE__) + '/../lib/heroku'
+require 'command_line'

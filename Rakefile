@@ -73,7 +73,7 @@ Rake::RDocTask.new do |t|
 	t.options << '--charset' << 'utf-8'
 	t.rdoc_files.include('README')
 	t.rdoc_files.include('REST')
-	t.rdoc_files.include('lib/*.rb')
+	t.rdoc_files.include('lib/heroku/*.rb')
 end
 
 CLEAN.include [ 'build/*', '**/*.o', '**/*.so', '**/*.a', 'lib/*-*', '**/*.log', 'pkg', 'lib/*.bundle', '*.gem', '.config' ]
