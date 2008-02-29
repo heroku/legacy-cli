@@ -1,5 +1,5 @@
 # This wraps the Heroku::Client class with higher-level actions suitable for
-# use from the command line, include display via puts.
+# use from the command line.
 class Heroku::CommandLine
 	def list(args)
 		list = heroku.list

@@ -4,14 +4,13 @@ require 'rexml/document'
 require 'fileutils'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
-# manage your Heroku apps from within a Ruby program, such as Capistrano; but
-# more commonly, you'll want to use the "heroku" binary from the command line.
+# manage your Heroku apps from within a Ruby program, such as Capistrano.
 # 
 # Example:
 # 
-# require 'heroku'
-# heroku = Heroku::Client.new('me@example.com', 'mypass')
-# heroku.create('myapp')
+#   require 'heroku'
+#   heroku = Heroku::Client.new('me@example.com', 'mypass')
+#   heroku.create('myapp')
 #
 class Heroku::Client
 	attr_reader :host, :user, :password

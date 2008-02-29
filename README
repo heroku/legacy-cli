@@ -4,13 +4,15 @@ This library wraps the Heroku REST API for managing and deploying Rails apps to
 Heroku.  It can be called as a Ruby library, or invoked from the command line.
 Code push and pull is done through Git.
 
+For more information about Heroku, see: http://heroku.com
+
 == Setup
 
   gem install heroku
 
-You must also have a working install of Git ("apt-get install git-core" on
-Ubuntu or "port install git-core" on OS X), and an ssh public key ("ssh-keygen
--t rsa").
+If you wish to push or pull code, you must also have a working install of Git
+("apt-get install git-core" on Ubuntu or "port install git-core" on OS X), and
+an ssh public key ("ssh-keygen -t rsa").
 
 The first time you run a command, such as "heroku list," you will be prompted
 for your Heroku username and password.  These are saved to ~/heroku/credentials
@@ -75,11 +77,11 @@ To start a new app from scratch, work on it locally, and then deploy the changes
 
 == Further Reading
 
-The command line internals are implemented by HerokuWrapper, look there if
-you'd like to know what's going on behind the scenes.
+The command line internals are implemented by Heroku::CommandLine, look there
+if you'd like to know what's going on behind the scenes.
 
-The Heroku class wraps the REST API.  You can use this library if you wish to
-access the API from within a Ruby program.
+The Heroku::Client class wraps the REST API.  You can use this library if you
+wish to access the API from within a Ruby program, such as Capistrano.
 
 Finally, there is documentation for the underlying REST resources:
 link:files/REST.html
