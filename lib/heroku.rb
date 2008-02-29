@@ -1,11 +1,10 @@
-# A Ruby class to call the Heroku REST API.  You might use this if you want to
-# manage your Heroku apps from within a Ruby program, such as Capistrano.
-
 require 'net/http'
 require 'yaml'
 require 'rexml/document'
 require 'fileutils'
 
+# A Ruby class to call the Heroku REST API.  You might use this if you want to
+# manage your Heroku apps from within a Ruby program, such as Capistrano.
 class Heroku
 	attr_reader :host, :user, :password
 

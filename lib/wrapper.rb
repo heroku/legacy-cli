@@ -1,6 +1,5 @@
 # This wraps the Heroku class with higher-level actions suitable for use from
 # the command line, include display via puts.
-
 class HerokuWrapper
 	def list(args)
 		list = heroku.list

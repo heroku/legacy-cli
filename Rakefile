@@ -39,7 +39,7 @@ spec = Gem::Specification.new do |s|
 	s.default_executable = "heroku"
 
 	s.platform = Gem::Platform::RUBY
-	s.has_rdoc = false
+	s.has_rdoc = true
 	
 	s.files = %w(Rakefile) +
 		Dir.glob("{bin,lib,spec}/**/*")
