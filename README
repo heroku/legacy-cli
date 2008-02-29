@@ -1,0 +1,70 @@
+= Heroku API - deploy apps to Heroku from the command line
+
+This library wraps the Heroku REST API for managing and deploying Rails apps to
+Heroku.  It can be called as a Ruby library, or invoked from the command line.
+Code push and pull is done through Git.
+
+== Setup
+
+gem install heroku
+
+You must also have a working install of Git ("apt-get install git-core" on
+Ubuntu or "port install git-core" on OS X), and an ssh public key ("ssh-keygen
+-t rsa").
+
+The first time you run a command, such as "heroku list," you will be prompted
+for your Heroku username and password.  These are saved to ~/heroku/credentials
+for future requests.  Your public key (~/.ssh/id_rsa.pub) will be uploaded to
+Heroku after you enter your credentials.
+
+== Usage
+
+  heroku list
+
+Get a plain-text listing of apps, the same list that appears on the "My Apps"
+page in the web interface.
+
+  heroku create [&lt;appname&gt;]
+
+Create a new app.  If you provide an argument, it will be used to name the app.
+(e.g. "heroku create myapp" will produce http://myapp.heroku.com/)  If you
+leave off an argument, the app will be assigned an untitled name.
+
+  heroku clone &lt;appname&gt;
+
+Clone the repository of the Heroku app for local work.  Note that this fetches
+only code that has been committed to the repo; if you have uncommitted changes
+inside the web code editor, these will not be pulled.  This also sets up a few
+items for local development, such as writing a database.yml with a sqlite3
+adapater.
+
+  git push
+
+Deploy local changes back to Heroku.  You must commit to your local repository
+first (e.g., git commit -a).  Note that this will reset the working tree in the
+web code editor to match the latest revision pushed, so any uncommitted changes
+in Heroku will be overwritten.
+
+  git pull
+
+Pull commits from the Heroku repository into the local repository and update
+local working tree.
+
+  heroku destroy &lt;appname&gt;
+
+Permenantly destroy the app named.
+
+  heroku upload_authkey
+
+Upload your ssh public key to Heroku.  This is done automatically when you
+enter your credentials, but if you change your key, you will need to run this
+manually.  Note that only one key can be active at a time.
+
+== Meta
+
+The heroku gem was created by Adam Wiggins (adam at heroku dot com)
+
+The gem is released under the MIT license: http://www.opensource.org/licenses/mit-license.php
+
+http://heroku.com/
+
