@@ -72,6 +72,7 @@ Rake::RDocTask.new do |t|
 	t.options << '--line-numbers' << '--inline-source' << '-A cattr_accessor=object'
 	t.options << '--charset' << 'utf-8'
 	t.rdoc_files.include('README')
+	t.rdoc_files.include('REST')
 	t.rdoc_files.include('lib/*.rb')
 end
 

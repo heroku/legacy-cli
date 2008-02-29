@@ -27,7 +27,7 @@ page in the web interface.
   heroku create [<appname>]
 
 Create a new app.  If you provide an argument, it will be used to name the app.
-(e.g. "heroku create myapp" will produce http://myapp.heroku.com/)  If you
+(e.g. "heroku create myapp" will produce myapp.heroku.com)  If you
 leave off an argument, the app will be assigned an untitled name.
 
   heroku clone <appname>
@@ -59,6 +59,30 @@ Permenantly destroy the app named.
 Upload your ssh public key to Heroku.  This is done automatically when you
 enter your credentials, but if you change your key, you will need to run this
 manually.  Note that only one key can be active at a time.
+
+== Example Workflow
+
+To start a new app from scratch, work on it locally, and then deploy the changes, use the folowing sequence:
+
+  heroku create myapp
+  heroku clone myapp
+  cd myapp
+  ruby script/server
+  [..work locally for a while..]
+  git add .
+  git commit -m "some changes made locally"
+  git push
+
+== Further Reading
+
+The command line internals are implemented by HerokuWrapper, look there if
+you'd like to know what's going on behind the scenes.
+
+The Heroku class wraps the REST API.  You can use this library if you wish to
+access the API from within a Ruby program.
+
+Finally, there is documentation for the underlying REST resources:
+link:files/REST.html
 
 == Meta
 

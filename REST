@@ -1,0 +1,46 @@
+= Heroku REST API
+
+You can use the Heroku class provided by the RubyGem to call the API.  The docs
+below are provided for the rare circumstance where you may wish to access the
+REST resources directly.
+
+== Authentication
+
+Use basic HTTP authentication to provide the Heroku username (email) and
+password with each request.
+
+== Resources & Actions
+
+  GET http://heroku.com/apps
+
+Returns XML listing of apps belonging to the user.
+
+  POST http://heroku.com/apps
+
+Create a new app with an untitled name.  XML of app, including the generated
+name, is returned.
+
+  POST http://heroku.com/apps?app[name]=<i>appname</i>
+
+Create a new app with the provided name.
+
+  DELETE http://heroku.com/apps/<i>appname</i>
+
+Permanently destroy the app.
+
+  PUT http://heroku.com/user/authkey
+
+Upload an ssh public key.  The payload of the PUT should be the plain text ssh
+key, i.e. the contents of ~/.ssh/id_rsa.pub.  Each subsequent call overwrites
+the previous key.
+
+== Example
+
+  require 'net/http'
+  Net::HTTP.start('heroku.com') do |http|
+    request = Net::HTTP.Post.new('/apps')
+    request.basic_auth 'me@example.com', 'mypass'
+    res = http.request(request)
+    puts res.body
+  end
+
