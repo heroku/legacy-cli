@@ -1,3 +1,6 @@
+# This wraps the Heroku class with higher-level actions suitable for use from
+# the command line, include display via puts.
+
 class HerokuWrapper
 	def list(args)
 		list = heroku.list
@@ -42,20 +45,20 @@ class HerokuWrapper
 
 	############
 
-	def heroku
+	def heroku    # :nodoc:
 		@heroku ||= init_heroku
 	end
 
-	def init_heroku
+	def init_heroku    # :nodoc:
 		Heroku.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
 	end
 
-	def user
+	def user    # :nodoc:
 		@credentials ||= get_credentials
 		@credentials[0]
 	end
 
-	def password
+	def password    # :nodoc:
 		@credentials ||= get_credentials
 		@credentials[1]
 	end
@@ -64,7 +67,7 @@ class HerokuWrapper
 		"#{ENV['HOME']}/.heroku/credentials"
 	end
 
-	def get_credentials
+	def get_credentials    # :nodoc:
 		if File.exists? credentials_file
 			File.read(credentials_file).split("\n")
 		else

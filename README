@@ -24,13 +24,13 @@ Heroku after you enter your credentials.
 Get a plain-text listing of apps, the same list that appears on the "My Apps"
 page in the web interface.
 
-  heroku create [&lt;appname&gt;]
+  heroku create [<appname>]
 
 Create a new app.  If you provide an argument, it will be used to name the app.
 (e.g. "heroku create myapp" will produce http://myapp.heroku.com/)  If you
 leave off an argument, the app will be assigned an untitled name.
 
-  heroku clone &lt;appname&gt;
+  heroku clone <appname>
 
 Clone the repository of the Heroku app for local work.  Note that this fetches
 only code that has been committed to the repo; if you have uncommitted changes
@@ -50,7 +50,7 @@ in Heroku will be overwritten.
 Pull commits from the Heroku repository into the local repository and update
 local working tree.
 
-  heroku destroy &lt;appname&gt;
+  heroku destroy <appname>
 
 Permenantly destroy the app named.
 
