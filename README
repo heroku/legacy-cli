@@ -6,7 +6,7 @@ Code push and pull is done through Git.
 
 == Setup
 
-gem install heroku
+  gem install heroku
 
 You must also have a working install of Git ("apt-get install git-core" on
 Ubuntu or "port install git-core" on OS X), and an ssh public key ("ssh-keygen
@@ -66,5 +66,5 @@ The heroku gem was created by Adam Wiggins (adam at heroku dot com)
 
 The gem is released under the MIT license: http://www.opensource.org/licenses/mit-license.php
 
-http://heroku.com/
+http://heroku.com
 

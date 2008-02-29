@@ -66,10 +66,13 @@ Rake::TestTask.new do |t|
 	t.verbose = true
 end
 
-Rake::RDocTask.new do |rdoc|
-	rdoc.rdoc_dir = 'doc/rdoc'
-	rdoc.options << '--line-numbers'
-	rdoc.rdoc_files.add ['lib/**/*.rb', 'doc/**/*.rdoc']
+Rake::RDocTask.new do |t|
+	t.rdoc_dir = 'rdoc'
+	t.title    = "Heroku API"
+	t.options << '--line-numbers' << '--inline-source' << '-A cattr_accessor=object'
+	t.options << '--charset' << 'utf-8'
+	t.rdoc_files.include('README')
+	t.rdoc_files.include('lib/*.rb')
 end
 
 CLEAN.include [ 'build/*', '**/*.o', '**/*.so', '**/*.a', 'lib/*-*', '**/*.log', 'pkg', 'lib/*.bundle', '*.gem', '.config' ]
