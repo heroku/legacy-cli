@@ -30,13 +30,14 @@ name = "heroku"
 spec = Gem::Specification.new do |s|
 	s.name = name
 	s.version = version
-	s.summary = "Client library and CLI to the Heroku deployment platform."
-	s.description = "Client library and command-line tool to create, destroy, clone, and otherwise manage apps built on the Heroku platform.  Wraps the Heroku REST API."
+	s.summary = "Client library and CLI to deploy Rails apps on Heroku."
+	s.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
 	s.author = "Adam Wiggins"
 	s.email = "feedback@heroku.com"
 	s.homepage = "http://heroku.com/"
 	s.executables = [ "heroku" ]
 	s.default_executable = "heroku"
+	s.rubyforge_project = "heroku"
 
 	s.platform = Gem::Platform::RUBY
 	s.has_rdoc = true
