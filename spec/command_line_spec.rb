@@ -33,8 +33,21 @@ describe Heroku::CommandLine do
 			sandbox = "/tmp/wrapper_spec_#{Process.pid}"
 			FileUtils.rm_rf(sandbox)
 			@wrapper.stub!(:credentials_file).and_return(sandbox)
+			@wrapper.should_receive(:set_credentials_permissions)
 			@wrapper.write_credentials('one', 'two')
 			File.read(sandbox).should == "one\ntwo\n"
+		end
+
+		it "sets ~/.heroku/credentials to be readable only by the user" do
+			sandbox = "/tmp/wrapper_spec_#{Process.pid}"
+			FileUtils.rm_rf(sandbox)
+			FileUtils.mkdir_p(sandbox)
+			fname = "#{sandbox}/file"
+			system "touch #{fname}"
+			@wrapper.stub!(:credentials_file).and_return(fname)
+			@wrapper.set_credentials_permissions
+			File.stat(sandbox).mode.should == 040700
+			File.stat(fname).mode.should == 0100600
 		end
 
 		it "writes credentials and uploads authkey when credentials are saved" do
