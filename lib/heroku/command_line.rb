@@ -126,10 +126,15 @@ class Heroku::CommandLine
 		heroku.upload_authkey(authkey)
 	end
 
+	def authkey_type(key_type)
+		filename = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
+		File.exists?(filename) ? File.read(filename) : nil
+	end
+
 	def authkey
 		%w( rsa dsa ).each do |key_type|
-			key = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
-			return File.read(key) if File.exists?(key)
+			key = authkey_type(key_type)
+			return key if key
 		end
 		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{ENV['HOME']}/.ssh"
 	end
