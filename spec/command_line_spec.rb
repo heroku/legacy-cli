@@ -70,6 +70,11 @@ describe Heroku::CommandLine do
 			@wrapper.authkey.should == 'ssh-dsa somehexkey'
 		end
 
+		it "raise a friendly error message when no key is found" do
+			ENV.should_receive(:[]).at_least(:once).with('HOME').and_return('/Users/joe')
+			lambda { @wrapper.authkey }.should raise_error
+		end
+
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")

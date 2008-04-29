@@ -131,6 +131,7 @@ class Heroku::CommandLine
 			key = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
 			return File.read(key) if File.exists?(key)
 		end
+		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{ENV['HOME']}/.ssh"
 	end
 
 	def write_generic_database_yml(rails_dir)
