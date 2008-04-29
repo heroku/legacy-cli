@@ -127,7 +127,10 @@ class Heroku::CommandLine
 	end
 
 	def authkey
-		File.read("#{ENV['HOME']}/.ssh/id_rsa.pub")
+		%w( rsa dsa ).each do |key_type|
+			key = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
+			return File.read(key) if File.exists?(key)
+		end
 	end
 
 	def write_generic_database_yml(rails_dir)

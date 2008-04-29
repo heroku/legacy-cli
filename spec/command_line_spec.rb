@@ -57,8 +57,17 @@ describe Heroku::CommandLine do
 
 		it "gets the rsa key from the user's home directory" do
 			ENV.should_receive(:[]).with('HOME').and_return('/Users/joe')
+			File.should_receive(:exists?).with('/Users/joe/.ssh/id_rsa.pub').and_return(true)
 			File.should_receive(:read).with('/Users/joe/.ssh/id_rsa.pub').and_return('ssh-rsa somehexkey')
 			@wrapper.authkey.should == 'ssh-rsa somehexkey'
+		end
+
+		it "gets the dsa key when there's no rsa" do
+			ENV.should_receive(:[]).at_least(:once).with('HOME').and_return('/Users/joe')
+			File.should_receive(:exists?).with('/Users/joe/.ssh/id_rsa.pub').and_return(false)
+			File.should_receive(:exists?).with('/Users/joe/.ssh/id_dsa.pub').and_return(true)
+			File.should_receive(:read).with('/Users/joe/.ssh/id_dsa.pub').and_return('ssh-dsa somehexkey')
+			@wrapper.authkey.should == 'ssh-dsa somehexkey'
 		end
 
 		it "uploads the ssh authkey" do
