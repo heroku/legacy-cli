@@ -128,7 +128,7 @@ class Heroku::CommandLine
 
 	def authkey_type(key_type)
 		filename = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
-		File.exists?(filename) ? File.read(filename) : nil
+		File.read(filename) if File.exists?(filename)
 	end
 
 	def authkey
