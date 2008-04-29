@@ -55,6 +55,12 @@ describe Heroku::CommandLine do
 			@wrapper.delete_credentials
 		end
 
+		it "gets the rsa key from the user's home directory" do
+			ENV.should_receive(:[]).with('HOME').and_return('/Users/joe')
+			File.should_receive(:read).with('/Users/joe/.ssh/id_rsa.pub').and_return('ssh-rsa somehexkey')
+			@wrapper.authkey.should == 'ssh-rsa somehexkey'
+		end
+
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")
