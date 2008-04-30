@@ -90,6 +90,8 @@ link:files/REST.html
 
 The heroku gem was created by Adam Wiggins (adam at heroku dot com)
 
+Patches contributed by: Pedro Belo
+
 The gem is released under the MIT license: http://www.opensource.org/licenses/mit-license.php
 
 http://heroku.com
