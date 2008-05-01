@@ -60,8 +60,16 @@ describe Heroku::CommandLine do
 
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@wrapper.stub!(:write_credentials)
+			@wrapper.stub!(:retry_login?).and_return(false)
 			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Client::Unauthorized)
 			@wrapper.should_receive(:delete_credentials)
+			lambda { @wrapper.save_credentials }.should raise_error(Heroku::Client::Unauthorized)
+		end
+
+		it "asks for login again when not authorized, for three times" do
+			@wrapper.stub!(:write_credentials)
+			@wrapper.stub!(:upload_authkey).and_raise(Heroku::Client::Unauthorized)
+			@wrapper.should_receive(:ask_for_credentials).exactly(4).times
 			lambda { @wrapper.save_credentials }.should raise_error(Heroku::Client::Unauthorized)
 		end
 

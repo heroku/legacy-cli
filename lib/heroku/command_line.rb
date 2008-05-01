@@ -105,13 +105,24 @@ class Heroku::CommandLine
 	end
 
 	def save_credentials
-		write_credentials
 		begin
+			write_credentials
 			upload_authkey
 		rescue Heroku::Client::Unauthorized
+			display "\nAuthentication failed"
 			delete_credentials
-			raise
+			raise unless retry_login?
+
+			@credentials = ask_for_credentials
+			@heroku = init_heroku
+			retry
 		end
+	end
+
+	def retry_login?
+		@login_attempts ||= 0
+		@login_attempts += 1
+		@login_attempts < 3
 	end
 
 	def write_credentials
