@@ -33,5 +33,5 @@ unless wrapper.methods.include? command
 	exit 2
 end
 
-wrapper.send(command, ARGV)
+wrapper.execute(command, ARGV)
 

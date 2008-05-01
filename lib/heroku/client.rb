@@ -67,7 +67,27 @@ class Heroku::Client
 
 	# Bad return value from the webserver, check the request body for the
 	# specific error message.
-	class RequestFailed < RuntimeError; end
+	class RequestFailed < Exception
+		attr_accessor :response
+		def initialize(response)
+			@response = response
+		end
+
+		def http_code
+			@response.code.to_i
+		end
+
+		def message
+			return "Resource not found" if http_code == 404
+			parse_error_xml(@response.body)
+		end
+
+		def parse_error_xml(body)   # :nodoc:
+			REXML::Document.new(body).elements.to_a("//errors/error").map { |a| a.text }.join(" / ")
+		rescue
+			"unknown error"
+		end
+	end
 
 	# Heroku user and password supplied were not valid.
 	class Unauthorized < RuntimeError; end
@@ -78,18 +98,8 @@ class Heroku::Client
 		elsif res.code == "401"
 			raise Unauthorized
 		else
-			raise RequestFailed, error_message(res)
+			raise RequestFailed, res
 		end
-	end
-
-	def parse_error_xml(body)   # :nodoc:
-		xml(body).elements.to_a("//errors/error").map { |a| a.text }.join(" / ")
-	rescue
-		"unknown error"
-	end
-
-	def error_message(res)   # :nodoc:
-		"HTTP code #{res.code}: #{parse_error_xml(res.body)}"
 	end
 
 	def headers   # :nodoc:

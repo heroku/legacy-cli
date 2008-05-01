@@ -1,6 +1,14 @@
 # This wraps the Heroku::Client class with higher-level actions suitable for
 # use from the command line.
 class Heroku::CommandLine
+	def execute(command, args)
+		send(command, args)
+	rescue Heroku::Client::Unauthorized
+		display "Authentication failure"
+	rescue Heroku::Client::RequestFailed => e
+		display e.message
+	end
+	
 	def list(args)
 		list = heroku.list
 		if list.size > 0
@@ -109,10 +117,10 @@ class Heroku::CommandLine
 			write_credentials
 			upload_authkey
 		rescue Heroku::Client::Unauthorized
-			display "\nAuthentication failed"
 			delete_credentials
 			raise unless retry_login?
 
+			display "\nAuthentication failed"
 			@credentials = ask_for_credentials
 			@heroku = init_heroku
 			retry
