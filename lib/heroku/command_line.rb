@@ -8,7 +8,7 @@ class Heroku::CommandLine
 	rescue Heroku::Client::RequestFailed => e
 		display e.message
 	end
-	
+
 	def list(args)
 		list = heroku.list
 		if list.size > 0
