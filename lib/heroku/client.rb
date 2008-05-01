@@ -67,10 +67,10 @@ class Heroku::Client
 
 	# Bad return value from the webserver, check the request body for the
 	# specific error message.
-	class RequestFailed < Exception; end
+	class RequestFailed < RuntimeError; end
 
 	# Heroku user and password supplied were not valid.
-	class Unauthorized < Exception; end
+	class Unauthorized < RuntimeError; end
 
 	def process_result(res)   # :nodoc:
 		if %w(200 201 202).include? res.code
