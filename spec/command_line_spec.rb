@@ -11,11 +11,11 @@ describe Heroku::CommandLine do
 			sandbox = "/tmp/wrapper_spec_#{Process.pid}"
 			File.open(sandbox, "w") { |f| f.write "user\npass\n" }
 			@wrapper.stub!(:credentials_file).and_return(sandbox)
-			@wrapper.get_credentials.should == %w(user pass)
+			@wrapper.read_credentials.should == %w(user pass)
 		end
 
 		it "takes the user from the first line and the password from the second line" do
-			@wrapper.stub!(:get_credentials).and_return(%w(user pass))
+			@wrapper.stub!(:read_credentials).and_return(%w(user pass))
 			@wrapper.user.should == 'user'
 			@wrapper.password.should == 'pass'
 		end
@@ -25,7 +25,7 @@ describe Heroku::CommandLine do
 			FileUtils.rm_rf(sandbox)
 			@wrapper.stub!(:credentials_file).and_return(sandbox)
 			@wrapper.should_receive(:ask_for_credentials).and_return([ 'u', 'p'])
-			@wrapper.should_receive(:save_credentials).with('u', 'p')
+			@wrapper.should_receive(:save_credentials)
 			@wrapper.get_credentials.should == [ 'u', 'p' ]
 		end
 
@@ -33,8 +33,9 @@ describe Heroku::CommandLine do
 			sandbox = "/tmp/wrapper_spec_#{Process.pid}"
 			FileUtils.rm_rf(sandbox)
 			@wrapper.stub!(:credentials_file).and_return(sandbox)
+			@wrapper.stub!(:credentials).and_return(['one', 'two'])
 			@wrapper.should_receive(:set_credentials_permissions)
-			@wrapper.write_credentials('one', 'two')
+			@wrapper.write_credentials
 			File.read(sandbox).should == "one\ntwo\n"
 		end
 
@@ -51,16 +52,17 @@ describe Heroku::CommandLine do
 		end
 
 		it "writes credentials and uploads authkey when credentials are saved" do
-			@wrapper.should_receive(:write_credentials).with('a', 'b')
+			@wrapper.stub!(:credentials)
+			@wrapper.should_receive(:write_credentials)
 			@wrapper.should_receive(:upload_authkey)
-			@wrapper.save_credentials('a', 'b')
+			@wrapper.save_credentials
 		end
 
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@wrapper.stub!(:write_credentials)
 			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Client::Unauthorized)
 			@wrapper.should_receive(:delete_credentials)
-			lambda { @wrapper.save_credentials('a', 'b') }.should raise_error(Heroku::Client::Unauthorized)
+			lambda { @wrapper.save_credentials }.should raise_error(Heroku::Client::Unauthorized)
 		end
 
 		it "deletes the credentials file" do

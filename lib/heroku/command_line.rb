@@ -43,6 +43,7 @@ class Heroku::CommandLine
 	end
 
 	############
+	attr_accessor :credentials
 
 	def heroku    # :nodoc:
 		@heroku ||= init_heroku
@@ -67,12 +68,16 @@ class Heroku::CommandLine
 	end
 
 	def get_credentials    # :nodoc:
+		unless credentials = read_credentials
+			credentials = ask_for_credentials
+			save_credentials
+		end
+		credentials
+	end
+
+	def read_credentials
 		if File.exists? credentials_file
-			File.read(credentials_file).split("\n")
-		else
-			user, password = ask_for_credentials
-			save_credentials user, password
-			[ user, password ]
+			return File.read(credentials_file).split("\n")
 		end
 	end
 
@@ -99,8 +104,8 @@ class Heroku::CommandLine
 		[ user, password ]
 	end
 
-	def save_credentials(user, password)
-		write_credentials(user, password)
+	def save_credentials
+		write_credentials
 		begin
 			upload_authkey
 		rescue Heroku::Client::Unauthorized
@@ -109,11 +114,10 @@ class Heroku::CommandLine
 		end
 	end
 
-	def write_credentials(user, password)
+	def write_credentials
 		FileUtils.mkdir_p(File.dirname(credentials_file))
 		File.open(credentials_file, 'w') do |f|
-			f.puts user
-			f.puts password
+			f.puts self.credentials
 		end
 		set_credentials_permissions
 	end
