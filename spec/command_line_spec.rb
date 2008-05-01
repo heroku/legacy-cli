@@ -68,6 +68,30 @@ describe Heroku::CommandLine do
 			@wrapper.delete_credentials
 		end
 
+		it "gets pub keys from the user's home directory" do
+			ENV.should_receive(:[]).with('HOME').and_return('/Users/joe')
+			File.should_receive(:exists?).with('/Users/joe/.ssh/id_xyz.pub').and_return(true)
+			File.should_receive(:read).with('/Users/joe/.ssh/id_xyz.pub').and_return('ssh-xyz somehexkey')
+			@wrapper.authkey_type('xyz').should == 'ssh-xyz somehexkey'
+		end
+
+		it "gets the rsa key" do
+			@wrapper.stub!(:authkey_type).with('rsa').and_return('ssh-rsa somehexkey')
+			@wrapper.authkey.should == 'ssh-rsa somehexkey'
+		end
+
+		it "gets the dsa key when there's no rsa" do
+			@wrapper.stub!(:authkey_type).with('rsa').and_return(nil)
+			@wrapper.stub!(:authkey_type).with('dsa').and_return('ssh-dsa somehexkey')
+			@wrapper.authkey.should == 'ssh-dsa somehexkey'
+		end
+
+		it "raises a friendly error message when no key is found" do
+			@wrapper.stub!(:authkey_type).with('rsa').and_return(nil)
+			@wrapper.stub!(:authkey_type).with('dsa').and_return(nil)
+			lambda { @wrapper.authkey }.should raise_error
+		end
+
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")

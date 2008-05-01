@@ -20,11 +20,11 @@ Returns XML listing of apps belonging to the user.
 Create a new app with an untitled name.  XML of app, including the generated
 name, is returned.
 
-  POST http://heroku.com/apps?app[name]=<i>appname</i>
+  POST http://heroku.com/apps?app[name]=appname
 
 Create a new app with the provided name.
 
-  DELETE http://heroku.com/apps/<i>appname</i>
+  DELETE http://heroku.com/apps/appname
 
 Permanently destroy the app.
 
