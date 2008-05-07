@@ -33,11 +33,15 @@ class Heroku::CommandLine
 
 		raise "could not clone the app. Is git installed?" unless system "git clone git@#{heroku.host}:#{name}.git"
 
-		return unless system "cd #{name}; mkdir -p log db tmp public/stylesheets"
+		cur_dir = "#{Dir.pwd}/#{name}"
+		%w( log db tmp public public/stylesheets ).each do |dir|
+			Dir.mkdir("#{cur_dir}/#{dir}") unless File.directory?("#{cur_dir}/#{dir}")
+		end
 
 		write_generic_database_yml(name)
 
-		system "cd #{name}; rake db:migrate"
+		command_separator = running_on_windows? ? '&&' : ';'
+		system "cd #{name}#{command_separator} rake db:migrate"
 	end
 
 	def destroy(args)
