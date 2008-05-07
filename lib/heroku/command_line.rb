@@ -62,12 +62,12 @@ class Heroku::CommandLine
 	end
 
 	def user    # :nodoc:
-		@credentials ||= get_credentials
+		get_credentials
 		@credentials[0]
 	end
 
 	def password    # :nodoc:
-		@credentials ||= get_credentials
+		get_credentials
 		@credentials[1]
 	end
 
@@ -76,11 +76,12 @@ class Heroku::CommandLine
 	end
 
 	def get_credentials    # :nodoc:
-		unless credentials = read_credentials
-			credentials = ask_for_credentials
+		return if @credentials
+		unless @credentials = read_credentials
+			@credentials = ask_for_credentials
 			save_credentials
 		end
-		credentials
+		@credentials
 	end
 
 	def read_credentials
@@ -116,9 +117,9 @@ class Heroku::CommandLine
 		begin
 			write_credentials
 			upload_authkey
-		rescue Heroku::Client::Unauthorized
+		rescue Heroku::Client::Unauthorized => e
 			delete_credentials
-			raise unless retry_login?
+			raise e unless retry_login?
 
 			display "\nAuthentication failed"
 			@credentials = ask_for_credentials

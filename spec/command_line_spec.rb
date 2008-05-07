@@ -144,7 +144,7 @@ describe Heroku::CommandLine do
 		before do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
-			@wrapper.stub!(:get_credentials).and_return(%w(user pass))
+			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
 
 		it "creates without a name" do
