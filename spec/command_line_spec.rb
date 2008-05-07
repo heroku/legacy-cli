@@ -79,7 +79,7 @@ describe Heroku::CommandLine do
 		end
 
 		it "gets pub keys from the user's home directory" do
-			ENV.should_receive(:[]).with('HOME').and_return('/Users/joe')
+			@wrapper.should_receive(:home_directory).and_return('/Users/joe')
 			File.should_receive(:exists?).with('/Users/joe/.ssh/id_xyz.pub').and_return(true)
 			File.should_receive(:read).with('/Users/joe/.ssh/id_xyz.pub').and_return('ssh-xyz somehexkey')
 			@wrapper.authkey_type('xyz').should == 'ssh-xyz somehexkey'
@@ -108,6 +108,28 @@ describe Heroku::CommandLine do
 			@wrapper.should_receive(:init_heroku).and_return(heroku)
 			heroku.should_receive(:upload_authkey).with('my key')
 			@wrapper.upload_authkey
+		end
+
+		it "gets the home directory from HOME when running on *nix" do
+			ENV.should_receive(:[]).with('HOME').and_return(@home)
+			@wrapper.stub!(:running_on_windows?).and_return(false)
+			@wrapper.home_directory.should == @home
+		end
+
+		it "gets the home directory from USERPROFILE when running on windows" do
+			ENV.should_receive(:[]).with('USERPROFILE').and_return(@home)
+			@wrapper.stub!(:running_on_windows?).and_return(true)
+			@wrapper.home_directory.should == @home
+		end
+
+		it "detects it's running on windows" do
+			Object.redefine_const(:RUBY_PLATFORM, 'i386-mswin32')
+			@wrapper.should be_running_on_windows
+		end
+
+		it "doesn't consider cygwin as windows" do
+			Object.redefine_const(:RUBY_PLATFORM, 'i386-cygwin')
+			@wrapper.should_not be_running_on_windows
 		end
 	end
 

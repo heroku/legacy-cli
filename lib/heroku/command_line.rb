@@ -72,7 +72,7 @@ class Heroku::CommandLine
 	end
 
 	def credentials_file
-		"#{ENV['HOME']}/.heroku/credentials"
+		"#{home_directory}/.heroku/credentials"
 	end
 
 	def get_credentials    # :nodoc:
@@ -156,7 +156,7 @@ class Heroku::CommandLine
 	end
 
 	def authkey_type(key_type)
-		filename = "#{ENV['HOME']}/.ssh/id_#{key_type}.pub"
+		filename = "#{home_directory}/.ssh/id_#{key_type}.pub"
 		File.read(filename) if File.exists?(filename)
 	end
 
@@ -165,7 +165,7 @@ class Heroku::CommandLine
 			key = authkey_type(key_type)
 			return key if key
 		end
-		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{ENV['HOME']}/.ssh"
+		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{home_directory}/.ssh"
 	end
 
 	def write_generic_database_yml(rails_dir)
@@ -184,5 +184,13 @@ EOYAML
 
 	def display(msg)
 		puts msg
+	end
+
+	def home_directory
+		running_on_windows? ? ENV['USERPROFILE'] : ENV['HOME']
+	end
+
+	def running_on_windows?
+		RUBY_PLATFORM =~ /mswin32/
 	end
 end
