@@ -124,6 +124,9 @@ class Heroku::CommandLine
 			@credentials = ask_for_credentials
 			@heroku = init_heroku
 			retry
+		rescue RuntimeError => e
+			delete_credentials
+			raise e
 		end
 	end
 
