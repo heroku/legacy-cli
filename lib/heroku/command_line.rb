@@ -31,7 +31,7 @@ class Heroku::CommandLine
 			display "Usage: heroku clone <app>"
 		end
 
-		return unless system "git clone git@#{heroku.host}:#{name}.git"
+		raise "could not clone the app. Is git installed?" unless system "git clone git@#{heroku.host}:#{name}.git"
 
 		return unless system "cd #{name}; mkdir -p log db tmp public/stylesheets"
 
