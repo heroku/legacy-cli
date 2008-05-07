@@ -157,4 +157,43 @@ describe Heroku::CommandLine do
 			@wrapper.create([ 'myapp' ])
 		end
 	end
+
+	context "cloning the app" do
+		before do
+			@wrapper = Heroku::CommandLine.new
+			@wrapper.stub!(:display)
+			@wrapper.instance_variable_set('@credentials', %w(user pass))
+			@wrapper.stub!(:system).and_return(true)
+			@wrapper.stub!(:write_generic_database_yml)
+			Dir.stub!(:mkdir)
+			File.stub!(:directory?)
+		end
+
+		it "calls git clone" do
+			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git').and_return(true)
+			@wrapper.clone(['myapp'])
+		end
+
+		it "creates directories" do
+			Dir.stub!(:pwd).and_return('/users/joe/dev')
+			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/db')
+			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/log')
+			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/tmp')
+			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/public')
+			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/public/stylesheets')
+			@wrapper.clone(['myapp'])
+		end
+
+		it "opens the folder and runs db:migrate on *nix" do
+			@wrapper.stub!(:running_on_windows?).and_return(false)
+			@wrapper.should_receive(:system).with('cd myapp;rake db:migrate')
+			@wrapper.clone(['myapp'])
+		end
+
+		it "opens the folder and runs db:migrate on windows" do
+			@wrapper.stub!(:running_on_windows?).and_return(true)
+			@wrapper.should_receive(:system).with('cd myapp&&rake db:migrate')
+			@wrapper.clone(['myapp'])
+		end
+	end
 end
