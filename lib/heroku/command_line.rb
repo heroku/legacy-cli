@@ -129,7 +129,7 @@ class Heroku::CommandLine
 			@credentials = ask_for_credentials
 			@heroku = init_heroku
 			retry
-		rescue RuntimeError => e
+		rescue RuntimeError, Interrupt => e
 			delete_credentials
 			raise e
 		end
@@ -164,7 +164,10 @@ class Heroku::CommandLine
 	end
 
 	def authkey_type(key_type)
-		filename = "#{home_directory}/.ssh/id_#{key_type}.pub"
+		authkey_read("#{home_directory}/.ssh/id_#{key_type}.pub")
+	end
+
+	def authkey_read(filename)
 		File.read(filename) if File.exists?(filename)
 	end
 
@@ -172,6 +175,11 @@ class Heroku::CommandLine
 		%w( rsa dsa ).each do |key_type|
 			key = authkey_type(key_type)
 			return key if key
+		end
+
+		print "Public key location: "
+		if key = authkey_read(gets.strip)
+			return key
 		end
 		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{home_directory}/.ssh"
 	end

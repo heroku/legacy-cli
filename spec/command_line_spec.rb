@@ -5,6 +5,7 @@ describe Heroku::CommandLine do
 		before do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
+			@wrapper.stub!(:print)
 		end
 
 		it "reads credentials from the credentials file" do
@@ -103,9 +104,19 @@ describe Heroku::CommandLine do
 			@wrapper.authkey.should == 'ssh-dsa somehexkey'
 		end
 
+		it "asks for the key directory when no key is found" do
+			@wrapper.stub!(:authkey_type).with('rsa').and_return(nil)
+			@wrapper.stub!(:authkey_type).with('dsa').and_return(nil)
+			@wrapper.stub!(:gets).and_return('/Users/joe/sshkeys/mykey.pub')
+			@wrapper.should_receive(:authkey_read).with('/Users/joe/sshkeys/mykey.pub').and_return('ssh-rsa somehexkey')
+
+			@wrapper.authkey.should == 'ssh-rsa somehexkey'
+		end
+
 		it "raises a friendly error message when no key is found" do
 			@wrapper.stub!(:authkey_type).with('rsa').and_return(nil)
 			@wrapper.stub!(:authkey_type).with('dsa').and_return(nil)
+			@wrapper.stub!(:gets)
 			lambda { @wrapper.authkey }.should raise_error
 		end
 
