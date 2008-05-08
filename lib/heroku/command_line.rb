@@ -2,6 +2,7 @@
 # use from the command line.
 class Heroku::CommandLine
 	def execute(command, args)
+		extract_key!
 		send(command, args)
 	rescue Heroku::Client::Unauthorized
 		display "Authentication failure"
@@ -158,6 +159,13 @@ class Heroku::CommandLine
 		FileUtils.rm_f(credentials_file)
 	end
 
+	def extract_key!
+		return unless key_argument = ARGV.select { |a| a =~ /^-key=/i }.first
+		ARGV.delete(key_argument) # delete from ARGV so gets doesn't try to open it
+		key_path = key_argument.gsub(/^-key=/i, '')
+		raise "Could not read ssh public key in #{key_path}" unless @ssh_key = authkey_read(key_path)
+	end
+
 	def upload_authkey(*args)
 		display "Uploading ssh public key"
 		heroku.upload_authkey(authkey)
@@ -172,14 +180,10 @@ class Heroku::CommandLine
 	end
 
 	def authkey
+		return @ssh_key if @ssh_key
 		%w( rsa dsa ).each do |key_type|
 			key = authkey_type(key_type)
 			return key if key
-		end
-
-		print "Public key location: "
-		if key = authkey_read(gets.strip)
-			return key
 		end
 		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{home_directory}/.ssh"
 	end
