@@ -163,6 +163,7 @@ class Heroku::CommandLine
 		return unless key_argument = ARGV.select { |a| a =~ /^-key=/i }.first
 		ARGV.delete(key_argument) # delete from ARGV so gets doesn't try to open it
 		key_path = key_argument.gsub(/^-key=/i, '')
+		raise "Please inform the full path for your ssh public key" if File.directory?(key_path)
 		raise "Could not read ssh public key in #{key_path}" unless @ssh_key = authkey_read(key_path)
 	end
 
