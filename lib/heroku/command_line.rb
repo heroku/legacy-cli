@@ -110,12 +110,34 @@ class Heroku::CommandLine
 		user = gets.strip
 
 		print "Password: "
+		password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
+
+		[ user, password ]
+	end
+
+	def ask_for_password_on_windows
+		require "Win32API"
+		char = nil
+		password = ''
+
+		while char = Win32API.new("crtdll", "_getch", [ ], "L").Call do
+			break if char == 10 || char == 13 # received carriage return or newline
+			if char == 127 || char == 8 # backspace and delete
+				password.slice!(-1, 1)
+			else
+				password << char.chr
+			end
+		end
+		puts
+		return password
+	end
+
+	def ask_for_password
 		echo_off
 		password = gets.strip
 		puts
 		echo_on
-
-		[ user, password ]
+		return password
 	end
 
 	def save_credentials
