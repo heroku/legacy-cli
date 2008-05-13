@@ -110,8 +110,8 @@ describe Heroku::CommandLine do
 			lambda { @wrapper.authkey }.should raise_error
 		end
 
-		it "accepts a custom key via the -key parameter" do
-			Object.redefine_const(:ARGV, ['-key=/Users/joe/sshkeys/mykey.pub'])
+		it "accepts a custom key via the -k parameter" do
+			Object.redefine_const(:ARGV, ['-k', '/Users/joe/sshkeys/mykey.pub'])
 			@wrapper.should_receive(:authkey_read).with('/Users/joe/sshkeys/mykey.pub').and_return('ssh-rsa somehexkey')
 			@wrapper.extract_key!
 			@wrapper.authkey.should == 'ssh-rsa somehexkey'
