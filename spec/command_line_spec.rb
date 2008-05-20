@@ -74,6 +74,13 @@ describe Heroku::CommandLine do
 			lambda { @wrapper.save_credentials }.should raise_error
 		end
 
+		it "save_credentials deletes the credentials when the authkey is weak" do
+			@wrapper.stub!(:write_credentials)
+			@wrapper.should_receive(:upload_authkey).and_raise(Heroku::Client::RequestFailed)
+			@wrapper.should_receive(:delete_credentials)
+			lambda { @wrapper.save_credentials }.should raise_error
+		end
+
 		it "asks for login again when not authorized, for three times" do
 			@wrapper.stub!(:write_credentials)
 			@wrapper.stub!(:upload_authkey).and_raise(Heroku::Client::Unauthorized)
