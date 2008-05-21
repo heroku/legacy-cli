@@ -7,7 +7,9 @@ class Heroku::CommandLine
 	rescue Heroku::Client::Unauthorized
 		display "Authentication failure"
 	rescue Heroku::Client::RequestFailed => e
-		display e.message
+		msg = e.message.strip rescue ''
+		msg = 'Internal server error' if msg == ''
+		display msg
 	end
 
 	def list(args)
@@ -32,7 +34,7 @@ class Heroku::CommandLine
 			display "Usage: heroku clone <app>"
 		end
 
-		raise "could not clone the app. Is git installed?" unless system "git clone git@#{heroku.host}:#{name}.git"
+		raise "could not clone the app. Is git installed?" unless system("git clone git@#{heroku.host}:#{name}.git")
 
 		cur_dir = "#{Dir.pwd}/#{name}"
 		%w( log db tmp public public/stylesheets ).each do |dir|
