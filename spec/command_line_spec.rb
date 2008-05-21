@@ -155,6 +155,31 @@ describe Heroku::CommandLine do
 		end
 	end
 
+	context "execute" do
+		before do
+			@wrapper = Heroku::CommandLine.new
+			@wrapper.stub!(:display)
+			@wrapper.stub!(:extract_key!)
+		end
+
+		it "executes an action" do
+			@wrapper.should_receive(:extract_key!)
+			@wrapper.should_receive(:my_action).with(%w(arg1 arg2))
+			@wrapper.execute('my_action', %w(arg1 arg2))
+		end
+
+		it "catches unauthorized errors" do
+			@wrapper.should_receive(:my_action).and_raise(Heroku::Client::Unauthorized)
+			@wrapper.should_receive(:display).with('Authentication failure')
+			@wrapper.execute('my_action', 'args')
+		end
+
+		it "does not catch general exceptions, those are shown to the user as normal" do
+			@wrapper.should_receive(:my_action).and_raise(RuntimeError)
+			lambda { @wrapper.execute('my_action', 'args') }.should raise_error(RuntimeError)
+		end
+	end
+
 	context "actions" do
 		before do
 			@wrapper = Heroku::CommandLine.new
@@ -186,7 +211,7 @@ describe Heroku::CommandLine do
 
 		it "calls git clone" do
 			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git').and_return(true)
-			@wrapper.clone(['myapp'])
+			@wrapper.clone([ 'myapp' ])
 		end
 
 		it "creates directories" do
