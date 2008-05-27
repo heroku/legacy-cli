@@ -19,6 +19,8 @@ for your Heroku username and password.  These are saved to ~/heroku/credentials
 for future requests.  Your public key (~/.ssh/id_rsa.pub) will be uploaded to
 Heroku after you enter your credentials.
 
+If your public key is in a non-standard location, you can specify the path to your public key using the -k or --key switch ("heroku upload_authkey -k "C:\Documents & Settings\me\mykeys\id_rsa.pub")
+
 == Usage
 
   heroku list
@@ -58,9 +60,10 @@ Permenantly destroy the app named.
 
   heroku upload_authkey
 
-Upload your ssh public key to Heroku.  This is done automatically when you
-enter your credentials, but if you change your key, you will need to run this
-manually.  Note that only one key can be active at a time.
+Upload your ssh public key to Heroku.  This is done automatically when you enter 
+your credentials, but if you change your key, you will need to run this
+manually. If your public key is in a non-standard location, you can specify 
+the key path using the optional -k or --key switch ("heroku upload_authkey -k "C:\Documents & Settings\me\mykeys\id_rsa.pub"). Note that only one key can be active at a time.
 
 == Example Workflow
 
