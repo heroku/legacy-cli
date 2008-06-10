@@ -1,6 +1,8 @@
 # This wraps the Heroku::Client class with higher-level actions suitable for
 # use from the command line.
 class Heroku::CommandLine
+	class CommandFailed < RuntimeError; end
+
 	def execute(command, args)
 		extract_key!
 		send(command, args)
@@ -10,6 +12,8 @@ class Heroku::CommandLine
 		msg = e.message.strip rescue ''
 		msg = 'Internal server error' if msg == ''
 		display msg
+	rescue Heroku::CommandLine::CommandFailed => e
+		display e.message
 	end
 
 	def list(args)
@@ -34,7 +38,7 @@ class Heroku::CommandLine
 			display "Usage: heroku clone <app>"
 		end
 
-		raise "could not clone the app. Is git installed?" unless system("git clone git@#{heroku.host}:#{name}.git")
+		raise CommandFailed, "git clone failed" unless system("git clone git@#{heroku.host}:#{name}.git")
 
 		cur_dir = "#{Dir.pwd}/#{name}"
 		%w( log db tmp public public/stylesheets ).each do |dir|

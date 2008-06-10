@@ -214,6 +214,11 @@ describe Heroku::CommandLine do
 			@wrapper.clone([ 'myapp' ])
 		end
 
+		it "raises CommandFailed when git clone fails" do
+			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git').and_raise(Heroku::CommandLine::CommandFailed)
+			lambda { @wrapper.clone([ 'myapp' ]) }.should raise_error(Heroku::CommandLine::CommandFailed)
+		end
+
 		it "creates directories" do
 			Dir.stub!(:pwd).and_return('/users/joe/dev')
 			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/db')
