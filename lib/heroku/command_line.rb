@@ -6,9 +6,9 @@ class Heroku::CommandLine
 	def execute(command, args)
 		extract_key!
 		send(command, args)
-	rescue Heroku::Client::Unauthorized
+	rescue RestClient::Request::Unauthorized
 		display "Authentication failure"
-	rescue Heroku::Client::RequestFailed => e
+	rescue RestClient::Request::RequestFailed => e
 		msg = e.message.strip rescue ''
 		msg = 'Internal server error' if msg == ''
 		display msg
@@ -150,7 +150,7 @@ class Heroku::CommandLine
 		begin
 			write_credentials
 			upload_authkey
-		rescue Heroku::Client::Unauthorized => e
+		rescue RestClient::Request::Unauthorized => e
 			delete_credentials
 			raise e unless retry_login?
 

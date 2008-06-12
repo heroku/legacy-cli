@@ -47,6 +47,8 @@ spec = Gem::Specification.new do |s|
 	
 	s.require_path = "lib"
 	s.bindir = "bin"
+
+	s.add_dependency('rest-client')
 end
 
 Rake::GemPackageTask.new(spec) do |p|

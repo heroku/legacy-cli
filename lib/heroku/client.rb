@@ -1,7 +1,6 @@
-require 'net/http'
-require 'yaml'
+require 'rubygems'
 require 'rexml/document'
-require 'fileutils'
+require 'rest_client'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -42,68 +41,28 @@ class Heroku::Client
 
 	##################
 
+	def resource(uri)
+		RestClient::Resource.new(host + uri, user, password)
+	end
+
 	def get(uri, extra_headers={})    # :nodoc:
-		transmit Net::HTTP::Get.new(uri, headers.merge(extra_headers))
+		resource(uri).get(heroku_headers.merge(extra_headers))
 	end
 
 	def post(uri, payload="")    # :nodoc:
-		transmit Net::HTTP::Post.new(uri, headers), payload
+		resource(uri).post(payload, heroku_headers)
 	end
 
 	def put(uri, payload, extra_headers={})    # :nodoc:
-		transmit Net::HTTP::Put.new(uri, headers.merge(extra_headers)), payload
+		resource(uri).put(payload, heroku_headers.merge(extra_headers))
 	end
 
 	def delete(uri)    # :nodoc:
-		transmit Net::HTTP::Delete.new(uri, headers)
+		resource(uri).delete
 	end
 
-	def transmit(req, payload=nil)    # :nodoc:
-		req.basic_auth user, password
-		Net::HTTP.start(host) do |http|
-			process_result http.request(req, payload)
-		end
-	end
-
-	# Bad return value from the webserver, check the request body for the
-	# specific error message.
-	class RequestFailed < Exception
-		attr_accessor :response
-		def initialize(response)
-			@response = response
-		end
-
-		def http_code
-			@response.code.to_i
-		end
-
-		def message
-			return "Resource not found" if http_code == 404
-			parse_error_xml(@response.body)
-		end
-
-		def parse_error_xml(body)   # :nodoc:
-			REXML::Document.new(body).elements.to_a("//errors/error").map { |a| a.text }.join(" / ")
-		rescue
-			"unknown error"
-		end
-	end
-
-	# Heroku user and password supplied were not valid.
-	class Unauthorized < RuntimeError; end
-
-	def process_result(res)   # :nodoc:
-		if %w(200 201 202).include? res.code
-			res.body
-		elsif res.code == "401"
-			raise Unauthorized
-		else
-			raise RequestFailed, res
-		end
-	end
-
-	def headers   # :nodoc:
-		{ 'Accept' => 'application/xml', 'X-Heroku-API-Version' => '1' }
+	def heroku_headers   # :nodoc:
+		{ 'X-Heroku-API-Version' => '1' }
 	end
 
 	def xml(raw)   # :nodoc:
