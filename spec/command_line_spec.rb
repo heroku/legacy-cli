@@ -62,9 +62,9 @@ describe Heroku::CommandLine do
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@wrapper.stub!(:write_credentials)
 			@wrapper.stub!(:retry_login?).and_return(false)
-			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::Request::Unauthorized)
+			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:delete_credentials)
-			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Request::Unauthorized)
+			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
 
 		it "save_credentials deletes the credentials when there's no authkey" do
@@ -76,16 +76,16 @@ describe Heroku::CommandLine do
 
 		it "save_credentials deletes the credentials when the authkey is weak" do
 			@wrapper.stub!(:write_credentials)
-			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::Request::RequestFailed)
+			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::RequestFailed)
 			@wrapper.should_receive(:delete_credentials)
 			lambda { @wrapper.save_credentials }.should raise_error
 		end
 
 		it "asks for login again when not authorized, for three times" do
 			@wrapper.stub!(:write_credentials)
-			@wrapper.stub!(:upload_authkey).and_raise(RestClient::Request::Unauthorized)
+			@wrapper.stub!(:upload_authkey).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:ask_for_credentials).exactly(4).times
-			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Request::Unauthorized)
+			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
 
 		it "deletes the credentials file" do
@@ -169,7 +169,7 @@ describe Heroku::CommandLine do
 		end
 
 		it "catches unauthorized errors" do
-			@wrapper.should_receive(:my_action).and_raise(RestClient::Request::Unauthorized)
+			@wrapper.should_receive(:my_action).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:display).with('Authentication failure')
 			@wrapper.execute('my_action', 'args')
 		end
