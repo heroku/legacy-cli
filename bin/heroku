@@ -11,6 +11,7 @@ usage = <<EOTXT
   create [name] - create a new app
   clone [name] - make a clone of a heroku app for local development
   destroy [name] - destroy an app
+  upload_authkey - upload your ssh public key to Heroku
 
 Example story:
   heroku create myapp
