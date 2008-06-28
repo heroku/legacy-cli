@@ -9,9 +9,7 @@ class Heroku::CommandLine
 	rescue RestClient::Unauthorized
 		display "Authentication failure"
 	rescue RestClient::RequestFailed => e
-		msg = e.message.strip rescue ''
-		msg = 'Internal server error' if msg == ''
-		display msg
+		display e.message('Internal server error')
 	rescue Heroku::CommandLine::CommandFailed => e
 		display e.message
 	end
