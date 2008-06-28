@@ -91,11 +91,15 @@ link:files/REST.html
 
 == Meta
 
-The heroku gem was created by Adam Wiggins (adam at heroku dot com)
+Written by Adam Wiggins (adam at heroku dot com)
 
-Maintained by Pedro Belo (pedro at heroku dot com)
+Major modifications by Pedro Belo (pedro at heroku dot com)
 
-The gem is released under the MIT license: http://www.opensource.org/licenses/mit-license.php
+Patches contributed by: Chris O'Sullivan
 
-http://heroku.com
+Released under the MIT license: http://www.opensource.org/licenses/mit-license.php
+
+Send feedback and questions to the Heroku mailing list: http://groups.google.com/group/heroku
+
+http://github.com/adamwiggins/heroku-client/tree/master
 
