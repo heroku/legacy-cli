@@ -27,7 +27,7 @@ class Heroku::CommandLine
 	def create(args)
 		name = args.shift.downcase.strip rescue nil
 		name = heroku.create(name)
-		display "Created http://#{name}.#{heroku.host}/"
+		display "Created http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 	end
 
 	def clone(args)
