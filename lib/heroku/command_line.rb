@@ -186,14 +186,20 @@ class Heroku::CommandLine
 	end
 
 	def extract_key!
-		return unless key_index = ARGV.select { |a| %w( -k --key ).include? a }.first
-		key_path = ARGV[ARGV.index(key_index) + 1] rescue ''
-
-		# remove key from ARGV so it doesnt' get read by gets
-		ARGV.delete(key_index)
-		ARGV.delete(key_path)
+		key_path = extract_argv_option('-k', '--key')
 		raise "Please inform the full path for your ssh public key" if File.directory?(key_path)
 		raise "Could not read ssh public key in #{key_path}" unless @ssh_key = authkey_read(key_path)
+	end
+
+	def extract_argv_option(*values)
+		return unless opt_index = ARGV.select { |a| values.include? a }.first
+		opt_value = ARGV[ARGV.index(opt_index) + 1] rescue nil
+
+		# remove option from ARGV so it doesnt' get read by gets
+		ARGV.delete(opt_index)
+		ARGV.delete(opt_value)
+
+		return opt_value
 	end
 
 	def upload_authkey(*args)

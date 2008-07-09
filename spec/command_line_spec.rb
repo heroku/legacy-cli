@@ -124,6 +124,12 @@ describe Heroku::CommandLine do
 			@wrapper.authkey.should == 'ssh-rsa somehexkey'
 		end
 
+		it "extracts options from ARGV" do
+			Object.redefine_const(:ARGV, %w( a b --something value c d ))
+			@wrapper.extract_argv_option('--something').should == 'value'
+			ARGV.should == %w( a b c d )
+		end
+
 		it "uploads the ssh authkey" do
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")
