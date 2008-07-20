@@ -9,7 +9,7 @@ class Heroku::CommandLine
 	rescue RestClient::Unauthorized
 		display "Authentication failure"
 	rescue RestClient::RequestFailed => e
-		display e.message('Internal server error')
+		display_xml_error(e.response.body)
 	rescue Heroku::CommandLine::CommandFailed => e
 		display e.message
 	end
@@ -250,6 +250,17 @@ EOYAML
 
 	def home_directory
 		running_on_windows? ? ENV['USERPROFILE'] : ENV['HOME']
+	end
+
+	def parse_error_xml(body)
+		xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
+		xml_errors.map { |a| a.text }.join(" / ")
+	end
+
+	def display_xml_error(body)
+		msg = parse_error_xml(body) rescue ''
+		msg = 'Internal server error' if msg == ''
+		display msg
 	end
 
 	def running_on_windows?
