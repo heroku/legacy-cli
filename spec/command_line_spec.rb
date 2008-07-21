@@ -126,8 +126,13 @@ describe Heroku::CommandLine do
 
 		it "extracts options from ARGV" do
 			Object.redefine_const(:ARGV, %w( a b --something value c d ))
-			@wrapper.extract_argv_option('--something').should == 'value'
+			@wrapper.extract_option(ARGV, '--something').should == 'value'
 			ARGV.should == %w( a b c d )
+		end
+
+		it "rejects options outside valid values for ARGV" do
+			Object.redefine_const(:ARGV, %w( -boolean_option t ))
+			lambda { @wrapper.extract_argv_option('-boolean_option', %w( true false )) }.should raise_error
 		end
 
 		it "uploads the ssh authkey" do
