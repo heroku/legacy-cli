@@ -33,6 +33,27 @@ class Heroku::CommandLine
 		display "Created http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 	end
 
+	def update(args)
+		name = args.shift.downcase.strip rescue nil
+		raise CommandFailed, "Invalid app name" unless name
+
+		attributes = {}
+		extract_option(args, '--name') do |new_name|
+			attributes[:name] = new_name
+		end
+		extract_option(args, '--public', %w( true false )) do |public|
+			attributes[:share_public] = (public == 'true')
+		end
+		extract_option(args, '--mode', %w( production development )) do |mode|
+			attributes[:production] = (mode == 'production')
+		end
+		raise CommandFailed, "Nothing to update" if attributes.empty?
+		heroku.update(name, attributes)
+
+		app_name = attributes[:name] || name
+		display "http://#{app_name}.#{heroku.host}/ updated"
+	end
+
 	def clone(args)
 		name = args.shift.downcase.strip rescue ""
 		if name.length == 0

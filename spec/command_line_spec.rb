@@ -216,6 +216,11 @@ describe Heroku::CommandLine do
 			@wrapper.heroku.should_receive(:create).with('myapp').and_return("myapp")
 			@wrapper.create([ 'myapp' ])
 		end
+
+		it "updates app" do
+			@wrapper.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true })
+			@wrapper.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production'])
+		end
 	end
 
 	context "cloning the app" do

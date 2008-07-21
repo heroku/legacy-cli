@@ -31,6 +31,14 @@ class Heroku::Client
 		xml(post(uri)).elements["//app/name"].text
 	end
 
+	def update(name, attributes)
+		uri = "/apps/#{name}"
+		# rest-client doesn't support nested payloads yet at least
+		payload = {}
+		attributes.each { |k, v| payload["app[#{k}]"] = v }
+		put(uri, payload)
+	end
+
 	def destroy(name)
 		delete("/apps/#{name}")
 	end
