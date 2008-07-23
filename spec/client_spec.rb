@@ -36,6 +36,12 @@ EOXML
 		@client.create("newapp").should == "newapp"
 	end
 
+	it "update(name, attributes) -> updates existing apps" do
+		@client.should_receive(:resource).with('/apps/myapp').and_return(@resource)
+		@resource.should_receive(:put).with({ 'app[mode]' => 'production', 'app[public]' => true }, anything)
+		@client.update("myapp", :mode => 'production', :public => true)
+	end
+
 	it "destroy(name) -> destroy the named app" do
 		@client.should_receive(:resource).with('/apps/destroyme').and_return(@resource)
 		@resource.should_receive(:delete)
