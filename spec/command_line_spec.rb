@@ -195,7 +195,7 @@ describe Heroku::CommandLine do
 		end
 	end
 
-	context "actions" do
+	context "app actions" do
 		before do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
@@ -259,6 +259,38 @@ describe Heroku::CommandLine do
 			@wrapper.stub!(:running_on_windows?).and_return(true)
 			@wrapper.should_receive(:system).with('cd myapp&&rake db:migrate')
 			@wrapper.clone(['myapp'])
+		end
+	end
+
+	context "collaborators" do
+		before do
+			@wrapper = Heroku::CommandLine.new
+			@wrapper.stub!(:display)
+		end
+
+		it "list collaborators when there's just the app name" do
+			@wrapper.heroku.should_receive(:list_collaborators).and_return([])
+			@wrapper.collaborators(['myapp'])
+		end
+
+		it "add collaborators with default access to view only" do
+			@wrapper.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'view')
+			@wrapper.collaborators(['myapp', '--add', 'joe@example.com'])
+		end
+
+		it "add collaborators with edit access" do
+			@wrapper.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'edit')
+			@wrapper.collaborators(['myapp', '--add', 'joe@example.com', '--access', 'edit'])
+		end
+
+		it "updates collaborators" do
+			@wrapper.heroku.should_receive(:update_collaborator).with('myapp', 'joe@example.com', 'view')
+			@wrapper.collaborators(['myapp', '--update', 'joe@example.com', '--access', 'view'])
+		end
+
+		it "removes collaborators" do
+			@wrapper.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
+			@wrapper.collaborators(['myapp', '--remove', 'joe@example.com'])
 		end
 	end
 end

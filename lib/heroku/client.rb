@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rexml/document'
 require 'rest_client'
+require 'uri'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -43,6 +44,26 @@ class Heroku::Client
 		delete("/apps/#{name}")
 	end
 
+	# collaborators
+	def list_collaborators(app_name)
+		doc = xml(get("/apps/#{app_name}/collaborators"))
+		doc.elements.to_a("//collaborators/collaborator").map do |a|
+			{ :email => a.elements['user'].elements['email'].text, :access => a.elements['access'].text }
+		end.select { |collaborator| collaborator[:email] != user }
+	end
+
+	def add_collaborator(app_name, email, access='view')
+		xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email, 'collaborator[access]' => access }))
+	end
+
+	def update_collaborator(app_name, email, access)
+		put("/apps/#{app_name}/collaborators/#{escape(email)}", { 'collaborator[access]' => access })
+	end
+
+	def remove_collaborator(app_name, email)
+		delete("/apps/#{app_name}/collaborators/#{escape(email)}")
+	end
+
 	def upload_authkey(key)
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
@@ -75,5 +96,10 @@ class Heroku::Client
 
 	def xml(raw)   # :nodoc:
 		REXML::Document.new(raw)
+	end
+
+	def escape(value)
+		escaped = URI.escape(value.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+		escaped.gsub('.', '%2E') # not covered by the previous URI.escape
 	end
 end

@@ -12,7 +12,7 @@ class Heroku::CommandLine
 	rescue RestClient::Unauthorized
 		display "Authentication failure"
 	rescue RestClient::RequestFailed => e
-		display_xml_error(e.response.body)
+		display extract_error(e.response)
 	rescue Heroku::CommandLine::CommandFailed => e
 		display e.message
 	end
@@ -80,6 +80,49 @@ class Heroku::CommandLine
 		else
 			heroku.destroy(name)
 			display "Destroyed #{name}"
+		end
+	end
+
+	def collaborators(args)
+		name = args.shift.strip.downcase rescue ""
+		if name.length == 0
+			display "Usage: heroku collaborators <app>"
+		else
+			access = extract_option(args, '--access', %w( edit view )) || 'view'
+			extract_option(args, '--add') do |email|
+				return add_collaborator(name, email, access)
+			end
+			extract_option(args, '--update') do |email|
+				return update_collaborator(name, email, access)
+			end
+			extract_option(args, '--remove') do |email|
+				return remove_collaborator(name, email)
+			end
+			return list_collaborators(name)
+		end
+	end
+
+	def add_collaborator(name, email, access)
+		display heroku.add_collaborator(name, email, access)
+	end
+
+	def update_collaborator(name, email, access)
+		heroku.update_collaborator(name, email, access)
+		display "Collaborator updated"
+	end
+
+	def remove_collaborator(name, email)
+		heroku.remove_collaborator(name, email)
+		display "Collaborator removed"
+	end
+
+	def list_collaborators(name)
+		list = heroku.list_collaborators(name)
+		if list.empty?
+			display "No collaborators on #{name}"
+		else
+			display "=== Collaborators on #{name}"
+			display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
 		end
 	end
 
@@ -276,15 +319,17 @@ EOYAML
 		running_on_windows? ? ENV['USERPROFILE'] : ENV['HOME']
 	end
 
+	def extract_error(response)
+		return "Not found" if response.code.to_i == 404
+
+		msg = parse_error_xml(response.body) rescue ''
+		msg = 'Internal server error' if msg.empty?
+		msg
+	end
+
 	def parse_error_xml(body)
 		xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
 		xml_errors.map { |a| a.text }.join(" / ")
-	end
-
-	def display_xml_error(body)
-		msg = parse_error_xml(body) rescue ''
-		msg = 'Internal server error' if msg == ''
-		display msg
 	end
 
 	def running_on_windows?
