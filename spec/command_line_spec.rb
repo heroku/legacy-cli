@@ -189,11 +189,6 @@ describe Heroku::CommandLine do
 			@wrapper.parse_error_xml('<errors><error>Error 1</error><error>Error 2</error></errors>').should == 'Error 1 / Error 2'
 		end
 
-		it "pulls the xml from RequestFailed errors, since thse are usually activerecord validation failures like name already taken" do
-			@wrapper.should_receive(:display).with('xyz')
-			@wrapper.display_xml_error('<errors><error>xyz</error></errors>')
-		end
-
 		it "does not catch general exceptions, those are shown to the user as normal" do
 			@wrapper.should_receive(:my_action).and_raise(RuntimeError)
 			lambda { @wrapper.execute('my_action', 'args') }.should raise_error(RuntimeError)
