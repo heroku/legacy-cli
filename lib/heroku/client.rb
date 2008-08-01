@@ -26,10 +26,10 @@ class Heroku::Client
 		doc.elements.to_a("//apps/app/name").map { |a| a.text }
 	end
 
-	def create(name=nil)
-		uri = "/apps"
-		uri += "?app[name]=#{name}" if name
-		xml(post(uri)).elements["//app/name"].text
+	def create(name=nil, options={})
+		params = {}
+		params['app[name]'] = name if name
+		xml(post('/apps', params)).elements["//app/name"].text
 	end
 
 	def update(name, attributes)

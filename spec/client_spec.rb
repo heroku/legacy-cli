@@ -28,8 +28,8 @@ EOXML
 	end
 
 	it "create(name) -> create a new blank app with a specified name" do
-		@client.should_receive(:resource).with('/apps?app[name]=newapp').and_return(@resource)
-		@resource.should_receive(:post).and_return <<EOXML
+		@client.should_receive(:resource).with('/apps').and_return(@resource)
+		@resource.should_receive(:post).with({ 'app[name]' => 'newapp' }, @client.heroku_headers).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <app><name>newapp</name></app>
 EOXML
