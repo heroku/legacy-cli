@@ -9,11 +9,15 @@ usage = <<EOTXT
 === Heroku Commands
   list - list my apps
   create [name] - create a new app
-  update [name] - updates existing app. options are:
-     --name newname
-     --public (true|false)
-     --mode (production|development)
   clone [name] - make a clone of a heroku app for local development
+  update [name] - updates existing app. options are:
+    --name newname
+    --public (true|false)
+    --mode (production|development)
+  collaborators [name] - view or update collaborators
+    --add [email]
+    --remove [email]
+    --access (edit|view)
   destroy [name] - destroy an app
   upload_authkey - upload your ssh public key to Heroku
 
