@@ -9,9 +9,10 @@ usage = <<EOTXT
 === Heroku Commands
   list - list my apps
   create [name] - create a new app
+    --origin [url] - animate code from a public git repository
   clone [name] - make a clone of a heroku app for local development
   update [name] - updates existing app. options are:
-    --name newname
+    --name [newname]
     --public (true|false)
     --mode (production|development)
   collaborators [name] - view or update collaborators
