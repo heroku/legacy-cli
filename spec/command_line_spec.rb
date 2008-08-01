@@ -6,6 +6,7 @@ describe Heroku::CommandLine do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
 			@wrapper.stub!(:print)
+			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 		end
 
 		it "reads credentials from the credentials file" do
@@ -169,6 +170,7 @@ describe Heroku::CommandLine do
 	context "execute" do
 		before do
 			@wrapper = Heroku::CommandLine.new
+			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 			@wrapper.stub!(:display)
 			@wrapper.stub!(:extract_key!)
 		end
@@ -198,6 +200,7 @@ describe Heroku::CommandLine do
 	context "app actions" do
 		before do
 			@wrapper = Heroku::CommandLine.new
+			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 			@wrapper.stub!(:display)
 			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
@@ -222,6 +225,7 @@ describe Heroku::CommandLine do
 		before do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
+			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 			@wrapper.instance_variable_set('@credentials', %w(user pass))
 			@wrapper.stub!(:system).and_return(true)
 			@wrapper.stub!(:write_generic_database_yml)
@@ -266,6 +270,7 @@ describe Heroku::CommandLine do
 		before do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
+			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 		end
 
 		it "list collaborators when there's just the app name" do
