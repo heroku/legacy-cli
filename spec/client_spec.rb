@@ -36,6 +36,15 @@ EOXML
 		@client.create("newapp").should == "newapp"
 	end
 
+	it "create(:origin => url) -> create an app from a public git repo" do
+		@client.should_receive(:resource).with('/apps').and_return(@resource)
+		@resource.should_receive(:post).with({ 'app[origin]' => 'git://url' }, @client.heroku_headers).and_return <<EOXML
+<?xml version="1.0" encoding="UTF-8"?>
+<app><name>newapp</name></app>
+EOXML
+		@client.create(nil, :origin => 'git://url')
+	end
+
 	it "update(name, attributes) -> updates existing apps" do
 		@client.should_receive(:resource).with('/apps/myapp').and_return(@resource)
 		@resource.should_receive(:put).with({ 'app[mode]' => 'production', 'app[public]' => true }, anything)

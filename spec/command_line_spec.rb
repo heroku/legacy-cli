@@ -206,12 +206,12 @@ describe Heroku::CommandLine do
 		end
 
 		it "creates without a name" do
-			@wrapper.heroku.should_receive(:create).with(nil).and_return("untitled-123")
+			@wrapper.heroku.should_receive(:create).with(nil, {}).and_return("untitled-123")
 			@wrapper.create([])
 		end
 
 		it "creates with a name" do
-			@wrapper.heroku.should_receive(:create).with('myapp').and_return("myapp")
+			@wrapper.heroku.should_receive(:create).with('myapp', {}).and_return("myapp")
 			@wrapper.create([ 'myapp' ])
 		end
 
