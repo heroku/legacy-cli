@@ -221,8 +221,8 @@ describe Heroku::CommandLine do
 		end
 
 		it "updates app" do
-			@wrapper.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true })
-			@wrapper.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production'])
+			@wrapper.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true, :domain_name => 'my.example.com' })
+			@wrapper.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production', '--domain-name', 'my.example.com'])
 		end
 	end
 

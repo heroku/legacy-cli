@@ -15,6 +15,7 @@ usage = <<EOTXT
     --name [newname]
     --public (true|false)
     --mode (production|development)
+    --domain-name [somedomain.example.com]
   collaborators [name] - view or update collaborators
     --add [email]
     --remove [email]

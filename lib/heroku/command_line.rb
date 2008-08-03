@@ -51,6 +51,9 @@ class Heroku::CommandLine
 		extract_option(args, '--mode', %w( production development )) do |mode|
 			attributes[:production] = (mode == 'production')
 		end
+		extract_option(args, '--domain-name') do |domain_name|
+			attributes[:domain_name] = domain_name
+		end
 		raise CommandFailed, "Nothing to update" if attributes.empty?
 		heroku.update(name, attributes)
 
