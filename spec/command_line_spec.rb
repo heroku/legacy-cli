@@ -206,6 +206,14 @@ describe Heroku::CommandLine do
 			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
 
+		it "shows app info" do
+			@wrapper.heroku.should_receive(:show).with('myapp').and_return({ :name => 'myapp', :collaborators => [] })
+			@wrapper.heroku.stub!(:domain).and_return('heroku.com')
+			@wrapper.should_receive(:display).with('App: myapp')
+			@wrapper.should_receive(:display).with('Web URL: http://myapp.heroku.com/')
+			@wrapper.show([ 'myapp' ])
+		end
+
 		it "creates without a name" do
 			@wrapper.heroku.should_receive(:create).with(nil, {}).and_return("untitled-123")
 			@wrapper.create([])
