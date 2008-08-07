@@ -50,7 +50,7 @@ class Heroku::Client
 		doc = xml(get("/apps/#{app_name}/collaborators"))
 		doc.elements.to_a("//collaborators/collaborator").map do |a|
 			{ :email => a.elements['user'].elements['email'].text, :access => a.elements['access'].text }
-		end.select { |collaborator| collaborator[:email] != user }
+		end
 	end
 
 	def add_collaborator(app_name, email, access='view')
