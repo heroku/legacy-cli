@@ -84,6 +84,7 @@ describe Heroku::CommandLine do
 
 		it "asks for login again when not authorized, for three times" do
 			@wrapper.stub!(:write_credentials)
+			@wrapper.stub!(:delete_credentials)
 			@wrapper.stub!(:upload_authkey).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:ask_for_credentials).exactly(4).times
 			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Unauthorized)
@@ -281,6 +282,7 @@ describe Heroku::CommandLine do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:display)
 			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
+			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
 
 		it "list collaborators when there's just the app name" do
