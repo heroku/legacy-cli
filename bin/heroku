@@ -20,6 +20,7 @@ usage = <<EOTXT
     --add [email]
     --remove [email]
     --access (edit|view)
+  db:import - import db/data.yml into the Heroku app's database
   destroy [name] - destroy an app
   upload_authkey - upload your ssh public key to Heroku
 
@@ -33,7 +34,7 @@ Example story:
   heroku update myapp --public true --mode production
 EOTXT
 
-command = ARGV.shift.strip rescue ""
+command = ARGV.shift.strip.gsub(/:/, '_') rescue ""
 if command.length == 0
 	puts usage
 	exit 1

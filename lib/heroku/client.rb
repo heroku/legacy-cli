@@ -69,10 +69,18 @@ class Heroku::Client
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
 
+	def db_import(app_name, file)
+		control_resource(app_name)['data'].put File.read(file), :content_type => 'text/plain'
+	end
+
 	##################
 
 	def resource(uri)
 		RestClient::Resource.new(host + uri, user, password)
+	end
+
+	def control_resource(app_name)
+		RestClient::Resource.new("http://control.#{app_name}.#{host}", user, password)
 	end
 
 	def get(uri, extra_headers={})    # :nodoc:

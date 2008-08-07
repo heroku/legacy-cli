@@ -128,6 +128,16 @@ class Heroku::CommandLine
 		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
 	end
 
+	def db_import(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku db:import <app>"
+		else
+			raise(CommandFailed, "db/data.yml does not exist.  Install the yaml_db plugin (git://github.com/adamwiggins/yaml_db.git) and run rake db:dump to create it.") unless File.exists?('db/data.yml')
+			heroku.db_import(app_name, 'db/data.yml')
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
