@@ -125,12 +125,7 @@ class Heroku::CommandLine
 
 	def list_collaborators(name)
 		list = heroku.list_collaborators(name)
-		if list.empty?
-			display "No collaborators on #{name}"
-		else
-			display "=== Collaborators on #{name}"
-			display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
-		end
+		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
 	end
 
 	############
