@@ -209,8 +209,8 @@ describe Heroku::CommandLine do
 		it "shows app info" do
 			@wrapper.heroku.should_receive(:show).with('myapp').and_return({ :name => 'myapp', :collaborators => [] })
 			@wrapper.heroku.stub!(:domain).and_return('heroku.com')
-			@wrapper.should_receive(:display).with('App: myapp')
-			@wrapper.should_receive(:display).with('Web URL: http://myapp.heroku.com/')
+			@wrapper.should_receive(:display).with('=== myapp')
+			@wrapper.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
 			@wrapper.show([ 'myapp' ])
 		end
 

@@ -30,15 +30,18 @@ class Heroku::CommandLine
 	def show(args)
 		name = args.shift.downcase.strip rescue nil
 		attrs = heroku.show(name)
-		display "App: #{attrs[:name]}"
-		display "Web URL: http://#{attrs[:name]}.#{heroku.host}/"
-		display "Custom domain name: http://#{attrs[:domain_name]}/" if attrs[:domain_name]
-		display "Git Repo: git@#{heroku.host}:#{attrs[:name]}.git"
-		display "Public? #{ attrs[:'share-public'] == 'true' ? 'Yes' : 'No' }"
-		display "Mode: #{ attrs[:production] == 'true' ? 'Production' : 'Development' }"
-		display "Collaborators:"
+		display "=== #{attrs[:name]}"
+		display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
+		display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
+		display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
+		display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
+		display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
+
+		first = true
+		lead = "Collaborators:"
 		attrs[:collaborators].each do |collaborator|
-			display "  #{collaborator[:email]}  #{collaborator[:access]}"
+			display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
+			first = false
 		end
 	end
 
