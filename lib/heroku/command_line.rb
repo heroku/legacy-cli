@@ -1,5 +1,8 @@
 # This wraps the Heroku::Client class with higher-level actions suitable for
 # use from the command line.
+
+require 'fileutils'
+
 class Heroku::CommandLine
 	class CommandFailed < RuntimeError; end
 
