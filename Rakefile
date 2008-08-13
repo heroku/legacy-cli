@@ -25,7 +25,7 @@ require 'rake/rdoctask'
 require 'fileutils'
 include FileUtils
 
-version = "0.3"
+version = "0.3.2"
 name = "heroku"
 
 spec = Gem::Specification.new do |s|
