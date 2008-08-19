@@ -22,6 +22,7 @@ usage = <<EOTXT
     --remove [email]
     --access (edit|view)
   db:import - import db/data.yml into the Heroku app's database
+  db:export - export the Heroku app's database to db/data.yml
   destroy [name] - destroy an app
   upload_authkey - upload your ssh public key to Heroku
 

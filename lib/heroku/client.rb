@@ -81,6 +81,12 @@ class Heroku::Client
 		control_resource(app_name)['data'].put File.read(file), :content_type => 'text/plain'
 	end
 
+	def db_export(app_name, file)
+		File.open(file, 'w') do |f|
+			f.write get("/apps/#{app_name}/data")
+		end
+	end
+
 	##################
 
 	def resource(uri)

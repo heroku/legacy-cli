@@ -156,6 +156,17 @@ class Heroku::CommandLine
 		end
 	end
 
+	def db_export(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku db:export <app>"
+		else
+			fname = File.directory?('db') ? 'db/data.yml' : 'data.yml'
+			heroku.db_export(app_name, fname)
+			puts "#{File.stat(fname).size} byte database dumped to #{fname}"
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
