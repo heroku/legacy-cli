@@ -70,6 +70,7 @@ class Heroku::CommandLine
 			attributes[:production] = (mode == 'production')
 		end
 		extract_option(args, '--domain-name') do |domain_name|
+			domain_name = '' if domain_name == 'nil'
 			attributes[:domain_name] = domain_name
 		end
 		raise CommandFailed, "Nothing to update" if attributes.empty?

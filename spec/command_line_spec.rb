@@ -238,6 +238,11 @@ describe Heroku::CommandLine do
 			@wrapper.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true, :domain_name => 'my.example.com' })
 			@wrapper.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production', '--domain-name', 'my.example.com'])
 		end
+
+		it "updates app with empty domain name when it's 'nil'" do
+			@wrapper.heroku.should_receive(:update).with('myapp', { :domain_name => '' })
+			@wrapper.update(['myapp', '--domain-name', 'nil'])
+		end
 	end
 
 	context "cloning the app" do
