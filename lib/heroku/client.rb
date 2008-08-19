@@ -87,6 +87,10 @@ class Heroku::Client
 		end
 	end
 
+	def rake(app_name, cmd)
+		post("/apps/#{app_name}/rake", cmd)
+	end
+
 	##################
 
 	def resource(uri)

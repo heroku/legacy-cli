@@ -21,6 +21,7 @@ usage = <<EOTXT
     --add [email]
     --remove [email]
     --access (edit|view)
+  rake - remotely execute a rake command
   db:import - import db/data.yml into the Heroku app's database
   db:export - export the Heroku app's database to db/data.yml
   destroy [name] - destroy an app

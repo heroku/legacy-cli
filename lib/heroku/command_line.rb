@@ -167,6 +167,16 @@ class Heroku::CommandLine
 		end
 	end
 
+	def rake(args)
+		app_name = args.shift.strip.downcase rescue ""
+		cmd = args.join(' ')
+		if app_name.length == 0 or cmd.length == 0
+			display "Usage: heroku rake <app> <command>"
+		else
+			puts heroku.rake(app_name, cmd)
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
