@@ -18,7 +18,7 @@ EOXML
 		@client.list.should == %w(myapp1 myapp2)
 	end
 
-	it "show -> get app attributes" do
+	it "info -> get app attributes" do
 		@client.should_receive(:resource).with('/apps/myapp').and_return(@resource)
 		@resource.should_receive(:get).and_return <<EOXML
 <?xml version='1.0' encoding='UTF-8'?>
@@ -33,7 +33,7 @@ EOXML
 </app>
 EOXML
 		@client.stub!(:list_collaborators).and_return([:jon, :mike])
-		@client.show('myapp').should == { :blessed => 'true', :'created-at' => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :'share-public' => 'true', :domain_name => nil, :collaborators => [:jon, :mike] }
+		@client.info('myapp').should == { :blessed => 'true', :'created-at' => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :'share-public' => 'true', :domain_name => nil, :collaborators => [:jon, :mike] }
 	end
 
 	it "create -> create a new blank app" do

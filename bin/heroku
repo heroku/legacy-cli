@@ -11,7 +11,7 @@ usage = <<EOTXT
   create [name] - create a new app
     --origin [url] - animate code from a public git repository
   clone [name] - make a clone of a heroku app for local development
-  show [name] - show details about the app
+  info [name] - details about the app
   update [name] - updates existing app. options are:
     --name [newname]
     --public (true|false)

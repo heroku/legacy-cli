@@ -26,7 +26,7 @@ class Heroku::Client
 		doc.elements.to_a("//apps/app/name").map { |a| a.text }
 	end
 
-	def show(name)
+	def info(name)
 		doc = xml(get("/apps/#{name}"))
 		attrs = { :collaborators => list_collaborators(name) }
 		doc.elements.to_a('//app/*').inject(attrs) do |hash, element|

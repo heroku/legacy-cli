@@ -27,9 +27,9 @@ class Heroku::CommandLine
 		end
 	end
 
-	def show(args)
+	def info(args)
 		name = args.shift.downcase.strip rescue nil
-		attrs = heroku.show(name)
+		attrs = heroku.info(name)
 		display "=== #{attrs[:name]}"
 		display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
 		display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
