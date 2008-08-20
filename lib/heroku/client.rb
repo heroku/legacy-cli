@@ -57,7 +57,7 @@ class Heroku::Client
 	def list_collaborators(app_name)
 		doc = xml(get("/apps/#{app_name}/collaborators"))
 		doc.elements.to_a("//collaborators/collaborator").map do |a|
-			{ :email => a.elements['user'].elements['email'].text, :access => a.elements['access'].text }
+			{ :email => a.elements['email'].text, :access => a.elements['access'].text }
 		end
 	end
 

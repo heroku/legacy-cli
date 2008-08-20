@@ -86,8 +86,8 @@ EOXML
 			@resource.should_receive(:get).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <collaborators type="array">
-	<collaborator><user><email>joe@example.com</email></user><access>edit</access></collaborator>
-	<collaborator><user><email>jon@example.com</email></user><access>view</access></collaborator>
+	<collaborator><email>joe@example.com</email><access>edit</access></collaborator>
+	<collaborator><email>jon@example.com</email><access>view</access></collaborator>
 </collaborators>
 EOXML
 			@client.list_collaborators('myapp').should == [
