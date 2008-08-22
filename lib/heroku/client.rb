@@ -107,7 +107,7 @@ class Heroku::Client
 
 	# Upload a yaml_db-format data.yml to Heroku and load it into the app's database.
 	def db_import(app_name, file)
-		control_resource(app_name)['data'].put File.read(file), :content_type => 'text/plain'
+		put "/apps/#{app_name}", File.read(file), :content_type => 'text/plain'
 	end
 
 	# Dump a yaml_db-format data.yml fro the Heroku app's database and download it.
@@ -126,10 +126,6 @@ class Heroku::Client
 
 	def resource(uri)
 		RestClient::Resource.new(host + uri, user, password)
-	end
-
-	def control_resource(app_name)
-		RestClient::Resource.new("http://control.#{app_name}.#{host}", user, password)
 	end
 
 	def get(uri, extra_headers={})    # :nodoc:
