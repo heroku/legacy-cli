@@ -49,11 +49,7 @@ class Heroku::Client
 	#   :public => true | false
 	#   :mode => production | development
 	def update(name, attributes)
-		uri = "/apps/#{name}"
-		# rest-client doesn't support nested payloads yet at least
-		payload = {}
-		attributes.each { |k, v| payload["app[#{k}]"] = v }
-		put(uri, payload)
+		put("/apps/#{name}", :app => attributes)
 	end
 
 	# Destroy the app permanently.
