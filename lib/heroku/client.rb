@@ -21,11 +21,13 @@ class Heroku::Client
 		@host = host
 	end
 
+	# Show a list of apps which you are a collaborator on.
 	def list
 		doc = xml(get('/apps'))
 		doc.elements.to_a("//apps/app/name").map { |a| a.text }
 	end
 
+	# Show info such as mode, custom domain, and collaborators on an app.
 	def info(name)
 		doc = xml(get("/apps/#{name}"))
 		attrs = { :collaborators => list_collaborators(name) }
@@ -34,6 +36,7 @@ class Heroku::Client
 		end
 	end
 
+	# Create a new app, with an optional name.
 	def create(name=nil, options={})
 		params = {}
 		params['app[name]'] = name if name
@@ -41,6 +44,10 @@ class Heroku::Client
 		xml(post('/apps', params)).elements["//app/name"].text
 	end
 
+	# Update an app.  Available attributes:
+	#   :name => rename the app (changes http and git urls)
+	#   :public => true | false
+	#   :mode => production | development
 	def update(name, attributes)
 		uri = "/apps/#{name}"
 		# rest-client doesn't support nested payloads yet at least
@@ -49,11 +56,13 @@ class Heroku::Client
 		put(uri, payload)
 	end
 
+	# Destroy the app permanently.
 	def destroy(name)
 		delete("/apps/#{name}")
 	end
 
-	# collaborators
+	# Get a list of collaborators on the app, returns an array of hashes each of
+	# which contain :email and :access (=> edit | view) elements.
 	def list_collaborators(app_name)
 		doc = xml(get("/apps/#{app_name}/collaborators"))
 		doc.elements.to_a("//collaborators/collaborator").map do |a|
@@ -61,18 +70,23 @@ class Heroku::Client
 		end
 	end
 
+	# Invite a person by email address to collaborate on the app.  Optional
+	# third parameter can be edit or view.
 	def add_collaborator(app_name, email, access='view')
 		xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email, 'collaborator[access]' => access }))
 	end
 
+	# Change an existing collaborator.
 	def update_collaborator(app_name, email, access)
 		put("/apps/#{app_name}/collaborators/#{escape(email)}", { 'collaborator[access]' => access })
 	end
 
+	# Remove a collaborator.
 	def remove_collaborator(app_name, email)
 		delete("/apps/#{app_name}/collaborators/#{escape(email)}")
 	end
 
+	# Get the list of ssh public keys for the current user.
 	def keys
 		doc = xml get('/user/keys')
 		doc.elements.to_a('//authkeys/authkey').map do |key|
@@ -80,32 +94,34 @@ class Heroku::Client
 		end
 	end
 
+	# Add an ssh public key to the current user.
 	def add_key(key)
 		post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
 
+	# Remove an existing ssh public key from the current user.
 	def remove_key(key)
 		delete("/user/keys/#{key}")
 	end
 
+	# Clear all keys on the current user.
 	def remove_all_keys
 		delete("/user/keys/")
 	end
 
-	def upload_authkey(key)
-		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
-	end
-
+	# Upload a yaml_db-format data.yml to Heroku and load it into the app's database.
 	def db_import(app_name, file)
 		control_resource(app_name)['data'].put File.read(file), :content_type => 'text/plain'
 	end
 
+	# Dump a yaml_db-format data.yml fro the Heroku app's database and download it.
 	def db_export(app_name, file)
 		File.open(file, 'w') do |f|
 			f.write get("/apps/#{app_name}/data")
 		end
 	end
 
+	# Run a rake command on the Heroku app.
 	def rake(app_name, cmd)
 		post("/apps/#{app_name}/rake", cmd)
 	end
@@ -144,7 +160,7 @@ class Heroku::Client
 		REXML::Document.new(raw)
 	end
 
-	def escape(value)
+	def escape(value)  # :nodoc:
 		escaped = URI.escape(value.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
 		escaped.gsub('.', '%2E') # not covered by the previous URI.escape
 	end
