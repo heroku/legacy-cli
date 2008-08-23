@@ -338,8 +338,12 @@ class Heroku::CommandLine
 			add_key(keyfile)
 			return
 		end
+		extract_option(args, '--remove') do |arg|
+			remove_key(arg)
+			return
+		end
 
-		display "Usage: heroku keys --add"
+		display "Usage: heroku keys [--add or --remove]"
 	end
 
 	def list_keys
@@ -360,6 +364,16 @@ class Heroku::CommandLine
 
 		display "Uploading ssh public key #{keyfile}"
 		heroku.add_key(key)
+	end
+
+	def remove_key(arg)
+		if arg == 'all'
+			heroku.remove_all_keys
+			display "All keys removed."
+		else
+			heroku.remove_key(arg)
+			display "Key #{arg} removed."
+		end
 	end
 
 	def read_key(keyfile)

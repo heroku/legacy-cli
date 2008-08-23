@@ -27,6 +27,7 @@ usage = <<EOTXT
   destroy [name] - destroy an app
   keys - manage your user's ssh public keys for git access
     --add [path to keyfile, or blank for default ~/.ssh/id_[rd]sa.pub]
+    --remove [keyname or all]
 
 Example story:
   heroku create myapp

@@ -84,6 +84,14 @@ class Heroku::Client
 		post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
 
+	def remove_key(key)
+		delete("/user/keys/#{key}")
+	end
+
+	def remove_all_keys
+		delete("/user/keys/")
+	end
+
 	def upload_authkey(key)
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
