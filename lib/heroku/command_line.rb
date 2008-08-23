@@ -329,18 +329,17 @@ class Heroku::CommandLine
 	def keys(*args)
 		args = args.first  # something weird with ruby argument passing
 
-		cmd = 'list'
-		extract_option(args, '--add') do
-			cmd = 'add'
+		if args.empty?
+			list_keys
+			return
 		end
 
-		if cmd == 'list'
-			list_keys
-		elsif cmd == 'add'
-			add_key
-		else
-			display "Usage: heroku keys --add"
+		extract_option(args, '--add') do |keyfile|
+			add_key(keyfile)
+			return
 		end
+
+		display "Usage: heroku keys --add"
 	end
 
 	def list_keys
@@ -355,7 +354,7 @@ class Heroku::CommandLine
 		end
 	end
 
-	def add_key
+	def add_key(keyfile)
 		display "Uploading ssh public key"
 		heroku.add_key(authkey)
 	end
