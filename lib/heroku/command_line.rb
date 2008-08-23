@@ -355,10 +355,26 @@ class Heroku::CommandLine
 	end
 
 	def add_key(keyfile)
-		display "Uploading ssh public key"
-		heroku.add_key(authkey)
+		keyfile ||= find_key
+		key = read_key keyfile
+
+		display "Uploading ssh public key #{keyfile}"
+		heroku.add_key(key)
 	end
 
+	def read_key(keyfile)
+		File.read(keyfile)
+	end
+
+	def find_key
+		%w(rsa dsa).each do |key_type|
+			keyfile = "#{home_directory}/.ssh/id_#{key_type}.pub"
+			return keyfile if File.exists? keyfile
+		end
+		raise "No ssh public key found in #{home_directory}/.ssh/id_[rd]sa.pub.  You may want to specify the full path to the keyfile."
+	end
+
+	# vvv Deprecated
 	def upload_authkey(*args)
 		extract_key!
 		display "Uploading ssh public key"
@@ -379,8 +395,9 @@ class Heroku::CommandLine
 			key = authkey_type(key_type)
 			return key if key
 		end
-		raise "Your ssh public key was not found. Make sure you have a rsa or dsa key in #{home_directory}/.ssh"
+		raise "Your ssh public key was not found.  Make sure you have a rsa or dsa key in #{home_directory}/.ssh, or specify the full path to the keyfile."
 	end
+	# ^^^ Deprecated
 
 	def write_generic_database_yml(rails_dir)
 		File.open("#{rails_dir}/config/database.yml", "w") do |f|
