@@ -138,6 +138,7 @@ describe Heroku::CommandLine do
 		end
 
 		it "uploads the ssh authkey" do
+			@wrapper.should_receive(:extract_key!)
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")
 			@wrapper.should_receive(:init_heroku).and_return(heroku)
@@ -173,11 +174,9 @@ describe Heroku::CommandLine do
 			@wrapper = Heroku::CommandLine.new
 			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 			@wrapper.stub!(:display)
-			@wrapper.stub!(:extract_key!)
 		end
 
 		it "executes an action" do
-			@wrapper.should_receive(:extract_key!)
 			@wrapper.should_receive(:my_action).with(%w(arg1 arg2))
 			@wrapper.execute('my_action', %w(arg1 arg2))
 		end

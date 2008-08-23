@@ -7,7 +7,6 @@ class Heroku::CommandLine
 	class CommandFailed < RuntimeError; end
 
 	def execute(command, args)
-		extract_key!
 		send(command, args)
 	rescue RestClient::Unauthorized
 		display "Authentication failure"
@@ -328,6 +327,7 @@ class Heroku::CommandLine
 	end
 
 	def upload_authkey(*args)
+		extract_key!
 		display "Uploading ssh public key"
 		heroku.upload_authkey(authkey)
 	end
