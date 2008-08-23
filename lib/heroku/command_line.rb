@@ -347,8 +347,8 @@ class Heroku::CommandLine
 		if keys.empty?
 			display "No keys for #{user}"
 		else
-			display "=== Keys for #{user}"
-			heroku.keys.each do |key|
+			display "=== #{keys.size} key#{keys.size > 1 ? 's' : ''} for #{user}"
+			keys.each do |key|
 				display key
 			end
 		end
