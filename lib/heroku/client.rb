@@ -80,6 +80,10 @@ class Heroku::Client
 		end
 	end
 
+	def add_key(key)
+		post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' })
+	end
+
 	def upload_authkey(key)
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end
@@ -112,8 +116,8 @@ class Heroku::Client
 		resource(uri).get(heroku_headers.merge(extra_headers))
 	end
 
-	def post(uri, payload="")    # :nodoc:
-		resource(uri).post(payload, heroku_headers)
+	def post(uri, payload="", extra_headers={})    # :nodoc:
+		resource(uri).post(payload, heroku_headers.merge(extra_headers))
 	end
 
 	def put(uri, payload, extra_headers={})    # :nodoc:

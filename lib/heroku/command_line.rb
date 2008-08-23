@@ -357,7 +357,7 @@ class Heroku::CommandLine
 
 	def add_key
 		display "Uploading ssh public key"
-		heroku.upload_authkey(authkey)
+		heroku.add_key(authkey)
 	end
 
 	def upload_authkey(*args)
