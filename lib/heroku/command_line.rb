@@ -326,6 +326,26 @@ class Heroku::CommandLine
 		block_given? ? yield(opt_value) : opt_value
 	end
 
+	def keys(*args)
+		args = args.first  # something weird with ruby argument passing
+
+		cmd = nil
+		extract_option(args, '--add') do
+			cmd = 'add'
+		end
+
+		if cmd == 'add'
+			add_key
+		else
+			display "Usage: heroku keys --add"
+		end
+	end
+
+	def add_key
+		display "Uploading ssh public key"
+		heroku.upload_authkey(authkey)
+	end
+
 	def upload_authkey(*args)
 		extract_key!
 		display "Uploading ssh public key"
