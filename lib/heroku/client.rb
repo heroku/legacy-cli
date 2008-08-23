@@ -73,6 +73,13 @@ class Heroku::Client
 		delete("/apps/#{app_name}/collaborators/#{escape(email)}")
 	end
 
+	def keys
+		doc = xml get('/user/keys')
+		doc.elements.to_a('//authkeys/authkey').map do |key|
+			key.elements['contents'].text
+		end
+	end
+
 	def upload_authkey(key)
 		put("/user/authkey", key, { 'Content-Type' => 'text/ssh-authkey' })
 	end

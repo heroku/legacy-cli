@@ -329,15 +329,29 @@ class Heroku::CommandLine
 	def keys(*args)
 		args = args.first  # something weird with ruby argument passing
 
-		cmd = nil
+		cmd = 'list'
 		extract_option(args, '--add') do
 			cmd = 'add'
 		end
 
-		if cmd == 'add'
+		if cmd == 'list'
+			list_keys
+		elsif cmd == 'add'
 			add_key
 		else
 			display "Usage: heroku keys --add"
+		end
+	end
+
+	def list_keys
+		keys = heroku.keys
+		if keys.empty?
+			display "No keys for #{user}"
+		else
+			display "=== Keys for #{user}"
+			heroku.keys.each do |key|
+				display key
+			end
 		end
 	end
 
