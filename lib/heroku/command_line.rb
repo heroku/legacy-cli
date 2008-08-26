@@ -265,7 +265,7 @@ class Heroku::CommandLine
 	def save_credentials
 		begin
 			write_credentials
-			upload_authkey
+			add_key
 		rescue RestClient::Unauthorized => e
 			delete_credentials
 			raise e unless retry_login?
@@ -358,7 +358,7 @@ class Heroku::CommandLine
 		end
 	end
 
-	def add_key(keyfile)
+	def add_key(keyfile=nil)
 		keyfile ||= find_key
 		key = read_key keyfile
 
@@ -392,7 +392,7 @@ class Heroku::CommandLine
 	def upload_authkey(*args)
 		extract_key!
 		display "Uploading ssh public key"
-		heroku.upload_authkey(authkey)
+		heroku.add_key(authkey)
 	end
 
 	def authkey_type(key_type)

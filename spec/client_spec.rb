@@ -114,10 +114,4 @@ EOXML
 			@client.remove_collaborator('myapp', 'joe@example.com')
 		end
 	end
-
-	it "upload_authkey(key) -> send the ssh authkey to authorize git push/pull" do
-		@client.should_receive(:resource).with('/user/authkey').and_return(@resource)
-		@resource.should_receive(:put).with('my key', anything)
-		@client.upload_authkey('my key')
-	end
 end

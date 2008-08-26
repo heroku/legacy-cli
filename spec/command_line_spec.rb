@@ -56,28 +56,28 @@ describe Heroku::CommandLine do
 		it "writes credentials and uploads authkey when credentials are saved" do
 			@wrapper.stub!(:credentials)
 			@wrapper.should_receive(:write_credentials)
-			@wrapper.should_receive(:upload_authkey)
+			@wrapper.should_receive(:add_key)
 			@wrapper.save_credentials
 		end
 
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@wrapper.stub!(:write_credentials)
 			@wrapper.stub!(:retry_login?).and_return(false)
-			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::Unauthorized)
+			@wrapper.should_receive(:add_key).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:delete_credentials)
 			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
 
 		it "save_credentials deletes the credentials when there's no authkey" do
 			@wrapper.stub!(:write_credentials)
-			@wrapper.should_receive(:upload_authkey).and_raise(RuntimeError)
+			@wrapper.should_receive(:add_key).and_raise(RuntimeError)
 			@wrapper.should_receive(:delete_credentials)
 			lambda { @wrapper.save_credentials }.should raise_error
 		end
 
 		it "save_credentials deletes the credentials when the authkey is weak" do
 			@wrapper.stub!(:write_credentials)
-			@wrapper.should_receive(:upload_authkey).and_raise(RestClient::RequestFailed)
+			@wrapper.should_receive(:add_key).and_raise(RestClient::RequestFailed)
 			@wrapper.should_receive(:delete_credentials)
 			lambda { @wrapper.save_credentials }.should raise_error
 		end
@@ -85,7 +85,7 @@ describe Heroku::CommandLine do
 		it "asks for login again when not authorized, for three times" do
 			@wrapper.stub!(:write_credentials)
 			@wrapper.stub!(:delete_credentials)
-			@wrapper.stub!(:upload_authkey).and_raise(RestClient::Unauthorized)
+			@wrapper.stub!(:add_key).and_raise(RestClient::Unauthorized)
 			@wrapper.should_receive(:ask_for_credentials).exactly(4).times
 			lambda { @wrapper.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
@@ -137,12 +137,12 @@ describe Heroku::CommandLine do
 			lambda { @wrapper.extract_argv_option('-boolean_option', %w( true false )) }.should raise_error
 		end
 
-		it "uploads the ssh authkey" do
+		it "uploads the ssh authkey (deprecated in favor of add_key)" do
 			@wrapper.should_receive(:extract_key!)
 			@wrapper.should_receive(:authkey).and_return('my key')
 			heroku = mock("heroku client")
 			@wrapper.should_receive(:init_heroku).and_return(heroku)
-			heroku.should_receive(:upload_authkey).with('my key')
+			heroku.should_receive(:add_key).with('my key')
 			@wrapper.upload_authkey
 		end
 
