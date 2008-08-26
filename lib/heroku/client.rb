@@ -97,7 +97,7 @@ class Heroku::Client
 
 	# Remove an existing ssh public key from the current user.
 	def remove_key(key)
-		delete("/user/keys/#{key}")
+		delete("/user/keys/#{escape(key)}")
 	end
 
 	# Clear all keys on the current user.
