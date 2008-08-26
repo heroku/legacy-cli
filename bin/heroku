@@ -10,7 +10,6 @@ usage = <<EOTXT
   list - list my apps
   create [name] - create a new app
     --origin [url] - animate code from a public git repository
-  clone [name] - make a clone of a heroku app for local development
   info [name] - details about the app
   update [name] - updates existing app. options are:
     --name [newname]
@@ -31,8 +30,9 @@ usage = <<EOTXT
 
 Example story:
   heroku create myapp
-  heroku clone myapp
-  (make changes locally)
+  git clone git@heroku.com:myapp.git
+  cd myapp
+  (...make edits...)
   git add .
   git commit -m "changes"
   git push

@@ -85,17 +85,7 @@ class Heroku::CommandLine
 			display "Usage: heroku clone <app>"
 		end
 
-		raise CommandFailed, "git clone failed" unless system("git clone git@#{heroku.host}:#{name}.git")
-
-		cur_dir = "#{Dir.pwd}/#{name}"
-		%w( log db tmp public public/stylesheets ).each do |dir|
-			Dir.mkdir("#{cur_dir}/#{dir}") unless File.directory?("#{cur_dir}/#{dir}")
-		end
-
-		write_generic_database_yml(name)
-
-		command_separator = running_on_windows? ? '&&' : ';'
-		system "cd #{name}#{command_separator}rake db:migrate"
+		system "git clone git@#{heroku.host}:#{name}.git"
 	end
 
 	def destroy(args)

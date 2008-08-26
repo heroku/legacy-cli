@@ -240,52 +240,12 @@ describe Heroku::CommandLine do
 
 		it "updates app with empty domain name when it's 'nil'" do
 			@wrapper.heroku.should_receive(:update).with('myapp', { :domain_name => '' })
-			@wrapper.update(['myapp', '--domain-name', 'nil'])
-		end
-	end
-
-	context "cloning the app" do
-		before do
-			@wrapper = Heroku::CommandLine.new
-			@wrapper.stub!(:display)
-			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
-			@wrapper.instance_variable_set('@credentials', %w(user pass))
-			@wrapper.stub!(:system).and_return(true)
-			@wrapper.stub!(:write_generic_database_yml)
-			Dir.stub!(:mkdir)
-			File.stub!(:directory?)
+			@wrapper.update([ 'myapp', '--domain-name', 'nil' ])
 		end
 
-		it "calls git clone" do
-			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git').and_return(true)
+		it "clones the app (deprecated in favor of straight git clone)" do
+			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git')
 			@wrapper.clone([ 'myapp' ])
-		end
-
-		it "raises CommandFailed when git clone fails" do
-			@wrapper.should_receive(:system).with('git clone git@heroku.com:myapp.git').and_raise(Heroku::CommandLine::CommandFailed)
-			lambda { @wrapper.clone([ 'myapp' ]) }.should raise_error(Heroku::CommandLine::CommandFailed)
-		end
-
-		it "creates directories" do
-			Dir.stub!(:pwd).and_return('/users/joe/dev')
-			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/db')
-			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/log')
-			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/tmp')
-			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/public')
-			Dir.should_receive(:mkdir).with('/users/joe/dev/myapp/public/stylesheets')
-			@wrapper.clone(['myapp'])
-		end
-
-		it "opens the folder and runs db:migrate on *nix" do
-			@wrapper.stub!(:running_on_windows?).and_return(false)
-			@wrapper.should_receive(:system).with('cd myapp;rake db:migrate')
-			@wrapper.clone(['myapp'])
-		end
-
-		it "opens the folder and runs db:migrate on windows" do
-			@wrapper.stub!(:running_on_windows?).and_return(true)
-			@wrapper.should_receive(:system).with('cd myapp&&rake db:migrate')
-			@wrapper.clone(['myapp'])
 		end
 	end
 
