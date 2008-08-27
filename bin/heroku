@@ -10,20 +10,20 @@ usage = <<EOTXT
   list - list my apps
   create [name] - create a new app
     --origin [url] - animate code from a public git repository
-  info [name] - details about the app
-  update [name] - updates existing app. options are:
+  info [app] - details about the app
+  update [app] - updates existing app. options are:
     --name [newname]
     --public (true|false)
     --mode (production|development)
     --domain-name [somedomain.example.com]
-  collaborators [name] - view or update collaborators
+  sharing [app] - manage collaborators
     --add [email]
     --remove [email]
     --access (edit|view)
-  rake - remotely execute a rake command
+  rake [app] [command] - remotely execute a rake command
   db:import - import db/data.yml into the Heroku app's database
   db:export - export the Heroku app's database to db/data.yml
-  destroy [name] - destroy an app
+  destroy [app] - destroy an app
   keys - manage your user's ssh public keys for git access
     --add [path to keyfile, or blank for default ~/.ssh/id_[rd]sa.pub]
     --remove [keyname or all]
