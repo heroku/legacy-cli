@@ -98,7 +98,7 @@ class Heroku::CommandLine
 		end
 	end
 
-	def collaborators(args)
+	def sharing(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
 			display "Usage: heroku collaborators <app>"
@@ -115,6 +115,10 @@ class Heroku::CommandLine
 			end
 			return list_collaborators(name)
 		end
+	end
+
+	def collaborators(args)
+		sharing(args)
 	end
 
 	def add_collaborator(name, email, access)
