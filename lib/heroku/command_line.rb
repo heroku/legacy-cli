@@ -293,12 +293,6 @@ class Heroku::CommandLine
 		FileUtils.rm_f(credentials_file)
 	end
 
-	def extract_key!
-		return unless key_path = extract_option(ARGV, ['-k', '--key'])
-		raise "Please inform the full path for your ssh public key" if File.directory?(key_path)
-		raise "Could not read ssh public key in #{key_path}" unless @ssh_key = authkey_read(key_path)
-	end
-
 	def extract_option(args, options, valid_values=nil)
 		values = options.is_a?(Array) ? options : [options]
 		return unless opt_index = args.select { |a| values.include? a }.first
@@ -383,6 +377,12 @@ class Heroku::CommandLine
 		extract_key!
 		display "Uploading ssh public key"
 		heroku.add_key(authkey)
+	end
+
+	def extract_key!
+		return unless key_path = extract_option(ARGV, ['-k', '--key'])
+		raise "Please inform the full path for your ssh public key" if File.directory?(key_path)
+		raise "Could not read ssh public key in #{key_path}" unless @ssh_key = authkey_read(key_path)
 	end
 
 	def authkey_type(key_type)
