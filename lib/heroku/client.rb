@@ -40,7 +40,6 @@ class Heroku::Client
 	def create(name=nil, options={})
 		params = {}
 		params['app[name]'] = name if name
-		params['app[origin]'] = options[:origin] if options[:origin]
 		xml(post('/apps', params)).elements["//app/name"].text
 	end
 

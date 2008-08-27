@@ -7,23 +7,22 @@ require 'heroku/command_line'
 
 usage = <<EOTXT
 === Heroku Commands
-  list - list my apps
-  create [name] - create a new app
-    --origin [url] - animate code from a public git repository
-  info [app] - details about the app
-  update [app] - updates existing app. options are:
-    --name [newname]
+  list - list your apps
+  create [<name>] - create a new app
+  info <app> - details about the app
+  update <app> - update the app
+    --name <newname>
     --public (true|false)
     --mode (production|development)
-  sharing [app] - manage collaborators
-    --add [email]
-    --remove [email]
+  sharing <app> - manage collaborators
+    --add <email>
+    --remove <email>
     --access (edit|view)
-  rake [app] [command] - remotely execute a rake command
-  destroy [app] - destroy the app permanently
+  rake <app> <command> - remotely execute a rake command
+  destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
-    --add [path to keyfile, or blank for default ~/.ssh/id_[rd]sa.pub]
-    --remove [keyname or all]
+    --add [<path to keyfile>]
+    --remove <keyname or all>
 
 Example story:
   heroku create myapp

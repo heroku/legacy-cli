@@ -45,12 +45,8 @@ class Heroku::CommandLine
 	end
 
 	def create(args)
-		options = {}
-		extract_option(args, '--origin') do |url|
-			options[:origin] = url
-		end
 		name = args.shift.downcase.strip rescue nil
-		name = heroku.create(name, options)
+		name = heroku.create(name, {})
 		display "Created http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 	end
 

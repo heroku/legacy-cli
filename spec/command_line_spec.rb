@@ -223,16 +223,6 @@ describe Heroku::CommandLine do
 			@wrapper.create([ 'myapp' ])
 		end
 
-		it "creates from an origin" do
-			@wrapper.heroku.should_receive(:create).with('animatedapp', :origin => 'git://url')
-			@wrapper.create([ 'animatedapp', '--origin', 'git://url' ])
-		end
-
-		it "creates from an origin with a generated name" do
-			@wrapper.heroku.should_receive(:create).with(nil, :origin => 'git://url')
-			@wrapper.create([ '--origin', 'git://url' ])
-		end
-
 		it "updates app" do
 			@wrapper.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true })
 			@wrapper.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production' ])
