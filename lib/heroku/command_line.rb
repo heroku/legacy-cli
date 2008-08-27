@@ -68,10 +68,6 @@ class Heroku::CommandLine
 		extract_option(args, '--mode', %w( production development )) do |mode|
 			attributes[:production] = (mode == 'production')
 		end
-		extract_option(args, '--domain-name') do |domain_name|
-			domain_name = '' if domain_name == 'nil'
-			attributes[:domain_name] = domain_name
-		end
 		raise CommandFailed, "Nothing to update" if attributes.empty?
 		heroku.update(name, attributes)
 
@@ -138,27 +134,6 @@ class Heroku::CommandLine
 	def list_collaborators(name)
 		list = heroku.list_collaborators(name)
 		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
-	end
-
-	def db_import(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku db:import <app>"
-		else
-			raise(CommandFailed, "db/data.yml does not exist.  Install the yaml_db plugin (git://github.com/adamwiggins/yaml_db.git) and run rake db:dump to create it.") unless File.exists?('db/data.yml')
-			heroku.db_import(app_name, 'db/data.yml')
-		end
-	end
-
-	def db_export(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku db:export <app>"
-		else
-			fname = File.directory?('db') ? 'db/data.yml' : 'data.yml'
-			heroku.db_export(app_name, fname)
-			puts "#{File.stat(fname).size} byte database dumped to #{fname}"
-		end
 	end
 
 	def rake(args)

@@ -15,15 +15,12 @@ usage = <<EOTXT
     --name [newname]
     --public (true|false)
     --mode (production|development)
-    --domain-name [somedomain.example.com]
   sharing [app] - manage collaborators
     --add [email]
     --remove [email]
     --access (edit|view)
   rake [app] [command] - remotely execute a rake command
-  db:import - import db/data.yml into the Heroku app's database
-  db:export - export the Heroku app's database to db/data.yml
-  destroy [app] - destroy an app
+  destroy [app] - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [path to keyfile, or blank for default ~/.ssh/id_[rd]sa.pub]
     --remove [keyname or all]

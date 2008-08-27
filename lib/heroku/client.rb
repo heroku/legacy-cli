@@ -105,18 +105,6 @@ class Heroku::Client
 		delete("/user/keys/")
 	end
 
-	# Upload a yaml_db-format data.yml to Heroku and load it into the app's database.
-	def db_import(app_name, file)
-		put "/apps/#{app_name}", File.read(file), :content_type => 'text/plain'
-	end
-
-	# Dump a yaml_db-format data.yml fro the Heroku app's database and download it.
-	def db_export(app_name, file)
-		File.open(file, 'w') do |f|
-			f.write get("/apps/#{app_name}/data")
-		end
-	end
-
 	# Run a rake command on the Heroku app.
 	def rake(app_name, cmd)
 		post("/apps/#{app_name}/rake", cmd)
