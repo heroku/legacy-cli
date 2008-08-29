@@ -23,6 +23,7 @@ usage = <<EOTXT
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]
     --remove <keyname or all>
+  clone <app> - pure sugar.  you can also use plain old git like the story below.
 
 Example story:
   heroku create myapp

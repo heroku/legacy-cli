@@ -21,7 +21,7 @@ class Heroku::CommandLine
 		if list.size > 0
 			display "=== My Apps".ljust(30) + "== Git repo"
 			display list.map { |a|
-				a.ljust(30) + "git@heroku.com:#{a}.git"
+				a.ljust(30) + git_repo_for(a)
 			}.join("\n")
 		else
 			display "You have no apps."
@@ -79,7 +79,7 @@ class Heroku::CommandLine
 			display "Usage: heroku clone <app>"
 		end
 
-		system "git clone git@#{heroku.host}:#{name}.git"
+		system "git clone #{git_repo_for(name)}"
 	end
 
 	def destroy(args)
@@ -132,6 +132,10 @@ class Heroku::CommandLine
 	def list_collaborators(name)
 		list = heroku.list_collaborators(name)
 		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
+	end
+	
+	def git_repo_for(name)
+		"git@#{heroku.host}:#{name}.git"
 	end
 
 	def rake(args)
