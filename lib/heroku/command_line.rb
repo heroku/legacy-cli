@@ -10,6 +10,8 @@ class Heroku::CommandLine
 		send(command, args)
 	rescue RestClient::Unauthorized
 		display "Authentication failure"
+	rescue RestClient::ResourceNotFound
+		display "Resource not found.  (Did you mistype the app name?)"
 	rescue RestClient::RequestFailed => e
 		display extract_error(e.response)
 	rescue Heroku::CommandLine::CommandFailed => e
@@ -26,20 +28,24 @@ class Heroku::CommandLine
 	end
 
 	def info(args)
-		name = args.shift.downcase.strip rescue nil
-		attrs = heroku.info(name)
-		display "=== #{attrs[:name]}"
-		display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
-		display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
-		display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
-		display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
-		display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
+		name = args.shift.downcase.strip rescue ""
+		if name.length == 0
+			display "Usage: heroku info <app>"
+		else
+			attrs = heroku.info(name)
+			display "=== #{attrs[:name]}"
+			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
+			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
+			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
+			display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
+			display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
 
-		first = true
-		lead = "Collaborators:"
-		attrs[:collaborators].each do |collaborator|
-			display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
-			first = false
+			first = true
+			lead = "Collaborators:"
+			attrs[:collaborators].each do |collaborator|
+				display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
+				first = false
+			end
 		end
 	end
 
@@ -50,8 +56,8 @@ class Heroku::CommandLine
 	end
 
 	def update(args)
-		name = args.shift.downcase.strip rescue nil
-		raise CommandFailed, "Invalid app name" unless name
+		name = args.shift.downcase.strip rescue ""
+		raise CommandFailed, "Invalid app name" if name.length == 0
 
 		attributes = {}
 		extract_option(args, '--name') do |new_name|
