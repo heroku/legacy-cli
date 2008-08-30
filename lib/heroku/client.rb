@@ -101,7 +101,7 @@ class Heroku::Client
 
 	# Clear all keys on the current user.
 	def remove_all_keys
-		delete("/user/keys/")
+		delete("/user/keys")
 	end
 
 	# Run a rake command on the Heroku app.

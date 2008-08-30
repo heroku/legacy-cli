@@ -100,4 +100,38 @@ EOXML
 			@client.remove_collaborator('myapp', 'joe@example.com')
 		end
 	end
+
+	describe "ssh keys" do
+		it "fetches a list of the user's current keys" do
+			@client.should_receive(:resource).with('/user/keys').and_return(@resource)
+			@resource.should_receive(:get).and_return <<EOXML
+<?xml version="1.0" encoding="UTF-8"?>
+<authkeys type="array">
+  <authkey>
+    <contents>ssh-dss thekey== joe@workstation</contents>
+  </authkey>
+</authkeys>
+EOXML
+			@client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
+		end
+
+		it "add_key(key) -> add an ssh key (e.g., the contents of id_rsa.pub) to the user" do
+			@client.should_receive(:resource).with('/user/keys').and_return(@resource)
+			@client.stub!(:heroku_headers).and_return({})
+			@resource.should_receive(:post).with('a key', 'Content-Type' => 'text/ssh-authkey')
+			@client.add_key('a key')
+		end
+
+		it "remove_key(key) -> remove an ssh key by name (user@box)" do
+			@client.should_receive(:resource).with('/user/keys/joe%40workstation').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.remove_key('joe@workstation')
+		end
+
+		it "remove_all_keys -> removes all ssh keys for the user" do
+			@client.should_receive(:resource).with('/user/keys').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.remove_all_keys
+		end
+	end
 end
