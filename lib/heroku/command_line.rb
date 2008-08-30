@@ -74,9 +74,12 @@ class Heroku::CommandLine
 		name = args.shift.downcase.strip rescue ""
 		if name.length == 0
 			display "Usage: heroku clone <app>"
+			display "(this command is deprecated in favor of using the git repo url directly)"
+		else
+			cmd = "git clone #{git_repo_for(name)}"
+			puts cmd
+			system cmd
 		end
-
-		system "git clone #{git_repo_for(name)}"
 	end
 
 	def destroy(args)
@@ -354,6 +357,7 @@ class Heroku::CommandLine
 	def upload_authkey(*args)
 		extract_key!
 		display "Uploading ssh public key"
+		display "(upload_authkey is deprecated, please use \"heroku keys --add\" instead)"
 		heroku.add_key(authkey)
 	end
 
