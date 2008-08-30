@@ -381,20 +381,6 @@ class Heroku::CommandLine
 	end
 	# ^^^ Deprecated
 
-	def write_generic_database_yml(rails_dir)
-		File.open("#{rails_dir}/config/database.yml", "w") do |f|
-			f.write <<EOYAML
-development:
-  adapter: sqlite3
-  database: db/development.sqlite3
-
-test:
-  adapter: sqlite3
-  database: db/test.sqlite3
-EOYAML
-		end
-	end
-
 	def display(msg)
 		puts msg
 	end
