@@ -97,6 +97,10 @@ describe Heroku::CommandLine do
 	end
 
 	describe "key management" do
+		before do
+			@cli.instance_variable_set('@credentials', %w(user pass))
+		end
+
 		it "finds the user's ssh key in ~/ssh/id_rsa.pub" do
 			@cli.stub!(:home_directory).and_return('/home/joe')
 			File.should_receive(:exists?).with('/home/joe/.ssh/id_rsa.pub').and_return(true)
@@ -114,6 +118,20 @@ describe Heroku::CommandLine do
 			@cli.stub!(:home_directory).and_return('/home/joe')
 			File.stub!(:exists?).and_return(false)
 			lambda { @cli.find_key }.should raise_error(Heroku::CommandLine::UserError)
+		end
+
+		it "adds a key from the default locations if no key filename is supplied" do
+			@cli.should_receive(:find_key).and_return('/home/joe/.ssh/id_rsa.pub')
+			File.should_receive(:read).with('/home/joe/.ssh/id_rsa.pub').and_return('ssh-rsa xyz')
+			@cli.heroku.should_receive(:add_key).with('ssh-rsa xyz')
+			@cli.add_key
+		end
+
+		it "adds a key from a specified keyfile path" do
+			@cli.should_not_receive(:find_key)
+			File.should_receive(:read).with('/my/key.pub').and_return('ssh-rsa xyz')
+			@cli.heroku.should_receive(:add_key).with('ssh-rsa xyz')
+			@cli.add_key('/my/key.pub')
 		end
 	end
 

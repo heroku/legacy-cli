@@ -325,7 +325,7 @@ class Heroku::CommandLine
 
 	def add_key(keyfile=nil)
 		keyfile ||= find_key
-		key = read_key keyfile
+		key = File.read(keyfile)
 
 		display "Uploading ssh public key #{keyfile}"
 		heroku.add_key(key)
@@ -339,10 +339,6 @@ class Heroku::CommandLine
 			heroku.remove_key(arg)
 			display "Key #{arg} removed."
 		end
-	end
-
-	def read_key(keyfile)
-		File.read(keyfile)
 	end
 
 	class UserError < RuntimeError; end
