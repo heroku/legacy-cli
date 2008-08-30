@@ -1,13 +1,25 @@
 = Heroku REST API
 
-You can use the Heroku class provided by the RubyGem to call the API.  The docs
-below are provided for the rare circumstance where you may wish to access the
-REST resources directly.
+Typically the command-line program is used for manually manipulating Heroku
+apps; or from a Ruby script (like a Rakefile), one uses the Heroku::Client
+class.  This document describes the underlying REST API used by both.
 
 == Authentication
 
-Use basic HTTP authentication to provide the Heroku username (email) and
-password with each request.
+Use HTTP basic auth to provide the Heroku username (email) and password with
+each request.
+
+== Content Types
+
+Actions that take additional input besides the verb and URL fall into two
+categories: XML/formencoded, or plaintext.  Actions that take multiple input
+parameters (such as updating the app settings) accept either an XML input body,
+or form variables as an input body in x-www-form-urlencoded format.  Actions
+that take a block of code or text data (such as uploading an ssh key) expect a
+plaintext input body.
+
+Most actions return XML, except for a few that return plaintext (such as the
+output of rake).
 
 == Resources & Actions
 
@@ -17,30 +29,86 @@ Returns XML listing of apps belonging to the user.
 
   POST http://heroku.com/apps
 
-Create a new app with an untitled name.  XML of app, including the generated
-name, is returned.
+Create a new app with an untitled name.  Returns XML of app settings, including
+the generated name.
 
-  POST http://heroku.com/apps?app[name]=appname
+  POST http://heroku.com/apps
+    app[name]=:appname
 
-Create a new app with the provided name.
+Create a new app with the provided name.  Returns XML of app settings.
 
-  DELETE http://heroku.com/apps/appname
+  GET http://heroku.com/apps/:appname
+
+Returns XML of the app settings (the same data returned after creation).
+
+  PUT http://heroku.com/apps/:appname
+
+Update app settings, with input structure matching the output of the GET above.
+
+  GET http://heroku.com/apps/:appname/collaborators
+
+Returns XML list of collaborators (email addresses) on the app, including the
+edit/view access setting for each.
+
+  POST http://heroku.com/apps/:appname/collaborators
+    collaborator[email]=:email
+    collaborator[access]=(edit|view)
+
+Add a new collaborator to the app.
+
+  DELETE http://heroku.com/apps/:appname/collaborators/:email
+
+Delete a collaborator from the app.  Don't forget to urlencode the email, since
+@ signs are not valid in URLs.
+
+  POST http://heroku.com/apps/:appname/rake
+
+Execute a rake command on the app.  The input body should be plaintext
+containing the command.  Returns a plaintext output body with the rake output.
+
+  DELETE http://heroku.com/apps/:appname
 
 Permanently destroy the app.
 
-  PUT http://heroku.com/user/authkey
+  POST http://heroku.com/user/keys
 
-Upload an ssh public key.  The payload of the PUT should be the plain text ssh
-key, i.e. the contents of ~/.ssh/id_rsa.pub.  Each subsequent call overwrites
-the previous key.
+Upload an ssh public key.  The input body is plaintext containing the key
+contents, usually around 200 bytes for an RSA key and 600 bytes for a DSA key.
+Make sure you are uploading the public portion of the key (e.g.,
+~/.ssh/id_rsa.pub) and not the private portion (e.g. ~/.ssh/id_rsa).
+
+  GET http://heroku.com/user/keys
+
+Returns XML of user's current keys.
+
+  DELETE http://heroku.com/user/keys/:keyname
+
+Delete one key by its name.  The name is the portion at the end of the key,
+e.g. a key like "ssh-rsa AAAAB3NzaC1yc2EAlmn+I0= joe@joe-smiths-computer.local"
+has a keyname of joe@joe-smiths-computer.local.  Remember to urlencode the
+keyname, since @ is not a valid URL character.
 
 == Example
 
+Although one would normally use Heroku::Client from a Ruby program, here's some
+sample code for reference.
+
+Using Net::HTTP:
+
   require 'net/http'
+
   Net::HTTP.start('heroku.com') do |http|
     request = Net::HTTP.Post.new('/apps')
     request.basic_auth 'me@example.com', 'mypass'
-    res = http.request(request)
+    res = http.request(request, 'app[name]=myapp')
     puts res.body
   end
+
+Using the RestClient gem:
+
+  require 'rubygems'
+  require 'rest_client'
+
+  apps = RestClient::Resource.new('http://heroku.com/apps', 'me@example.com', 'mypass')
+  apps.post :app => { :name => 'myapp' }
 
