@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/base'
 
 describe Heroku::CommandLine do
-	context "credentials" do
-		before do
-			@wrapper = Heroku::CommandLine.new
-			@wrapper.stub!(:display)
-			@wrapper.stub!(:print)
-			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
-		end
+	before do
+		@wrapper = Heroku::CommandLine.new
+		@wrapper.stub!(:display)
+		@wrapper.stub!(:print)
+		@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
+	end
 
+	describe "credentials" do
 		it "reads credentials from the credentials file" do
 			sandbox = "/tmp/wrapper_spec_#{Process.pid}"
 			File.open(sandbox, "w") { |f| f.write "user\npass\n" }
@@ -169,13 +169,7 @@ describe Heroku::CommandLine do
 		end
 	end
 
-	context "execute" do
-		before do
-			@wrapper = Heroku::CommandLine.new
-			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
-			@wrapper.stub!(:display)
-		end
-
+	describe "execute" do
 		it "executes an action" do
 			@wrapper.should_receive(:my_action).with(%w(arg1 arg2))
 			@wrapper.execute('my_action', %w(arg1 arg2))
@@ -197,11 +191,8 @@ describe Heroku::CommandLine do
 		end
 	end
 
-	context "app actions" do
+	describe "app actions" do
 		before do
-			@wrapper = Heroku::CommandLine.new
-			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
-			@wrapper.stub!(:display)
 			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
 
@@ -234,11 +225,8 @@ describe Heroku::CommandLine do
 		end
 	end
 
-	context "collaborators" do
+	describe "collaborators" do
 		before do
-			@wrapper = Heroku::CommandLine.new
-			@wrapper.stub!(:display)
-			@wrapper.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 			@wrapper.instance_variable_set('@credentials', %w(user pass))
 		end
 

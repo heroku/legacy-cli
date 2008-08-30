@@ -66,12 +66,7 @@ EOXML
 		@client.destroy("destroyme")
 	end
 
-	context "collaborators" do
-		before do
-			@client = Heroku::Client.new(nil, nil)
-			@resource = mock('heroku rest resource')
-		end
-
+	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
 			@resource.should_receive(:get).and_return <<EOXML
