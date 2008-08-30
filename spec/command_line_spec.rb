@@ -117,7 +117,7 @@ describe Heroku::CommandLine do
 		it "raises an exception if neither id_rsa or id_dsa were found" do
 			@cli.stub!(:home_directory).and_return('/home/joe')
 			File.stub!(:exists?).and_return(false)
-			lambda { @cli.find_key }.should raise_error(Heroku::CommandLine::UserError)
+			lambda { @cli.find_key }.should raise_error(Heroku::CommandLine::CommandFailed)
 		end
 
 		it "adds a key from the default locations if no key filename is supplied" do

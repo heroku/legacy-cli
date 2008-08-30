@@ -341,14 +341,12 @@ class Heroku::CommandLine
 		end
 	end
 
-	class UserError < RuntimeError; end
-
 	def find_key
 		%w(rsa dsa).each do |key_type|
 			keyfile = "#{home_directory}/.ssh/id_#{key_type}.pub"
 			return keyfile if File.exists? keyfile
 		end
-		raise UserError, "No ssh public key found in #{home_directory}/.ssh/id_[rd]sa.pub.  You may want to specify the full path to the keyfile."
+		raise CommandFailed, "No ssh public key found in #{home_directory}/.ssh/id_[rd]sa.pub.  You may want to specify the full path to the keyfile."
 	end
 
 	# vvv Deprecated
