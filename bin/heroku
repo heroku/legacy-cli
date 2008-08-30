@@ -47,5 +47,9 @@ unless wrapper.methods.include? command
 	exit 2
 end
 
-wrapper.execute(command, ARGV)
+begin
+	wrapper.execute(command, ARGV)
+rescue Heroku::CommandLine::UserError => e
+	puts e.message
+end
 

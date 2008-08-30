@@ -94,7 +94,30 @@ describe Heroku::CommandLine do
 			FileUtils.should_receive(:rm_f).with(@wrapper.credentials_file)
 			@wrapper.delete_credentials
 		end
+	end
 
+	describe "key management" do
+		it "finds the user's ssh key in ~/ssh/id_rsa.pub" do
+			@wrapper.stub!(:home_directory).and_return('/home/joe')
+			File.should_receive(:exists?).with('/home/joe/.ssh/id_rsa.pub').and_return(true)
+			@wrapper.find_key.should == '/home/joe/.ssh/id_rsa.pub'
+		end
+
+		it "finds the user's ssh key in ~/ssh/id_dsa.pub" do
+			@wrapper.stub!(:home_directory).and_return('/home/joe')
+			File.should_receive(:exists?).with('/home/joe/.ssh/id_rsa.pub').and_return(false)
+			File.should_receive(:exists?).with('/home/joe/.ssh/id_dsa.pub').and_return(true)
+			@wrapper.find_key.should == '/home/joe/.ssh/id_dsa.pub'
+		end
+
+		it "raises an exception if neither id_rsa or id_dsa were found" do
+			@wrapper.stub!(:home_directory).and_return('/home/joe')
+			File.stub!(:exists?).and_return(false)
+			lambda { @wrapper.find_key }.should raise_error(Heroku::CommandLine::UserError)
+		end
+	end
+
+	describe "deprecated key management" do
 		it "gets pub keys from the user's home directory" do
 			@wrapper.should_receive(:home_directory).and_return('/Users/joe')
 			File.should_receive(:exists?).with('/Users/joe/.ssh/id_xyz.pub').and_return(true)
