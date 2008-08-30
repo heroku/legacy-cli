@@ -41,11 +41,11 @@ if command.length == 0
 	exit 1
 end
 
-wrapper = Heroku::CommandLine.new
-unless wrapper.methods.include? command
+cli = Heroku::CommandLine.new
+unless cli.methods.include? command
 	puts "no such method as #{command}, run without arguments for usage"
 	exit 2
 end
 
-wrapper.execute(command, ARGV)
+cli.execute(command, ARGV)
 
