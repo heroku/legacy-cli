@@ -13,6 +13,13 @@ Spec::Rake::SpecTask.new(:doc) do |t|
 	t.spec_files = FileList['spec/*_spec.rb']
 end
 
+desc "Generate RCov code coverage report"
+Spec::Rake::SpecTask.new('rcov') do |t|
+	t.spec_files = FileList['spec/*_spec.rb']
+	t.rcov = true
+	t.rcov_opts = ['--exclude', 'examples']
+end
+
 task :default => :spec
 
 ######################################################
