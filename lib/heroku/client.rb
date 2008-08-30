@@ -112,7 +112,7 @@ class Heroku::Client
 	##################
 
 	def resource(uri)
-		RestClient::Resource.new(host + uri, user, password)
+		RestClient::Resource.new("http://#{host}", user, password)[uri]
 	end
 
 	def get(uri, extra_headers={})    # :nodoc:

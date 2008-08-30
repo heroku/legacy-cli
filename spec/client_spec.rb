@@ -66,6 +66,12 @@ EOXML
 		@client.destroy("destroyme")
 	end
 
+	it "rake(app_name, cmd) -> run a rake command on the app" do
+		@client.should_receive(:resource).with('/apps/myapp/rake').and_return(@resource)
+		@resource.should_receive(:post).with('db:migrate', @client.heroku_headers)
+		@client.rake('myapp', 'db:migrate')
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
@@ -132,6 +138,20 @@ EOXML
 			@client.should_receive(:resource).with('/user/keys').and_return(@resource)
 			@resource.should_receive(:delete)
 			@client.remove_all_keys
+		end
+	end
+
+	describe "internal" do
+		it "creates a RestClient resource for making calls" do
+			@client.stub!(:host).and_return('heroku.com')
+			@client.stub!(:user).and_return('joe@example.com')
+			@client.stub!(:password).and_return('secret')
+
+			res = @client.resource('/xyz')
+
+			res.url.should == 'http://heroku.com/xyz'
+			res.user.should == 'joe@example.com'
+			res.password.should == 'secret'
 		end
 	end
 end
