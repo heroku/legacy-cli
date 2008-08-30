@@ -19,10 +19,7 @@ class Heroku::CommandLine
 	def list(args)
 		list = heroku.list
 		if list.size > 0
-			display "=== My Apps".ljust(30) + "== Git repo"
-			display list.map { |a|
-				a.ljust(30) + git_repo_for(a)
-			}.join("\n")
+			display list.join("\n")
 		else
 			display "You have no apps."
 		end
