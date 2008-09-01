@@ -104,11 +104,8 @@ this will list all the keys attached to your Heroku user account.
 
 == Further Reading
 
-The command line internals are implemented by Heroku::CommandLine, look there
-if you'd like to know what's going on behind the scenes.
-
-The Heroku::Client class wraps the REST API.  You can use this library if you
-wish to access the API from within a Ruby program, such as a Capistrano script.
+The Heroku::Client class wraps the REST API.  You can instantiate this class to
+access the API from within a Ruby program, such as a Capistrano script.
 
 Documentation for the underlying REST resources: link:files/REST.html
 

@@ -91,7 +91,7 @@ keyname, since @ is not a valid URL character.
 == Example
 
 Although one would normally use Heroku::Client from a Ruby program, here's some
-sample code for reference.
+sample code for reference.  It creates an app named foobaz by posting to /apps.
 
 Using Net::HTTP:
 
@@ -100,7 +100,7 @@ Using Net::HTTP:
   Net::HTTP.start('heroku.com') do |http|
     request = Net::HTTP.Post.new('/apps')
     request.basic_auth 'me@example.com', 'mypass'
-    res = http.request(request, 'app[name]=myapp')
+    res = http.request(request, 'app[name]=foobaz')
     puts res.body
   end
 
@@ -110,5 +110,5 @@ Using the RestClient gem:
   require 'rest_client'
 
   apps = RestClient::Resource.new('http://heroku.com/apps', 'me@example.com', 'mypass')
-  apps.post :app => { :name => 'myapp' }
+  apps.post :app => { :name => 'foobaz' }
 
