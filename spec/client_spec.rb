@@ -112,11 +112,11 @@ EOXML
 			@client.should_receive(:resource).with('/user/keys').and_return(@resource)
 			@resource.should_receive(:get).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
-<authkeys type="array">
-  <authkey>
+<keys type="array">
+  <key>
     <contents>ssh-dss thekey== joe@workstation</contents>
-  </authkey>
-</authkeys>
+  </key>
+</keys>
 EOXML
 			@client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
 		end

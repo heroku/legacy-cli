@@ -84,7 +84,7 @@ class Heroku::Client
 	# Get the list of ssh public keys for the current user.
 	def keys
 		doc = xml get('/user/keys')
-		doc.elements.to_a('//authkeys/authkey').map do |key|
+		doc.elements.to_a('//keys/key').map do |key|
 			key.elements['contents'].text
 		end
 	end
