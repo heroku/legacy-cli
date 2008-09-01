@@ -29,7 +29,7 @@ class Heroku::CommandLine
 
 	def info(args)
 		name = args.shift.downcase.strip rescue ""
-		if name.length == 0
+		if name.length == 0 or name.slice(0, 1) == '-'
 			display "Usage: heroku info <app>"
 		else
 			attrs = heroku.info(name)
@@ -57,7 +57,7 @@ class Heroku::CommandLine
 
 	def update(args)
 		name = args.shift.downcase.strip rescue ""
-		raise CommandFailed, "Invalid app name" if name.length == 0
+		raise CommandFailed, "Invalid app name" if name.length == 0 or name.slice(0, 1) == '-'
 
 		attributes = {}
 		extract_option(args, '--name') do |new_name|
@@ -78,7 +78,7 @@ class Heroku::CommandLine
 
 	def clone(args)
 		name = args.shift.downcase.strip rescue ""
-		if name.length == 0
+		if name.length == 0 or name.slice(0, 1) == '-'
 			display "Usage: heroku clone <app>"
 			display "(this command is deprecated in favor of using the git repo url directly)"
 		else
@@ -90,7 +90,7 @@ class Heroku::CommandLine
 
 	def destroy(args)
 		name = args.shift.strip.downcase rescue ""
-		if name.length == 0
+		if name.length == 0 or name.slice(0, 1) == '-'
 			display "Usage: heroku destroy <app>"
 		else
 			heroku.destroy(name)
@@ -100,7 +100,7 @@ class Heroku::CommandLine
 
 	def sharing(args)
 		name = args.shift.strip.downcase rescue ""
-		if name.length == 0
+		if name.length == 0 or name.slice(0, 1) == '-'
 			display "Usage: heroku sharing <app>"
 		else
 			access = extract_option(args, '--access', %w( edit view )) || 'view'
