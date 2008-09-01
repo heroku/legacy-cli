@@ -101,7 +101,7 @@ class Heroku::CommandLine
 	def sharing(args)
 		name = args.shift.strip.downcase rescue ""
 		if name.length == 0
-			display "Usage: heroku collaborators <app>"
+			display "Usage: heroku sharing <app>"
 		else
 			access = extract_option(args, '--access', %w( edit view )) || 'view'
 			extract_option(args, '--add') do |email|
