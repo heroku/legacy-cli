@@ -108,6 +108,11 @@ class Heroku::Client
 		post("/apps/#{app_name}/rake", cmd)
 	end
 
+	# Run a console command - that is, a Ruby command executed within the app's VM.
+	def console(app_name, cmd)
+		post("/apps/#{app_name}/console", cmd)
+	end
+
 	##################
 
 	def resource(uri)

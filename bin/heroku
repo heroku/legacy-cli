@@ -19,6 +19,7 @@ usage = <<EOTXT
     --remove <email>
     --access (edit|view)
   rake <app> <command> - remotely execute a rake command
+  console <app> <command> - remotely execute a console command
   destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]

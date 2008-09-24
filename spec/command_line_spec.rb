@@ -278,6 +278,16 @@ describe Heroku::CommandLine do
 			@cli.should_receive(:system).with('git clone git@heroku.com:myapp.git')
 			@cli.clone([ 'myapp' ])
 		end
+
+		it "runs a rake command on the app" do
+			@cli.heroku.should_receive(:rake).with('myapp', 'db:migrate')
+			@cli.rake([ 'myapp', 'db:migrate' ])
+		end
+
+		it "runs a console command on the app" do
+			@cli.heroku.should_receive(:console).with('myapp', '2+2')
+			@cli.console([ 'myapp', '2+2' ])
+		end
 	end
 
 	describe "collaborators" do

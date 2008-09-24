@@ -155,6 +155,16 @@ class Heroku::CommandLine
 		end
 	end
 
+	def console(args)
+		app_name = args.shift.strip.downcase rescue ""
+		cmd = args.join(' ')
+		if app_name.length == 0 or cmd.length == 0
+			display "Usage: heroku console <app> <command>"
+		else
+			puts heroku.console(app_name, cmd)
+		end
+	end
+
 	############
 	attr_accessor :credentials
 

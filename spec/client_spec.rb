@@ -72,6 +72,12 @@ EOXML
 		@client.rake('myapp', 'db:migrate')
 	end
 
+	it "console(app_name, cmd) -> run a console command on the app" do
+		@client.should_receive(:resource).with('/apps/myapp/console').and_return(@resource)
+		@resource.should_receive(:post).with('2+2', @client.heroku_headers)
+		@client.console('myapp', '2+2')
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
