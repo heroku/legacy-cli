@@ -323,9 +323,14 @@ class Heroku::CommandLine
 		else
 			display "=== #{keys.size} key#{keys.size > 1 ? 's' : ''} for #{user}"
 			keys.each do |key|
-				display key
+				display format_key_for_display(key)
 			end
 		end
+	end
+
+	def format_key_for_display(key)
+		type, hex, local = key.strip.split(/\s/)
+		[type, hex[0,10] + '...' + hex[-10,10], local].join(' ')
 	end
 
 	def add_key(keyfile=nil)

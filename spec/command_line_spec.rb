@@ -133,6 +133,12 @@ describe Heroku::CommandLine do
 			@cli.heroku.should_receive(:add_key).with('ssh-rsa xyz')
 			@cli.add_key('/my/key.pub')
 		end
+
+		it "list keys, trimming the hex code for better display" do
+			@cli.heroku.should_receive(:keys).and_return(["ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp9AJD5QABmOcrkHm6SINuQkDefaR0MUrfgZ1Pxir3a4fM1fwa00dsUwbUaRuR7FEFD8n1E9WwDf8SwQTHtyZsJg09G9myNqUzkYXCmydN7oGr5IdVhRyv5ixcdiE0hj7dRnOJg2poSQ3Qi+Ka8SVJzF7nIw1YhuicHPSbNIFKi5s0D5a+nZb/E6MNGvhxoFCQX2IcNxaJMqhzy1ESwlixz45aT72mXYq0LIxTTpoTqma1HuKdRY8HxoREiivjmMQulYP+CxXFcMyV9kxTKIUZ/FXqlC6G5vSm3J4YScSatPOj9ID5HowpdlIx8F6y4p1/28r2tTl4CY40FFyoke4MQ== pedro@heroku\n"])
+			@cli.should_receive(:display).with('ssh-rsa AAAAB3NzaC...Fyoke4MQ== pedro@heroku')
+			@cli.list_keys
+		end
 	end
 
 	describe "deprecated key management" do
