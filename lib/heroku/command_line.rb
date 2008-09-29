@@ -299,8 +299,8 @@ class Heroku::CommandLine
 	def keys(*args)
 		args = args.first  # something weird with ruby argument passing
 
-		if args.empty?
-			list_keys
+		if args.empty? || args == ['--long']
+			list_keys(args.first)
 			return
 		end
 
@@ -316,14 +316,14 @@ class Heroku::CommandLine
 		display "Usage: heroku keys [--add or --remove]"
 	end
 
-	def list_keys
+	def list_keys(long=false)
 		keys = heroku.keys
 		if keys.empty?
 			display "No keys for #{user}"
 		else
 			display "=== #{keys.size} key#{keys.size > 1 ? 's' : ''} for #{user}"
 			keys.each do |key|
-				display format_key_for_display(key)
+				display long ? key.strip : format_key_for_display(key)
 			end
 		end
 	end
