@@ -249,11 +249,13 @@ describe Heroku::CommandLine do
 			@cli.instance_variable_set('@credentials', %w(user pass))
 		end
 
-		it "shows app info" do
-			@cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [] })
+		it "shows app info, converting bytes to kbs/mbs" do
+			@cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :code_size => 2*1024, :data_size => 5*1024*1024 })
 			@cli.heroku.stub!(:domain).and_return('heroku.com')
 			@cli.should_receive(:display).with('=== myapp')
 			@cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
+			@cli.should_receive(:display).with('Code size:      2k')
+			@cli.should_receive(:display).with('Data size:      5M')
 			@cli.info([ 'myapp' ])
 		end
 

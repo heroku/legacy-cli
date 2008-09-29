@@ -37,6 +37,8 @@ class Heroku::CommandLine
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
 			display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
+			display "Code size:      #{format_bytes(attrs[:code_size])}" if attrs[:code_size]
+			display "Data size:      #{format_bytes(attrs[:data_size])}" if attrs[:data_size]
 			display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
 
 			first = true
@@ -328,11 +330,6 @@ class Heroku::CommandLine
 		end
 	end
 
-	def format_key_for_display(key)
-		type, hex, local = key.strip.split(/\s/)
-		[type, hex[0,10] + '...' + hex[-10,10], local].join(' ')
-	end
-
 	def add_key(keyfile=nil)
 		keyfile ||= find_key
 		key = File.read(keyfile)
@@ -414,5 +411,23 @@ class Heroku::CommandLine
 
 	def running_on_windows?
 		RUBY_PLATFORM =~ /mswin32/
+	end
+
+	# helpers - formatters
+	def format_key_for_display(key)
+		type, hex, local = key.strip.split(/\s/)
+		[type, hex[0,10] + '...' + hex[-10,10], local].join(' ')
+	end
+
+	KB = 1024
+	MB = 1024 * KB
+	GB = 1024 * MB
+	def format_bytes(amount)
+		amount = amount.to_i
+		return nil if amount == 0
+		return amount if amount < KB
+		return "#{(amount / KB).round}k" if amount < MB
+		return "#{(amount / MB).round}M" if amount < GB
+		return "#{(amount / GB).round}G"
 	end
 end
