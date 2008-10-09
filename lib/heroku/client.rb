@@ -113,6 +113,10 @@ class Heroku::Client
 		post("/apps/#{app_name}/console", cmd)
 	end
 
+	def restart(app_name)
+		delete("/apps/#{app_name}/server")
+	end
+
 	##################
 
 	def resource(uri)

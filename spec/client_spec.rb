@@ -78,6 +78,12 @@ EOXML
 		@client.console('myapp', '2+2')
 	end
 
+	it "restart(app_name) -> restarts the app servers" do
+		@client.should_receive(:resource).with('/apps/myapp/server').and_return(@resource)
+		@resource.should_receive(:delete).with
+		@client.restart('myapp')
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)

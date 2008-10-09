@@ -165,6 +165,15 @@ class Heroku::CommandLine
 		end
 	end
 
+	def restart(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku restart <app>"
+		else
+			heroku.restart(app_name)
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
