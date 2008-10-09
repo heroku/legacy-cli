@@ -288,6 +288,11 @@ describe Heroku::CommandLine do
 			@cli.heroku.should_receive(:console).with('myapp', '2+2')
 			@cli.console([ 'myapp', '2+2' ])
 		end
+
+		it "asks to restart servers" do
+			@cli.heroku.should_receive(:restart).with('myapp')
+			@cli.restart([ 'myapp' ])
+		end
 	end
 
 	describe "collaborators" do

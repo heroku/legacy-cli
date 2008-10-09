@@ -171,6 +171,7 @@ class Heroku::CommandLine
 			display "Usage: heroku restart <app>"
 		else
 			heroku.restart(app_name)
+			display "Servers restarted"
 		end
 	end
 
