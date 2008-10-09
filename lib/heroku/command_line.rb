@@ -151,7 +151,7 @@ class Heroku::CommandLine
 		if app_name.length == 0 or cmd.length == 0
 			display "Usage: heroku rake <app> <command>"
 		else
-			puts heroku.rake(app_name, cmd)
+			display heroku.rake(app_name, cmd)
 		end
 	end
 
@@ -161,7 +161,7 @@ class Heroku::CommandLine
 		if app_name.length == 0 or cmd.length == 0
 			display "Usage: heroku console <app> <command>"
 		else
-			puts heroku.console(app_name, cmd)
+			display heroku.console(app_name, cmd)
 		end
 	end
 
