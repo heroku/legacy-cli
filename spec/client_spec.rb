@@ -33,7 +33,7 @@ EOXML
 </app>
 EOXML
 		@client.stub!(:list_collaborators).and_return([:jon, :mike])
-		@client.info('myapp').should == { :blessed => 'true', :'created-at' => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :'share-public' => 'true', :domain_name => nil, :collaborators => [:jon, :mike] }
+		@client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike] }
 	end
 
 	it "create -> create a new blank app" do

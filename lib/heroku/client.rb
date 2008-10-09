@@ -32,7 +32,7 @@ class Heroku::Client
 		doc = xml(get("/apps/#{name}"))
 		attrs = { :collaborators => list_collaborators(name) }
 		doc.elements.to_a('//app/*').inject(attrs) do |hash, element|
-			hash[element.name.to_sym] = element.text; hash
+			hash[element.name.gsub(/-/, '_').to_sym] = element.text; hash
 		end
 	end
 
