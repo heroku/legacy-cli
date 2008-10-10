@@ -178,7 +178,7 @@ class Heroku::CommandLine
 	def logs(args)
 		app_name = args.shift.strip.downcase rescue ""
 		if app_name.length == 0
-			display "Usage: heroku log <app>"
+			display "Usage: heroku logs <app>"
 		else
 			display heroku.logs(app_name)
 		end
