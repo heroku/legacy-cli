@@ -117,6 +117,10 @@ class Heroku::Client
 		delete("/apps/#{app_name}/server")
 	end
 
+	def logs(app_name)
+		get("/apps/#{app_name}/logs")
+	end
+
 	##################
 
 	def resource(uri)

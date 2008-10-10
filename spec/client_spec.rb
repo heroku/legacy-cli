@@ -84,6 +84,12 @@ EOXML
 		@client.restart('myapp')
 	end
 
+	it "logs(app_name) -> returns recent output of the app logs" do
+		@client.should_receive(:resource).with('/apps/myapp/logs').and_return(@resource)
+		@resource.should_receive(:get).and_return('log')
+		@client.logs('myapp').should == 'log'
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)

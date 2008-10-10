@@ -293,6 +293,12 @@ describe Heroku::CommandLine do
 			@cli.heroku.should_receive(:restart).with('myapp')
 			@cli.restart([ 'myapp' ])
 		end
+
+		it "shows the app logs" do
+			@cli.heroku.should_receive(:logs).with('myapp').and_return('logs')
+			@cli.should_receive(:display).with('logs')
+			@cli.logs([ 'myapp' ])
+		end
 	end
 
 	describe "collaborators" do

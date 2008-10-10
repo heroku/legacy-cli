@@ -175,6 +175,15 @@ class Heroku::CommandLine
 		end
 	end
 
+	def logs(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku log <app>"
+		else
+			display heroku.logs(app_name)
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
