@@ -108,9 +108,24 @@ class Heroku::Client
 		post("/apps/#{app_name}/rake", cmd)
 	end
 
-	# Run a console command - that is, a Ruby command executed within the app's VM.
-	def console(app_name, cmd)
-		post("/apps/#{app_name}/console", cmd)
+	# support for console sessions
+	class ConsoleSession
+		def initialize(id, app, client)
+			@id = id; @app = app; @client = client
+		end
+		def run(cmd)
+			@client.post("/apps/#{@app}/consoles/#{@id}/command", :command => cmd)
+		end
+	end
+
+	def console(app_name, cmd=nil)
+		if block_given?
+			id = post("/apps/#{app_name}/consoles")
+			yield ConsoleSession.new(id, app_name, self)
+			delete("/apps/#{app_name}/consoles/#{id}")
+		else
+			post("/apps/#{app_name}/console", cmd)
+		end
 	end
 
 	def restart(app_name)

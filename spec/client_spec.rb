@@ -78,6 +78,20 @@ EOXML
 		@client.console('myapp', '2+2')
 	end
 
+	it "console(app_name) { |c| } -> opens a console session, yields one accessor and closes it after the block" do
+		@resources = %w( open run close ).inject({}) { |h, r| h[r] = mock("resource for console #{r}"); h }
+		@client.should_receive(:resource).with('/apps/myapp/consoles').and_return(@resources['open'])
+		@client.should_receive(:resource).with('/apps/myapp/consoles/42/command').and_return(@resources['run'])
+		@client.should_receive(:resource).with('/apps/myapp/consoles/42').and_return(@resources['close'])
+		@resources['open'].should_receive(:post).and_return(42)
+		@resources['run'].should_receive(:post).with({:command=>"1+1"}, {"X-Heroku-API-Version"=>"1"}).and_return('2')
+		@resources['close'].should_receive(:delete)
+
+		@client.console('myapp') do |c|
+			c.run("1+1").should == '2'
+		end
+	end
+
 	it "restart(app_name) -> restarts the app servers" do
 		@client.should_receive(:resource).with('/apps/myapp/server').and_return(@resource)
 		@resource.should_receive(:delete).with

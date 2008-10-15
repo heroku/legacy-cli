@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'readline'
 
 # This wraps the Heroku::Client class with higher-level actions suitable for
 # use from the command line.
@@ -157,11 +158,28 @@ class Heroku::CommandLine
 
 	def console(args)
 		app_name = args.shift.strip.downcase rescue ""
-		cmd = args.join(' ')
-		if app_name.length == 0 or cmd.length == 0
-			display "Usage: heroku console <app> <command>"
+		cmd = args.join(' ').strip
+		if app_name.length == 0
+			display "Usage: heroku console <app>"
 		else
-			display heroku.console(app_name, cmd)
+			if cmd.empty?
+				console_session(app_name)
+			else
+				display heroku.console(app_name, cmd)
+			end
+		end
+	end
+
+	def console_session(app)
+		display "Ruby console for #{app}.#{heroku.host}"
+		heroku.console(app) do |console|
+			while cmd = Readline.readline('>> ')
+				break if cmd.downcase.strip == 'exit'
+				unless cmd.nil? || cmd.strip.empty?
+					Readline::HISTORY.push(cmd)
+					display console.run(cmd)
+				end
+			end
 		end
 	end
 

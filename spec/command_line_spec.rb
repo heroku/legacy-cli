@@ -284,9 +284,16 @@ describe Heroku::CommandLine do
 			@cli.rake([ 'myapp', 'db:migrate' ])
 		end
 
-		it "runs a console command on the app" do
+		it "runs a single console command on the app" do
 			@cli.heroku.should_receive(:console).with('myapp', '2+2')
 			@cli.console([ 'myapp', '2+2' ])
+		end
+
+		it "offers a console, opening and closing the session with the client" do
+			@console = mock('heroku console')
+			@cli.heroku.should_receive(:console).with('myapp').and_yield(@console)
+			Readline.should_receive(:readline).and_return('exit')
+			@cli.console([ 'myapp' ])
 		end
 
 		it "asks to restart servers" do
