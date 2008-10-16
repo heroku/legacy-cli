@@ -23,9 +23,10 @@ usage = <<EOTXT
   console <app> - start an interactive console to the remote app
   restart <app> - restart app servers
   logs <app> - fetch recent log output for debugging
-  bundle:capture <app> - start capturing a bundle of the app's code and data
+  bundle:capture <app> [<bundle>] - capture a bundle of the app's code and data
   bundle:download <app> - download most recent app bundle as a tarball
-  bundle:animate <bundle> - animate a bundle into a new app
+  bundle:download <app> <bundle> - download the named bundle
+  bundle:animate <app> <bundle> - animate a bundle into a new app
   destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]
