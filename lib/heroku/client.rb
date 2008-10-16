@@ -136,6 +136,15 @@ class Heroku::Client
 		get("/apps/#{app_name}/logs")
 	end
 
+	def bundle_capture(app_name)
+		xml(post("/apps/#{app_name}/bundles")).elements["//bundle/name"].text
+	end
+
+	def bundle_download(app_name, fname)
+		data = get("/apps/#{app_name}/bundles/latest")
+		File.open(fname, "w") { |f| f.write data }
+	end
+
 	##################
 
 	def resource(uri)

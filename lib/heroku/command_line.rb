@@ -202,6 +202,27 @@ class Heroku::CommandLine
 		end
 	end
 
+	def bundle_capture(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku bundle:capture <app>"
+		else
+			bundle = heroku.bundle_capture(app_name)
+			display "Bundle #{bundle} captured from #{app_name}"
+		end
+	end
+
+	def bundle_download(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku bundle:download <app>"
+		else
+			fname = "#{app_name}.tar.gz"
+			heroku.bundle_download(app_name, fname)
+			display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
+		end
+	end
+
 	############
 	attr_accessor :credentials
 
