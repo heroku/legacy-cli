@@ -207,7 +207,9 @@ class Heroku::CommandLine
 		if app_name.length == 0
 			display "Usage: heroku bundle:capture <app>"
 		else
-			bundle = heroku.bundle_capture(app_name)
+			bundle = args.shift.strip.downcase rescue nil
+
+			bundle = heroku.bundle_capture(app_name, bundle)
 			display "Bundle #{bundle} captured from #{app_name}"
 		end
 	end
