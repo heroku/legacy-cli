@@ -19,7 +19,8 @@ usage = <<EOTXT
     --remove <email>
     --access (edit|view)
   rake <app> <command> - remotely execute a rake command
-  console <app> <command> - remotely execute a console command
+  console <app> <command> - remotely execute a single console command
+  console <app> - start an interactive console to the remote app
   restart <app> - restart app servers
   logs <app> - fetch recent log output for debugging
   destroy <app> - destroy the app permanently
