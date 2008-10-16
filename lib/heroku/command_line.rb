@@ -220,7 +220,8 @@ class Heroku::CommandLine
 			display "Usage: heroku bundle:download <app>"
 		else
 			fname = "#{app_name}.tar.gz"
-			heroku.bundle_download(app_name, fname)
+			bundle = args.shift.strip.downcase rescue nil
+			heroku.bundle_download(app_name, fname, bundle)
 			display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
 		end
 	end

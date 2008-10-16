@@ -136,12 +136,12 @@ class Heroku::Client
 		get("/apps/#{app_name}/logs")
 	end
 
-	def bundle_capture(app_name, bundle_name)
+	def bundle_capture(app_name, bundle_name=nil)
 		xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name })).elements["//bundle/name"].text
 	end
 
-	def bundle_download(app_name, fname)
-		data = get("/apps/#{app_name}/bundles/latest")
+	def bundle_download(app_name, fname, bundle_name=nil)
+		data = get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}")
 		File.open(fname, "w") { |f| f.write data }
 	end
 
