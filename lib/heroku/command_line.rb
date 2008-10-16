@@ -205,7 +205,7 @@ class Heroku::CommandLine
 	def bundle_capture(args)
 		app_name = args.shift.strip.downcase rescue ""
 		if app_name.length == 0
-			display "Usage: heroku bundle:capture <app>"
+			display "Usage: heroku bundle:capture <app> [<bundle>]"
 		else
 			bundle = args.shift.strip.downcase rescue nil
 
@@ -217,7 +217,7 @@ class Heroku::CommandLine
 	def bundle_download(args)
 		app_name = args.shift.strip.downcase rescue ""
 		if app_name.length == 0
-			display "Usage: heroku bundle:download <app>"
+			display "Usage: heroku bundle:download <app> [<bundle>]"
 		else
 			fname = "#{app_name}.tar.gz"
 			bundle = args.shift.strip.downcase rescue nil
@@ -227,12 +227,13 @@ class Heroku::CommandLine
 	end
 
 	def bundle_animate(args)
+		app_name = args.shift.strip.downcase rescue ""
 		bundle = args.shift.strip.downcase rescue ""
-		if bundle.length == 0
-			display "Usage: heroku bundle:animate <bundle>"
+		if app_name.length == 0 or bundle.length == 0
+			display "Usage: heroku bundle:animate <app> <bundle>"
 		else
-			name = heroku.create(nil, :origin_bundle => bundle)
-			display "Animated #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
+			name = heroku.create(nil, :origin_bundle_app => app_name, :origin_bundle => bundle)
+			display "Animated #{app_name} #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 		end
 	end
 
