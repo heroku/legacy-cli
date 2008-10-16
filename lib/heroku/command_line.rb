@@ -223,6 +223,16 @@ class Heroku::CommandLine
 		end
 	end
 
+	def bundle_animate(args)
+		bundle = args.shift.strip.downcase rescue ""
+		if bundle.length == 0
+			display "Usage: heroku bundle:animate <bundle>"
+		else
+			name = heroku.create(nil, :origin_bundle => bundle)
+			display "Animated #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
+		end
+	end
+
 	############
 	attr_accessor :credentials
 

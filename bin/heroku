@@ -25,6 +25,7 @@ usage = <<EOTXT
   logs <app> - fetch recent log output for debugging
   bundle:capture <app> - start capturing a bundle of the app's code and data
   bundle:download <app> - download most recent app bundle as a tarball
+  bundle:animate <bundle> - animate a bundle into a new app
   destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]
