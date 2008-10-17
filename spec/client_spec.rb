@@ -139,6 +139,38 @@ EOXML
 		end
 	end
 
+	describe "domain names" do
+		it "list(app_name) -> list app domain names" do
+			@client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
+			@resource.should_receive(:get).and_return <<EOXML
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-names type="array">
+	<domain-name><domain>example1.com</domain></domain-name>
+	<domain-name><domain>example2.com</domain></domain-name>
+</domain-names>
+EOXML
+			@client.list_domains('myapp').should == ['example1.com', 'example2.com']
+		end
+
+		it "add_domain(app_name, domain) -> adds domain name to app" do
+			@client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
+			@resource.should_receive(:post).with('example.com', anything)
+			@client.add_domain('myapp', 'example.com')
+		end
+
+		it "remove_domain(app_name, domain) -> removes domain name from app" do
+			@client.should_receive(:resource).with('/apps/myapp/domains/example.com').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.remove_domain('myapp', 'example.com')
+		end
+
+		it "remove_domains(app_name) -> removes all domain names from app" do
+			@client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.remove_domains('myapp')
+		end
+	end
+
 	describe "ssh keys" do
 		it "fetches a list of the user's current keys" do
 			@client.should_receive(:resource).with('/user/keys').and_return(@resource)

@@ -80,6 +80,25 @@ class Heroku::Client
 		delete("/apps/#{app_name}/collaborators/#{escape(email)}")
 	end
 
+	def list_domains(app_name)
+		doc = xml(get("/apps/#{app_name}/domains"))
+		doc.elements.to_a("//domain-names/domain-name").map do |d|
+			d.elements['domain'].text
+		end
+	end
+
+	def add_domain(app_name, domain)
+		post("/apps/#{app_name}/domains", domain)
+	end
+
+	def remove_domain(app_name, domain)
+		delete("/apps/#{app_name}/domains/#{domain}")
+	end
+
+	def remove_domains(app_name)
+		delete("/apps/#{app_name}/domains")
+	end
+
 	# Get the list of ssh public keys for the current user.
 	def keys
 		doc = xml get('/user/keys')

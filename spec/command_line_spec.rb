@@ -338,4 +338,30 @@ describe Heroku::CommandLine do
 			@cli.collaborators(['myapp', '--remove', 'joe@example.com'])
 		end
 	end
+
+	describe "domain names" do
+		before do
+			@cli.instance_variable_set('@credentials', %w(user pass))
+		end
+
+		it "list domain names when there's no other arg" do
+			@cli.heroku.should_receive(:list_domains).and_return([])
+			@cli.domains(['myapp'])
+		end
+
+		it "adds domain names" do
+			@cli.heroku.should_receive(:add_domain).with('myapp', 'example.com')
+			@cli.domains(['myapp', '--add', 'example.com'])
+		end
+
+		it "removes domain names" do
+			@cli.heroku.should_receive(:remove_domain).with('myapp', 'example.com')
+			@cli.domains(['myapp', '--remove', 'example.com'])
+		end
+
+		it "removes all domain names" do
+			@cli.heroku.should_receive(:remove_domains).with('myapp')
+			@cli.domains(['myapp', '--remove-all', 'joe@example.com'])
+		end
+	end
 end

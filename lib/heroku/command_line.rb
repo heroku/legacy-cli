@@ -141,7 +141,45 @@ class Heroku::CommandLine
 		list = heroku.list_collaborators(name)
 		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
 	end
-	
+
+	def domains(args)
+		app = args.shift.strip.downcase rescue ""
+		if app.length == 0 or app.slice(0, 1) == '-'
+			display "Usage: heroku domains <app>"
+		else
+			extract_option(args, '--add') do |domain|
+				return add_domain(app, domain)
+			end
+			extract_option(args, '--remove') do |domain|
+				return remove_domain(app, domain)
+			end
+			extract_option(args, '--remove-all') do
+				return remove_domains(app)
+			end
+			return list_domains(app)
+		end
+	end
+
+	def add_domain(app, domain)
+		heroku.add_domain(app, domain)
+		display "Added #{domain} as a custom domain name to #{app}.#{heroku.host}"
+	end
+
+	def remove_domain(app, domain)
+		heroku.remove_domain(app, domain)
+		display "Removed #{domain} as a custom domain name to #{app}.#{heroku.host}"
+	end
+
+	def remove_domains(app)
+		heroku.remove_domains(app)
+		display "Removed all domain names for #{app}.#{heroku.host}"
+	end
+
+	def list_domains(app)
+		display "Domain names for #{app}.#{heroku.host}:"
+		display heroku.list_domains(app).join("\n")
+	end
+
 	def git_repo_for(name)
 		"git@#{heroku.host}:#{name}.git"
 	end

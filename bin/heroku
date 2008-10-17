@@ -18,6 +18,10 @@ usage = <<EOTXT
     --add <email>
     --remove <email>
     --access (edit|view)
+  domains <app> - manage domain names
+    --add <domain>
+    --remove <domain>
+    --remove-all
   rake <app> <command> - remotely execute a rake command
   console <app> <command> - remotely execute a single console command
   console <app> - start an interactive console to the remote app
