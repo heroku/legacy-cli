@@ -137,6 +137,8 @@ class Heroku::Client
 		end
 	end
 
+	# Execute a one-off console command, or start a new console tty session if
+	# cmd is nil.
 	def console(app_name, cmd=nil)
 		if block_given?
 			id = post("/apps/#{app_name}/consoles")
@@ -147,23 +149,29 @@ class Heroku::Client
 		end
 	end
 
+	# Restart the app servers.
 	def restart(app_name)
 		delete("/apps/#{app_name}/server")
 	end
 
+	# Fetch recent logs from the app server.
 	def logs(app_name)
 		get("/apps/#{app_name}/logs")
 	end
 
+	# Capture a bundle from the given app, as a backup or for download.
 	def bundle_capture(app_name, bundle_name=nil)
 		xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name })).elements["//bundle/name"].text
 	end
 
+	# Download a previously captured bundle.  If bundle_name is nil, the most
+	# recently captured bundle for that app will be downloaded.
 	def bundle_download(app_name, fname, bundle_name=nil)
 		data = get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}")
 		File.open(fname, "w") { |f| f.write data }
 	end
 
+]	# Get a list of bundles of the app.
 	def bundles(app_name)
 		doc = xml(get("/apps/#{app_name}/bundles"))
 		doc.elements.to_a("//bundles/bundle/name").map { |a| a.text }
