@@ -148,9 +148,11 @@ class Heroku::CommandLine
 			display "Usage: heroku domains <app>"
 		else
 			extract_option(args, '--add') do |domain|
+				return display('Usage: heroku domains <app> --add <domain>') unless domain
 				return add_domain(app, domain)
 			end
 			extract_option(args, '--remove') do |domain|
+				return display('Usage: heroku domains <app> --remove <domain>') unless domain
 				return remove_domain(app, domain)
 			end
 			extract_option(args, '--remove-all') do
