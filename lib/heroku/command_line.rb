@@ -275,6 +275,20 @@ class Heroku::CommandLine
 		end
 	end
 
+	def bundle_list(args)
+		app_name = args.shift.strip.downcase rescue ""
+		if app_name.length == 0
+			display "Usage: heroku bundle:list <app>"
+		else
+			list = heroku.bundles(app_name)
+			if list.size > 0
+				display list.join("\n")
+			else
+				display "#{app_name} has no bundles."
+			end
+		end
+	end
+
 	############
 	attr_accessor :credentials
 

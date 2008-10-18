@@ -31,6 +31,7 @@ usage = <<EOTXT
   bundle:download <app> - download most recent app bundle as a tarball
   bundle:download <app> <bundle> - download the named bundle
   bundle:animate <app> <bundle> - animate a bundle into a new app
+  bundle:list <app> - list bundles for the app
   destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]

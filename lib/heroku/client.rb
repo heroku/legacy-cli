@@ -164,6 +164,11 @@ class Heroku::Client
 		File.open(fname, "w") { |f| f.write data }
 	end
 
+	def bundles(app_name)
+		doc = xml(get("/apps/#{app_name}/bundles"))
+		doc.elements.to_a("//bundles/bundle/name").map { |a| a.text }
+	end
+
 	##################
 
 	def resource(uri)
