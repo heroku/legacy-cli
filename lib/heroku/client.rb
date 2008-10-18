@@ -171,7 +171,7 @@ class Heroku::Client
 		File.open(fname, "w") { |f| f.write data }
 	end
 
-]	# Get a list of bundles of the app.
+	# Get a list of bundles of the app.
 	def bundles(app_name)
 		doc = xml(get("/apps/#{app_name}/bundles"))
 		doc.elements.to_a("//bundles/bundle/name").map { |a| a.text }
