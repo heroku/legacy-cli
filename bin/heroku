@@ -38,14 +38,14 @@ usage = <<EOTXT
     --remove <keyname or all>
 
 Example story:
-  heroku create myapp
-  git clone git@heroku.com:myapp.git
+  rails myapp
   cd myapp
   (...make edits...)
   git add .
-  git commit -m "changes"
-  git push
-  heroku update myapp --public true --mode production
+  git commit -m "my new app"
+  heroku create myapp
+  git remote add heroku git@heroku.com:myapp.git
+  git push heroku master
 EOTXT
 
 command = ARGV.shift.strip.gsub(/:/, '_') rescue ""
