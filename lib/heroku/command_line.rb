@@ -250,7 +250,7 @@ class Heroku::CommandLine
 			bundle = args.shift.strip.downcase rescue nil
 
 			bundle = heroku.bundle_capture(app_name, bundle)
-			display "Bundle #{bundle} captured from #{app_name}"
+			display "Began capturing bundle #{bundle} from #{app_name}"
 		end
 	end
 
@@ -284,7 +284,10 @@ class Heroku::CommandLine
 		else
 			list = heroku.bundles(app_name)
 			if list.size > 0
-				display list.join("\n")
+				list.each do |bundle|
+					status = bundle[:completed] ? 'completed' : 'capturing'
+					display "#{bundle[:name]}\t\t#{status} | #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
+				end
 			else
 				display "#{app_name} has no bundles."
 			end

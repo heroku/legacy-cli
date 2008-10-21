@@ -2,6 +2,7 @@ require 'rubygems'
 require 'rexml/document'
 require 'rest_client'
 require 'uri'
+require 'time'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -174,7 +175,13 @@ class Heroku::Client
 	# Get a list of bundles of the app.
 	def bundles(app_name)
 		doc = xml(get("/apps/#{app_name}/bundles"))
-		doc.elements.to_a("//bundles/bundle/name").map { |a| a.text }
+		doc.elements.to_a("//bundles/bundle").map do |a|
+			{
+				:name => a.elements['name'].text,
+				:completed => a.elements['completed'].text == 'true',
+				:created_at => Time.parse(a.elements['created-at'].text),
+			}
+		end
 	end
 
 	##################
