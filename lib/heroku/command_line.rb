@@ -286,7 +286,7 @@ class Heroku::CommandLine
 			if list.size > 0
 				list.each do |bundle|
 					status = bundle[:completed] ? 'completed' : 'capturing'
-					display "#{bundle[:name]}\t\t#{status} | #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
+					display "#{bundle[:name]}" + ' ' * (18 - bundle[:name].size) + "#{status} #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
 				end
 			else
 				display "#{app_name} has no bundles."
