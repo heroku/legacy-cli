@@ -165,6 +165,10 @@ class Heroku::Client
 		xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name })).elements["//bundle/name"].text
 	end
 
+	def bundle_destroy(app_name, bundle_name)
+		delete("/apps/#{app_name}/bundles/#{bundle_name}")
+	end
+
 	# Download a previously captured bundle.  If bundle_name is nil, the most
 	# recently captured bundle for that app will be downloaded.
 	def bundle_download(app_name, fname, bundle_name=nil)

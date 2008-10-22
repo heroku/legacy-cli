@@ -254,6 +254,16 @@ class Heroku::CommandLine
 		end
 	end
 
+	def bundle_destroy(args)
+		app_name, bundle = args.map { |a| a.strip.downcase rescue nil }
+		unless app_name && bundle
+			display "Usage: heroku bundle:destroy <app> <bundle>"
+		else
+			heroku.bundle_destroy(app_name, bundle)
+			display "Destroyed bundle #{bundle} from #{app_name}"
+		end
+	end
+
 	def bundle_download(args)
 		app_name = args.shift.strip.downcase rescue ""
 		if app_name.length == 0

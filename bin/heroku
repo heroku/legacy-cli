@@ -28,6 +28,7 @@ usage = <<EOTXT
   restart <app> - restart app servers
   logs <app> - fetch recent log output for debugging
   bundle:capture <app> [<bundle>] - capture a bundle of the app's code and data
+  bundle:destroy <app> <bundle> - destroy the specified bundle
   bundle:download <app> - download most recent app bundle as a tarball
   bundle:download <app> <bundle> - download the named bundle
   bundle:animate <app> <bundle> - animate a bundle into a new app
