@@ -398,7 +398,7 @@ class Heroku::CommandLine
 			return extract_app_in_dir(parent) unless parent.empty?
 		else
 			remotes = File.read(git_config).split(/\n/).map do |remote|
-				remote.match(/url = git@#{heroku.host}:([\w\d-]+).git/)[1] rescue nil
+				remote.match(/url = git@#{heroku.host}:([\w\d-]+)\.git/)[1] rescue nil
 			end.compact
 			case remotes.size
 				when 0; return nil
