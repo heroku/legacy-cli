@@ -69,21 +69,21 @@ Deploy local changes back to Heroku.  You must commit to your local repository
 first (e.g., git commit -a).  Use -f if you are pushing for the first time to
 force overwriting the repo.
 
-  heroku info <app>
+  heroku info
 
 Show info about the app like the web url, git repo, and sharing settings.
 
-  heroku update <app> [--name <newname>] [--public (true|false)] [--mode (production|development)]
+  heroku update [--name <newname>] [--public (true|false)] [--mode (production|development)]
 
 Update settings on the app, providing one or more of the options shown.
 
-  heroku sharing <app> --add <email> --access (edit|view)
-  heroku sharing <app> --remove <email>
+  heroku sharing --add <email> --access (edit|view)
+  heroku sharing --remove <email>
 
 Manage collaborators on the app.  An invitation will be sent by email for the
 new collaborator to view or edit the app.
 
-  heroku rake <app> <command>
+  heroku rake <command>
 
 Execute a rake command on the Heroku app.
 

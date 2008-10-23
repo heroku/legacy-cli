@@ -28,26 +28,22 @@ class Heroku::CommandLine
 	end
 
 	def info(args)
-		name = args.shift.downcase.strip rescue ""
-		if name.length == 0 or name.slice(0, 1) == '-'
-			display "Usage: heroku info <app>"
-		else
-			attrs = heroku.info(name)
-			display "=== #{attrs[:name]}"
-			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
-			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
-			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
-			display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
-			display "Code size:      #{format_bytes(attrs[:code_size])}" if attrs[:code_size]
-			display "Data size:      #{format_bytes(attrs[:data_size])}" if attrs[:data_size]
-			display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
+		name = extract_app(args)
+		attrs = heroku.info(name)
+		display "=== #{attrs[:name]}"
+		display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
+		display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
+		display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
+		display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
+		display "Code size:      #{format_bytes(attrs[:code_size])}" if attrs[:code_size]
+		display "Data size:      #{format_bytes(attrs[:data_size])}" if attrs[:data_size]
+		display "Public:         #{ attrs[:'share-public'] == 'true' ? 'true' : 'false' }"
 
-			first = true
-			lead = "Collaborators:"
-			attrs[:collaborators].each do |collaborator|
-				display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
-				first = false
-			end
+		first = true
+		lead = "Collaborators:"
+		attrs[:collaborators].each do |collaborator|
+			display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
+			first = false
 		end
 	end
 
@@ -58,9 +54,7 @@ class Heroku::CommandLine
 	end
 
 	def update(args)
-		name = args.shift.downcase.strip rescue ""
-		raise CommandFailed, "Invalid app name" if name.length == 0 or name.slice(0, 1) == '-'
-
+		name = extract_app(args)
 		attributes = {}
 		extract_option(args, '--name') do |new_name|
 			attributes[:name] = new_name
@@ -79,44 +73,31 @@ class Heroku::CommandLine
 	end
 
 	def clone(args)
-		name = args.shift.downcase.strip rescue ""
-		if name.length == 0 or name.slice(0, 1) == '-'
-			display "Usage: heroku clone <app>"
-			display "(this command is deprecated in favor of using the git repo url directly)"
-		else
-			cmd = "git clone #{git_repo_for(name)}"
-			display cmd
-			system cmd
-		end
+		name = extract_app(args)
+		cmd = "git clone #{git_repo_for(name)}"
+		display cmd
+		system cmd
 	end
 
 	def destroy(args)
-		name = args.shift.strip.downcase rescue ""
-		if name.length == 0 or name.slice(0, 1) == '-'
-			display "Usage: heroku destroy <app>"
-		else
-			heroku.destroy(name)
-			display "Destroyed #{name}"
-		end
+		name = extract_app(args)
+		heroku.destroy(name)
+		display "Destroyed #{name}"
 	end
 
 	def sharing(args)
-		name = args.shift.strip.downcase rescue ""
-		if name.length == 0 or name.slice(0, 1) == '-'
-			display "Usage: heroku sharing <app>"
-		else
-			access = extract_option(args, '--access', %w( edit view )) || 'view'
-			extract_option(args, '--add') do |email|
-				return add_collaborator(name, email, access)
-			end
-			extract_option(args, '--update') do |email|
-				return update_collaborator(name, email, access)
-			end
-			extract_option(args, '--remove') do |email|
-				return remove_collaborator(name, email)
-			end
-			return list_collaborators(name)
+		name = extract_app(args)
+		access = extract_option(args, '--access', %w( edit view )) || 'view'
+		extract_option(args, '--add') do |email|
+			return add_collaborator(name, email, access)
 		end
+		extract_option(args, '--update') do |email|
+			return update_collaborator(name, email, access)
+		end
+		extract_option(args, '--remove') do |email|
+			return remove_collaborator(name, email)
+		end
+		return list_collaborators(name)
 	end
 
 	def collaborators(args)
@@ -143,23 +124,19 @@ class Heroku::CommandLine
 	end
 
 	def domains(args)
-		app = args.shift.strip.downcase rescue ""
-		if app.length == 0 or app.slice(0, 1) == '-'
-			display "Usage: heroku domains <app>"
-		else
-			extract_option(args, '--add') do |domain|
-				return display('Usage: heroku domains <app> --add <domain>') unless domain
-				return add_domain(app, domain)
-			end
-			extract_option(args, '--remove') do |domain|
-				return display('Usage: heroku domains <app> --remove <domain>') unless domain
-				return remove_domain(app, domain)
-			end
-			extract_option(args, '--remove-all') do
-				return remove_domains(app)
-			end
-			return list_domains(app)
+		app = extract_app(args)
+		extract_option(args, '--add') do |domain|
+			return display('Usage: heroku domains --add <domain>') unless domain
+			return add_domain(app, domain)
 		end
+		extract_option(args, '--remove') do |domain|
+			return display('Usage: heroku domains --remove <domain>') unless domain
+			return remove_domain(app, domain)
+		end
+		extract_option(args, '--remove-all') do
+			return remove_domains(app)
+		end
+		return list_domains(app)
 	end
 
 	def add_domain(app, domain)
@@ -187,26 +164,22 @@ class Heroku::CommandLine
 	end
 
 	def rake(args)
-		app_name = args.shift.strip.downcase rescue ""
+		app_name = extract_app(args)
 		cmd = args.join(' ')
-		if app_name.length == 0 or cmd.length == 0
-			display "Usage: heroku rake <app> <command>"
+		if cmd.length == 0
+			display "Usage: heroku rake <command>"
 		else
 			display heroku.rake(app_name, cmd)
 		end
 	end
 
 	def console(args)
-		app_name = args.shift.strip.downcase rescue ""
+		app_name = extract_app(args)
 		cmd = args.join(' ').strip
-		if app_name.length == 0
-			display "Usage: heroku console <app>"
+		if cmd.empty?
+			console_session(app_name)
 		else
-			if cmd.empty?
-				console_session(app_name)
-			else
-				display heroku.console(app_name, cmd)
-			end
+			display heroku.console(app_name, cmd)
 		end
 	end
 
@@ -224,40 +197,29 @@ class Heroku::CommandLine
 	end
 
 	def restart(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku restart <app>"
-		else
-			heroku.restart(app_name)
-			display "Servers restarted"
-		end
+		app_name = extract_app(args)
+		heroku.restart(app_name)
+		display "Servers restarted"
 	end
 
 	def logs(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku logs <app>"
-		else
-			display heroku.logs(app_name)
-		end
+		app_name = extract_app(args)
+		display heroku.logs(app_name)
 	end
 
 	def bundle_capture(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku bundle:capture <app> [<bundle>]"
-		else
-			bundle = args.shift.strip.downcase rescue nil
+		app_name = extract_app(args)
+		bundle = args.shift.strip.downcase rescue nil
 
-			bundle = heroku.bundle_capture(app_name, bundle)
-			display "Began capturing bundle #{bundle} from #{app_name}"
-		end
+		bundle = heroku.bundle_capture(app_name, bundle)
+		display "Began capturing bundle #{bundle} from #{app_name}"
 	end
 
 	def bundle_destroy(args)
-		app_name, bundle = args.map { |a| a.strip.downcase rescue nil }
-		unless app_name && bundle
-			display "Usage: heroku bundle:destroy <app> <bundle>"
+		app_name = extract_app(args)
+		bundle = args.first.strip.downcase rescue nil
+		unless bundle
+			display "Usage: heroku bundle:destroy <bundle>"
 		else
 			heroku.bundle_destroy(app_name, bundle)
 			display "Destroyed bundle #{bundle} from #{app_name}"
@@ -265,22 +227,18 @@ class Heroku::CommandLine
 	end
 
 	def bundle_download(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku bundle:download <app> [<bundle>]"
-		else
-			fname = "#{app_name}.tar.gz"
-			bundle = args.shift.strip.downcase rescue nil
-			heroku.bundle_download(app_name, fname, bundle)
-			display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
-		end
+		app_name = extract_app(args)
+		fname = "#{app_name}.tar.gz"
+		bundle = args.shift.strip.downcase rescue nil
+		heroku.bundle_download(app_name, fname, bundle)
+		display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
 	end
 
 	def bundle_animate(args)
-		app_name = args.shift.strip.downcase rescue ""
+		app_name = extract_app(args)
 		bundle = args.shift.strip.downcase rescue ""
-		if app_name.length == 0 or bundle.length == 0
-			display "Usage: heroku bundle:animate <app> <bundle>"
+		if bundle.length == 0
+			display "Usage: heroku bundle:animate <bundle>"
 		else
 			name = heroku.create(nil, :origin_bundle_app => app_name, :origin_bundle => bundle)
 			display "Animated #{app_name} #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
@@ -288,20 +246,16 @@ class Heroku::CommandLine
 	end
 
 	def bundle_list(args)
-		app_name = args.shift.strip.downcase rescue ""
-		if app_name.length == 0
-			display "Usage: heroku bundle:list <app>"
-		else
-			list = heroku.bundles(app_name)
-			if list.size > 0
-				list.each do |bundle|
-					status = bundle[:completed] ? 'completed' : 'capturing'
-					space  = ' ' * [(18 - bundle[:name].size),0].max
-					display "#{bundle[:name]}" + space + "#{status} #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
-				end
-			else
-				display "#{app_name} has no bundles."
+		app_name = extract_app(args)
+		list = heroku.bundles(app_name)
+		if list.size > 0
+			list.each do |bundle|
+				status = bundle[:completed] ? 'completed' : 'capturing'
+				space  = ' ' * [(18 - bundle[:name].size),0].max
+				display "#{bundle[:name]}" + space + "#{status} #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
 			end
+		else
+			display "#{app_name} has no bundles."
 		end
 	end
 
@@ -429,6 +383,31 @@ class Heroku::CommandLine
 
 	def delete_credentials
 		FileUtils.rm_f(credentials_file)
+	end
+
+	def extract_app(args)
+		extract_option(args, '--app') ||
+		extract_app_in_dir(Dir.pwd) ||
+		raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>")
+	end
+
+	def extract_app_in_dir(dir)
+		git_config = "#{dir}/.git/config"
+		unless File.exists?(git_config)
+			parent = dir.split('/')[0..-2].join('/')
+			return extract_app_in_dir(parent) unless parent.empty?
+		else
+			remotes = File.read(git_config).split(/\n/).map do |remote|
+				remote.match(/url = git@#{heroku.host}:([\w\d-]+).git/)[1] rescue nil
+			end.compact
+			case remotes.size
+				when 0; return nil
+				when 1; return remotes.first
+				else
+					current_dir_name = dir.split('/').last.downcase
+					remotes.select { |r| r.downcase == current_dir_name }.first
+			end
+		end
 	end
 
 	def extract_option(args, options, valid_values=nil)

@@ -9,34 +9,38 @@ usage = <<EOTXT
 === Heroku Commands
   list - list your apps
   create [<name>] - create a new app
-  info <app> - show app info, like web url and git repo
-  update <app> - update the app
-    --name <newname>
-    --public (true|false)
-    --mode (production|development)
-  sharing <app> - manage collaborators
-    --add <email>
-    --remove <email>
-    --access (edit|view)
-  domains <app> - manage domain names
-    --add <domain>
-    --remove <domain>
-    --remove-all
-  rake <app> <command> - remotely execute a rake command
-  console <app> <command> - remotely execute a single console command
-  console <app> - start an interactive console to the remote app
-  restart <app> - restart app servers
-  logs <app> - fetch recent log output for debugging
-  bundle:capture <app> [<bundle>] - capture a bundle of the app's code and data
-  bundle:destroy <app> <bundle> - destroy the specified bundle
-  bundle:download <app> - download most recent app bundle as a tarball
-  bundle:download <app> <bundle> - download the named bundle
-  bundle:animate <app> <bundle> - animate a bundle into a new app
-  bundle:list <app> - list bundles for the app
   destroy <app> - destroy the app permanently
   keys - manage your user's ssh public keys for git access
     --add [<path to keyfile>]
     --remove <keyname or all>
+
+=== Heroku App-specific Commands
+  (cd to the app dir or inform the app with the --app parameter before using)
+
+  info - show app info, like web url and git repo
+  update - update the app
+    --name <newname>
+    --public (true|false)
+    --mode (production|development)
+  sharing - manage collaborators
+    --add <email>
+    --remove <email>
+    --access (edit|view)
+  domains - manage domain names
+    --add <domain>
+    --remove <domain>
+    --remove-all
+  rake <command> - remotely execute a rake command
+  console <command> - remotely execute a single console command
+  console - start an interactive console to the remote app
+  restart - restart app servers
+  logs - fetch recent log output for debugging
+  bundle:capture [<bundle>] - capture a bundle of the app's code and data
+  bundle:destroy <bundle> - destroy the specified bundle
+  bundle:download - download most recent app bundle as a tarball
+  bundle:download <bundle> - download the named bundle
+  bundle:animate <bundle> - animate a bundle into a new app
+  bundle:list - list bundles for the app
 
 Example story:
   rails myapp

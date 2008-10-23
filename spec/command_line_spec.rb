@@ -96,6 +96,58 @@ describe Heroku::CommandLine do
 		end
 	end
 
+	context "getting the app" do
+		before do
+			@cli.instance_variable_set('@credentials', %w(user pass))
+			Dir.stub!(:pwd).and_return('/home/dev/myapp')
+		end
+
+		it "attempts to find the app via the --app argument" do
+			@cli.extract_app(['--app', 'myapp']).should == 'myapp'
+		end
+
+		it "parses the app from git config when there's only one remote" do
+			File.stub!(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
+			File.stub!(:read).with('/home/dev/myapp/.git/config').and_return("
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote \"heroku\"]
+	url = git@heroku.com:myapp.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+			")
+			@cli.extract_app([]).should == 'myapp'
+		end
+
+		it "uses the remote named after the current folder name when there are multiple" do
+			File.stub!(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
+			File.stub!(:read).with('/home/dev/myapp/.git/config').and_return("
+[remote \"heroku_backup\"]
+	url = git@heroku.com:myapp-backup.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+[remote \"heroku\"]
+	url = git@heroku.com:myapp.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+			")
+			@cli.extract_app([]).should == 'myapp'
+		end
+
+		it "raises when cannot determine which app is it" do
+			File.stub!(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
+			File.stub!(:read).with('/home/dev/myapp/.git/config').and_return("
+[remote \"heroku_backup\"]
+	url = git@heroku.com:app1.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+[remote \"heroku\"]
+	url = git@heroku.com:app2.git
+	fetch = +refs/heads/*:refs/remotes/heroku/*
+			")
+			lambda { @cli.extract_app([]).should }.should raise_error(Heroku::CommandLine::CommandFailed)
+		end
+	end
+
 	describe "key management" do
 		before do
 			@cli.instance_variable_set('@credentials', %w(user pass))
@@ -247,6 +299,7 @@ describe Heroku::CommandLine do
 	describe "app actions" do
 		before do
 			@cli.instance_variable_set('@credentials', %w(user pass))
+			@cli.stub!(:extract_app_in_dir).and_return('myapp')
 		end
 
 		it "shows app info, converting bytes to kbs/mbs" do
@@ -256,7 +309,7 @@ describe Heroku::CommandLine do
 			@cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
 			@cli.should_receive(:display).with('Code size:      2k')
 			@cli.should_receive(:display).with('Data size:      5M')
-			@cli.info([ 'myapp' ])
+			@cli.info([])
 		end
 
 		it "creates without a name" do
@@ -271,97 +324,99 @@ describe Heroku::CommandLine do
 
 		it "updates app" do
 			@cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true })
-			@cli.update([ 'myapp', '--name', 'myapp2', '--public', 'true', '--mode', 'production' ])
+			@cli.update([ '--name', 'myapp2', '--public', 'true', '--mode', 'production' ])
 		end
 
 		it "clones the app (deprecated in favor of straight git clone)" do
 			@cli.should_receive(:system).with('git clone git@heroku.com:myapp.git')
-			@cli.clone([ 'myapp' ])
+			@cli.clone([])
 		end
 
 		it "runs a rake command on the app" do
 			@cli.heroku.should_receive(:rake).with('myapp', 'db:migrate')
-			@cli.rake([ 'myapp', 'db:migrate' ])
+			@cli.rake([ 'db:migrate' ])
 		end
 
 		it "runs a single console command on the app" do
 			@cli.heroku.should_receive(:console).with('myapp', '2+2')
-			@cli.console([ 'myapp', '2+2' ])
+			@cli.console([ '2+2' ])
 		end
 
 		it "offers a console, opening and closing the session with the client" do
 			@console = mock('heroku console')
 			@cli.heroku.should_receive(:console).with('myapp').and_yield(@console)
 			Readline.should_receive(:readline).and_return('exit')
-			@cli.console([ 'myapp' ])
+			@cli.console([])
 		end
 
 		it "asks to restart servers" do
 			@cli.heroku.should_receive(:restart).with('myapp')
-			@cli.restart([ 'myapp' ])
+			@cli.restart([])
 		end
 
 		it "shows the app logs" do
 			@cli.heroku.should_receive(:logs).with('myapp').and_return('logs')
 			@cli.should_receive(:display).with('logs')
-			@cli.logs([ 'myapp' ])
+			@cli.logs([])
 		end
 	end
 
 	describe "collaborators" do
 		before do
 			@cli.instance_variable_set('@credentials', %w(user pass))
+			@cli.stub!(:extract_app_in_dir).and_return('myapp')
 		end
 
 		it "list collaborators when there's just the app name" do
 			@cli.heroku.should_receive(:list_collaborators).and_return([])
-			@cli.collaborators(['myapp'])
+			@cli.collaborators([])
 		end
 
 		it "add collaborators with default access to view only" do
 			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'view')
-			@cli.collaborators(['myapp', '--add', 'joe@example.com'])
+			@cli.collaborators(['--add', 'joe@example.com'])
 		end
 
 		it "add collaborators with edit access" do
 			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'edit')
-			@cli.collaborators(['myapp', '--add', 'joe@example.com', '--access', 'edit'])
+			@cli.collaborators(['--add', 'joe@example.com', '--access', 'edit'])
 		end
 
 		it "updates collaborators" do
 			@cli.heroku.should_receive(:update_collaborator).with('myapp', 'joe@example.com', 'view')
-			@cli.collaborators(['myapp', '--update', 'joe@example.com', '--access', 'view'])
+			@cli.collaborators(['--update', 'joe@example.com', '--access', 'view'])
 		end
 
 		it "removes collaborators" do
 			@cli.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
-			@cli.collaborators(['myapp', '--remove', 'joe@example.com'])
+			@cli.collaborators(['--remove', 'joe@example.com'])
 		end
 	end
 
 	describe "domain names" do
 		before do
 			@cli.instance_variable_set('@credentials', %w(user pass))
+			@cli.stub!(:extract_app_in_dir).and_return('myapp')
 		end
 
 		it "list domain names when there's no other arg" do
 			@cli.heroku.should_receive(:list_domains).and_return([])
-			@cli.domains(['myapp'])
+			@cli.domains([])
 		end
 
 		it "adds domain names" do
 			@cli.heroku.should_receive(:add_domain).with('myapp', 'example.com')
-			@cli.domains(['myapp', '--add', 'example.com'])
+			@cli.domains(['--add', 'example.com'])
 		end
 
 		it "removes domain names" do
 			@cli.heroku.should_receive(:remove_domain).with('myapp', 'example.com')
-			@cli.domains(['myapp', '--remove', 'example.com'])
+			@cli.domains(['--remove', 'example.com'])
 		end
 
 		it "removes all domain names" do
 			@cli.heroku.should_receive(:remove_domains).with('myapp')
-			@cli.domains(['myapp', '--remove-all', 'joe@example.com'])
+			@cli.domains(['--remove-all', 'joe@example.com'])
 		end
 	end
 end
