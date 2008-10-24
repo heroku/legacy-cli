@@ -91,40 +91,24 @@ class Heroku::CommandLine
 
 	def sharing(args)
 		name = extract_app(args)
+		list = heroku.list_collaborators(name)
+		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
+	end
+	alias :collaborators :sharing
+	alias :sharing_list  :sharing
+
+	def sharing_add(args)
+		name = extract_app(args)
+		email = args.shift.downcase rescue nil
 		access = extract_option(args, '--access', %w( edit view )) || 'view'
-		extract_option(args, '--add') do |email|
-			return add_collaborator(name, email, access)
-		end
-		extract_option(args, '--update') do |email|
-			return update_collaborator(name, email, access)
-		end
-		extract_option(args, '--remove') do |email|
-			return remove_collaborator(name, email)
-		end
-		return list_collaborators(name)
-	end
-
-	def collaborators(args)
-		sharing(args)
-	end
-
-	def add_collaborator(name, email, access)
 		display heroku.add_collaborator(name, email, access)
 	end
 
-	def update_collaborator(name, email, access)
-		heroku.update_collaborator(name, email, access)
-		display "Collaborator updated"
-	end
-
-	def remove_collaborator(name, email)
+	def sharing_remove(args)
+		name = extract_app(args)
+		email = args.shift.downcase rescue nil
 		heroku.remove_collaborator(name, email)
 		display "Collaborator removed"
-	end
-
-	def list_collaborators(name)
-		list = heroku.list_collaborators(name)
-		display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
 	end
 
 	def domains(args)

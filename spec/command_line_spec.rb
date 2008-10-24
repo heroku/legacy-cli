@@ -367,29 +367,24 @@ describe Heroku::CommandLine do
 			@cli.stub!(:extract_app_in_dir).and_return('myapp')
 		end
 
-		it "list collaborators when there's just the app name" do
+		it "lists collaborators" do
 			@cli.heroku.should_receive(:list_collaborators).and_return([])
-			@cli.collaborators([])
+			@cli.sharing([])
 		end
 
-		it "add collaborators with default access to view only" do
+		it "adds collaborators with default access to view only" do
 			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'view')
-			@cli.collaborators(['--add', 'joe@example.com'])
+			@cli.sharing_add(['joe@example.com'])
 		end
 
 		it "add collaborators with edit access" do
 			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'edit')
-			@cli.collaborators(['--add', 'joe@example.com', '--access', 'edit'])
-		end
-
-		it "updates collaborators" do
-			@cli.heroku.should_receive(:update_collaborator).with('myapp', 'joe@example.com', 'view')
-			@cli.collaborators(['--update', 'joe@example.com', '--access', 'view'])
+			@cli.sharing_add(['joe@example.com', '--access', 'edit'])
 		end
 
 		it "removes collaborators" do
 			@cli.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
-			@cli.collaborators(['--remove', 'joe@example.com'])
+			@cli.sharing_remove(['joe@example.com'])
 		end
 	end
 
