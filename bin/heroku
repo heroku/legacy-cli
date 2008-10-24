@@ -6,41 +6,47 @@ require 'heroku'
 require 'heroku/command_line'
 
 usage = <<EOTXT
-=== Heroku Commands
-  list - list your apps
-  create [<name>] - create a new app
-  destroy <app> - destroy the app permanently
-  keys - manage your user's ssh public keys for git access
-    --add [<path to keyfile>]
-    --remove <keyname or all>
+=== General commands
 
-=== Heroku App-specific Commands
-  (cd to the app dir or inform the app with the --app parameter before using)
+  list                         # list your apps
+  create [<name>]              # create a new app
 
-  info - show app info, like web url and git repo
-  update - update the app
-    --name <newname>
-    --public (true|false)
-    --mode (production|development)
-  sharing - manage collaborators
-    --add <email>
-    --remove <email>
-    --access (edit|view)
-  domains - manage domain names
-    --add <domain>
-    --remove <domain>
-    --remove-all
-  rake <command> - remotely execute a rake command
-  console <command> - remotely execute a single console command
-  console - start an interactive console to the remote app
-  restart - restart app servers
-  logs - fetch recent log output for debugging
-  bundle:capture [<bundle>] - capture a bundle of the app's code and data
-  bundle:destroy <bundle> - destroy the specified bundle
-  bundle:download - download most recent app bundle as a tarball
-  bundle:download <bundle> - download the named bundle
-  bundle:animate <bundle> - animate a bundle into a new app
-  bundle:list - list bundles for the app
+  keys                         # show your user's public keys
+  keys:add [<path to keyfile>] # add a public key
+  keys:remove <keyname>        # remove a key by name (user@host)
+  keys:clear                   # remove all keys
+
+=== App commands (execute inside a checkout directory)
+
+  info                         # show app info, like web url and git repo
+  update                       # update the app
+    --name   <newname>
+    --public <true|false>
+    --mode   <production|development>
+
+  sharing:add <email>          # add a collaborator
+  sharing:remove <email>       # remove a collaborator
+
+  domains:add <domain>         # add a custom domain name
+  domains:remove <domain>      # remove a custom domain name
+  domains:clear                # remove all custom domains
+
+  rake <command>               # remotely execute a rake command
+
+  console <command>            # remotely execute a single console command
+  console                      # start an interactive console to the remote app
+
+  restart                      # restart app servers
+  logs                         # fetch recent log output for debugging
+
+  bundles                      # list bundles for the app
+  bundles:capture [<bundle>]   # capture a bundle of the app's code and data
+  bundles:download             # download most recent app bundle as a tarball
+  bundles:download <bundle>    # download the named bundle
+  bundles:animate <bundle>     # animate a bundle into a new app
+  bundles:destroy <bundle>     # destroy the named bundle
+
+  destroy                      # destroy the app permanently
 
 Example story:
   rails myapp
