@@ -176,26 +176,26 @@ describe Heroku::CommandLine do
 			@cli.should_receive(:find_key).and_return('/home/joe/.ssh/id_rsa.pub')
 			File.should_receive(:read).with('/home/joe/.ssh/id_rsa.pub').and_return('ssh-rsa xyz')
 			@cli.heroku.should_receive(:add_key).with('ssh-rsa xyz')
-			@cli.add_key
+			@cli.keys_add([])
 		end
 
 		it "adds a key from a specified keyfile path" do
 			@cli.should_not_receive(:find_key)
 			File.should_receive(:read).with('/my/key.pub').and_return('ssh-rsa xyz')
 			@cli.heroku.should_receive(:add_key).with('ssh-rsa xyz')
-			@cli.add_key('/my/key.pub')
+			@cli.keys_add(['/my/key.pub'])
 		end
 
 		it "list keys, trimming the hex code for better display" do
 			@cli.heroku.should_receive(:keys).and_return(["ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp9AJD5QABmOcrkHm6SINuQkDefaR0MUrfgZ1Pxir3a4fM1fwa00dsUwbUaRuR7FEFD8n1E9WwDf8SwQTHtyZsJg09G9myNqUzkYXCmydN7oGr5IdVhRyv5ixcdiE0hj7dRnOJg2poSQ3Qi+Ka8SVJzF7nIw1YhuicHPSbNIFKi5s0D5a+nZb/E6MNGvhxoFCQX2IcNxaJMqhzy1ESwlixz45aT72mXYq0LIxTTpoTqma1HuKdRY8HxoREiivjmMQulYP+CxXFcMyV9kxTKIUZ/FXqlC6G5vSm3J4YScSatPOj9ID5HowpdlIx8F6y4p1/28r2tTl4CY40FFyoke4MQ== pedro@heroku\n"])
 			@cli.should_receive(:display).with('ssh-rsa AAAAB3NzaC...Fyoke4MQ== pedro@heroku')
-			@cli.list_keys
+			@cli.keys([])
 		end
 
 		it "shows the whole key hex with --long" do
 			@cli.heroku.should_receive(:keys).and_return(["ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp9AJD5QABmOcrkHm6SINuQkDefaR0MUrfgZ1Pxir3a4fM1fwa00dsUwbUaRuR7FEFD8n1E9WwDf8SwQTHtyZsJg09G9myNqUzkYXCmydN7oGr5IdVhRyv5ixcdiE0hj7dRnOJg2poSQ3Qi+Ka8SVJzF7nIw1YhuicHPSbNIFKi5s0D5a+nZb/E6MNGvhxoFCQX2IcNxaJMqhzy1ESwlixz45aT72mXYq0LIxTTpoTqma1HuKdRY8HxoREiivjmMQulYP+CxXFcMyV9kxTKIUZ/FXqlC6G5vSm3J4YScSatPOj9ID5HowpdlIx8F6y4p1/28r2tTl4CY40FFyoke4MQ== pedro@heroku\n"])
 			@cli.should_receive(:display).with("ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp9AJD5QABmOcrkHm6SINuQkDefaR0MUrfgZ1Pxir3a4fM1fwa00dsUwbUaRuR7FEFD8n1E9WwDf8SwQTHtyZsJg09G9myNqUzkYXCmydN7oGr5IdVhRyv5ixcdiE0hj7dRnOJg2poSQ3Qi+Ka8SVJzF7nIw1YhuicHPSbNIFKi5s0D5a+nZb/E6MNGvhxoFCQX2IcNxaJMqhzy1ESwlixz45aT72mXYq0LIxTTpoTqma1HuKdRY8HxoREiivjmMQulYP+CxXFcMyV9kxTKIUZ/FXqlC6G5vSm3J4YScSatPOj9ID5HowpdlIx8F6y4p1/28r2tTl4CY40FFyoke4MQ== pedro@heroku")
-			@cli.execute('keys', ['--long'])
+			@cli.keys(['--long'])
 		end
 	end
 

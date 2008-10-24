@@ -431,27 +431,8 @@ class Heroku::CommandLine
 		block_given? ? yield(opt_value) : opt_value
 	end
 
-	def keys(*args)
-		args = args.first  # something weird with ruby argument passing
-
-		if args.empty? || args == ['--long']
-			list_keys(args.first)
-			return
-		end
-
-		extract_option(args, '--add') do |keyfile|
-			add_key(keyfile)
-			return
-		end
-		extract_option(args, '--remove') do |arg|
-			remove_key(arg)
-			return
-		end
-
-		display "Usage: heroku keys [--add or --remove]"
-	end
-
-	def list_keys(long=false)
+	def keys(args)
+		long = args.any? { |a| a == '--long' }
 		keys = heroku.keys
 		if keys.empty?
 			display "No keys for #{user}"
@@ -462,23 +443,24 @@ class Heroku::CommandLine
 			end
 		end
 	end
+	alias :keys_list :keys
 
-	def add_key(keyfile=nil)
-		keyfile ||= find_key
+	def keys_add(args)
+		keyfile = args.first || find_key
 		key = File.read(keyfile)
 
 		display "Uploading ssh public key #{keyfile}"
 		heroku.add_key(key)
 	end
 
-	def remove_key(arg)
-		if arg == 'all'
-			heroku.remove_all_keys
-			display "All keys removed."
-		else
-			heroku.remove_key(arg)
-			display "Key #{arg} removed."
-		end
+	def keys_remove(arg)
+		heroku.remove_key(arg)
+		display "Key #{arg} removed."
+	end
+
+	def keys_clear(args)
+		heroku.remove_all_keys
+		display "All keys removed."
 	end
 
 	def find_key
