@@ -394,24 +394,24 @@ describe Heroku::CommandLine do
 			@cli.stub!(:extract_app_in_dir).and_return('myapp')
 		end
 
-		it "list domain names when there's no other arg" do
+		it "lists domain" do
 			@cli.heroku.should_receive(:list_domains).and_return([])
 			@cli.domains([])
 		end
 
 		it "adds domain names" do
 			@cli.heroku.should_receive(:add_domain).with('myapp', 'example.com')
-			@cli.domains(['--add', 'example.com'])
+			@cli.domains_add(['example.com'])
 		end
 
 		it "removes domain names" do
 			@cli.heroku.should_receive(:remove_domain).with('myapp', 'example.com')
-			@cli.domains(['--remove', 'example.com'])
+			@cli.domains_remove(['example.com'])
 		end
 
 		it "removes all domain names" do
 			@cli.heroku.should_receive(:remove_domains).with('myapp')
-			@cli.domains(['--remove-all', 'joe@example.com'])
+			@cli.domains_clear([])
 		end
 	end
 end

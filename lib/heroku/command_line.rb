@@ -112,39 +112,35 @@ class Heroku::CommandLine
 	end
 
 	def domains(args)
-		app = extract_app(args)
-		extract_option(args, '--add') do |domain|
-			return display('Usage: heroku domains --add <domain>') unless domain
-			return add_domain(app, domain)
+		name = extract_app(args)
+		domains = heroku.list_domains(name)
+		if domains.empty?
+			display "No domain names for #{name}.#{heroku.host}"
+		else
+			display "Domain names for #{name}.#{heroku.host}:"
+			display domains.join("\n")
 		end
-		extract_option(args, '--remove') do |domain|
-			return display('Usage: heroku domains --remove <domain>') unless domain
-			return remove_domain(app, domain)
-		end
-		extract_option(args, '--remove-all') do
-			return remove_domains(app)
-		end
-		return list_domains(app)
+	end
+	alias :domains_list :domains
+
+	def domains_add(args)
+		name = extract_app(args)
+		domain = args.shift.downcase rescue nil
+		heroku.add_domain(name, domain)
+		display "Added #{domain} as a custom domain name to #{name}.#{heroku.host}"
 	end
 
-	def add_domain(app, domain)
-		heroku.add_domain(app, domain)
-		display "Added #{domain} as a custom domain name to #{app}.#{heroku.host}"
+	def domains_remove(args)
+		name = extract_app(args)
+		domain = args.shift.downcase rescue nil
+		heroku.remove_domain(name, domain)
+		display "Removed #{domain} as a custom domain name to #{name}.#{heroku.host}"
 	end
 
-	def remove_domain(app, domain)
-		heroku.remove_domain(app, domain)
-		display "Removed #{domain} as a custom domain name to #{app}.#{heroku.host}"
-	end
-
-	def remove_domains(app)
-		heroku.remove_domains(app)
-		display "Removed all domain names for #{app}.#{heroku.host}"
-	end
-
-	def list_domains(app)
-		display "Domain names for #{app}.#{heroku.host}:"
-		display heroku.list_domains(app).join("\n")
+	def domains_clear(args)
+		name = extract_app(args)
+		heroku.remove_domains(name)
+		display "Removed all domain names for #{name}.#{heroku.host}"
 	end
 
 	def git_repo_for(name)
