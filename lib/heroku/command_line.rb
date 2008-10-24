@@ -80,9 +80,13 @@ class Heroku::CommandLine
 	end
 
 	def destroy(args)
-		name = extract_app(args)
-		heroku.destroy(name)
-		display "Destroyed #{name}"
+		name = args.shift.downcase.strip rescue nil
+		unless name
+			display "Usage: heroku destroy <app>"
+		else
+			heroku.destroy(name)
+			display "Destroyed #{name}"
+		end
 	end
 
 	def sharing(args)
