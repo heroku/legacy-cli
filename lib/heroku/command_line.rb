@@ -80,13 +80,9 @@ class Heroku::CommandLine
 	end
 
 	def destroy(args)
-		name = args.shift.downcase.strip rescue nil
-		unless name
-			display "Usage: heroku destroy <app>"
-		else
-			heroku.destroy(name)
-			display "Destroyed #{name}"
-		end
+		name = extract_app(args)
+		heroku.destroy(name)
+		display "Destroyed #{name}"
 	end
 
 	def sharing(args)
@@ -191,45 +187,7 @@ class Heroku::CommandLine
 		display heroku.logs(app_name)
 	end
 
-	def bundle_capture(args)
-		app_name = extract_app(args)
-		bundle = args.shift.strip.downcase rescue nil
-
-		bundle = heroku.bundle_capture(app_name, bundle)
-		display "Began capturing bundle #{bundle} from #{app_name}"
-	end
-
-	def bundle_destroy(args)
-		app_name = extract_app(args)
-		bundle = args.first.strip.downcase rescue nil
-		unless bundle
-			display "Usage: heroku bundle:destroy <bundle>"
-		else
-			heroku.bundle_destroy(app_name, bundle)
-			display "Destroyed bundle #{bundle} from #{app_name}"
-		end
-	end
-
-	def bundle_download(args)
-		app_name = extract_app(args)
-		fname = "#{app_name}.tar.gz"
-		bundle = args.shift.strip.downcase rescue nil
-		heroku.bundle_download(app_name, fname, bundle)
-		display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
-	end
-
-	def bundle_animate(args)
-		app_name = extract_app(args)
-		bundle = args.shift.strip.downcase rescue ""
-		if bundle.length == 0
-			display "Usage: heroku bundle:animate <bundle>"
-		else
-			name = heroku.create(nil, :origin_bundle_app => app_name, :origin_bundle => bundle)
-			display "Animated #{app_name} #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
-		end
-	end
-
-	def bundle_list(args)
+	def bundles(args)
 		app_name = extract_app(args)
 		list = heroku.bundles(app_name)
 		if list.size > 0
@@ -240,6 +198,45 @@ class Heroku::CommandLine
 			end
 		else
 			display "#{app_name} has no bundles."
+		end
+	end
+	alias :bundles_list :bundles
+
+	def bundles_capture(args)
+		app_name = extract_app(args)
+		bundle = args.shift.strip.downcase rescue nil
+
+		bundle = heroku.bundle_capture(app_name, bundle)
+		display "Began capturing bundle #{bundle} from #{app_name}"
+	end
+
+	def bundles_destroy(args)
+		app_name = extract_app(args)
+		bundle = args.first.strip.downcase rescue nil
+		unless bundle
+			display "Usage: heroku bundle:destroy <bundle>"
+		else
+			heroku.bundle_destroy(app_name, bundle)
+			display "Destroyed bundle #{bundle} from #{app_name}"
+		end
+	end
+
+	def bundles_download(args)
+		app_name = extract_app(args)
+		fname = "#{app_name}.tar.gz"
+		bundle = args.shift.strip.downcase rescue nil
+		heroku.bundle_download(app_name, fname, bundle)
+		display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
+	end
+
+	def bundles_animate(args)
+		app_name = extract_app(args)
+		bundle = args.shift.strip.downcase rescue ""
+		if bundle.length == 0
+			display "Usage: heroku bundle:animate <bundle>"
+		else
+			name = heroku.create(nil, :origin_bundle_app => app_name, :origin_bundle => bundle)
+			display "Animated #{app_name} #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 		end
 	end
 
