@@ -304,7 +304,6 @@ describe Heroku::CommandLine do
 
 		it "shows app info, converting bytes to kbs/mbs" do
 			@cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :code_size => 2*1024, :data_size => 5*1024*1024 })
-			@cli.heroku.stub!(:domain).and_return('heroku.com')
 			@cli.should_receive(:display).with('=== myapp')
 			@cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
 			@cli.should_receive(:display).with('Code size:      2k')
@@ -412,6 +411,13 @@ describe Heroku::CommandLine do
 		it "removes all domain names" do
 			@cli.heroku.should_receive(:remove_domains).with('myapp')
 			@cli.domains_clear([])
+		end
+	end
+
+	describe "formatting" do
+		it "formats app urls (http and git), displayed as output on create and other commands" do
+			@cli.heroku.stub!(:host).and_return('example.com')
+			@cli.app_urls('test').should == "http://test.example.com/ | git@example.com:test.git"
 		end
 	end
 end

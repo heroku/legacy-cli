@@ -50,7 +50,7 @@ class Heroku::CommandLine
 	def create(args)
 		name = args.shift.downcase.strip rescue nil
 		name = heroku.create(name, {})
-		display "Created http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
+		display "Created #{app_urls(name)}"
 	end
 
 	def rename(args)
@@ -60,7 +60,7 @@ class Heroku::CommandLine
 
 		heroku.update(name, :name => newname)
 
-		display "#{name} is now http://#{newname}.#{heroku.host}/ | git@#{heroku.host}:#{newname}.git"
+		display app_urls(newname)
 		display "Don't forget to update your Git remotes on any local checkouts."
 	end
 
@@ -228,7 +228,7 @@ class Heroku::CommandLine
 			display "Usage: heroku bundle:animate <bundle>"
 		else
 			name = heroku.create(nil, :origin_bundle_app => app_name, :origin_bundle => bundle)
-			display "Animated #{app_name} #{bundle} into http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
+			display "Animated #{app_name} #{bundle} into #{app_urls(name)}"
 		end
 	end
 
@@ -474,6 +474,10 @@ class Heroku::CommandLine
 
 	def display(msg)
 		puts msg
+	end
+
+	def app_urls(name)
+		"http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 	end
 
 	def home_directory
