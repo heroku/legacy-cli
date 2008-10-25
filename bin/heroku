@@ -19,10 +19,7 @@ usage = <<EOTXT
 === App commands (execute inside a checkout directory)
 
   info                         # show app info, like web url and git repo
-  update                       # update the app
-    --name   <newname>
-    --public <true|false>
-    --mode   <production|development>
+  rename <newname>             # rename the app
 
   sharing:add <email>          # add a collaborator
   sharing:remove <email>       # remove a collaborator
@@ -32,7 +29,6 @@ usage = <<EOTXT
   domains:clear                # remove all custom domains
 
   rake <command>               # remotely execute a rake command
-
   console <command>            # remotely execute a single console command
   console                      # start an interactive console to the remote app
 

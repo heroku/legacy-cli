@@ -45,8 +45,6 @@ class Heroku::Client
 
 	# Update an app.  Available attributes:
 	#   :name => rename the app (changes http and git urls)
-	#   :public => true | false
-	#   :mode => production | development
 	def update(name, attributes)
 		put("/apps/#{name}", :app => attributes)
 	end

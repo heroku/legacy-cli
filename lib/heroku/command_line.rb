@@ -53,23 +53,15 @@ class Heroku::CommandLine
 		display "Created http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
 	end
 
-	def update(args)
+	def rename(args)
 		name = extract_app(args)
-		attributes = {}
-		extract_option(args, '--name') do |new_name|
-			attributes[:name] = new_name
-		end
-		extract_option(args, '--public', %w( true false )) do |public|
-			attributes[:share_public] = (public == 'true')
-		end
-		extract_option(args, '--mode', %w( production development )) do |mode|
-			attributes[:production] = (mode == 'production')
-		end
-		raise CommandFailed, "Nothing to update" if attributes.empty?
-		heroku.update(name, attributes)
+		newname = args.shift.downcase.strip rescue ''
+		raise(CommandFailed, "Invalid name.") if newname == ''
 
-		app_name = attributes[:name] || name
-		display "http://#{app_name}.#{heroku.host}/ updated"
+		heroku.update(name, :name => newname)
+
+		display "#{name} is now http://#{newname}.#{heroku.host}/ | git@#{heroku.host}:#{newname}.git"
+		display "Don't forget to update your Git remotes on any local checkouts."
 	end
 
 	def clone(args)

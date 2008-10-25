@@ -322,9 +322,9 @@ describe Heroku::CommandLine do
 			@cli.create([ 'myapp' ])
 		end
 
-		it "updates app" do
-			@cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2', :share_public => true, :production => true })
-			@cli.update([ '--name', 'myapp2', '--public', 'true', '--mode', 'production' ])
+		it "renames an app" do
+			@cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
+			@cli.rename([ 'myapp2' ])
 		end
 
 		it "clones the app (deprecated in favor of straight git clone)" do
