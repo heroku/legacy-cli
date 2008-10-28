@@ -320,7 +320,7 @@ class Heroku::CommandLine
 	def save_credentials
 		begin
 			write_credentials
-			add_key
+			keys_add
 		rescue RestClient::Unauthorized => e
 			delete_credentials
 			raise e unless retry_login?
@@ -414,7 +414,7 @@ class Heroku::CommandLine
 	end
 	alias :keys_list :keys
 
-	def keys_add(args)
+	def keys_add(args=[])
 		keyfile = args.first || find_key
 		key = File.read(keyfile)
 

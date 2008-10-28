@@ -5,6 +5,7 @@ describe Heroku::CommandLine do
 		@cli = Heroku::CommandLine.new
 		@cli.stub!(:display)
 		@cli.stub!(:print)
+		@cli.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
 		@cli.stub!(:ask_for_credentials).and_raise("ask_for_credentials should not be called by specs")
 	end
 
@@ -56,28 +57,28 @@ describe Heroku::CommandLine do
 		it "writes credentials and uploads authkey when credentials are saved" do
 			@cli.stub!(:credentials)
 			@cli.should_receive(:write_credentials)
-			@cli.should_receive(:add_key)
+			@cli.should_receive(:keys_add)
 			@cli.save_credentials
 		end
 
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@cli.stub!(:write_credentials)
 			@cli.stub!(:retry_login?).and_return(false)
-			@cli.should_receive(:add_key).and_raise(RestClient::Unauthorized)
+			@cli.should_receive(:keys_add).and_raise(RestClient::Unauthorized)
 			@cli.should_receive(:delete_credentials)
 			lambda { @cli.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
 
 		it "save_credentials deletes the credentials when there's no authkey" do
 			@cli.stub!(:write_credentials)
-			@cli.should_receive(:add_key).and_raise(RuntimeError)
+			@cli.should_receive(:keys_add).and_raise(RuntimeError)
 			@cli.should_receive(:delete_credentials)
 			lambda { @cli.save_credentials }.should raise_error
 		end
 
 		it "save_credentials deletes the credentials when the authkey is weak" do
 			@cli.stub!(:write_credentials)
-			@cli.should_receive(:add_key).and_raise(RestClient::RequestFailed)
+			@cli.should_receive(:keys_add).and_raise(RestClient::RequestFailed)
 			@cli.should_receive(:delete_credentials)
 			lambda { @cli.save_credentials }.should raise_error
 		end
@@ -85,7 +86,7 @@ describe Heroku::CommandLine do
 		it "asks for login again when not authorized, for three times" do
 			@cli.stub!(:write_credentials)
 			@cli.stub!(:delete_credentials)
-			@cli.stub!(:add_key).and_raise(RestClient::Unauthorized)
+			@cli.stub!(:keys_add).and_raise(RestClient::Unauthorized)
 			@cli.should_receive(:ask_for_credentials).exactly(4).times
 			lambda { @cli.save_credentials }.should raise_error(RestClient::Unauthorized)
 		end
@@ -242,12 +243,10 @@ describe Heroku::CommandLine do
 			lambda { @cli.extract_argv_option('-boolean_option', %w( true false )) }.should raise_error
 		end
 
-		it "uploads the ssh authkey (deprecated in favor of add_key)" do
+		it "uploads the ssh authkey (deprecated in favor of keys_add)" do
 			@cli.should_receive(:extract_key!)
 			@cli.should_receive(:authkey).and_return('my key')
-			heroku = mock("heroku client")
-			@cli.should_receive(:init_heroku).and_return(heroku)
-			heroku.should_receive(:add_key).with('my key')
+			@cli.heroku.should_receive(:add_key).with('my key')
 			@cli.upload_authkey
 		end
 
