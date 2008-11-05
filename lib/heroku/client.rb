@@ -180,7 +180,7 @@ class Heroku::Client
 		doc.elements.to_a("//bundles/bundle").map do |a|
 			{
 				:name => a.elements['name'].text,
-				:completed => a.elements['completed'].text == 'true',
+				:state => a.elements['state'].text,
 				:created_at => Time.parse(a.elements['created-at'].text),
 			}
 		end
