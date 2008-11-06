@@ -67,5 +67,7 @@ unless cli.methods.include? command
 	exit 2
 end
 
-cli.execute(command, ARGV)
+args = ARGV.dup
+ARGV.clear
+cli.execute(command, args)
 
