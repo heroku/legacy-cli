@@ -122,8 +122,8 @@ EOXML
 
 		it "add_collaborator(app_name, email, access) -> adds collaborator to app" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
-			@resource.should_receive(:post).with({ 'collaborator[email]' => 'joe@example.com', 'collaborator[access]' => 'edit'}, anything)
-			@client.add_collaborator('myapp', 'joe@example.com', 'edit')
+			@resource.should_receive(:post).with({ 'collaborator[email]' => 'joe@example.com'}, anything)
+			@client.add_collaborator('myapp', 'joe@example.com')
 		end
 
 		it "update_collaborator(app_name, email, access) -> updates existing collaborator record" do
