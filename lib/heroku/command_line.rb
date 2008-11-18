@@ -96,7 +96,7 @@ class Heroku::CommandLine
 		name = extract_app(args)
 		email = args.shift.downcase rescue nil
 		heroku.remove_collaborator(name, email)
-		display "Collaborator removed"
+		display "Collaborator removed."
 	end
 
 	def domains(args)
