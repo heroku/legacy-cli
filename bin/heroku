@@ -8,6 +8,8 @@ require 'heroku/command_line'
 usage = <<EOTXT
 === General Commands
 
+  help                         # show this usage
+
   list                         # list your apps
   create [<name>]              # create a new app
 
@@ -57,7 +59,7 @@ usage = <<EOTXT
 EOTXT
 
 command = ARGV.shift.strip.gsub(/:/, '_') rescue ""
-if command.length == 0
+if command.length == 0 or command == 'help'
 	puts usage
 	exit 1
 end
