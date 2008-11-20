@@ -80,6 +80,7 @@ module Heroku::Command
 		end
 
 		it "asks for login again when not authorized, for three times" do
+			@cli.stub!(:read_credentials)
 			@cli.stub!(:write_credentials)
 			@cli.stub!(:delete_credentials)
 			Heroku::Command.stub!(:run_internal).with('keys:add', []).and_raise(RestClient::Unauthorized)
