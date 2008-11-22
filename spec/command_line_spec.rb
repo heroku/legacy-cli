@@ -357,6 +357,12 @@ describe Heroku::CommandLine do
 			@cli.should_receive(:display).with('logs')
 			@cli.logs([])
 		end
+
+		it "shows the app cron logs" do
+			@cli.heroku.should_receive(:cron_logs).with('myapp').and_return('cron logs')
+			@cli.should_receive(:display).with('cron logs')
+			@cli.logs_cron([])
+		end
 	end
 
 	describe "collaborators" do

@@ -179,6 +179,11 @@ class Heroku::CommandLine
 		display heroku.logs(app_name)
 	end
 
+	def logs_cron(args)
+		app_name = extract_app(args)
+		display heroku.cron_logs(app_name)
+	end
+
 	def bundles(args)
 		app_name = extract_app(args)
 		list = heroku.bundles(app_name)

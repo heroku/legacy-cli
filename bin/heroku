@@ -36,6 +36,7 @@ usage = <<EOTXT
 
   restart                      # restart app servers
   logs                         # fetch recent log output for debugging
+  logs:cron                    # fetch cron log output
 
   bundles                      # list bundles for the app
   bundles:capture [<bundle>]   # capture a bundle of the app's code and data
