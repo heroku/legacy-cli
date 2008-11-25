@@ -63,10 +63,9 @@ class Heroku::Client
 		end
 	end
 
-	# Invite a person by email address to collaborate on the app.  Optional
-	# third parameter can be edit or view.
-	def add_collaborator(app_name, email, access='view')
-		xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email, 'collaborator[access]' => access }))
+	# Invite a person by email address to collaborate on the app.
+	def add_collaborator(app_name, email)
+		xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email }))
 	end
 
 	# Change an existing collaborator.
