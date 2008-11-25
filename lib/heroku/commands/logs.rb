@@ -1,13 +1,11 @@
 module Heroku::Command
-	class Logs < Base
+	class Logs < BaseWithApp
 		def index
-			app_name = extract_app
-			display heroku.logs(app_name)
+			display heroku.logs(app)
 		end
 
 		def cron
-			app_name = extract_app
-			display heroku.cron_logs(app_name)
+			display heroku.cron_logs(app)
 		end
 	end
 end

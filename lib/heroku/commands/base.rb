@@ -69,4 +69,10 @@ module Heroku::Command
 			RUBY_PLATFORM =~ /mswin32/
 		end
 	end
+
+	class BaseWithApp < Base
+		def app
+			@app ||= extract_app
+		end
+	end
 end
