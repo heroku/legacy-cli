@@ -88,11 +88,6 @@ module Heroku::Command
 			display "Servers restarted"
 		end
 
-		def logs
-			app_name = extract_app
-			display heroku.logs(app_name)
-		end
-
 		protected
 			@@kb = 1024
 			@@mb = 1024 * @@kb

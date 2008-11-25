@@ -104,6 +104,12 @@ EOXML
 		@client.logs('myapp').should == 'log'
 	end
 
+	it "cron_logs(app_name) -> returns recent output of the app logs" do
+		@client.should_receive(:resource).with('/apps/myapp/cron_logs').and_return(@resource)
+		@resource.should_receive(:get).and_return('cron log')
+		@client.cron_logs('myapp').should == 'cron log'
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
