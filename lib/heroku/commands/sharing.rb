@@ -17,7 +17,7 @@ module Heroku::Command
 			name = extract_app
 			email = args.shift.downcase rescue nil
 			heroku.remove_collaborator(name, email)
-			display "Collaborator removed"
+			display "Collaborator removed."
 		end
 	end
 end
