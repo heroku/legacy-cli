@@ -65,7 +65,7 @@ module Heroku
 
 			def usage
 				usage = <<EOTXT
-=== General commands
+=== General Commands
 
   list                         # list your apps
   create [<name>]              # create a new app
@@ -75,7 +75,7 @@ module Heroku
   keys:remove <keyname>        # remove a key by name (user@host)
   keys:clear                   # remove all keys
 
-=== App commands (execute inside a checkout directory)
+=== App Commands (execute inside a checkout directory)
 
   info                         # show app info, like web url and git repo
   rename <newname>             # rename the app
@@ -103,7 +103,8 @@ module Heroku
 
   destroy                      # destroy the app permanently
 
-Example story:
+=== Example story:
+
   rails myapp
   cd myapp
   (...make edits...)
