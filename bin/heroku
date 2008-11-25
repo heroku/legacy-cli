@@ -7,7 +7,7 @@ require 'heroku/command'
 
 args = ARGV.dup
 ARGV.clear
-command = args.shift.strip rescue ''
+command = args.shift.strip rescue 'help'
 
 Heroku::Command.run(command, args)
 
