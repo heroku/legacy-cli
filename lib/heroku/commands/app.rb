@@ -90,8 +90,20 @@ module Heroku::Command
 
 		def destroy
 			if name = extract_option('--app')
-				heroku.destroy(name)
-				display "Destroyed #{name}"
+				info = heroku.info(name)
+				url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
+				conf = nil
+
+				display("Are you sure you want to destroy #{url} (yes/no)? ", false)
+				while !%w( yes no ).include?(conf) do
+					display("Please type yes or no: ", false) if conf
+					conf = ask.downcase
+				end
+
+				if conf == 'yes'
+					heroku.destroy(name)
+					display "Destroyed #{name}"
+				end
 			else
 				display "Set the app you want to destroy adding --app <app name> to this command"
 			end

@@ -51,7 +51,7 @@ module Heroku::Command
 			puts "Enter your Heroku credentials."
 
 			print "Email: "
-			user = gets.strip
+			user = ask
 
 			print "Password: "
 			password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
@@ -78,7 +78,7 @@ module Heroku::Command
 
 		def ask_for_password
 			echo_off
-			password = gets.strip
+			password = ask
 			puts
 			echo_on
 			return password

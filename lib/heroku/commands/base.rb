@@ -7,8 +7,12 @@ module Heroku::Command
 			@args = args
 		end
 
-		def display(msg)
-			puts msg
+		def display(msg, newline=true)
+			newline ? puts(msg) : print(msg)
+		end
+
+		def ask
+			gets.strip
 		end
 
 		def heroku
