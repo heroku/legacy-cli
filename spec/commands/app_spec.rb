@@ -55,5 +55,17 @@ module Heroku::Command
 			@cli.heroku.should_receive(:restart).with('myapp')
 			@cli.restart
 		end
+
+		it "destroys the app specified with --app" do
+			@cli.stub!(:args).and_return(['--app', 'myapp'])
+			@cli.heroku.should_receive(:destroy).with('myapp')
+			@cli.destroy
+		end
+
+		it "doesn't destroy the app in the current dir" do
+			@cli.stub!(:extract_app).and_return('myapp')
+			@cli.heroku.should_not_receive(:destroy)
+			@cli.destroy
+		end
 	end
 end

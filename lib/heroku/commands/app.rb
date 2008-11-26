@@ -89,9 +89,12 @@ module Heroku::Command
 		end
 
 		def destroy
-			name = extract_app
-			heroku.destroy(name)
-			display "Destroyed #{name}"
+			if name = extract_option('--app')
+				heroku.destroy(name)
+				display "Destroyed #{name}"
+			else
+				display "Set the app you want to destroy adding --app <app name> to this command"
+			end
 		end
 
 		protected
