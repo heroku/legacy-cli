@@ -29,7 +29,7 @@ module Heroku::Command
 		end
 
 		def info
-			name = (args.first != '--app') ? args.first : extract_app
+			name = (args.first && args.first != '--app') ? args.first : extract_app
 			attrs = heroku.info(name)
 			display "=== #{attrs[:name]}"
 			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"

@@ -22,6 +22,13 @@ module Heroku::Command
 			@cli.info
 		end
 
+		it "shows app info reading app from current git dir" do
+			@cli.stub!(:args).and_return([])
+			@cli.stub!(:extract_app_in_dir).and_return('myapp')
+			@cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => []})
+			@cli.info
+		end
+
 		it "creates without a name" do
 			@cli.heroku.should_receive(:create).with(nil, {}).and_return("untitled-123")
 			@cli.create
