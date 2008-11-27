@@ -62,6 +62,11 @@ module Heroku
 				msg = 'Internal server error' if msg.empty?
 				msg
 			end
+
+			def parse_error_xml(body)
+				xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
+				xml_errors.map { |a| a.text }.join(" / ")
+			end
 		end
 	end
 end
