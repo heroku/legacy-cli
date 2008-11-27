@@ -12,10 +12,10 @@ module Heroku
 				display "Unknown command. Run 'heroku help' for usage information."
 			rescue RestClient::Unauthorized
 				display "Authentication failure"
-			rescue RestClient::ResourceNotFound
-				display "Resource not found.  (Did you mistype the app name?)"
+			rescue RestClient::ResourceNotFound => e
+				display extract_not_found(e.response.body)
 			rescue RestClient::RequestFailed => e
-				display extract_error(e.response)
+				display extract_error(e.response.body)
 			rescue CommandFailed => e
 				display e.message
 			end
@@ -55,8 +55,13 @@ module Heroku
 				end
 			end
 
-			def extract_error(response)
-				msg = parse_error_xml(response.body) rescue ''
+			def extract_not_found(body)
+				puts "body is #{body}"
+				body =~ /^(\w+) not found$/ ? body : "Resource not found"
+			end
+
+			def extract_error(body)
+				msg = parse_error_xml(body) rescue ''
 				msg = 'Internal server error' if msg.empty?
 				msg
 			end
