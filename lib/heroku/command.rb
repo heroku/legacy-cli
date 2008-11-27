@@ -9,7 +9,7 @@ module Heroku
 			def run(command, args)
 				run_internal(command, args)
 			rescue InvalidCommand
-				display "No such command as #{command}. Run without arguments for usage"
+				display "Unknown command. Run 'heroku help' for usage information."
 			rescue RestClient::Unauthorized
 				display "Authentication failure"
 			rescue RestClient::ResourceNotFound
