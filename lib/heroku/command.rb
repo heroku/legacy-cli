@@ -56,8 +56,6 @@ module Heroku
 			end
 
 			def extract_error(response)
-				return "Not found" if response.code.to_i == 404
-
 				msg = parse_error_xml(response.body) rescue ''
 				msg = 'Internal server error' if msg.empty?
 				msg
