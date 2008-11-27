@@ -94,13 +94,8 @@ module Heroku::Command
 				url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
 				conf = nil
 
-				display("Are you sure you want to destroy #{url} (yes/no)? ", false)
-				while !%w( yes no ).include?(conf) do
-					display("Please type yes or no: ", false) if conf
-					conf = ask.downcase
-				end
-
-				if conf == 'yes'
+				display("Permanently destroy #{url} (y/n)? ", false)
+				if ask.downcase == 'y'
 					heroku.destroy(name)
 					display "Destroyed #{name}"
 				end
