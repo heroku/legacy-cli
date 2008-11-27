@@ -29,12 +29,13 @@ class Heroku::Client
 	end
 
 	# Show info such as mode, custom domain, and collaborators on an app.
-	def info(name)
-		doc = xml(get("/apps/#{name}"))
-		attrs = { :collaborators => list_collaborators(name) }
-		doc.elements.to_a('//app/*').inject(attrs) do |hash, element|
+	def info(name_or_domain)
+		name_or_domain = name_or_domain.gsub(/^(http:\/\/)?(www\.)?/, '')
+		doc = xml(get("/apps/#{name_or_domain}"))
+		attrs = doc.elements.to_a('//app/*').inject({}) do |hash, element|
 			hash[element.name.gsub(/-/, '_').to_sym] = element.text; hash
 		end
+		attrs.merge(:collaborators => list_collaborators(attrs[:name]))
 	end
 
 	# Create a new app, with an optional name.
