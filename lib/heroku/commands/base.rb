@@ -15,6 +15,10 @@ module Heroku::Command
 			gets.strip
 		end
 
+		def shell(cmd)
+			`#{cmd}`
+		end
+
 		def heroku
 			@heroku ||= Heroku::Command.run_internal('auth:client', args)
 		end

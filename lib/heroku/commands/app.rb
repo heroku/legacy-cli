@@ -12,20 +12,31 @@ module Heroku::Command
 		end
 
 		def create
+			git  = args.delete('--git')
 			name = args.shift.downcase.strip rescue nil
 			name = heroku.create(name, {})
 			display "Created #{app_urls(name)}"
+			if git
+				shell "git remote add heroku git@#{heroku.host}:#{name}.git"
+				display "Git remote added"
+			end
 		end
 
 		def rename
+			git  = args.delete('--git')
 			name = extract_app
 			newname = args.shift.downcase.strip rescue ''
 			raise(CommandFailed, "Invalid name.") if newname == ''
 
 			heroku.update(name, :name => newname)
-
 			display app_urls(newname)
-			display "Don't forget to update your Git remotes on any local checkouts."
+			if git
+				shell "git remote rm heroku"
+				shell "git remote add heroku git@#{heroku.host}:#{newname}.git"
+				display "Git remote updated"
+			else
+				display "Don't forget to update your Git remotes on any local checkouts."
+			end
 		end
 
 		def info
