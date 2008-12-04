@@ -73,14 +73,13 @@ module Heroku::Command
 			app = extract_app
 			cmd = args.join(' ').strip
 			if cmd.empty?
-				console_session
+				console_session(app)
 			else
 				display heroku.console(app, cmd)
 			end
 		end
 
-		def console_session
-			app = extract_app
+		def console_session(app)
 			display "Ruby console for #{app}.#{heroku.host}"
 			heroku.console(app) do |console|
 				while cmd = Readline.readline('>> ')
