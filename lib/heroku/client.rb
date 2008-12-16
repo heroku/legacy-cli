@@ -132,7 +132,7 @@ class Heroku::Client
 			@id = id; @app = app; @client = client
 		end
 		def run(cmd)
-			@client.post("/apps/#{@app}/consoles/#{@id}/command", :command => cmd)
+			@client.run_console_command("/apps/#{@app}/consoles/#{@id}/command", cmd, "=> ")
 		end
 	end
 
@@ -144,8 +144,23 @@ class Heroku::Client
 			yield ConsoleSession.new(id, app_name, self)
 			delete("/apps/#{app_name}/consoles/#{id}")
 		else
-			post("/apps/#{app_name}/console", cmd)
+			run_console_command("/apps/#{app_name}/console", cmd)
 		end
+	end
+
+	# internal method to run console commands formatting the output
+	def run_console_command(url, command, prefix=nil)
+		output = post(url, command)
+		return output unless prefix
+		if output.include?("\n")
+			lines  = output.split("\n")
+			(lines[0..-2] << "#{prefix}#{lines.last}").join("\n")
+		else
+			prefix + output
+		end
+	rescue RestClient::RequestFailed => e
+		raise e unless e.http_code == 422
+		e.response.body
 	end
 
 	# Restart the app servers.
