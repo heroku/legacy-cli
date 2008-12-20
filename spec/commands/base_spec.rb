@@ -73,11 +73,14 @@ module Heroku::Command
 				@base.extract_option('--something').should == 'value'
 			end
 
-			it "rejects options outside valid values for ARGV" do
-				@base.stub!(:args).and_return(%w( -boolean_option t ))
-				lambda do
-					@base.extract_option('-boolean_option', %w( true false ))
-				end.should raise_error(Heroku::Command::CommandFailed)
+			it "accepts options without value" do
+				@base.stub!(:args).and_return(%w( a b --something))
+				@base.extract_option('--something', 'default').should == 'default'
+			end
+
+			it "doesn't consider parameters as a value" do
+				@base.stub!(:args).and_return(%w( a b --something --something-else c d))
+				@base.extract_option('--something', 'default').should == 'default'
 			end
 		end
 
