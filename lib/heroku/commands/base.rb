@@ -48,7 +48,7 @@ module Heroku::Command
 			end
 		end
 
-		def extract_option(options, default=nil)
+		def extract_option(options, default=true)
 			values = options.is_a?(Array) ? options : [options]
 			return unless opt_index = args.select { |a| values.include? a }.first
 			if args.size > args.index(opt_index) && opt_value = args[args.index(opt_index) + 1]

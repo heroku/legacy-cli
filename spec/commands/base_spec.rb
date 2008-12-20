@@ -75,11 +75,16 @@ module Heroku::Command
 
 			it "accepts options without value" do
 				@base.stub!(:args).and_return(%w( a b --something))
-				@base.extract_option('--something', 'default').should == 'default'
+				@base.extract_option('--something').should be_true
 			end
 
 			it "doesn't consider parameters as a value" do
 				@base.stub!(:args).and_return(%w( a b --something --something-else c d))
+				@base.extract_option('--something').should be_true
+			end
+
+			it "accepts a default value" do
+				@base.stub!(:args).and_return(%w( a b --something))
 				@base.extract_option('--something', 'default').should == 'default'
 			end
 		end
