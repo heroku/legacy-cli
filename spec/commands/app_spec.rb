@@ -40,10 +40,27 @@ module Heroku::Command
 			@cli.create
 		end
 
-		it "creates adding a git remote" do
-			@cli.stub!(:args).and_return([ 'myapp', '--git' ])
+		it "creates adding heroku to git remote" do
+			@cli.stub!(:args).and_return([ 'myapp', '--remote' ])
 			@cli.heroku.should_receive(:create).and_return('myapp')
+			@cli.should_receive(:shell).with('git remote').and_return('')
 			@cli.should_receive(:shell).with('git remote add heroku git@heroku.com:myapp.git')
+			@cli.create
+		end
+
+		it "creates adding a custom git remote" do
+			@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
+			@cli.heroku.should_receive(:create).and_return('myapp')
+			@cli.should_receive(:shell).with('git remote').and_return('')
+			@cli.should_receive(:shell).with('git remote add myremote git@heroku.com:myapp.git')
+			@cli.create
+		end
+
+		it "doesn't add a custom git remote if it already exists" do
+			@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
+			@cli.heroku.should_receive(:create).and_return('myapp')
+			@cli.should_receive(:shell).with('git remote').and_return('myremote')
+			@cli.should_not_receive(:shell).with('git remote add myremote git@heroku.com:myapp.git')
 			@cli.create
 		end
 
@@ -54,7 +71,7 @@ module Heroku::Command
 		end
 
 		it "renames updating git remote" do
-			@cli.stub!(:args).and_return([ 'myapp2', '--git' ])
+			@cli.stub!(:args).and_return([ 'myapp2', '--remote' ])
 			@cli.heroku.should_receive(:update)
 			@cli.should_receive(:shell).with('git remote rm heroku')
 			@cli.should_receive(:shell).with('git remote add heroku git@heroku.com:myapp2.git')
