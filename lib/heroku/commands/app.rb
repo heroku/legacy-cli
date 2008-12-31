@@ -62,6 +62,17 @@ module Heroku::Command
 			end
 		end
 
+		def open
+			app = extract_app
+
+			if system("which firefox > /dev/null 2>&1")
+				puts "Opening #{web_url(app)}"
+				system "firefox #{web_url(app)}"
+			else
+				puts "Use your browser to visit: #{web_url(app)}"
+			end
+		end
+
 		def rake
 			app = extract_app
 			cmd = args.join(' ')

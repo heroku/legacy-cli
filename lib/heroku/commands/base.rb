@@ -63,8 +63,16 @@ module Heroku::Command
 			block_given? ? yield(opt_value) : opt_value
 		end
 
+		def web_url(name)
+			"http://#{name}.#{heroku.host}/"
+		end
+
+		def git_url(name)
+			"git@#{heroku.host}:#{name}.git"
+		end
+
 		def app_urls(name)
-			"http://#{name}.#{heroku.host}/ | git@#{heroku.host}:#{name}.git"
+			"#{web_url(name)} | #{git_url(name)}"
 		end
 
 		def home_directory

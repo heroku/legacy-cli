@@ -21,6 +21,7 @@ module Heroku::Command
 === App Commands (execute inside a checkout directory)
 
  info                         # show app info, like web url and git repo
+ open                         # open the app in a web browser
  rename <newname>             # rename the app
 
  sharing:add <email>          # add a collaborator
