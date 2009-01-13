@@ -14,6 +14,10 @@ require 'time'
 #   heroku.create('myapp')
 #
 class Heroku::Client
+	def self.version
+		'0.5.2'
+	end
+
 	attr_reader :host, :user, :password
 
 	def initialize(user, password, host='heroku.com')
@@ -229,7 +233,10 @@ class Heroku::Client
 	end
 
 	def heroku_headers   # :nodoc:
-		{ 'X-Heroku-API-Version' => '2' }
+		{
+			'X-Heroku-API-Version' => '1',
+			'User-Agent'           => "heroku-gem/#{self.class.version}",
+		}
 	end
 
 	def xml(raw)   # :nodoc:

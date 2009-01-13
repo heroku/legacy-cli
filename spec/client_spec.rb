@@ -84,7 +84,7 @@ EOXML
 		@client.should_receive(:resource).with('/apps/myapp/consoles/42/command').and_return(@resources['run'])
 		@client.should_receive(:resource).with('/apps/myapp/consoles/42').and_return(@resources['close'])
 		@resources['open'].should_receive(:post).and_return(42)
-		@resources['run'].should_receive(:post).with("1+1", {"X-Heroku-API-Version"=>"1"}).and_return('2')
+		@resources['run'].should_receive(:post).with("1+1", anything).and_return('2')
 		@resources['close'].should_receive(:delete)
 
 		@client.console('myapp') do |c|

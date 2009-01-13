@@ -31,8 +31,9 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'fileutils'
 include FileUtils
+require 'lib/heroku'
 
-version = "0.5.2"
+version = Heroku::Client.version
 name = "heroku"
 
 spec = Gem::Specification.new do |s|
