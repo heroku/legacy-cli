@@ -229,7 +229,7 @@ class Heroku::Client
 	end
 
 	def heroku_headers   # :nodoc:
-		{ 'X-Heroku-API-Version' => '1' }
+		{ 'X-Heroku-API-Version' => '2' }
 	end
 
 	def xml(raw)   # :nodoc:
