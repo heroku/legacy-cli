@@ -94,7 +94,7 @@ EOXML
 
 	it "restart(app_name) -> restarts the app servers" do
 		@client.should_receive(:resource).with('/apps/myapp/server').and_return(@resource)
-		@resource.should_receive(:delete).with
+		@resource.should_receive(:delete).with(anything)
 		@client.restart('myapp')
 	end
 
