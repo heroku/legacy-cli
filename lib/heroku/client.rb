@@ -229,7 +229,7 @@ class Heroku::Client
 	end
 
 	def delete(uri)    # :nodoc:
-		resource(uri).delete
+		resource(uri).delete(heroku_headers)
 	end
 
 	def heroku_headers   # :nodoc:
