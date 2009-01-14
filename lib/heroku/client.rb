@@ -234,7 +234,7 @@ class Heroku::Client
 
 	def heroku_headers   # :nodoc:
 		{
-			'X-Heroku-API-Version' => '1',
+			'X-Heroku-API-Version' => '2',
 			'User-Agent'           => "heroku-gem/#{self.class.version}",
 		}
 	end
