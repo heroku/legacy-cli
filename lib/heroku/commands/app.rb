@@ -55,7 +55,7 @@ module Heroku::Command
 			first = true
 			lead = "Collaborators:"
 			attrs[:collaborators].each do |collaborator|
-				display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]} (#{collaborator[:access]})"
+				display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
 				first = false
 			end
 		end

@@ -2,7 +2,7 @@ module Heroku::Command
 	class Sharing < BaseWithApp
 		def list
 			list = heroku.list_collaborators(app)
-			display list.map { |c| "#{c[:email]} (#{c[:access]})" }.join("\n")
+			display list.map { |c| c[:email] }.join("\n")
 		end
 		alias :index :list
 
