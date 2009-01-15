@@ -13,7 +13,7 @@ module Heroku::Command
 
 		it "adds collaborators with default access to view only" do
 			@cli.stub!(:args).and_return(['joe@example.com'])
-			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com', 'edit')
+			@cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com')
 			@cli.add
 		end
 
