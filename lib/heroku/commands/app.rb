@@ -49,10 +49,8 @@ module Heroku::Command
 			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
-			display "Mode:           #{ attrs[:production] == 'true' ? 'production' : 'development' }"
 			display "Code size:      #{format_bytes(attrs[:code_size])}" if attrs[:code_size]
 			display "Data size:      #{format_bytes(attrs[:data_size])}" if attrs[:data_size]
-			display "Public:         #{ attrs[:share_public] == 'true' ? 'true' : 'false' }"
 
 			first = true
 			lead = "Collaborators:"
