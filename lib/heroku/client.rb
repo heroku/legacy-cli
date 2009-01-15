@@ -15,7 +15,7 @@ require 'time'
 #
 class Heroku::Client
 	def self.version
-		'0.5.2'
+		'0.5.3'
 	end
 
 	attr_reader :host, :user, :password
