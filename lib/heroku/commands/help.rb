@@ -53,6 +53,7 @@ module Heroku::Command
  rails myapp
  cd myapp
  (...make edits...)
+ git init
  git add .
  git commit -m "my new app"
  heroku create myapp
