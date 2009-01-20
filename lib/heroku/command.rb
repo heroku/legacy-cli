@@ -16,6 +16,8 @@ module Heroku
 				display extract_not_found(e.response.body)
 			rescue RestClient::RequestFailed => e
 				display extract_error(e.response.body)
+			rescue RestClient::RequestTimeout
+			  display "API request timed out. Please try again, or contact feedback@heroku.com if this issue persists."
 			rescue CommandFailed => e
 				display e.message
 			end
