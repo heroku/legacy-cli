@@ -77,7 +77,7 @@ Show info about the app like the web url, git repo, and sharing settings.
 
 Update settings on the app, providing one or more of the options shown.
 
-  heroku sharing --add <email> --access (edit|view)
+  heroku sharing --add <email>
   heroku sharing --remove <email>
 
 Manage collaborators on the app.  An invitation will be sent by email for the

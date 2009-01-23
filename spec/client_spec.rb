@@ -116,29 +116,23 @@ EOXML
 			@resource.should_receive(:get).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <collaborators type="array">
-	<collaborator><email>joe@example.com</email><access>edit</access></collaborator>
-	<collaborator><email>jon@example.com</email><access>view</access></collaborator>
+	<collaborator><email>joe@example.com</email></collaborator>
+	<collaborator><email>jon@example.com</email></collaborator>
 </collaborators>
 EOXML
 			@client.list_collaborators('myapp').should == [
-				{ :email => 'joe@example.com', :access => 'edit' }, 
-				{ :email => 'jon@example.com', :access => 'view' }
+				{ :email => 'joe@example.com' },
+				{ :email => 'jon@example.com' }
 			]
 		end
 
-		it "add_collaborator(app_name, email, access) -> adds collaborator to app" do
+		it "add_collaborator(app_name, email) -> adds collaborator to app" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
 			@resource.should_receive(:post).with({ 'collaborator[email]' => 'joe@example.com'}, anything)
 			@client.add_collaborator('myapp', 'joe@example.com')
 		end
 
-		it "update_collaborator(app_name, email, access) -> updates existing collaborator record" do
-			@client.should_receive(:resource).with('/apps/myapp/collaborators/joe%40example%2Ecom').and_return(@resource)
-			@resource.should_receive(:put).with({ 'collaborator[access]' => 'view'}, anything)
-			@client.update_collaborator('myapp', 'joe@example.com', 'view')
-		end
-
-		it "remove_collaborator(app_name, email, access) -> removes collaborator from app" do
+		it "remove_collaborator(app_name, email) -> removes collaborator from app" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators/joe%40example%2Ecom').and_return(@resource)
 			@resource.should_receive(:delete)
 			@client.remove_collaborator('myapp', 'joe@example.com')

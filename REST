@@ -47,12 +47,10 @@ Update app settings, with input structure matching the output of the GET above.
 
   GET http://heroku.com/apps/:appname/collaborators
 
-Returns XML list of collaborators (email addresses) on the app, including the
-edit/view access setting for each.
+Returns XML list of collaborators (email addresses) on the app
 
   POST http://heroku.com/apps/:appname/collaborators
     collaborator[email]=:email
-    collaborator[access]=(edit|view)
 
 Add a new collaborator to the app.
 
