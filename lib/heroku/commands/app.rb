@@ -1,4 +1,5 @@
 require 'readline'
+require 'launchy'
 
 module Heroku::Command
 	class App < Base
@@ -63,12 +64,9 @@ module Heroku::Command
 		def open
 			app = extract_app
 
-			if system("which firefox > /dev/null 2>&1")
-				puts "Opening #{web_url(app)}"
-				system "firefox #{web_url(app)}"
-			else
-				puts "Use your browser to visit: #{web_url(app)}"
-			end
+			url = web_url(app)
+			puts "Opening #{url}"
+			Launchy.open url
 		end
 
 		def rake
