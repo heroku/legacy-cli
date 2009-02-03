@@ -77,6 +77,9 @@ module Heroku::Command
 			else
 				display heroku.rake(app, cmd)
 			end
+		rescue Heroku::Client::AppCrashed => e
+			display "Couldn't run rake"
+			display e.message
 		end
 
 		def console
@@ -87,6 +90,9 @@ module Heroku::Command
 			else
 				display heroku.console(app, cmd)
 			end
+		rescue Heroku::Client::AppCrashed => e
+			display "Couldn't run console command"
+			display e.message
 		end
 
 		def console_session(app)

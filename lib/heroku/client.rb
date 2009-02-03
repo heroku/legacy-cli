@@ -119,9 +119,14 @@ class Heroku::Client
 		delete("/user/keys")
 	end
 
+	class AppCrashed < RuntimeError; end
+
 	# Run a rake command on the Heroku app.
 	def rake(app_name, cmd)
 		post("/apps/#{app_name}/rake", cmd)
+	rescue RestClient::RequestFailed => e
+		raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
+		raise
 	end
 
 	# support for console sessions
@@ -144,6 +149,9 @@ class Heroku::Client
 		else
 			run_console_command("/apps/#{app_name}/console", cmd)
 		end
+	rescue RestClient::RequestFailed => e
+		raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
+		raise
 	end
 
 	# internal method to run console commands formatting the output
