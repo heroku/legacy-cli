@@ -110,6 +110,20 @@ EOXML
 		@client.cron_logs('myapp').should == 'cron log'
 	end
 
+	it "rake catches 502s and shows the app crashlog" do
+		e = RestClient::RequestFailed.new
+		e.stub!(:response).and_return(mock('response', :code => '502', :body => 'the crashlog'))
+		@client.should_receive(:post).and_raise(e)
+		lambda { @client.rake('myapp', '') }.should raise_error(Heroku::Client::AppCrashed)
+	end
+
+	it "rake passes other status codes (i.e., 500) as standard restclient exceptions" do
+		e = RestClient::RequestFailed.new
+		e.stub!(:response).and_return(mock('response', :code => '500', :body => 'not a crashlog'))
+		@client.should_receive(:post).and_raise(e)
+		lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)

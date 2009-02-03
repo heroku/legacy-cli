@@ -126,7 +126,7 @@ class Heroku::Client
 		post("/apps/#{app_name}/rake", cmd)
 	rescue RestClient::RequestFailed => e
 		raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
-		raise
+		raise e
 	end
 
 	# support for console sessions
@@ -151,7 +151,7 @@ class Heroku::Client
 		end
 	rescue RestClient::RequestFailed => e
 		raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
-		raise
+		raise e
 	end
 
 	# internal method to run console commands formatting the output
