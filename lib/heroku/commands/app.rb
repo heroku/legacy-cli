@@ -35,7 +35,7 @@ module Heroku::Command
 			display app_urls(newname)
 			if remote || File.exists?(Dir.pwd + '/.git')
 				remote ||= 'heroku'
-				shell "git remote rm #{remote}"
+				shell "git remote rm #{remote}" if shell('git remote').split("\n").include?(remote)
 				shell "git remote add #{remote} git@#{heroku.host}:#{newname}.git"
 				display "Git remote #{remote} updated"
 			else

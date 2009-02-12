@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'spec'
 require 'fileutils'
+require 'rush'
 
 require File.dirname(__FILE__) + '/../lib/heroku'
 require 'command'

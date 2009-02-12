@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../base'
 
 module Heroku::Command
 	describe App do
-		before do
+		before(:each) do
 			@cli = prepare_command(App)
 		end
 
@@ -40,41 +40,9 @@ module Heroku::Command
 			@cli.create
 		end
 
-		it "creates adding heroku to git remote" do
-			@cli.stub!(:args).and_return([ 'myapp', '--remote' ])
-			@cli.heroku.should_receive(:create).and_return('myapp')
-			@cli.should_receive(:shell).with('git remote').and_return('')
-			@cli.should_receive(:shell).with('git remote add heroku git@heroku.com:myapp.git')
-			@cli.create
-		end
-
-		it "creates adding a custom git remote" do
-			@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
-			@cli.heroku.should_receive(:create).and_return('myapp')
-			@cli.should_receive(:shell).with('git remote').and_return('')
-			@cli.should_receive(:shell).with('git remote add myremote git@heroku.com:myapp.git')
-			@cli.create
-		end
-
-		it "doesn't add a custom git remote if it already exists" do
-			@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
-			@cli.heroku.should_receive(:create).and_return('myapp')
-			@cli.should_receive(:shell).with('git remote').and_return('myremote')
-			@cli.should_not_receive(:shell).with('git remote add myremote git@heroku.com:myapp.git')
-			@cli.create
-		end
-
 		it "renames an app" do
 			@cli.stub!(:args).and_return([ 'myapp2' ])
 			@cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
-			@cli.rename
-		end
-
-		it "renames updating git remote" do
-			@cli.stub!(:args).and_return([ 'myapp2', '--remote' ])
-			@cli.heroku.should_receive(:update)
-			@cli.should_receive(:shell).with('git remote rm heroku')
-			@cli.should_receive(:shell).with('git remote add heroku git@heroku.com:myapp2.git')
 			@cli.rename
 		end
 
@@ -122,6 +90,58 @@ module Heroku::Command
 			@cli.stub!(:extract_app).and_return('myapp')
 			@cli.heroku.should_not_receive(:destroy)
 			@cli.destroy
+		end
+
+		context "Git Integration" do
+			before(:all) do
+				# setup a git dir to serve as a remote
+				@git = Rush::Box.new["/tmp/git_spec_#{Process.pid}/"]
+				@git.destroy
+				@git.create
+				@git.bash "git --bare init"
+			end
+
+			after(:all) do
+				@git.destroy
+			end
+
+			# setup sandbox in /tmp
+			before(:each) do
+				@sandbox = Rush::Box.new["/tmp/app_spec_#{Process.pid}/"].create
+				@sandbox.destroy
+				@sandbox.create
+				@sandbox.bash "git init"
+				Dir.stub!(:pwd).and_return(@sandbox.full_path.gsub(/\/$/, ''))
+			end
+
+			after(:each) do
+				@sandbox.destroy
+			end
+
+			it "creates adding heroku to git remote" do
+				@cli.heroku.should_receive(:create).and_return('myapp')
+				@cli.create
+				@sandbox.bash("git remote").strip.should == 'heroku'
+			end
+
+			it "creates adding a custom git remote" do
+				@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
+				@cli.heroku.should_receive(:create).and_return('myapp')
+				@cli.create
+				@sandbox.bash("git remote").strip.should == 'myremote'
+			end
+
+			it "doesn't add a git remote if it already exists" do
+				@cli.heroku.should_receive(:create).and_return('myapp')
+				@sandbox.bash "git remote add heroku #{@git.full_path}"
+				@cli.create
+			end
+
+			it "renames updating git remote" do
+				@cli.stub!(:args).and_return([ 'myapp2' ])
+				@cli.heroku.should_receive(:update)
+				@cli.rename
+			end
 		end
 	end
 end
