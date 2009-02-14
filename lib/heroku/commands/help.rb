@@ -39,6 +39,8 @@ module Heroku::Command
  logs                         # fetch recent log output for debugging
  logs:cron                    # fetch cron log output
 
+ db:pull <database_url>       # pull the app's database into a local database
+
  bundles                      # list bundles for the app
  bundles:capture [<bundle>]   # capture a bundle of the app's code and data
  bundles:download             # download most recent app bundle as a tarball

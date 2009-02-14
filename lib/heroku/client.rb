@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'rexml/document'
 require 'rest_client'
 require 'uri'
@@ -248,5 +247,9 @@ class Heroku::Client
 	def escape(value)  # :nodoc:
 		escaped = URI.escape(value.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
 		escaped.gsub('.', '%2E') # not covered by the previous URI.escape
+	end
+
+	def database_session(app_name)
+		post("/apps/#{app_name}/database/session", '')
 	end
 end
