@@ -24,6 +24,22 @@ module Heroku::Command
 			end
 		end
 
+		def reset
+			if name = extract_option('--app')
+				info = heroku.info(name)
+				url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
+				conf = nil
+
+				display("Permanently reset #{url} (y/n)? ", false)
+				if ask.downcase == 'y'
+					heroku.database_reset(name)
+					display "Database reset for #{url}"
+				end
+			else
+				display "Set the app you want to reset the database for by adding --app <app name> to this command"
+			end
+		end
+
 		protected
 
 		def taps_client(database_url, chunk_size, &block)

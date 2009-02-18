@@ -41,6 +41,7 @@ module Heroku::Command
 
  db:pull <database_url>       # pull the app's database into a local database
  db:push <database_url>       # push a local database into the app's remote database
+ db:reset                     # reset the database for the app
 
  bundles                      # list bundles for the app
  bundles:capture [<bundle>]   # capture a bundle of the app's code and data

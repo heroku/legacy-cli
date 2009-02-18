@@ -252,4 +252,8 @@ class Heroku::Client
 	def database_session(app_name)
 		post("/apps/#{app_name}/database/session", '')
 	end
+
+	def database_reset(app_name)
+		post("/apps/#{app_name}/database/reset", '')
+	end
 end
