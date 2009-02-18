@@ -51,11 +51,12 @@ module Heroku::Command
 		def extract_option(options, default=true)
 			values = options.is_a?(Array) ? options : [options]
 			return unless opt_index = args.select { |a| values.include? a }.first
-			if args.size > args.index(opt_index) && opt_value = args[args.index(opt_index) + 1]
+			opt_position = args.index(opt_index) + 1
+			if args.size > opt_position && opt_value = args[opt_position]
 				if opt_value.include?('--')
 					opt_value = nil
 				else
-					args.delete(opt_value)
+					args.delete_at(opt_position)
 				end
 			end
 			opt_value ||= default

@@ -87,6 +87,12 @@ module Heroku::Command
 				@base.stub!(:args).and_return(%w( a b --something))
 				@base.extract_option('--something', 'default').should == 'default'
 			end
+
+			it "is not affected by multiple arguments with the same value" do
+				@base.stub!(:args).and_return(%w( --arg1 val --arg2 val ))
+				@base.extract_option('--arg1').should == 'val'
+				@base.args.should == ['--arg2', 'val']
+			end
 		end
 
 		describe "formatting" do
