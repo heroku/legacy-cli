@@ -2,14 +2,12 @@ require 'taps/client_session'
 
 module Heroku::Command
 	class Db < BaseWithApp
-		CHUNK = 1000
-
 		def pull
 			database_url = args.shift
 			database_url.strip!
 			raise(CommandFailed) if database_url == ''
 
-			taps_client(database_url, CHUNK) do |client|
+			taps_client(database_url) do |client|
 				client.cmd_receive
 			end
 		end
@@ -19,7 +17,7 @@ module Heroku::Command
 			database_url.strip!
 			raise(CommandFailed) if database_url == ''
 
-			taps_client(database_url, CHUNK) do |client|
+			taps_client(database_url) do |client|
 				client.cmd_send
 			end
 		end
@@ -42,7 +40,8 @@ module Heroku::Command
 
 		protected
 
-		def taps_client(database_url, chunk_size, &block)
+		def taps_client(database_url, &block)
+			chunk_size = 1000
 			Taps::Config.database_url = database_url
 			Taps::Config.verify_database_url
 

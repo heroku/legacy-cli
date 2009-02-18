@@ -217,6 +217,18 @@ EOXML
 			@resource.should_receive(:delete)
 			@client.remove_all_keys
 		end
+
+		it "database_session(app_name) -> creates a taps database session" do
+			@client.should_receive(:resource).with('/apps/myapp/database/session').and_return(@resource)
+			@resource.should_receive(:post).with('', anything)
+			@client.database_session('myapp')
+		end
+
+		it "database_reset(app_name) -> reset an app's database" do
+			@client.should_receive(:resource).with('/apps/myapp/database/reset').and_return(@resource)
+			@resource.should_receive(:post).with('', anything)
+			@client.database_reset('myapp')
+		end
 	end
 
 	describe "internal" do
