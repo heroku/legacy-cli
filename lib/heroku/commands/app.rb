@@ -96,8 +96,8 @@ module Heroku::Command
 		end
 
 		def console_session(app)
-			display "Ruby console for #{app}.#{heroku.host}"
 			heroku.console(app) do |console|
+				display "Ruby console for #{app}.#{heroku.host}"
 				while cmd = Readline.readline('>> ')
 					break if cmd.downcase.strip == 'exit'
 					unless cmd.nil? || cmd.strip.empty?
