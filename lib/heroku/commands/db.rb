@@ -26,12 +26,12 @@ module Heroku::Command
 			if name = extract_option('--app')
 				info = heroku.info(name)
 				url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
-				conf = nil
 
-				display("Permanently reset #{url} (y/n)? ", false)
+				display("Warning: All data in the '#{name}' database will be erased and will not be recoverable.")
+				display("Are you sure you wish to continue? (y/n)? ", false)
 				if ask.downcase == 'y'
 					heroku.database_reset(name)
-					display "Database reset for #{url}"
+					display "Database reset for '#{name}' (#{url})"
 				end
 			else
 				display "Set the app you want to reset the database for by adding --app <app name> to this command"
