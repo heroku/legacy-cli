@@ -22,10 +22,10 @@ module Heroku
 				display e.message
 			end
 
-			def run_internal(command, args)
+			def run_internal(command, args, heroku=nil)
 				namespace, command = parse(command)
 				require "commands/#{namespace}"
-				klass = Heroku::Command.const_get(namespace.capitalize).new(args)
+				klass = Heroku::Command.const_get(namespace.capitalize).new(args, heroku)
 				raise InvalidCommand unless klass.respond_to?(command)
 				klass.send(command)
 			end

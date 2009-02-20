@@ -3,8 +3,9 @@ require 'fileutils'
 module Heroku::Command
 	class Base
 		attr_accessor :args
-		def initialize(args)
+		def initialize(args, heroku=nil)
 			@args = args
+			@heroku = heroku
 		end
 
 		def display(msg, newline=true)
