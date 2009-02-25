@@ -263,6 +263,18 @@ EOXML
 			@resource.should_receive(:post).with('', anything)
 			@client.database_reset('myapp')
 		end
+
+		it "maintenance(app_name, :on) -> sets maintenance mode for an app" do
+			@client.should_receive(:resource).with('/apps/myapp/server/maintenance').and_return(@resource)
+			@resource.should_receive(:post).with({:maintenance_mode => '1'}, anything)
+			@client.maintenance('myapp', :on)
+		end
+
+		it "maintenance(app_name, :off) -> turns off maintenance mode for an app" do
+			@client.should_receive(:resource).with('/apps/myapp/server/maintenance').and_return(@resource)
+			@resource.should_receive(:post).with({:maintenance_mode => '0'}, anything)
+			@client.maintenance('myapp', :off)
+		end
 	end
 
 	describe "config vars" do

@@ -46,6 +46,9 @@ module Heroku::Command
  logs                         # fetch recent log output for debugging
  logs:cron                    # fetch cron log output
 
+ maintenance:on               # put the app into maintenance mode
+ maintenance:off              # take the app out of maintenance mode
+
  config                       # display the app's config vars (environment)
  config:add key=val [...]     # add one or more config vars
  config:remove key [...]      # remove one or more config vars

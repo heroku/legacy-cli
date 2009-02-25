@@ -475,4 +475,9 @@ class Heroku::Client
 	def database_reset(app_name)
 		post("/apps/#{app_name}/database/reset", '')
 	end
+
+	def maintenance(app_name, mode)
+		mode = mode == :on ? '1' : '0'
+		post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode)
+	end
 end
