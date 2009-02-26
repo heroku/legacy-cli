@@ -196,7 +196,7 @@ class Heroku::Client
 	# recently captured bundle for that app will be downloaded.
 	def bundle_download(app_name, fname, bundle_name=nil)
 		data = get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}")
-		File.open(fname, "w") { |f| f.write data }
+		File.open(fname, "wb") { |f| f.write data }
 	end
 
 	# Get a list of bundles of the app.
