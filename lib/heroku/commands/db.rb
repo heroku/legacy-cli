@@ -3,9 +3,8 @@ require 'taps/client_session'
 module Heroku::Command
 	class Db < BaseWithApp
 		def pull
-			database_url = args.shift
-			database_url.strip!
-			raise(CommandFailed) if database_url == ''
+			database_url = args.shift.strip rescue ''
+			raise(CommandFailed, "Invalid database url") if database_url == ''
 
 			taps_client(database_url) do |client|
 				client.cmd_receive
@@ -13,9 +12,8 @@ module Heroku::Command
 		end
 
 		def push
-			database_url = args.shift
-			database_url.strip!
-			raise(CommandFailed) if database_url == ''
+			database_url = args.shift.strip rescue ''
+			raise(CommandFailed, "Invalid database url") if database_url == ''
 
 			taps_client(database_url) do |client|
 				client.cmd_send
