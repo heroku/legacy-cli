@@ -4,6 +4,10 @@ module Heroku::Command
 	class Db < BaseWithApp
 		def pull
 			database_url = args.shift.strip rescue ''
+			if database_url == ''
+				database_url = parse_database_yml
+				puts "Auto-detected local database: #{database_url}" if database_url != ''
+			end
 			raise(CommandFailed, "Invalid database url") if database_url == ''
 
 			taps_client(database_url) do |client|
@@ -37,6 +41,54 @@ module Heroku::Command
 		end
 
 		protected
+
+		def parse_database_yml
+			return "" unless File.exists?(Dir.pwd + '/config/database.yml')
+
+			conf = YAML.load(File.read(Dir.pwd + '/config/database.yml'))['development']
+			case conf['adapter']
+				when 'sqlite3'
+					return "sqlite://#{conf['database']}"
+				when 'postgresql'
+					uri_hash = conf_to_uri_hash(conf)
+					uri_hash['scheme'] = 'postgres'
+					return uri_hash_to_url(uri_hash)
+				else
+					return uri_hash_to_url(conf_to_uri_hash(conf))
+			end
+		rescue Object => e
+			""
+		end
+
+		def conf_to_uri_hash(conf)
+			uri = {}
+			uri['scheme'] = conf['adapter']
+			uri['username'] = conf['user'] || conf['username']
+			uri['password'] = conf['password']
+			uri['host'] = conf['host'] || conf['hostname']
+			uri['port'] = conf['port']
+			uri['path'] = conf['database']
+
+			conf['encoding'] = 'utf8' if conf['encoding'] == 'unicode' or conf['encoding'].nil?
+			uri['query'] = "encoding=#{conf['encoding']}"
+
+			uri
+		end
+
+		def uri_hash_to_url(uri)
+			url = "#{uri['scheme']}://"
+			if uri['username'].size
+				url += escape(uri['username'])
+				url += ':' + escape(uri['password']) if uri['password']
+				url += "@"
+			end
+			url += uri['host']
+			url += uri['port'] if uri['port']
+			url += "/"
+			url += uri['path']
+			url += "?#{uri['query']}" if uri['query']
+			url
+		end
 
 		def taps_client(database_url, &block)
 			chunk_size = 1000
