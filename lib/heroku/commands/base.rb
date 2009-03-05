@@ -84,6 +84,10 @@ module Heroku::Command
 		def running_on_windows?
 			RUBY_PLATFORM =~ /mswin32/
 		end
+
+		def escape(value)
+			heroku.escape(value)
+		end
 	end
 
 	class BaseWithApp < Base
