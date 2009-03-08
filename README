@@ -4,32 +4,21 @@ This library wraps the REST API for managing and deploying Rails apps to the
 Heroku platform.  It can be called as a Ruby library, or invoked from the
 command line.  Code push and pull is done through Git.
 
-For more information about Heroku, see: http://heroku.com
+For more about Heroku see http://heroku.com
+
+For full documentation see http://heroku.com/docs
 
 == Sample Workflows
 
-Start a new app from scratch, work on it locally, then deploy the changes:
+Create a new Rails app and deploy it:
 
-  heroku create newapp
-  git clone git@heroku.com:newapp.git
-  cd newapp
-  rake db:migrate
-  script/server
-  [..work locally for a while..]
-  git add .
-  git commit -m "some changes made locally"
-  git push
-
-Deploy an existing Rails app:
-
-  cd ~/projects/existingapp
-  # skip the next three commands if the app already has a git repo
+  rails myapp
+  cd myapp
   git init
   git add .
   git commit -m "init"
-  heroku create existingapp-deploy
-  git remote add heroku git@heroku.com:existingapp-deploy.git
-  git push -f heroku
+  heroku create
+  git push heroku master
 
 == Setup
 
@@ -42,84 +31,18 @@ an ssh public key ("ssh-keygen -t rsa").
 The first time you run a command, such as "heroku list," you will be prompted
 for your Heroku username and password.  These are saved to ~/heroku/credentials
 for future requests.  Your public key (~/.ssh/id_[rd]sa.pub) will be uploaded
-to Heroku after you enter your credentials.  Use heroku keys --add if you wish
+to Heroku after you enter your credentials.  Use heroku keys:add if you wish
 to upload additional keys or specify a key in a non-standard location.
-
-== Command-Line Usage
-
-  heroku list
-
-Get a list of your apps.
-
-  heroku create [<appname>]
-
-Create a new app.  If you don't provide a name, one will be assigned (you can
-change it later with the update --name command).  The web url and git repo url
-will be shown as the command's output.
-
-  git clone git@heroku.com:<appname>.git
-
-Clone the repository of the Heroku app for local work.  Note that this fetches
-only code that has been committed to the repo; uncommitted changes inside the
-web code editor will not be pulled.
-
-  git push
-
-Deploy local changes back to Heroku.  You must commit to your local repository
-first (e.g., git commit -a).  Use -f if you are pushing for the first time to
-force overwriting the repo.
-
-  heroku info
-
-Show info about the app like the web url, git repo, and sharing settings.
-
-  heroku update [--name <newname>] [--public (true|false)] [--mode (production|development)]
-
-Update settings on the app, providing one or more of the options shown.
-
-  heroku sharing --add <email>
-  heroku sharing --remove <email>
-
-Manage collaborators on the app.  An invitation will be sent by email for the
-new collaborator to view or edit the app.
-
-  heroku rake <command>
-
-Execute a rake command on the Heroku app.
-
-  heroku destroy <app>
-
-Permenantly destroy the app.
-
-  heroku keys
-  heroku keys --add [<path to keyfile>]
-  heroku keys --remove [keyname]
-  heroku keys --remove all
-
-Manage your ssh public keys for git push/pull on your apps.  The default key
-(~/.ssh/id_[rd]sa.pub) is uploaded automatically when you enter your
-credentials.  If you wish to add additional keys, or you have a key in a
-nonstandard location, you can use heroku keys --add.  Without any arguments,
-this will list all the keys attached to your Heroku user account.
-
-== Further Reading
-
-The Heroku::Client class wraps the REST API.  You can instantiate this class to
-access the API from within a Ruby program, such as a Capistrano script.
-
-Documentation for the underlying REST resources: link:files/REST.html
 
 == Meta
 
-Written by Adam Wiggins
+Created by Adam Wiggins
 
-Major modifications by Pedro Belo
+Maintained by Pedro Belo
 
-Patches contributed by: Chris O'Sullivan, Blake Mizerany
+Patches contributed by: Chris O'Sullivan, Blake Mizerany, Ricardo Chimal
 
 Released under the MIT license: http://www.opensource.org/licenses/mit-license.php
-
-Send feedback and questions to the Heroku mailing list: http://groups.google.com/group/heroku
 
 http://github.com/adamwiggins/heroku-client
 
