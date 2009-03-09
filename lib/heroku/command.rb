@@ -9,17 +9,17 @@ module Heroku
 			def run(command, args)
 				run_internal(command, args)
 			rescue InvalidCommand
-				display "Unknown command. Run 'heroku help' for usage information."
+				error "Unknown command. Run 'heroku help' for usage information."
 			rescue RestClient::Unauthorized
-				display "Authentication failure"
+				error "Authentication failure"
 			rescue RestClient::ResourceNotFound => e
-				display extract_not_found(e.response.body)
+				error extract_not_found(e.response.body)
 			rescue RestClient::RequestFailed => e
-				display extract_error(e.response.body)
+				error extract_error(e.response.body)
 			rescue RestClient::RequestTimeout
-			  display "API request timed out. Please try again, or contact feedback@heroku.com if this issue persists."
+				error "API request timed out. Please try again, or contact feedback@heroku.com if this issue persists."
 			rescue CommandFailed => e
-				display e.message
+				error e.message
 			end
 
 			def run_internal(command, args, heroku=nil)
@@ -30,8 +30,9 @@ module Heroku
 				klass.send(command)
 			end
 
-			def display(msg)
-				puts(msg)
+			def error(msg)
+				STDERR.puts(msg)
+				exit 1
 			end
 
 			def parse(command)
