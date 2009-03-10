@@ -91,7 +91,10 @@ module Heroku::Command
 	end
 
 	class BaseWithApp < Base
-		def app
+		attr_accessor :app
+
+		def initialize(args, heroku=nil)
+			super(args, heroku)
 			@app ||= extract_app
 		end
 	end
