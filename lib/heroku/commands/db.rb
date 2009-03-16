@@ -6,7 +6,7 @@ module Heroku::Command
 			database_url = args.shift.strip rescue ''
 			if database_url == ''
 				database_url = parse_database_yml
-				puts "Auto-detected local database: #{database_url}" if database_url != ''
+				display "Auto-detected local database: #{database_url}" if database_url != ''
 			end
 			raise(CommandFailed, "Invalid database url") if database_url == ''
 
@@ -17,6 +17,10 @@ module Heroku::Command
 
 		def push
 			database_url = args.shift.strip rescue ''
+			if database_url == ''
+				database_url = parse_database_yml
+				display "Auto-detected local database: #{database_url}" if database_url != ''
+			end
 			raise(CommandFailed, "Invalid database url") if database_url == ''
 
 			taps_client(database_url) do |client|
