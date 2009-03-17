@@ -23,7 +23,7 @@ module Heroku::Command
 
 		it "resets the app's database specified with --app if user confirms" do
 			@db.stub!(:ask).and_return('y')
-			@db.stub!(:args).and_return(['--app', 'myapp'])
+			@db.stub!(:autodetected_app).and_return(false)
 			@db.heroku.stub!(:info).and_return({})
 			@db.heroku.should_receive(:database_reset).with('myapp')
 			@db.reset
