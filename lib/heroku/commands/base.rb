@@ -2,7 +2,8 @@ require 'fileutils'
 
 module Heroku::Command
 	class Base
-		attr_accessor :args, :autodetected_app
+		attr_accessor :args
+		attr_reader :autodetected_app
 		def initialize(args, heroku=nil)
 			@args = args
 			@heroku = heroku
@@ -30,7 +31,7 @@ module Heroku::Command
 			unless app
 				app = extract_app_in_dir(Dir.pwd) ||
 				raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>")
-				autodetected_app = true
+				@autodetected_app = true
 			end
 			app
 		end
