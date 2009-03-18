@@ -59,7 +59,7 @@ spec = Gem::Specification.new do |s|
 
 	s.add_dependency('rest-client', '>=0.8.2')
 	s.add_dependency('launchy', '>=0.3.2')
-	s.add_dependency('taps', '= 0.2.8')
+	s.add_dependency('taps', '>= 0.2.8', '< 0.3.0')
 end
 
 Rake::GemPackageTask.new(spec) do |p|
