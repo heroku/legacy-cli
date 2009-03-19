@@ -215,6 +215,17 @@ class Heroku::Client
 		end
 	end
 
+	def config_vars(app_name)
+		doc = xml(get("/apps/#{app_name}/config_vars"))
+		doc.elements.to_a("//app/config-vars/config-var").inject({}) do |h, a|
+			h[a.elements['key'].text] = a.elements['value'].text; h
+		end
+	end
+
+	def set_config_var(app_name, key, value)
+		put("/apps/#{app_name}/config_vars/#{key}", value)
+	end
+
 	##################
 
 	def resource(uri)

@@ -231,6 +231,34 @@ EOXML
 		end
 	end
 
+	describe "config vars" do
+		it "config_vars(app_name) -> hash of config vars for the app" do
+			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
+			@resource.should_receive(:get).and_return <<EOXML
+<?xml version='1.0' encoding='UTF-8'?>
+<app>
+	<config-vars type='array'>
+		<config-var>
+			<key>A</key>
+			<value>one</value>
+		</config-var>
+		<config-var>
+			<key>B</key>
+			<value>two</value>
+		</config-var>
+	</config-vars>
+</app>
+EOXML
+			@client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
+		end
+
+		it "set_config_var(app_name, key, value)" do
+			@client.should_receive(:resource).with('/apps/myapp/config_vars/mykey').and_return(@resource)
+			@resource.should_receive(:put).with('myvalue', anything)
+			@client.set_config_var('myapp', 'mykey', 'myvalue')
+		end
+	end
+
 	describe "internal" do
 		it "creates a RestClient resource for making calls" do
 			@client.stub!(:host).and_return('heroku.com')
