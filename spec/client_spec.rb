@@ -257,6 +257,18 @@ EOXML
 			@resource.should_receive(:put).with('myvalue', anything)
 			@client.set_config_var('myapp', 'mykey', 'myvalue')
 		end
+
+		it "unset_config_var(app_name, key)" do
+			@client.should_receive(:resource).with('/apps/myapp/config_vars/mykey').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.unset_config_var('myapp', 'mykey')
+		end
+
+		it "reset_config_vars(app_name) -> resets all config vars for this app" do
+			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.reset_config_vars('myapp')
+		end
 	end
 
 	describe "internal" do

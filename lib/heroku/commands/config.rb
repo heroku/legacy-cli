@@ -12,14 +12,30 @@ module Heroku::Command
 				args.map { |a| a.split('=') }.each do |k, v|
 					heroku.set_config_var(app, k, v)
 				end
-				display "App is now restarting"
-				heroku.restart(app)
+				restart_app
 			else
 				raise CommandFailed, "Usage: heroku config <key> or heroku config <key>=<value>"
 			end
 		end
 
+		def unset
+			args.each { |k| heroku.unset_config_var(app, k) }
+			display "Config variables #{args.join(' ')} were removed from #{app}"
+			restart_app
+		end
+
+		def reset
+			heroku.reset_config_vars(app)
+			display "Config vars reset for #{app}"
+			restart_app
+		end
+
 		protected
+			def restart_app
+				display "App is now restarting"
+				heroku.restart(app)
+			end
+
 			def display_vars(vars, long)
 				max_length = vars.map { |v| v[0].size }.max
 				vars.each do |k, v|

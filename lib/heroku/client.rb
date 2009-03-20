@@ -226,6 +226,15 @@ class Heroku::Client
 		put("/apps/#{app_name}/config_vars/#{key}", value)
 	end
 
+	def unset_config_var(app_name, key)
+		delete("/apps/#{app_name}/config_vars/#{key}")
+	end
+
+	def reset_config_vars(app_name)
+		delete("/apps/#{app_name}/config_vars")
+	end
+
+
 	##################
 
 	def resource(uri)

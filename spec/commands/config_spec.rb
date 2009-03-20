@@ -34,5 +34,19 @@ module Heroku::Command
 			@config.should_receive(:display).with('LONG => AAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAA')
 			@config.index
 		end
+
+		it "unsets config keys and restart the app" do
+			@config.stub!(:args).and_return(['a', 'b'])
+			@config.heroku.should_receive(:unset_config_var).with('myapp', 'a')
+			@config.heroku.should_receive(:unset_config_var).with('myapp', 'b')
+			@config.heroku.should_receive(:restart).with('myapp')
+			@config.unset
+		end
+
+		it "resets config and restart the app" do
+			@config.heroku.should_receive(:reset_config_vars).with('myapp')
+			@config.heroku.should_receive(:restart).with('myapp')
+			@config.reset
+		end
 	end
 end
