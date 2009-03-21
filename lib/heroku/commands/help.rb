@@ -6,9 +6,11 @@ module Heroku::Command
 
 		def usage
 			usage = <<EOTXT
+
 === General Commands
 
  help                         # show this usage
+ version                      # show the gem version
 
  list                         # list your apps
  create [<name>]              # create a new app
@@ -18,7 +20,7 @@ module Heroku::Command
  keys:remove <keyname>        # remove a key by name (user@host)
  keys:clear                   # remove all keys
 
-=== App Commands (execute inside a checkout directory)
+=== App Commands (execute inside a checkout directory, or use --app <appname>)
 
  info                         # show app info, like web url and git repo
  open                         # open the app in a web browser
@@ -52,17 +54,16 @@ module Heroku::Command
 
  destroy                      # destroy the app permanently
 
-=== Example story:
+=== Example:
 
  rails myapp
  cd myapp
- (...make edits...)
  git init
  git add .
  git commit -m "my new app"
  heroku create myapp
- git remote add heroku git@heroku.com:myapp.git
  git push heroku master
+
 EOTXT
 		end
 	end

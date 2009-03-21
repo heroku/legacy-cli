@@ -17,6 +17,10 @@ class Heroku::Client
 		'0.6.1'
 	end
 
+	def self.gem_version_string
+		"heroku-gem/#{version}"
+	end
+	
 	attr_reader :host, :user, :password
 
 	def initialize(user, password, host='heroku.com')
@@ -236,7 +240,7 @@ class Heroku::Client
 	def heroku_headers   # :nodoc:
 		{
 			'X-Heroku-API-Version' => '2',
-			'User-Agent'           => "heroku-gem/#{self.class.version}",
+			'User-Agent'           => self.class.gem_version_string,
 		}
 	end
 

@@ -17,7 +17,7 @@ module Heroku
 			rescue RestClient::RequestFailed => e
 				error extract_error(e.response.body)
 			rescue RestClient::RequestTimeout
-				error "API request timed out. Please try again, or contact feedback@heroku.com if this issue persists."
+				error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
 			rescue CommandFailed => e
 				error e.message
 			end
