@@ -43,6 +43,7 @@ module Heroku::Command
 
  config                       # display the app's config vars
  config key=val               # set one or more config vars
+ config:reset                 # reset to the default config vars
 
  db:pull <database_url>       # pull the app's database into a local database
  db:push <database_url>       # push a local database into the app's remote database
