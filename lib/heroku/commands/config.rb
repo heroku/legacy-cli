@@ -15,31 +15,31 @@ module Heroku::Command
 					vars
 				end
 
-				display "Setting #{vars.inspect} and restarting app..."
+				display "Setting #{vars.inspect} and restarting app...", false
 				heroku.set_config_vars(app, vars)
-				display "done"
+				display "done."
 			else
 				raise CommandFailed, "Usage: heroku config <key> or heroku config <key>=<value>"
 			end
 		end
 
 		def unset
-			display "Unsetting #{args.first} and restarting app..."
+			display "Unsetting #{args.first} and restarting app...", false
 			heroku.unset_config_var(app, args.first)
-			display "done"
+			display "done."
 		end
 
 		def reset
-			display "Reseting all config vars and restarting app..."
+			display "Reseting all config vars and restarting app...", false
 			heroku.reset_config_vars(app)
-			display "done"
+			display "done."
 		end
 
 		protected
 			def restart_app
-				display "Restarting app..."
+				display "Restarting app...", false
 				heroku.restart(app)
-				display "done"
+				display "done."
 			end
 
 			def display_vars(vars, long)

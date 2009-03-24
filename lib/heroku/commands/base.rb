@@ -11,7 +11,12 @@ module Heroku::Command
 		end
 
 		def display(msg, newline=true)
-			newline ? puts(msg) : print(msg)
+			if newline
+				puts(msg)
+			else
+				print(msg)
+				STDOUT.flush
+			end
 		end
 
 		def ask
