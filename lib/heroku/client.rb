@@ -2,6 +2,7 @@ require 'rexml/document'
 require 'rest_client'
 require 'uri'
 require 'time'
+require 'json'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -216,14 +217,11 @@ class Heroku::Client
 	end
 
 	def config_vars(app_name)
-		doc = xml(get("/apps/#{app_name}/config_vars"))
-		doc.elements.to_a("//app/config-vars/config-var").inject({}) do |h, a|
-			h[a.elements['key'].text] = a.elements['value'].text; h
-		end
+		JSON.parse get("/apps/#{app_name}/config_vars")
 	end
 
-	def set_config_var(app_name, key, value)
-		put("/apps/#{app_name}/config_vars/#{key}", value)
+	def set_config_vars(app_name, new_vars)
+		put("/apps/#{app_name}/config_vars", new_vars.to_json)
 	end
 
 	def unset_config_var(app_name, key)

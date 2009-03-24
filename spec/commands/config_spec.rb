@@ -21,11 +21,9 @@ module Heroku::Command
 			@config.index
 		end
 
-		it "sets configs and restart the app" do
+		it "sets config vars" do
 			@config.stub!(:args).and_return(['a=1', 'b=2'])
-			@config.heroku.should_receive(:set_config_var).with('myapp', 'a', '1')
-			@config.heroku.should_receive(:set_config_var).with('myapp', 'b', '2')
-			@config.heroku.should_receive(:restart).with('myapp')
+			@config.heroku.should_receive(:set_config_vars).with('myapp', {'a'=>'1','b'=>'2'})
 			@config.index
 		end
 
@@ -35,17 +33,14 @@ module Heroku::Command
 			@config.index
 		end
 
-		it "unsets config keys and restart the app" do
-			@config.stub!(:args).and_return(['a', 'b'])
+		it "unsets config key" do
+			@config.stub!(:args).and_return(['a'])
 			@config.heroku.should_receive(:unset_config_var).with('myapp', 'a')
-			@config.heroku.should_receive(:unset_config_var).with('myapp', 'b')
-			@config.heroku.should_receive(:restart).with('myapp')
 			@config.unset
 		end
 
-		it "resets config and restart the app" do
+		it "resets config" do
 			@config.heroku.should_receive(:reset_config_vars).with('myapp')
-			@config.heroku.should_receive(:restart).with('myapp')
 			@config.reset
 		end
 	end

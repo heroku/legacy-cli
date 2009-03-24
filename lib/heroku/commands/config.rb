@@ -9,31 +9,37 @@ module Heroku::Command
 				var = heroku.config_vars(app).select { |k, v| k == args.first.upcase }
 				display_vars(var, long)
 			elsif args.all? { |a| a.include?('=') }
-				args.map { |a| a.split('=') }.each do |k, v|
-					heroku.set_config_var(app, k, v)
+				vars = args.inject({}) do |vars, arg|
+					key, value = arg.split('=')
+					vars[key] = value
+					vars
 				end
-				restart_app
+
+				display "Setting #{vars.inspect} and restarting app..."
+				heroku.set_config_vars(app, vars)
+				display "done"
 			else
 				raise CommandFailed, "Usage: heroku config <key> or heroku config <key>=<value>"
 			end
 		end
 
 		def unset
-			args.each { |k| heroku.unset_config_var(app, k) }
-			display "Config variables #{args.join(' ')} were removed from #{app}"
-			restart_app
+			display "Unsetting #{args.first} and restarting app..."
+			heroku.unset_config_var(app, args.first)
+			display "done"
 		end
 
 		def reset
+			display "Reseting all config vars and restarting app..."
 			heroku.reset_config_vars(app)
-			display "Config vars reset for #{app}"
-			restart_app
+			display "done"
 		end
 
 		protected
 			def restart_app
-				display "App is now restarting"
+				display "Restarting app..."
 				heroku.restart(app)
+				display "done"
 			end
 
 			def display_vars(vars, long)

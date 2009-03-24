@@ -232,30 +232,16 @@ EOXML
 	end
 
 	describe "config vars" do
-		it "config_vars(app_name) -> hash of config vars for the app" do
+		it "config_vars(app_name) -> json hash of config vars for the app" do
 			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
-			@resource.should_receive(:get).and_return <<EOXML
-<?xml version='1.0' encoding='UTF-8'?>
-<app>
-	<config-vars type='array'>
-		<config-var>
-			<key>A</key>
-			<value>one</value>
-		</config-var>
-		<config-var>
-			<key>B</key>
-			<value>two</value>
-		</config-var>
-	</config-vars>
-</app>
-EOXML
+			@resource.should_receive(:get).and_return '{"A":"one", "B":"two"}'
 			@client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
 		end
 
-		it "set_config_var(app_name, key, value)" do
-			@client.should_receive(:resource).with('/apps/myapp/config_vars/mykey').and_return(@resource)
-			@resource.should_receive(:put).with('myvalue', anything)
-			@client.set_config_var('myapp', 'mykey', 'myvalue')
+		it "set_config_vars(app_name, vars)" do
+			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
+			@resource.should_receive(:put).with('{"x":"y"}', anything)
+			@client.set_config_vars('myapp', {:x => 'y'})
 		end
 
 		it "unset_config_var(app_name, key)" do
