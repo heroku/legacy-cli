@@ -66,10 +66,12 @@ Rake::GemPackageTask.new(spec) do |p|
 	p.need_tar = true if RUBY_PLATFORM !~ /mswin/
 end
 
+desc "Install #{name} gem (#{version})"
 task :install => [ :test, :package ] do
 	sh %{sudo gem install pkg/#{name}-#{version}.gem}
 end
 
+desc "Uninstall #{name} gem"
 task :uninstall => [ :clean ] do
 	sh %{sudo gem uninstall #{name}}
 end
