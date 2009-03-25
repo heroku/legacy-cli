@@ -6,12 +6,18 @@ module Heroku
 		class CommandFailed  < RuntimeError; end
 
 		class << self
-			def run(command, args)
+			def run(command, args, retries=0)
+				run_internal 'auth:reauthorize', args if retries > 0
 				run_internal(command, args)
 			rescue InvalidCommand
 				error "Unknown command. Run 'heroku help' for usage information."
 			rescue RestClient::Unauthorized
-				error "Authentication failure"
+				if retries < 3
+					STDERR.puts "Authentication failure"
+					run(command, args, retries+1)
+				else
+					error "Authentication failure"
+				end
 			rescue RestClient::ResourceNotFound => e
 				error extract_not_found(e.response.body)
 			rescue RestClient::RequestFailed => e
@@ -20,6 +26,8 @@ module Heroku
 				error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
 			rescue CommandFailed => e
 				error e.message
+			rescue Interrupt => e
+				error "\n[canceled]"
 			end
 
 			def run_internal(command, args, heroku=nil)

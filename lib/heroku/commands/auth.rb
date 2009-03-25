@@ -10,6 +10,11 @@ module Heroku::Command
 			Heroku::Client.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
 		end
 
+		def reauthorize
+			@credentials = ask_for_credentials
+			write_credentials
+		end
+
 		def user    # :nodoc:
 			get_credentials
 			@credentials[0]
