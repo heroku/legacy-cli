@@ -220,15 +220,15 @@ class Heroku::Client
 		JSON.parse get("/apps/#{app_name}/config_vars")
 	end
 
-	def set_config_vars(app_name, new_vars)
+	def add_config_vars(app_name, new_vars)
 		put("/apps/#{app_name}/config_vars", new_vars.to_json)
 	end
 
-	def unset_config_var(app_name, key)
+	def remove_config_var(app_name, key)
 		delete("/apps/#{app_name}/config_vars/#{key}")
 	end
 
-	def reset_config_vars(app_name)
+	def clear_config_vars(app_name)
 		delete("/apps/#{app_name}/config_vars")
 	end
 

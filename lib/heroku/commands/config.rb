@@ -2,36 +2,35 @@ module Heroku::Command
 	class Config < BaseWithApp
 		def index
 			long = args.delete('--long')
-			if args.empty?
-				vars = heroku.config_vars(app)
-				display_vars(vars, long)
-			elsif args.size == 1 && !args.first.include?('=')
-				var = heroku.config_vars(app).select { |k, v| k == args.first.upcase }
-				display_vars(var, long)
-			elsif args.all? { |a| a.include?('=') }
-				vars = args.inject({}) do |vars, arg|
-					key, value = arg.split('=')
-					vars[key] = value
-					vars
-				end
-
-				display "Setting #{vars.inspect} and restarting app...", false
-				heroku.set_config_vars(app, vars)
-				display "done."
-			else
-				raise CommandFailed, "Usage: heroku config <key> or heroku config <key>=<value>"
-			end
+			vars = heroku.config_vars(app)
+			display_vars(vars, long)
 		end
 
-		def unset
-			display "Unsetting #{args.first} and restarting app...", false
-			heroku.unset_config_var(app, args.first)
+		def add
+			unless args.all? { |a| a.include?('=') }
+				raise CommandFailed, "Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]"
+			end
+
+			vars = args.inject({}) do |vars, arg|
+				key, value = arg.split('=')
+				vars[key] = value
+				vars
+			end
+
+			display "Setting #{vars.inspect} and restarting app...", false
+			heroku.add_config_vars(app, vars)
 			display "done."
 		end
 
-		def reset
+		def remove
+			display "Unsetting #{args.first} and restarting app...", false
+			heroku.remove_config_var(app, args.first)
+			display "done."
+		end
+
+		def clear
 			display "Reseting all config vars and restarting app...", false
-			heroku.reset_config_vars(app)
+			heroku.clear_config_vars(app)
 			display "done."
 		end
 

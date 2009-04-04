@@ -41,9 +41,10 @@ module Heroku::Command
  logs                         # fetch recent log output for debugging
  logs:cron                    # fetch cron log output
 
- config                       # display the app's config vars
- config key=val               # set one or more config vars
- config:reset                 # reset to the default config vars
+ config                       # display the app's config vars (environment)
+ config:add key=val [...]     # add one or more config vars
+ config:remove key=val [...]  # remove one or more config vars
+ config:clear                 # clear user-set vars and reset to default
 
  db:pull <database_url>       # pull the app's database into a local database
  db:push <database_url>       # push a local database into the app's remote database

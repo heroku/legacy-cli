@@ -238,22 +238,22 @@ EOXML
 			@client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
 		end
 
-		it "set_config_vars(app_name, vars)" do
+		it "add_config_vars(app_name, vars)" do
 			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
 			@resource.should_receive(:put).with('{"x":"y"}', anything)
-			@client.set_config_vars('myapp', {:x => 'y'})
+			@client.add_config_vars('myapp', {:x => 'y'})
 		end
 
-		it "unset_config_var(app_name, key)" do
+		it "remove_config_var(app_name, key)" do
 			@client.should_receive(:resource).with('/apps/myapp/config_vars/mykey').and_return(@resource)
 			@resource.should_receive(:delete)
-			@client.unset_config_var('myapp', 'mykey')
+			@client.remove_config_var('myapp', 'mykey')
 		end
 
-		it "reset_config_vars(app_name) -> resets all config vars for this app" do
+		it "clear_config_vars(app_name) -> resets all config vars for this app" do
 			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
 			@resource.should_receive(:delete)
-			@client.reset_config_vars('myapp')
+			@client.clear_config_vars('myapp')
 		end
 	end
 
