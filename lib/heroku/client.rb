@@ -232,6 +232,21 @@ class Heroku::Client
 		delete("/apps/#{app_name}/config_vars")
 	end
 
+	def addons
+		JSON.parse get("/addons")
+	end
+
+	def installed_addons(app_name)
+		JSON.parse get("/apps/#{app_name}/addons")
+	end
+
+	def install_addon(app_name, addon)
+		post("/apps/#{app_name}/addons/#{escape(addon)}")
+	end
+
+	def uninstall_addon(app_name, addon)
+		delete("/apps/#{app_name}/addons/#{escape(addon)}")
+	end
 
 	##################
 

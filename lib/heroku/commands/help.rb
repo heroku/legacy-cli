@@ -57,6 +57,11 @@ module Heroku::Command
  bundles:animate <bundle>     # animate a bundle into a new app
  bundles:destroy <bundle>     # destroy the named bundle
 
+ addons                       # list addons
+ addons:add name [...]        # install one or more addons
+ addons:remove name [...]     # uninstall one or more addons
+ addons:clear                 # uninstall all addons
+
  destroy                      # destroy the app permanently
 
 === Example:

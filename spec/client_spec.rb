@@ -257,6 +257,32 @@ EOXML
 		end
 	end
 
+	describe "addons" do
+		it "addons -> array with addons available for installation" do
+			@client.should_receive(:resource).with('/addons').and_return(@resource)
+			@resource.should_receive(:get).and_return '[{"name":"addon1"}, {"name":"addon2"}]'
+			@client.addons.should == [{'name' => 'addon1'}, {'name' => 'addon2'}]
+		end
+
+		it "installed_addons(app_name) -> array of installed addons (just names)" do
+			@client.should_receive(:resource).with('/apps/myapp/addons').and_return(@resource)
+			@resource.should_receive(:get).and_return '["addon1","addon2"]'
+			@client.installed_addons('myapp').should == %w( addon1 addon2 )
+		end
+
+		it "install_addon(app_name, addon_name)" do
+			@client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
+			@resource.should_receive(:post)
+			@client.install_addon('myapp', 'addon1')
+		end
+
+		it "uninstall_addon(app_name, addon_name)" do
+			@client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.uninstall_addon('myapp', 'addon1')
+		end
+	end
+
 	describe "internal" do
 		it "creates a RestClient resource for making calls" do
 			@client.stub!(:host).and_return('heroku.com')
