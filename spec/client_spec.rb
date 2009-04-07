@@ -264,10 +264,10 @@ EOXML
 			@client.addons.should == [{'name' => 'addon1'}, {'name' => 'addon2'}]
 		end
 
-		it "installed_addons(app_name) -> array of installed addons (just names)" do
+		it "installed_addons(app_name) -> array of installed addons" do
 			@client.should_receive(:resource).with('/apps/myapp/addons').and_return(@resource)
-			@resource.should_receive(:get).and_return '["addon1","addon2"]'
-			@client.installed_addons('myapp').should == %w( addon1 addon2 )
+			@resource.should_receive(:get).and_return '[{"name":"addon1"}]'
+			@client.installed_addons('myapp').should == [{'name' => 'addon1'}]
 		end
 
 		it "install_addon(app_name, addon_name)" do

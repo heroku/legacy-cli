@@ -7,7 +7,7 @@ module Heroku::Command
 			else
 				app = extract_app(false)
 				installed = app ? heroku.installed_addons(app) : []
-				installed, available = addons.partition { |a| installed.include? a['name'] }
+				installed, available = addons.partition { |a| installed.include? a }
 				unless installed.empty?
 					display 'This app is using the following addons:'
 					installed.each { |a| display '  ' + a['description'] }
@@ -37,9 +37,9 @@ module Heroku::Command
 
 		def clear
 			app = extract_app
-			heroku.installed_addons(app).each do |name|
-				display "Removing #{name} from #{app} ...", false
-				display addon_run { heroku.uninstall_addon(app, name) }
+			heroku.installed_addons(app).each do |addon|
+				display "Removing #{addon['description']} from #{app} ...", false
+				display addon_run { heroku.uninstall_addon(app, addon['name']) }
 			end
 		end
 

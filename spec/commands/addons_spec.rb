@@ -26,9 +26,8 @@ module Heroku::Command
 		end
 
 		it "clears addons" do
-			@addons.heroku.should_receive(:installed_addons).with('myapp').and_return(%w( addon1 addon2 ))
+			@addons.heroku.should_receive(:installed_addons).with('myapp').and_return([{ 'name' => 'addon1' }])
 			@addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1')
-			@addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon2')
 			@addons.clear
 		end
 	end
