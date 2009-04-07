@@ -43,7 +43,8 @@ class Heroku::Client
 		attrs = doc.elements.to_a('//app/*').inject({}) do |hash, element|
 			hash[element.name.gsub(/-/, '_').to_sym] = element.text; hash
 		end
-		attrs.merge(:collaborators => list_collaborators(attrs[:name]))
+		attrs.merge!(:collaborators => list_collaborators(attrs[:name]))
+		attrs.merge!(:addons        => installed_addons(attrs[:name]))
 	end
 
 	# Create a new app, with an optional name.
