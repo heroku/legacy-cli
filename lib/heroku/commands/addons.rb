@@ -1,13 +1,12 @@
 module Heroku::Command
-	class Addons < Base
+	class Addons < BaseWithApp
 		def list
 			addons = heroku.addons
 			if addons.empty?
 				display "No addons available currently"
 			else
-				app = extract_app(false)
-				installed = app ? heroku.installed_addons(app) : []
-				installed, available = addons.partition { |a| installed.include? a }
+				installed = heroku.installed_addons(app)
+				available = addons.select { |a| !installed.include? a }
 
 				display 'Activated addons:'
 				if installed.empty?
@@ -24,7 +23,6 @@ module Heroku::Command
 		alias :index :list
 
 		def add
-			app = extract_app
 			args.each do |name|
 				display "Installing #{name} to #{app} ...", false
 				display addon_run { heroku.install_addon(app, name) }
@@ -32,7 +30,6 @@ module Heroku::Command
 		end
 
 		def remove
-			app = extract_app
 			args.each do |name|
 				display "Removing #{name} from #{app} ...", false
 				display addon_run { heroku.uninstall_addon(app, name) }
@@ -40,7 +37,6 @@ module Heroku::Command
 		end
 
 		def clear
-			app = extract_app
 			heroku.installed_addons(app).each do |addon|
 				display "Removing #{addon['description']} from #{app} ...", false
 				display addon_run { heroku.uninstall_addon(app, addon['name']) }

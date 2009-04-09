@@ -4,7 +4,6 @@ module Heroku::Command
 	describe Addons do
 		before do
 			@addons = prepare_command(Addons)
-			@addons.stub!(:extract_app).and_return('myapp')
 		end
 
 		it "lists addons" do
