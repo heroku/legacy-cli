@@ -50,7 +50,9 @@ module Heroku::Command
 			rescue RestClient::ResourceNotFound => e
 				'Failed! Addon not found'
 			rescue RestClient::RequestFailed => e
-				'Failed! Internal Server Error'
+				error = Heroku::Command.extract_error(e.response.body)
+				formatted = error.split("\n").map { |e| "    #{e}" }.join("\n")
+				"Failed!\n#{formatted}"
 			end
 	end
 end
