@@ -48,7 +48,7 @@ module Heroku::Command
 				yield
 				'Done'
 			rescue RestClient::ResourceNotFound => e
-				'Failed! Addon not found'
+				"Failed!\n    Addon not found"
 			rescue RestClient::RequestFailed => e
 				error = Heroku::Command.extract_error(e.response.body)
 				formatted = error.split("\n").map { |e| "    #{e}" }.join("\n")
