@@ -8,11 +8,15 @@ module Heroku::Command
 				app = extract_app(false)
 				installed = app ? heroku.installed_addons(app) : []
 				installed, available = addons.partition { |a| installed.include? a }
-				unless installed.empty?
-					display 'This app is using the following addons:'
+
+				display 'Activated addons:'
+				if installed.empty?
+					display '  (none)'
+				else
 					installed.each { |a| display '  ' + a['description'] }
-					display ''
 				end
+
+				display ''
 				display 'Available addons:'
 				available.each { |a| display '  ' + a['description'] }
 			end
