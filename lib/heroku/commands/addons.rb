@@ -24,21 +24,21 @@ module Heroku::Command
 
 		def add
 			args.each do |name|
-				display "Installing #{name} to #{app} ...", false
+				display "Adding #{name} to #{app}...", false
 				display addon_run { heroku.install_addon(app, name) }
 			end
 		end
 
 		def remove
 			args.each do |name|
-				display "Removing #{name} from #{app} ...", false
+				display "Removing #{name} from #{app}...", false
 				display addon_run { heroku.uninstall_addon(app, name) }
 			end
 		end
 
 		def clear
 			heroku.installed_addons(app).each do |addon|
-				display "Removing #{addon['description']} from #{app} ...", false
+				display "Removing #{addon['description']} from #{app}...", false
 				display addon_run { heroku.uninstall_addon(app, addon['name']) }
 			end
 		end
@@ -46,13 +46,12 @@ module Heroku::Command
 		private
 			def addon_run
 				yield
-				'Done'
+				'done.'
 			rescue RestClient::ResourceNotFound => e
-				"Failed!\n    Addon not found"
+				"failed, no addon by that name."
 			rescue RestClient::RequestFailed => e
 				error = Heroku::Command.extract_error(e.response.body)
-				formatted = error.split("\n").map { |e| "    #{e}" }.join("\n")
-				"Failed!\n#{formatted}"
+				"failed, #{error}"
 			end
 	end
 end
