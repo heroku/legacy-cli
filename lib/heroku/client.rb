@@ -126,12 +126,10 @@ class Heroku::Client
 
 	class AppCrashed < RuntimeError; end
 
-	# Run a rake command on the Heroku app.
+	# Run a rake command on the Heroku app and return all output as
+	# a string.
 	def rake(app_name, cmd)
-		post("/apps/#{app_name}/rake", cmd)
-	rescue RestClient::RequestFailed => e
-		raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
-		raise e
+		start(app_name, "rake #{cmd}", attached=true).to_s
 	end
 
 	# support for console sessions

@@ -92,7 +92,9 @@ module Heroku::Command
 			if cmd.length == 0
 				display "Usage: heroku rake <command>"
 			else
-				display heroku.rake(app, cmd)
+				heroku.start(app, "rake #{cmd}", attached=true).each do |chunk|
+					display chunk, false
+				end
 			end
 		rescue Heroku::Client::AppCrashed => e
 			display "Couldn't run rake"

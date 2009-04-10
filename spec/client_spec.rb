@@ -68,8 +68,8 @@ EOXML
 	end
 
 	it "rake(app_name, cmd) -> run a rake command on the app" do
-		@client.should_receive(:resource).with('/apps/myapp/rake').and_return(@resource)
-		@resource.should_receive(:post).with('db:migrate', @client.heroku_headers)
+		@client.should_receive(:resource).with('/apps/myapp/services').and_return(@resource)
+		@resource.should_receive(:post).with('rake db:migrate', @client.heroku_headers.merge(:content_type => 'text/plain'))
 		@client.rake('myapp', 'db:migrate')
 	end
 
