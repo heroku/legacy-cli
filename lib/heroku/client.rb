@@ -174,6 +174,129 @@ class Heroku::Client
 		e.response.body
 	end
 
+	class Service
+		attr_accessor :attached, :upid
+
+		def initialize(client, app, upid=nil)
+			@client = client
+			@app = app
+			@upid = upid
+		end
+
+		# start the service
+		def start(command, attached=false)
+			@attached = attached
+			@response = @client.post(
+				"/apps/#{@app}/services",
+				command,
+				:content_type => 'text/plain'
+			)
+			@next_chunk = @response
+			@interval = 0
+			self
+		rescue RestClient::RequestFailed => e
+			raise AppCrashed, e.response.body  if e.response.code.to_i == 502
+			raise
+		end
+
+		def transition(action)
+			@response = @client.put(
+				"/apps/#{@app}/services/#{@upid}",
+				action,
+				:content_type => 'text/plain'
+			)
+			self
+		rescue RestClient::RequestFailed => e
+			raise AppCrashed, e.response.body  if e.response.code.to_i == 502
+			raise
+		end
+
+		def down   ; transition('down') ; end
+		def up     ; transition('up')   ; end
+		def bounce ; transition('bounce') ; end
+
+		# Does the service have any remaining output?
+		def end_of_stream?
+			@next_chunk.nil?
+		end
+
+		# Read the next chunk of output.
+		def read
+			chunk = @client.get(@next_chunk)
+			if chunk.nil?
+				# assume no content and back off
+				@interval = 2
+				''
+			elsif location = chunk.headers[:location]
+				# some data read and next chunk available
+				@next_chunk = location
+				@interval = 0
+				chunk
+			else
+				# no more chunks
+				@next_chunk = nil
+				chunk
+			end
+		end
+
+		# Iterate over all output chunks until EOF is reached.
+		def each
+			until end_of_stream?
+				sleep(@interval)
+				output = read
+				yield output unless output.empty?
+			end
+		end
+
+		# All output as a string
+		def to_s
+			buf = []
+			each { |part| buf << part }
+			buf.join
+		end
+	end
+
+	# Retreive service status information for the given app name.
+	def status(app_name)
+		doc = xml(get("/apps/#{app_name}/services"))
+		doc.elements.to_a('//services/service').map do |service|
+			hash = {}
+			service.elements.each do |element|
+				value = element.text
+				value = Time.parse(value) if element.name == 'transitioned-at'
+				hash[element.name.tr('-', '_').to_sym] = value
+			end
+			hash
+		end
+	end
+
+	# Run a service. If Responds to #each and yields output as it's received.
+	def start(app_name, command, attached=false)
+		service = Service.new(self, app_name)
+		service.start(command, attached)
+	end
+
+	# Get a Service instance to execute commands against.
+	def service(app_name, upid)
+		Service.new(self, app_name, upid)
+	end
+
+	# Bring a service up.
+	def up(app_name, upid)
+		service(app_name, upid).up
+	end
+
+	# Bring a service down.
+	def down(app_name, upid)
+		service(app_name, upid).down
+	end
+
+	# Bounce a service.
+	def bounce(app_name, upid)
+		service(app_name, upid).bounce
+	end
+
+
 	# Restart the app servers.
 	def restart(app_name)
 		delete("/apps/#{app_name}/server")
@@ -257,7 +380,11 @@ class Heroku::Client
 
 	def resource(uri)
 		RestClient.proxy = ENV['HTTP_PROXY']
-		RestClient::Resource.new("https://#{host}", user, password)[uri]
+		if uri =~ /^https?/
+			RestClient::Resource.new(uri, user, password)
+		else
+			RestClient::Resource.new("https://#{host}", user, password)[uri]
+		end
 	end
 
 	def get(uri, extra_headers={})    # :nodoc:
