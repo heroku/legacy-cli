@@ -43,7 +43,7 @@ module Heroku::Command
 
  config                       # display the app's config vars (environment)
  config:add key=val [...]     # add one or more config vars
- config:remove key=val [...]  # remove one or more config vars
+ config:remove key [...]      # remove one or more config vars
  config:clear                 # clear user-set vars and reset to default
 
  db:pull <database_url>       # pull the app's database into a local database
