@@ -46,8 +46,8 @@ module Heroku::Command
  config:remove key [...]      # remove one or more config vars
  config:clear                 # clear user-set vars and reset to default
 
- db:pull <database_url>       # pull the app's database into a local database
- db:push <database_url>       # push a local database into the app's remote database
+ db:pull [<database_url>]     # pull the app's database into a local database
+ db:push [<database_url>]     # push a local database into the app's remote database
  db:reset                     # reset the database for the app
 
  bundles                      # list bundles for the app
