@@ -4,6 +4,7 @@ describe Heroku::Client do
 	before do
 		@client = Heroku::Client.new(nil, nil)
 		@resource = mock('heroku rest resource')
+		@client.stub!(:extract_warning)
 	end
 
 	it "list -> get a list of this user's apps" do
@@ -294,6 +295,10 @@ EOXML
 	end
 
 	describe "internal" do
+		before do
+			@client = Heroku::Client.new(nil, nil)
+		end
+
 		it "creates a RestClient resource for making calls" do
 			@client.stub!(:host).and_return('heroku.com')
 			@client.stub!(:user).and_return('joe@example.com')
@@ -304,6 +309,15 @@ EOXML
 			res.url.should == 'https://heroku.com/xyz'
 			res.user.should == 'joe@example.com'
 			res.password.should == 'secret'
+		end
+
+		it "runs a callback when the API sets a warning header" do
+			response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+			@client.should_receive(:resource).with('test').and_return(@resource)
+			@resource.should_receive(:get).and_return(response)
+			@client.on_warning { |msg| @callback = msg }
+			@client.get('test')
+			@callback.should == 'Warning'
 		end
 	end
 end

@@ -375,6 +375,10 @@ class Heroku::Client
 		post("/user/#{escape(@user)}/confirm_billing")
 	end
 
+	def on_warning(&blk)
+		@warning_callback = blk
+	end
+
 	##################
 
 	def resource(uri)
@@ -387,19 +391,34 @@ class Heroku::Client
 	end
 
 	def get(uri, extra_headers={})    # :nodoc:
-		resource(uri).get(heroku_headers.merge(extra_headers))
+		process(:get, uri, extra_headers)
 	end
 
 	def post(uri, payload="", extra_headers={})    # :nodoc:
-		resource(uri).post(payload, heroku_headers.merge(extra_headers))
+		process(:post, uri, extra_headers, payload)
 	end
 
 	def put(uri, payload, extra_headers={})    # :nodoc:
-		resource(uri).put(payload, heroku_headers.merge(extra_headers))
+		process(:put, uri, extra_headers, payload)
 	end
 
 	def delete(uri)    # :nodoc:
-		resource(uri).delete(heroku_headers)
+		process(:delete, uri)
+	end
+
+	def process(method, uri, extra_headers={}, payload=nil)
+		headers  = heroku_headers.merge(extra_headers)
+		args     = [method, payload, headers].compact
+		response = resource(uri).send(*args)
+
+		extract_warning(response)
+		response
+	end
+
+	def extract_warning(response)
+		if response.headers[:x_heroku_warning] && @warning_callback
+			@warning_callback.call(response.headers[:x_heroku_warning])
+		end
 	end
 
 	def heroku_headers   # :nodoc:

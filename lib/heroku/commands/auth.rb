@@ -7,7 +7,9 @@ module Heroku::Command
 		end
 
 		def init_heroku
-			Heroku::Client.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
+			client = Heroku::Client.new(user, password, ENV['HEROKU_HOST'] || 'heroku.com')
+			client.on_warning { |msg| self.display("\n#{msg}\n\n") }
+			client
 		end
 
 		def reauthorize
