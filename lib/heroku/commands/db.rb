@@ -1,5 +1,3 @@
-require 'taps/client_session'
-
 module Heroku::Command
 	class Db < BaseWithApp
 		def pull
@@ -105,6 +103,15 @@ module Heroku::Command
 				client.verify_server
 				yield client
 			end
+		end
+
+		def initialize(*args)
+			super(*args)
+
+			gem 'taps', '>= 0.2.8', '< 0.3.0'
+			require 'taps/client_session'
+		rescue LoadError
+			error "Install the Taps gem to use db commands. On most systems this will be:\nsudo gem install taps"
 		end
 	end
 end

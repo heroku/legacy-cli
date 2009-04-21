@@ -19,6 +19,10 @@ module Heroku::Command
 			end
 		end
 
+		def error(msg)
+			Heroku::Command.error(msg)
+		end
+
 		def ask
 			gets.strip
 		end

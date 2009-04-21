@@ -2,8 +2,6 @@
 
 require 'rubygems'
 
-gem 'taps', '>= 0.2.8', '< 0.3.0'
-
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'heroku'
