@@ -43,7 +43,8 @@ class Heroku::Client
 		attrs = doc.elements.to_a('//app/*').inject({}) do |hash, element|
 			hash[element.name.gsub(/-/, '_').to_sym] = element.text; hash
 		end
-		attrs.merge(:collaborators => list_collaborators(attrs[:name]))
+		attrs.merge!(:collaborators => list_collaborators(attrs[:name]))
+		attrs.merge!(:addons        => installed_addons(attrs[:name]))
 	end
 
 	# Create a new app, with an optional name.
@@ -232,6 +233,21 @@ class Heroku::Client
 		delete("/apps/#{app_name}/config_vars")
 	end
 
+	def addons
+		JSON.parse get("/addons")
+	end
+
+	def installed_addons(app_name)
+		JSON.parse get("/apps/#{app_name}/addons")
+	end
+
+	def install_addon(app_name, addon)
+		post("/apps/#{app_name}/addons/#{escape(addon)}")
+	end
+
+	def uninstall_addon(app_name, addon)
+		delete("/apps/#{app_name}/addons/#{escape(addon)}")
+	end
 
 	##################
 

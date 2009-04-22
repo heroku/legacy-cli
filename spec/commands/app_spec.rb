@@ -8,7 +8,7 @@ module Heroku::Command
 
 		it "shows app info, converting bytes to kbs/mbs" do
 			@cli.stub!(:args).and_return(['myapp'])
-			@cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :code_size => 2*1024, :data_size => 5*1024*1024 })
+			@cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :code_size => 2*1024, :data_size => 5*1024*1024 })
 			@cli.should_receive(:display).with('=== myapp')
 			@cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
 			@cli.should_receive(:display).with('Code size:      2k')
@@ -18,14 +18,14 @@ module Heroku::Command
 
 		it "shows app info using the --app syntax" do
 			@cli.stub!(:args).and_return(['--app', 'myapp'])
-			@cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => []})
+			@cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
 			@cli.info
 		end
 
 		it "shows app info reading app from current git dir" do
 			@cli.stub!(:args).and_return([])
 			@cli.stub!(:extract_app_in_dir).and_return('myapp')
-			@cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => []})
+			@cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
 			@cli.info
 		end
 

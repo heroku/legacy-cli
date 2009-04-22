@@ -33,7 +33,8 @@ EOXML
 </app>
 EOXML
 		@client.stub!(:list_collaborators).and_return([:jon, :mike])
-		@client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike] }
+		@client.stub!(:installed_addons).and_return([:addon1])
+		@client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
 	end
 
 	it "create -> create a new blank app" do
@@ -254,6 +255,32 @@ EOXML
 			@client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
 			@resource.should_receive(:delete)
 			@client.clear_config_vars('myapp')
+		end
+	end
+
+	describe "addons" do
+		it "addons -> array with addons available for installation" do
+			@client.should_receive(:resource).with('/addons').and_return(@resource)
+			@resource.should_receive(:get).and_return '[{"name":"addon1"}, {"name":"addon2"}]'
+			@client.addons.should == [{'name' => 'addon1'}, {'name' => 'addon2'}]
+		end
+
+		it "installed_addons(app_name) -> array of installed addons" do
+			@client.should_receive(:resource).with('/apps/myapp/addons').and_return(@resource)
+			@resource.should_receive(:get).and_return '[{"name":"addon1"}]'
+			@client.installed_addons('myapp').should == [{'name' => 'addon1'}]
+		end
+
+		it "install_addon(app_name, addon_name)" do
+			@client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
+			@resource.should_receive(:post)
+			@client.install_addon('myapp', 'addon1')
+		end
+
+		it "uninstall_addon(app_name, addon_name)" do
+			@client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.uninstall_addon('myapp', 'addon1')
 		end
 	end
 
