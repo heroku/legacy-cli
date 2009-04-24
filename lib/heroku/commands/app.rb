@@ -51,8 +51,9 @@ module Heroku::Command
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
 			display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
-			display "Code size:      #{format_bytes(attrs[:code_size])}" if attrs[:code_size]
-			display "Data size:      #{format_bytes(attrs[:data_size])}" if attrs[:data_size]
+			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
+			display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
+			display "Data size:      #{format_bytes(attrs[:database_size])}" if attrs[:database_size]
 
 			first = true
 			lead = "Collaborators:"
@@ -137,7 +138,7 @@ module Heroku::Command
 			@@gb = 1024 * @@mb
 			def format_bytes(amount)
 				amount = amount.to_i
-				return nil if amount == 0
+				return '(empty)' if amount == 0
 				return amount if amount < @@kb
 				return "#{(amount / @@kb).round}k" if amount < @@mb
 				return "#{(amount / @@mb).round}M" if amount < @@gb
