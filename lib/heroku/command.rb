@@ -7,8 +7,8 @@ module Heroku
 
 		class << self
 			def run(command, args, retries=0)
-				run_internal 'auth:reauthorize', args if retries > 0
-				run_internal(command, args)
+				run_internal 'auth:reauthorize', args.dup if retries > 0
+				run_internal(command, args.dup)
 			rescue InvalidCommand
 				error "Unknown command. Run 'heroku help' for usage information."
 			rescue RestClient::Unauthorized
