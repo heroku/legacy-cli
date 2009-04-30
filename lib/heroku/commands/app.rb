@@ -105,11 +105,13 @@ module Heroku::Command
 
 		def console_session(app)
 			heroku.console(app) do |console|
+				console_history_read(app)
+
 				display "Ruby console for #{app}.#{heroku.host}"
 				while cmd = Readline.readline('>> ')
-					break if cmd.downcase.strip == 'exit'
 					unless cmd.nil? || cmd.strip.empty?
-						Readline::HISTORY.push(cmd)
+						console_history_add(app, cmd)
+						break if cmd.downcase.strip == 'exit'
 						display console.run(cmd)
 					end
 				end
@@ -149,6 +151,25 @@ module Heroku::Command
 				return "#{(amount / @@kb).round}k" if amount < @@mb
 				return "#{(amount / @@mb).round}M" if amount < @@gb
 				return "#{(amount / @@gb).round}G"
+			end
+
+			def console_history_file(app)
+				"#{home_directory}/.heroku/console_history_for_#{app}"
+			end
+
+			def console_history_read(app)
+				history = File.read(console_history_file(app)).split("\n")
+				if history.size > 50
+					history = history[0,50]
+					File.open(console_history_file(app), "w") { |f| f.puts history.join("\n") }
+				end
+				history.each { |cmd| Readline::HISTORY.push(cmd) }
+			rescue Errno::ENOENT
+			end
+
+			def console_history_add(app, cmd)
+				Readline::HISTORY.push(cmd)
+				File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
 			end
 
 	end

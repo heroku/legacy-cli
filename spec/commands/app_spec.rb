@@ -60,6 +60,8 @@ module Heroku::Command
 
 		it "offers a console, opening and closing the session with the client" do
 			@console = mock('heroku console')
+			@cli.stub!(:console_history_read)
+			@cli.stub!(:console_history_add)
 			@cli.heroku.should_receive(:console).with('myapp').and_yield(@console)
 			Readline.should_receive(:readline).and_return('exit')
 			@cli.console
