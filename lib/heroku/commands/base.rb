@@ -51,15 +51,27 @@ module Heroku::Command
 				parent = dir.split('/')[0..-2].join('/')
 				return extract_app_in_dir(parent) unless parent.empty?
 			else
-				remotes = File.read(git_config).split(/\n/).map do |remote|
-					(remote.match(/url = git@#{heroku.host}:([\w\d-]+)\.git/) || [])[1]
+				remotes = {}
+				current_remote = nil
+				File.read(git_config).split(/\n/).each do |l|
+					current_remote = $1 if l.match(/\[remote \"([\w\d-]+)\"\]/)
+					app = (l.match(/url = git@#{heroku.host}:([\w\d-]+)\.git/) || [])[1]
+					if current_remote && app
+						remotes[current_remote.downcase] = app
+						current_remote = nil
+					end
 				end.compact
-				case remotes.size
-					when 0; return nil
-					when 1; return remotes.first
-					else
-						current_dir_name = dir.split('/').last.downcase
-						remotes.select { |r| r.downcase == current_dir_name }.first
+				if remote = extract_option('--remote')
+					remotes[remote]
+				else
+					apps = remotes.values.uniq
+					case apps.size
+						when 0; return nil
+						when 1; return apps.first
+						else
+							current_dir_name = dir.split('/').last.downcase
+							apps.select { |a| a.downcase == current_dir_name }.first
+					end
 				end
 			end
 		end
