@@ -46,10 +46,27 @@ module Heroku::Command
 		end
 
 		def extract_app_in_dir(dir)
-			git_config = "#{dir}/.git/config"
+			return unless remotes = git_remotes(dir)
+
+			if remote = extract_option('--remote')
+				remotes[remote]
+			else
+				apps = remotes.values.uniq
+				case apps.size
+					when 0; return nil
+					when 1; return apps.first
+					else
+						current_dir_name = dir.split('/').last.downcase
+						apps.select { |a| a.downcase == current_dir_name }.first
+				end
+			end
+		end
+
+		def git_remotes(base_dir)
+			git_config = "#{base_dir}/.git/config"
 			unless File.exists?(git_config)
 				parent = dir.split('/')[0..-2].join('/')
-				return extract_app_in_dir(parent) unless parent.empty?
+				return git_remotes(parent) unless parent.empty?
 			else
 				remotes = {}
 				current_remote = nil
@@ -60,19 +77,8 @@ module Heroku::Command
 						remotes[current_remote.downcase] = app
 						current_remote = nil
 					end
-				end.compact
-				if remote = extract_option('--remote')
-					remotes[remote]
-				else
-					apps = remotes.values.uniq
-					case apps.size
-						when 0; return nil
-						when 1; return apps.first
-						else
-							current_dir_name = dir.split('/').last.downcase
-							apps.select { |a| a.downcase == current_dir_name }.first
-					end
 				end
+				return remotes
 			end
 		end
 

@@ -24,47 +24,47 @@ module Heroku::Command
 				@base.extract_app.should == 'myapp'
 			end
 
-			it "parses the app from git config when there's only one remote" do
-				File.stub!(:exists?).and_return(true)
-				File.stub!(:read).and_return("
+			it "read remotes from git config" do
+				File.stub!(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
+				File.stub!(:read).with('/home/dev/myapp/.git/config').and_return("
 [core]
 	repositoryformatversion = 0
 	filemode = true
 	bare = false
 	logallrefupdates = true
-[remote \"heroku\"]
-	url = git@heroku.com:myapp.git
-	fetch = +refs/heads/*:refs/remotes/heroku/*
-				")
-				@base.extract_app.should == 'myapp'
-			end
-
-			context "detecting the app with multiple remotes" do
-				before do
-					File.stub!(:exists?).with(anything).and_return(true)
-					File.stub!(:read).with(anything).and_return("
 [remote \"staging\"]
 	url = git@heroku.com:myapp-staging.git
 	fetch = +refs/heads/*:refs/remotes/staging/*
 [remote \"production\"]
 	url = git@heroku.com:myapp.git
 	fetch = +refs/heads/*:refs/remotes/production/*
-					")
-				end
+[remote \"github\"]
+	url = git@github.com:myapp.git
+	fetch = +refs/heads/*:refs/remotes/github/*
+				")
+				@base.git_remotes('/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
+			end
 
-				it "uses the remote named after the current folder name when there are multiple" do
-					Dir.stub!(:pwd).and_return('/home/dev/myapp')
-					@base.extract_app.should == 'myapp'
-				end
+			it "gets the app from remotes when there's only one app" do
+				@base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
+				@base.extract_app.should == 'myapp'
+			end
 
-				it "accepts a --remote argument to choose the app from the remote name" do
-					@base.stub!(:args).and_return(['--remote', 'staging'])
-					@base.extract_app.should == 'myapp-staging'
-				end
+			it "uses the remote named after the current folder name when there are multiple" do
+				@base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
+				Dir.stub!(:pwd).and_return('/home/dev/myapp')
+				@base.extract_app.should == 'myapp'
+			end
 
-				it "raises when cannot determine which app is it" do
-					lambda { @base.extract_app }.should raise_error(Heroku::Command::CommandFailed)
-				end
+			it "accepts a --remote argument to choose the app from the remote name" do
+				@base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
+				@base.stub!(:args).and_return(['--remote', 'staging'])
+				@base.extract_app.should == 'myapp-staging'
+			end
+
+			it "raises when cannot determine which app is it" do
+				@base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
+				lambda { @base.extract_app }.should raise_error(Heroku::Command::CommandFailed)
 			end
 		end
 
