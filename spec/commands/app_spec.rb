@@ -139,10 +139,19 @@ module Heroku::Command
 				@cli.create
 			end
 
-			it "renames updating git remote" do
+			it "renames updating the corresponding heroku git remote" do
+				@sandbox.bash "git remote add github     git@github.com:test/test.git"
+				@sandbox.bash "git remote add production git@heroku.com:myapp.git"
+				@sandbox.bash "git remote add staging    git@heroku.com:myapp-staging.git"
+
+				@cli.heroku.stub!(:update)
 				@cli.stub!(:args).and_return([ 'myapp2' ])
-				@cli.heroku.should_receive(:update)
 				@cli.rename
+				remotes = @sandbox.bash("git remote -v")
+				remotes.should include('git@github.com:test/test.git')
+				remotes.should include('git@heroku.com:myapp-staging.git')
+				remotes.should include('git@heroku.com:myapp2.git')
+				remotes.should_not include('git@heroku.com:myapp.git')
 			end
 		end
 	end

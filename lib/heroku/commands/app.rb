@@ -26,18 +26,20 @@ module Heroku::Command
 		end
 
 		def rename
-			remote  = extract_option('--remote', 'heroku')
 			name    = extract_app
 			newname = args.shift.downcase.strip rescue ''
 			raise(CommandFailed, "Invalid name.") if newname == ''
 
 			heroku.update(name, :name => newname)
 			display app_urls(newname)
-			if remote || File.exists?(Dir.pwd + '/.git')
-				remote ||= 'heroku'
-				shell "git remote rm #{remote}" if shell('git remote').split("\n").include?(remote)
-				shell "git remote add #{remote} git@#{heroku.host}:#{newname}.git"
-				display "Git remote #{remote} updated"
+
+			if remotes = git_remotes(Dir.pwd)
+				remotes.each do |remote_name, remote_app|
+					next if remote_app != name
+					shell "git remote rm #{remote_name}"
+					shell "git remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
+					display "Git remote #{remote_name} updated"
+				end
 			else
 				display "Don't forget to update your Git remotes on any local checkouts."
 			end
