@@ -65,7 +65,7 @@ module Heroku::Command
 		def git_remotes(base_dir)
 			git_config = "#{base_dir}/.git/config"
 			unless File.exists?(git_config)
-				parent = dir.split('/')[0..-2].join('/')
+				parent = base_dir.split('/')[0..-2].join('/')
 				return git_remotes(parent) unless parent.empty?
 			else
 				remotes = {}
