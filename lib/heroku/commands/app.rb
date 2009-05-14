@@ -158,8 +158,12 @@ module Heroku::Command
 				return "#{(amount / @@gb).round}G"
 			end
 
+			def console_history_dir
+				FileUtils.mkdir_p("#{home_directory}/.heroku/console_history")
+			end
+
 			def console_history_file(app)
-				"#{home_directory}/.heroku/console_history_for_#{app}"
+				"#{console_history_dir}/#{app}"
 			end
 
 			def console_history_read(app)
