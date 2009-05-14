@@ -52,7 +52,6 @@ module Heroku::Command
 			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
-			display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
 			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
 			display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
 			if attrs[:database_size]
@@ -61,6 +60,10 @@ module Heroku::Command
 					data = data.gsub('(empty)', '0K') + " in #{tables} table#{'s' if tables.to_i > 1}"
 				end
 				display "Data size:      #{data}"
+			end
+
+			unless attrs[:addons].empty?
+				display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
 			end
 
 			first = true
