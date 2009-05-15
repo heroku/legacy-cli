@@ -249,6 +249,10 @@ class Heroku::Client
 		delete("/apps/#{app_name}/addons/#{escape(addon)}")
 	end
 
+	def confirm_billing
+		post("/user/#{escape(@user)}/confirm_billing")
+	end
+
 	##################
 
 	def resource(uri)

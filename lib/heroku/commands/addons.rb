@@ -43,6 +43,15 @@ module Heroku::Command
 			end
 		end
 
+		def confirm_billing
+			display("This action will cause your account to be billed at the end of the month")
+			display("Are you sure you want to do this? (y/n) ", false)
+			if ask.downcase == 'y'
+				heroku.confirm_billing
+				return true
+			end
+		end
+
 		private
 			def addon_run
 				yield
@@ -50,8 +59,12 @@ module Heroku::Command
 			rescue RestClient::ResourceNotFound => e
 				"failed, no addon by that name."
 			rescue RestClient::RequestFailed => e
-				error = Heroku::Command.extract_error(e.response.body)
-				"failed, #{error}"
+				if e.http_code == 402
+					confirm_billing ? retry : 'Canceled'
+				else
+					error = Heroku::Command.extract_error(e.response.body)
+					"failed, #{error}"
+				end
 			end
 	end
 end

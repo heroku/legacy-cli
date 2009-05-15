@@ -18,6 +18,15 @@ module Heroku::Command
 			@addons.add
 		end
 
+		it "asks the user to confirm billing when API responds with 402" do
+			@addons.stub!(:args).and_return(%w( addon1 ))
+			e = RestClient::RequestFailed.new
+			e.stub!(:http_code).and_return(402)
+			@addons.heroku.should_receive(:install_addon).and_raise(e)
+			@addons.should_receive(:confirm_billing).and_return(false)
+			@addons.add
+		end
+
 		it "removes addons" do
 			@addons.stub!(:args).and_return(%w( addon1 ))
 			@addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1')
