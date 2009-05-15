@@ -57,18 +57,18 @@ module Heroku::Command
 				yield
 				'Done.'
 			rescue RestClient::ResourceNotFound => e
-				"FAILED" + addon_error("no addon by that name")
+				addon_error("no addon by that name")
 			rescue RestClient::RequestFailed => e
 				if e.http_code == 402
 					confirm_billing ? retry : 'Canceled'
 				else
 					error = Heroku::Command.extract_error(e.response.body)
-					"FAILED" + addon_error(error)
+					addon_error(error)
 				end
 			end
 
 			def addon_error(message)
-				"\n" + message.split("\n").map { |line| '!    ' + line }.join("\n")
+				"FAILED\n" + message.split("\n").map { |line| '!    ' + line }.join("\n")
 			end
 	end
 end
