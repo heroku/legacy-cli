@@ -12,12 +12,12 @@ module Heroku::Command
 				if installed.empty?
 					display '  (none)'
 				else
-					installed.each { |a| display '  ' + a['description'] }
+					installed.each { |a| addon_display(a) }
 				end
 
 				display ''
 				display 'Available addons:'
-				available.each { |a| display '  ' + a['description'] }
+				available.each { |a| addon_display(a) }
 			end
 		end
 		alias :index :list
@@ -53,6 +53,11 @@ module Heroku::Command
 		end
 
 		private
+			def addon_display(attr)
+				space = ' ' * [1, (24 - attr['description'].size)].max
+				display "  #{attr['description']}#{space}#{attr['url']}"
+			end
+
 			def addon_run
 				yield
 				'Done.'
