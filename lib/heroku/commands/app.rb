@@ -66,11 +66,15 @@ module Heroku::Command
 				display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
 			end
 
-			first = true
-			lead = "Collaborators:"
-			attrs[:collaborators].each do |collaborator|
-				display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
-				first = false
+			display "Owner:          #{attrs[:owner]}"
+			collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
+			unless collaborators.empty?
+				first = true
+				lead = "Collaborators:"
+				attrs[:collaborators].each do |collaborator|
+					display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
+					first = false
+				end
 			end
 		end
 
