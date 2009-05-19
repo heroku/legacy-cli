@@ -18,5 +18,12 @@ module Heroku::Command
 			heroku.remove_collaborator(app, email)
 			display "Collaborator removed."
 		end
+
+		def transfer
+			email = args.shift.downcase rescue ''
+			raise(CommandFailed, "Specify the email address of the new owner") if email == ''
+			heroku.update(app, :transfer_owner => email)
+			display "App ownership transfered. New owner is #{email}"
+		end
 	end
 end

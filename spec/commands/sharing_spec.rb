@@ -22,5 +22,11 @@ module Heroku::Command
 			@cli.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
 			@cli.remove
 		end
+
+		it "transfers ownership" do
+			@cli.stub!(:args).and_return(['joe@example.com'])
+			@cli.heroku.should_receive(:update).with('myapp', :transfer_owner => 'joe@example.com')
+			@cli.transfer
+		end
 	end
 end

@@ -28,6 +28,7 @@ module Heroku::Command
 
  sharing:add <email>          # add a collaborator
  sharing:remove <email>       # remove a collaborator
+ sharing:transfer <email>     # transfers the app ownership
 
  domains:add <domain>         # add a custom domain name
  domains:remove <domain>      # remove a custom domain name
