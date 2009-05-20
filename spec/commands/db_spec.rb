@@ -36,5 +36,11 @@ module Heroku::Command
 			@db.heroku.should_not_receive(:database_reset)
 			@db.reset
 		end
+          describe "#uri_hash_to_url" do
+            it "defaults host to 127.0.0.1 with a username" do
+              @db.stub!(:escape).and_return('user')
+              @db.send(:uri_hash_to_url, {'scheme' => 'db', 'username' => 'user', 'path' => 'database'}).should == 'db://user@127.0.0.1/database'
+            end
+          end
 	end
 end

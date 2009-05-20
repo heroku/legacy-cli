@@ -83,8 +83,10 @@ module Heroku::Command
 				url += escape(uri['username'])
 				url += ':' + escape(uri['password']) if uri['password']
 				url += "@"
-			end
-			url += uri['host']
+			  url += uri['host'] || '127.0.0.1'
+                        else
+                          url += uri['host'] if uri['host']
+                        end
 			url += uri['port'] if uri['port']
 			url += "/"
 			url += uri['path']
