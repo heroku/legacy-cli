@@ -24,7 +24,7 @@ module Heroku::Command
 
 		def remove
 			heroku.remove_key(args.first)
-			display "Key #{arg} removed."
+			display "Key #{args.first} removed."
 		end
 
 		def clear
