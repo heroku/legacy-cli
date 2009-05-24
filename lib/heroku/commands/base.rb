@@ -28,7 +28,7 @@ module Heroku::Command
 		end
 
 		def shell(cmd)
-			`cd '#{Dir.pwd}' && #{cmd}`
+			FileUtils.cd(Dir.pwd) {|d| return `#{cmd}`}
 		end
 
 		def heroku

@@ -7,7 +7,7 @@ module Heroku::Command
 		end
 
 		it "reads credentials from the credentials file" do
-			sandbox = "/tmp/cli_spec_#{Process.pid}"
+			sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 			File.open(sandbox, "w") { |f| f.write "user\npass\n" }
 			@cli.stub!(:credentials_file).and_return(sandbox)
 			@cli.read_credentials.should == %w(user pass)
@@ -20,7 +20,7 @@ module Heroku::Command
 		end
 
 		it "asks for credentials when the file doesn't exist" do
-			sandbox = "/tmp/cli_spec_#{Process.pid}"
+			sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 			FileUtils.rm_rf(sandbox)
 			@cli.stub!(:credentials_file).and_return(sandbox)
 			@cli.should_receive(:ask_for_credentials).and_return([ 'u', 'p'])
@@ -29,7 +29,7 @@ module Heroku::Command
 		end
 
 		it "writes the credentials to a file" do
-			sandbox = "/tmp/cli_spec_#{Process.pid}"
+			sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 			FileUtils.rm_rf(sandbox)
 			@cli.stub!(:credentials_file).and_return(sandbox)
 			@cli.stub!(:credentials).and_return(['one', 'two'])
@@ -39,7 +39,7 @@ module Heroku::Command
 		end
 
 		it "sets ~/.heroku/credentials to be readable only by the user" do
-			sandbox = "/tmp/cli_spec_#{Process.pid}"
+			sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 			FileUtils.rm_rf(sandbox)
 			FileUtils.mkdir_p(sandbox)
 			fname = "#{sandbox}/file"
