@@ -256,6 +256,7 @@ class Heroku::Client
 	##################
 
 	def resource(uri)
+		RestClient.proxy = ENV['HTTP_PROXY']
 		RestClient::Resource.new("https://#{host}", user, password)[uri]
 	end
 
