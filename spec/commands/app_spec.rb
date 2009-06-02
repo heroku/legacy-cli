@@ -155,6 +155,16 @@ module Heroku::Command
 				remotes.should include('git@heroku.com:myapp2.git')
 				remotes.should_not include('git@heroku.com:myapp.git')
 			end
+
+			it "destroys removing any remotes pointing to the app" do
+				@sandbox.bash("git remote add heroku git@heroku.com:myapp.git")
+				@cli.stub!(:args).and_return(['--app', 'myapp'])
+				@cli.heroku.stub!(:info).and_return({})
+				@cli.stub!(:ask).and_return('y')
+				@cli.heroku.should_receive(:destroy)
+				@cli.destroy
+				@sandbox.bash("git remote").strip.should == ''
+			end
 		end
 	end
 end

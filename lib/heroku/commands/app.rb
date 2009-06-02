@@ -144,6 +144,12 @@ module Heroku::Command
 				display("Permanently destroy #{url} (y/n)? ", false)
 				if ask.downcase == 'y'
 					heroku.destroy(name)
+					if remotes = git_remotes(Dir.pwd)
+						remotes.each do |remote_name, remote_app|
+							next if name != remote_app
+							shell "git remote rm #{remote_name}"
+						end
+					end
 					display "Destroyed #{name}"
 				end
 			else
