@@ -11,10 +11,15 @@ module Heroku::Command
 			@addons.list
 		end
 
-		it "adds addons" do
-			@addons.stub!(:args).and_return(%w( addon1 addon2 ))
-			@addons.heroku.should_receive(:install_addon).with('myapp', 'addon1')
-			@addons.heroku.should_receive(:install_addon).with('myapp', 'addon2')
+		it "adds an addon" do
+			@addons.stub!(:args).and_return(%w(my_addon))
+			@addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', {})
+			@addons.add
+		end
+
+		it "adds an addon with config vars" do
+			@addons.stub!(:args).and_return(%w(my_addon foo=baz))
+			@addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
 			@addons.add
 		end
 

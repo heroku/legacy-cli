@@ -388,8 +388,8 @@ class Heroku::Client
 		JSON.parse get("/apps/#{app_name}/addons")
 	end
 
-	def install_addon(app_name, addon)
-		post("/apps/#{app_name}/addons/#{escape(addon)}")
+	def install_addon(app_name, addon, config={})
+		post("/apps/#{app_name}/addons/#{escape(addon)}", :config => config)
 	end
 
 	def uninstall_addon(app_name, addon)

@@ -63,8 +63,8 @@ module Heroku::Command
  bundles:destroy <bundle>     # destroy the named bundle
 
  addons                       # list addons
- addons:add name [...]        # install one or more addons
- addons:remove name [...]     # uninstall one or more addons
+ addons:add name [key=value]  # install addon (with zero or more config vars)
+ addons:remove name           # uninstall an addons
  addons:clear                 # uninstall all addons
 
  destroy                      # destroy the app permanently

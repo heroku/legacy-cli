@@ -23,10 +23,20 @@ module Heroku::Command
 		alias :index :list
 
 		def add
-			args.each do |name|
-				display "Adding #{name} to #{app}...", false
-				display addon_run { heroku.install_addon(app, name) }
+			addon = args.shift
+			config = {}
+			args.each do |arg|
+				key, value = arg.strip.split('=', 2)
+				if value.nil?
+					addon_error("Non-config value \"#{arg}\".  Everything after the addon name should be a key=value pair.")
+					exit 1
+				else
+					config[key] = value
+				end
 			end
+
+			display "Adding #{addon} to #{app}...", false
+			display addon_run { heroku.install_addon(app, addon, config) }
 		end
 
 		def remove
