@@ -125,6 +125,15 @@ EOXML
 		lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
 	end
 
+	describe "bundles" do
+		it "download bundles" do
+			@client.should_receive(:get).with("/apps/myapp/bundles/latest", {:accept=>"application/json"}).and_return("{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
+			RestClient.should_receive(:get).with('https://s3.amazonaws.com/herokubundles/123.tar.gz').and_return('bundle contents')
+			File.should_receive(:open).with('myapp.tar.gz', 'wb')
+			@client.bundle_download('myapp', 'myapp.tar.gz')
+		end
+	end
+
 	describe "collaborators" do
 		it "list(app_name) -> list app collaborators" do
 			@client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
