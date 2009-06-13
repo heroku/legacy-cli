@@ -57,7 +57,7 @@ spec = Gem::Specification.new do |s|
 	s.require_path = "lib"
 	s.bindir = "bin"
 
-	s.add_dependency('rest-client', '= 0.9.2')
+	s.add_dependency('rest-client', '>= 1.0.1')
 	s.add_dependency('launchy', '>=0.3.2')
 	s.add_dependency('json', '>= 1.1.0')
 end
