@@ -417,7 +417,12 @@ class Heroku::Client
 
 	def extract_warning(response)
 		if response.headers[:x_heroku_warning] && @warning_callback
-			@warning_callback.call(response.headers[:x_heroku_warning])
+			warning = response.headers[:x_heroku_warning]
+			@displayed_warnings ||= {}
+			unless @displayed_warnings[warning]
+				@warning_callback.call(warning)
+				@displayed_warnings[warning] = true
+			end
 		end
 	end
 

@@ -319,5 +319,15 @@ EOXML
 			@client.get('test')
 			@callback.should == 'Warning'
 		end
+
+		it "doesn't run the callback twice for the same warning" do
+			response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+			@client.stub!(:resource).and_return(@resource)
+			@resource.stub!(:get).and_return(response)
+			@client.on_warning { |msg| @callback_called ||= 0; @callback_called += 1 }
+			@client.get('test1')
+			@client.get('test2')
+			@callback_called.should == 1
+		end
 	end
 end
