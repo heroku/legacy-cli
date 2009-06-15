@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'spec'
 require 'fileutils'
-require 'rush'
 
 require File.dirname(__FILE__) + '/../lib/heroku'
 require 'command'
@@ -15,4 +14,10 @@ def prepare_command(klass)
 	command.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
 	command.stub!(:extract_app).and_return('myapp')
 	command
+end
+
+module SandboxHelper
+	def bash(cmd)
+		FileUtils.cd(@sandbox) { |d| return `#{cmd}` }
+	end
 end

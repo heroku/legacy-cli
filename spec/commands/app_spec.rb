@@ -97,59 +97,58 @@ module Heroku::Command
 		end
 
 		context "Git Integration" do
+			include SandboxHelper
 			before(:all) do
 				# setup a git dir to serve as a remote
-				@git = Rush::Box.new["/tmp/git_spec_#{Process.pid}/"]
-				@git.destroy
-				@git.create
-				@git.bash "git --bare init"
+				@git = "/tmp/git_spec_#{Process.pid}"
+				FileUtils.mkdir_p(@git)
+				FileUtils.cd(@git) { |d| `git --bare init` }
 			end
 
 			after(:all) do
-				@git.destroy
+				FileUtils.rm_rf(@git)
 			end
 
 			# setup sandbox in /tmp
 			before(:each) do
-				@sandbox = Rush::Box.new["/tmp/app_spec_#{Process.pid}/"].create
-				@sandbox.destroy
-				@sandbox.create
-				@sandbox.bash "git init"
-				Dir.stub!(:pwd).and_return(@sandbox.full_path.gsub(/\/$/, ''))
+				@sandbox = "/tmp/app_spec_#{Process.pid}"
+				FileUtils.mkdir_p(@sandbox)
+				bash "git init"
+				Dir.stub!(:pwd).and_return(@sandbox)
 			end
 
 			after(:each) do
-				@sandbox.destroy
+				FileUtils.rm_rf(@sandbox)
 			end
 
 			it "creates adding heroku to git remote" do
 				@cli.heroku.should_receive(:create).and_return('myapp')
 				@cli.create
-				@sandbox.bash("git remote").strip.should == 'heroku'
+				bash("git remote").strip.should == 'heroku'
 			end
 
 			it "creates adding a custom git remote" do
 				@cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
 				@cli.heroku.should_receive(:create).and_return('myapp')
 				@cli.create
-				@sandbox.bash("git remote").strip.should == 'myremote'
+				bash("git remote").strip.should == 'myremote'
 			end
 
 			it "doesn't add a git remote if it already exists" do
 				@cli.heroku.should_receive(:create).and_return('myapp')
-				@sandbox.bash "git remote add heroku #{@git.full_path}"
+				bash "git remote add heroku #{@git}"
 				@cli.create
 			end
 
 			it "renames updating the corresponding heroku git remote" do
-				@sandbox.bash "git remote add github     git@github.com:test/test.git"
-				@sandbox.bash "git remote add production git@heroku.com:myapp.git"
-				@sandbox.bash "git remote add staging    git@heroku.com:myapp-staging.git"
+				bash "git remote add github     git@github.com:test/test.git"
+				bash "git remote add production git@heroku.com:myapp.git"
+				bash "git remote add staging    git@heroku.com:myapp-staging.git"
 
 				@cli.heroku.stub!(:update)
 				@cli.stub!(:args).and_return([ 'myapp2' ])
 				@cli.rename
-				remotes = @sandbox.bash("git remote -v")
+				remotes = bash("git remote -v")
 				remotes.should include('git@github.com:test/test.git')
 				remotes.should include('git@heroku.com:myapp-staging.git')
 				remotes.should include('git@heroku.com:myapp2.git')
@@ -157,13 +156,13 @@ module Heroku::Command
 			end
 
 			it "destroys removing any remotes pointing to the app" do
-				@sandbox.bash("git remote add heroku git@heroku.com:myapp.git")
+				bash("git remote add heroku git@heroku.com:myapp.git")
 				@cli.stub!(:args).and_return(['--app', 'myapp'])
 				@cli.heroku.stub!(:info).and_return({})
 				@cli.stub!(:ask).and_return('y')
 				@cli.heroku.should_receive(:destroy)
 				@cli.destroy
-				@sandbox.bash("git remote").strip.should == ''
+				bash("git remote").strip.should == ''
 			end
 		end
 	end
