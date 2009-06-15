@@ -39,15 +39,17 @@ module Heroku::Command
 		end
 
 		it "sets ~/.heroku/credentials to be readable only by the user" do
-			sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
-			FileUtils.rm_rf(sandbox)
-			FileUtils.mkdir_p(sandbox)
-			fname = "#{sandbox}/file"
-			system "touch #{fname}"
-			@cli.stub!(:credentials_file).and_return(fname)
-			@cli.set_credentials_permissions
-			File.stat(sandbox).mode.should == 040700
-			File.stat(fname).mode.should == 0100600
+			unless RUBY_PLATFORM =~ /mswin32/
+				sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
+				FileUtils.rm_rf(sandbox)
+				FileUtils.mkdir_p(sandbox)
+				fname = "#{sandbox}/file"
+				system "touch #{fname}"
+				@cli.stub!(:credentials_file).and_return(fname)
+				@cli.set_credentials_permissions
+				File.stat(sandbox).mode.should == 040700
+				File.stat(fname).mode.should == 0100600
+			end
 		end
 
 		it "writes credentials and uploads authkey when credentials are saved" do
