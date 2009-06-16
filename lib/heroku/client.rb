@@ -416,6 +416,7 @@ class Heroku::Client
 	end
 
 	def extract_warning(response)
+		return unless response
 		if response.headers[:x_heroku_warning] && @warning_callback
 			warning = response.headers[:x_heroku_warning]
 			@displayed_warnings ||= {}
