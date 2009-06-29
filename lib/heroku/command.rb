@@ -19,9 +19,9 @@ module Heroku
 					error "Authentication failure"
 				end
 			rescue RestClient::ResourceNotFound => e
-				error extract_not_found(e.response.body)
+				error extract_not_found(e.http_body)
 			rescue RestClient::RequestFailed => e
-				error extract_error(e.response.body)
+				error extract_error(e.http_body)
 			rescue RestClient::RequestTimeout
 				error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
 			rescue CommandFailed => e

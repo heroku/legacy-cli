@@ -114,14 +114,16 @@ EOXML
 
 	it "rake catches 502s and shows the app crashlog" do
 		e = RestClient::RequestFailed.new
-		e.stub!(:response).and_return(mock('response', :code => '502', :body => 'the crashlog'))
+		e.stub!(:http_code).and_return(502)
+		e.stub!(:http_body).and_return('the crashlog')
 		@client.should_receive(:post).and_raise(e)
 		lambda { @client.rake('myapp', '') }.should raise_error(Heroku::Client::AppCrashed)
 	end
 
 	it "rake passes other status codes (i.e., 500) as standard restclient exceptions" do
 		e = RestClient::RequestFailed.new
-		e.stub!(:response).and_return(mock('response', :code => '500', :body => 'not a crashlog'))
+		e.stub!(:http_code).and_return(500)
+		e.stub!(:http_body).and_return('not a crashlog')
 		@client.should_receive(:post).and_raise(e)
 		lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
 	end

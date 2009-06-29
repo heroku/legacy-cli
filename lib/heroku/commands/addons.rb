@@ -67,7 +67,7 @@ module Heroku::Command
 				if e.http_code == 402
 					confirm_billing ? retry : 'Canceled'
 				else
-					error = Heroku::Command.extract_error(e.response.body)
+					error = Heroku::Command.extract_error(e.http_body)
 					addon_error(error)
 				end
 			end

@@ -169,7 +169,7 @@ class Heroku::Client
 		end
 	rescue RestClient::RequestFailed => e
 		raise e unless e.http_code == 422
-		e.response.body
+		e.http_body
 	end
 
 	class Service
@@ -193,7 +193,7 @@ class Heroku::Client
 			@interval = 0
 			self
 		rescue RestClient::RequestFailed => e
-			raise AppCrashed, e.response.body  if e.response.code.to_i == 502
+			raise AppCrashed, e.http_body  if e.http_code == 502
 			raise
 		end
 
@@ -205,7 +205,7 @@ class Heroku::Client
 			)
 			self
 		rescue RestClient::RequestFailed => e
-			raise AppCrashed, e.response.body  if e.response.code.to_i == 502
+			raise AppCrashed, e.http_body  if e.http_code == 502
 			raise
 		end
 
