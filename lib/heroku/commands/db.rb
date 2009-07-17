@@ -47,7 +47,10 @@ module Heroku::Command
 		def parse_database_yml
 			return "" unless File.exists?(Dir.pwd + '/config/database.yml')
 
-			conf = YAML.load(File.read(Dir.pwd + '/config/database.yml'))['development']
+			environment = ENV['RAILS_ENV'] || ENV['MERB_ENV'] || ENV['RACK_ENV']
+			environment = 'development' if environment.nil? or environment.empty?
+
+			conf = YAML.load(File.read(Dir.pwd + '/config/database.yml'))[environment]
 			case conf['adapter']
 				when 'sqlite3'
 					return "sqlite://#{conf['database']}"
