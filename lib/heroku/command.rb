@@ -67,7 +67,7 @@ module Heroku
 			end
 
 			def extract_not_found(body)
-				body =~ /^(\w+) not found$/ ? body : "Resource not found"
+				body =~ /^[\w\s]+ not found$/ ? body : "Resource not found"
 			end
 
 			def extract_error(body)
