@@ -72,7 +72,7 @@ module Heroku::Command
  git init
  git add .
  git commit -m "my new app"
- heroku create myapp
+ heroku create
  git push heroku master
 
 EOTXT
