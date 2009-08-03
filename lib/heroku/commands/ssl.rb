@@ -3,7 +3,7 @@ module Heroku::Command
 		def list
 			heroku.list_domains(app).each do |d|
 				if cert = d[:cert]
-					display "#{d[:domain]} has a certificate issued by #{cert[:issuer]}, to #{cert[:subject]}, expiring at #{cert[:expires_at].strftime("%d/%m/%Y")}"
+					display "#{d[:domain]} has a SSL certificate registered to #{cert[:subject]} which expires on #{cert[:expires_at].strftime("%b %d, %Y")}"
 				else
 					display "#{d[:domain]} has no certificate"
 				end
