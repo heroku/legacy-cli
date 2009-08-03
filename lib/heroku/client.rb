@@ -88,8 +88,16 @@ class Heroku::Client
 
 	def list_domains(app_name)
 		doc = xml(get("/apps/#{app_name}/domains"))
-		doc.elements.to_a("//domain-names/domain-name").map do |d|
-			d.elements['domain'].text
+		doc.elements.to_a("//domain-names/*").map do |d|
+			attrs = { :domain => d.elements['domain'].text }
+			if cert = d.elements['cert']
+				attrs[:cert] = {
+					:expires_at => Time.parse(cert.elements['expires-at'].text),
+					:subject    => cert.elements['subject'].text,
+					:issuer     => cert.elements['issuer'].text,
+				}
+			end
+			attrs
 		end
 	end
 
@@ -103,6 +111,14 @@ class Heroku::Client
 
 	def remove_domains(app_name)
 		delete("/apps/#{app_name}/domains")
+	end
+
+	def add_ssl(app_name, domain, pem, key)
+		post("/apps/#{app_name}/domains/#{domain}/ssl", :pem => pem, :key => key)
+	end
+
+	def remove_ssl(app_name, domain)
+		delete("/apps/#{app_name}/domains/#{domain}/ssl")
 	end
 
 	# Get the list of ssh public keys for the current user.

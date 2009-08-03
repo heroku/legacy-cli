@@ -185,7 +185,7 @@ EOXML
 	<domain-name><domain>example2.com</domain></domain-name>
 </domain-names>
 EOXML
-			@client.list_domains('myapp').should == ['example1.com', 'example2.com']
+			@client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
 		end
 
 		it "add_domain(app_name, domain) -> adds domain name to app" do
@@ -204,6 +204,18 @@ EOXML
 			@client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
 			@resource.should_receive(:delete)
 			@client.remove_domains('myapp')
+		end
+
+		it "add_ssl(app_name, domain, pem, key) -> adds a ssl cert to the domain" do
+			@client.should_receive(:resource).with('/apps/myapp/domains/example.com/ssl').and_return(@resource)
+			@resource.should_receive(:post).with({ :pem => 'pem', :key => 'key' }, anything)
+			@client.add_ssl('myapp', 'example.com', 'pem', 'key')
+		end
+
+		it "remove_ssl(app_name, domain) -> removes the ssl cert for the domain" do
+			@client.should_receive(:resource).with('/apps/myapp/domains/example.com/ssl').and_return(@resource)
+			@resource.should_receive(:delete)
+			@client.remove_ssl('myapp', 'example.com')
 		end
 	end
 
