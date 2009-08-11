@@ -171,7 +171,8 @@ module Heroku::Command
 			end
 
 			def console_history_dir
-				FileUtils.mkdir_p("#{home_directory}/.heroku/console_history")
+				FileUtils.mkdir_p(path = "#{home_directory}/.heroku/console_history")
+				path
 			end
 
 			def console_history_file(app)
