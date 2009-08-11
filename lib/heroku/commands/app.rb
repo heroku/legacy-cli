@@ -52,6 +52,7 @@ module Heroku::Command
 			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
+			display "Dynos:          #{attrs[:dynos]}"
 			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
 			display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
 			if attrs[:database_size]
@@ -133,6 +134,14 @@ module Heroku::Command
 			app_name = extract_app
 			heroku.restart(app_name)
 			display "Servers restarted"
+		end
+
+		def dynos
+			app = extract_app
+			dynos = args.shift
+			raise(CommandFailed, "Invalid dynos") if dynos.to_i == 0
+			heroku.set_dynos(app, dynos)
+			display "#{app} now running on #{dynos} dyno#{'s' if dynos.to_i > 1}"
 		end
 
 		def destroy

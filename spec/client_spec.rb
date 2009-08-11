@@ -112,6 +112,12 @@ EOXML
 		@client.cron_logs('myapp').should == 'cron log'
 	end
 
+	it "set_dynos(app_name, qty) -> scales the app" do
+		@client.should_receive(:resource).with('/apps/myapp/dynos').and_return(@resource)
+		@resource.should_receive(:put).with({ :dynos => 3 }, anything)
+		@client.set_dynos('myapp', 3)
+	end
+
 	it "rake catches 502s and shows the app crashlog" do
 		e = RestClient::RequestFailed.new
 		e.stub!(:http_code).and_return(502)

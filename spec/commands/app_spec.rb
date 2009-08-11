@@ -74,6 +74,12 @@ module Heroku::Command
 			@cli.restart
 		end
 
+		it "scales dynos" do
+			@cli.stub!(:args).and_return([3])
+			@cli.heroku.should_receive(:set_dynos).with('myapp', 3)
+			@cli.dynos
+		end
+
 		it "destroys the app specified with --app if user confirms" do
 			@cli.stub!(:ask).and_return('y')
 			@cli.stub!(:args).and_return(['--app', 'myapp'])

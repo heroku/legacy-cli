@@ -310,6 +310,11 @@ class Heroku::Client
 		get("/apps/#{app_name}/cron_logs")
 	end
 
+	# Scales the app.
+	def set_dynos(app_name, qty)
+		put("/apps/#{app_name}/dynos", :dynos => qty)
+	end
+
 	# Capture a bundle from the given app, as a backup or for download.
 	def bundle_capture(app_name, bundle_name=nil)
 		xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name })).elements["//bundle/name"].text
