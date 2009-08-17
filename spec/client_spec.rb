@@ -206,10 +206,10 @@ EOXML
 			@client.remove_domains('myapp')
 		end
 
-		it "add_ssl(app_name, domain, pem, key) -> adds a ssl cert to the domain" do
-			@client.should_receive(:resource).with('/apps/myapp/domains/example.com/ssl').and_return(@resource)
-			@resource.should_receive(:post).with({ :pem => 'pem', :key => 'key' }, anything)
-			@client.add_ssl('myapp', 'example.com', 'pem', 'key')
+		it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do
+			@client.should_receive(:resource).with('/apps/myapp/ssl').and_return(@resource)
+			@resource.should_receive(:post).with({ :pem => 'pem', :key => 'key' }, anything).and_return('{}')
+			@client.add_ssl('myapp', 'pem', 'key')
 		end
 
 		it "remove_ssl(app_name, domain) -> removes the ssl cert for the domain" do

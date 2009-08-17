@@ -34,8 +34,8 @@ module Heroku::Command
  domains:remove <domain>      # remove a custom domain name
  domains:clear                # remove all custom domains
 
- ssl:add <domain> <pem> <key> # add SSL cert to the domain
- ssl:remove <domain>          # removes SSL cert from the domain
+ ssl:add <pem> <key>          # add SSL cert to the app
+ ssl:remove <domain>          # removes SSL cert from the app domain
 
  rake <command>               # remotely execute a rake command
  console <command>            # remotely execute a single console command

@@ -12,17 +12,16 @@ module Heroku::Command
 		alias :index :list
 
 		def add
-			usage  = 'heroku ssl:add <domain> <pem> <key>'
-			raise CommandFailed, "Missing domain. Usage:\n#{usage}"   unless domain   = args.shift
+			usage  = 'heroku ssl:add <pem> <key>'
 			raise CommandFailed, "Missing pem file. Usage:\n#{usage}" unless pem_file = args.shift
 			raise CommandFailed, "Missing key file. Usage:\n#{usage}" unless key_file = args.shift
 			raise CommandFailed, "Could not find pem in #{pem_file}"  unless File.exists?(pem_file)
 			raise CommandFailed, "Could not find key in #{key_file}"  unless File.exists?(key_file)
 
-			pem    = File.read(pem_file)
-			key    = File.read(key_file)
-			heroku.add_ssl(app, domain, pem, key)
-			display "Added certificate to #{domain}"
+			pem  = File.read(pem_file)
+			key  = File.read(key_file)
+			info = heroku.add_ssl(app, pem, key)
+			display "Added certificate to #{info['domain']}, expiring in #{info['expires_at']}"
 		end
 
 		def remove

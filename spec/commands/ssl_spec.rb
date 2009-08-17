@@ -7,12 +7,12 @@ module Heroku::Command
 		end
 
 		it "adds ssl certificates to domains" do
-			@ssl.stub!(:args).and_return(['example.com', 'my.crt', 'my.key'])
+			@ssl.stub!(:args).and_return(['my.crt', 'my.key'])
 			File.should_receive(:exists?).with('my.crt').and_return(true)
 			File.should_receive(:read).with('my.crt').and_return('crt contents')
 			File.should_receive(:exists?).with('my.key').and_return(true)
 			File.should_receive(:read).with('my.key').and_return('key contents')
-			@ssl.heroku.should_receive(:add_ssl).with('myapp', 'example.com', 'crt contents', 'key contents')
+			@ssl.heroku.should_receive(:add_ssl).with('myapp', 'crt contents', 'key contents').and_return({})
 			@ssl.add
 		end
 
