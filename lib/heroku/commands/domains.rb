@@ -6,7 +6,7 @@ module Heroku::Command
 				display "No domain names for #{app}.#{heroku.host}"
 			else
 				display "Domain names for #{app}.#{heroku.host}:"
-				display domains.join("\n")
+				display domains.map { |d| d[:domain] }.join("\n")
 			end
 		end
 		alias :index :list
