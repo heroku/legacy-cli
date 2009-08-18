@@ -40,9 +40,9 @@ module Heroku::Command
 		protected
 			def display_vars(vars, options={})
 				max_length = vars.map { |v| v[0].size }.max
-				vars.each do |k, v|
-					spaces = ' ' * (max_length - k.size)
-					display "#{' ' * (options[:indent] || 0)}#{k}#{spaces} => #{format(v, options)}"
+				vars.keys.sort.each do |key|
+					spaces = ' ' * (max_length - key.size)
+					display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
 				end
 			end
 
