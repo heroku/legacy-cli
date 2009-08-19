@@ -6,7 +6,7 @@ module Heroku::Command
 			if keys.empty?
 				display "No keys for #{heroku.user}"
 			else
-				display "=== #{keys.size} key#{keys.size > 1 ? 's' : ''} for #{heroku.user}"
+				display "=== #{keys.size} key#{'s' if keys.size > 1} for #{heroku.user}"
 				keys.each do |key|
 					display long ? key.strip : format_key_for_display(key)
 				end
