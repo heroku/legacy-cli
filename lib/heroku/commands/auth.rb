@@ -94,7 +94,7 @@ module Heroku::Command
 		def save_credentials
 			begin
 				write_credentials
-				Heroku::Command.run_internal('keys:add', [])
+				Heroku::Command.run_internal('keys:add', args)
 			rescue RestClient::Unauthorized => e
 				delete_credentials
 				raise e unless retry_login?

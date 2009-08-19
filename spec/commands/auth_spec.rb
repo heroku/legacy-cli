@@ -59,6 +59,13 @@ module Heroku::Command
 			@cli.save_credentials
 		end
 
+		it "preserves the args when running keys:add" do
+			@cli.stub!(:credentials)
+			@cli.stub!(:args).and_return(['mykey.pub'])
+			Heroku::Command.should_receive(:run_internal).with('keys:add', ['mykey.pub'])
+			@cli.save_credentials
+		end
+
 		it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
 			@cli.stub!(:write_credentials)
 			@cli.stub!(:retry_login?).and_return(false)
