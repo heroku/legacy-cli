@@ -6,7 +6,13 @@ module Heroku::Command
 		def list
 			list = heroku.list
 			if list.size > 0
-				display list.join("\n")
+				display list.map {|name, owner|
+					if heroku.user == owner
+						name
+					else
+						"#{name.ljust(25)} #{owner}"
+					end
+				}.join("\n")
 			else
 				display "You have no apps."
 			end

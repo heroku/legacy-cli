@@ -12,11 +12,14 @@ describe Heroku::Client do
 		@resource.should_receive(:get).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <apps type="array">
-	<app><name>myapp1</name></app>
-	<app><name>myapp2</name></app>
+	<app><name>myapp1</name><owner>test@heroku.com</owner></app>
+	<app><name>myapp2</name><owner>test@heroku.com</owner></app>
 </apps>
 EOXML
-		@client.list.should == %w(myapp1 myapp2)
+		@client.list.should == [
+			["myapp1", "test@heroku.com"],
+			["myapp2", "test@heroku.com"]
+		]
 	end
 
 	it "info -> get app attributes" do

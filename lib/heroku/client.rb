@@ -33,7 +33,11 @@ class Heroku::Client
 	# Show a list of apps which you are a collaborator on.
 	def list
 		doc = xml(get('/apps'))
-		doc.elements.to_a("//apps/app/name").map { |a| a.text }
+		doc.elements.to_a("//apps/app").map do |a|
+			name = a.elements.to_a("name").first
+			owner = a.elements.to_a("owner").first
+			[name.text, owner.text]
+		end
 	end
 
 	# Show info such as mode, custom domain, and collaborators on an app.
