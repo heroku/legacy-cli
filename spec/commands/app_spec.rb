@@ -75,8 +75,8 @@ module Heroku::Command
 		end
 
 		it "scales dynos" do
-			@cli.stub!(:args).and_return([3])
-			@cli.heroku.should_receive(:set_dynos).with('myapp', 3)
+			@cli.stub!(:args).and_return(['+4'])
+			@cli.heroku.should_receive(:set_dynos).with('myapp', '+4').and_return(7)
 			@cli.dynos
 		end
 

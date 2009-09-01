@@ -332,7 +332,7 @@ class Heroku::Client
 
 	# Scales the app.
 	def set_dynos(app_name, qty)
-		put("/apps/#{app_name}/dynos", :dynos => qty)
+		put("/apps/#{app_name}/dynos", :dynos => qty).to_i
 	end
 
 	# Capture a bundle from the given app, as a backup or for download.

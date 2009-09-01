@@ -144,10 +144,13 @@ module Heroku::Command
 
 		def dynos
 			app = extract_app
-			dynos = args.shift
-			raise(CommandFailed, "Invalid dynos") if dynos.to_i == 0
-			heroku.set_dynos(app, dynos)
-			display "#{app} now running on #{dynos} dyno#{'s' if dynos.to_i > 1}"
+			if dynos = args.shift
+				current = heroku.set_dynos(app, dynos)
+				display "#{app} now running on #{current} dyno#{'s' if current > 1}"
+			else
+				info = heroku.info(app)
+				display "#{app} is running on #{info[:dynos]} dyno#{'s' if info[:dynos].to_i > 1}"
+			end
 		end
 
 		def destroy
