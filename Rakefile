@@ -49,7 +49,7 @@ spec = Gem::Specification.new do |s|
 	s.rubyforge_project = "heroku"
 
 	s.platform = Gem::Platform::RUBY
-	s.has_rdoc = true
+	s.has_rdoc = false
 	
 	s.files = %w(Rakefile) +
 		Dir.glob("{bin,lib,spec}/**/*")
@@ -60,10 +60,6 @@ spec = Gem::Specification.new do |s|
 	s.add_dependency('rest-client', '>= 1.0.3')
 	s.add_dependency('launchy', '>=0.3.2')
 	s.add_dependency('json', '>= 1.1.0')
-end
-
-Rake::GemPackageTask.new(spec) do |p|
-	p.need_tar = true if RUBY_PLATFORM !~ /mswin/
 end
 
 desc "Install #{name} gem (#{version})"
@@ -82,15 +78,11 @@ Rake::TestTask.new do |t|
 	t.verbose = true
 end
 
-Rake::RDocTask.new do |t|
-	t.rdoc_dir = 'rdoc'
-	t.title    = "Heroku API"
-	t.options << '--line-numbers' << '--inline-source' << '-A cattr_accessor=object'
-	t.options << '--charset' << 'utf-8'
-	t.rdoc_files.include('README')
-	t.rdoc_files.include('REST')
-	t.rdoc_files.include('lib/heroku/*.rb')
-end
-
 CLEAN.include [ 'build/*', '**/*.o', '**/*.so', '**/*.a', 'lib/*-*', '**/*.log', 'pkg', 'lib/*.bundle', '*.gem', '.config' ]
 
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new(spec)
+rescue LoadError
+  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+end
