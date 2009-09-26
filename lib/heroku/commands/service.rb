@@ -33,16 +33,18 @@ module Heroku::Command
 			services = heroku.status(app)
 
 			if services.any?
-				display "  UPID      SLUG      INST           COMMAND              STATUS       SINCE"
-				display "------  ------------  ----  --------------------------  ----------  ---------"
+				output = []
+				output << "   UPID      SLUG       INST   COMMAND                     STATUS          SINCE"
+				# display "-------  ------------  ------  --------------------------  ----------  ---------"
 				services.reverse.each do |h|
 					upid, instance, command = h[:upid], h[:instance], h[:command]
 					status = h[:state]
 					slug   = h[:slug].sub(/^\d+_/, '')
 					since  = time_ago(h[:transitioned_at])
-					display "%6s  %11s  %4s  %-26s  %-10s  %9s" %
+					output << "%7s  %12s  %6s  %-26s  %-10s  %9s" %
 						[upid, slug, instance, truncate(command, 22), status, since]
 				end
+				puts output.join("\n")
 			end
 		end
 
