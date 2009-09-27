@@ -33,10 +33,11 @@ module Heroku::Command
 			services = heroku.status(app)
 
 			if services.any?
+				services.sort! { |a,b| b[:transitioned_at] <=> a[:transitioned_at] }
 				output = []
 				output << "   UPID      SLUG       INST   COMMAND                     STATUS          SINCE"
 				# display "-------  ------------  ------  --------------------------  ----------  ---------"
-				services.reverse.each do |h|
+				services.each do |h|
 					upid, instance, command = h[:upid], h[:instance], h[:command]
 					status = h[:state]
 					slug   = h[:slug].sub(/^\d+_/, '')
