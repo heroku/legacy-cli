@@ -12,7 +12,7 @@ module Heroku::Command
 			end
 
 			vars = args.inject({}) do |vars, arg|
-				key, value = arg.split('=')
+				key, value = arg.split('=', 2)
 				vars[key] = value
 				vars
 			end
