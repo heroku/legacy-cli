@@ -79,6 +79,9 @@ class Heroku::Client
 	# Invite a person by email address to collaborate on the app.
 	def add_collaborator(app_name, email)
 		xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email }))
+	rescue RestClient::RequestFailed => e
+		raise e unless e.http_code == 422
+		e.response.body
 	end
 
 	# Remove a collaborator.
