@@ -35,20 +35,20 @@ module Heroku::Command
 				end
 			end
 
-			display "Adding #{addon} to #{app}...", false
+			display "Adding #{addon} to #{app}... ", false
 			display addon_run { heroku.install_addon(app, addon, config) }
 		end
 
 		def remove
 			args.each do |name|
-				display "Removing #{name} from #{app}...", false
+				display "Removing #{name} from #{app}... ", false
 				display addon_run { heroku.uninstall_addon(app, name) }
 			end
 		end
 
 		def clear
 			heroku.installed_addons(app).each do |addon|
-				display "Removing #{addon['description']} from #{app}...", false
+				display "Removing #{addon['description']} from #{app}... ", false
 				display addon_run { heroku.uninstall_addon(app, addon['name']) }
 			end
 		end
@@ -65,12 +65,12 @@ module Heroku::Command
 		private
 			def addon_run
 				yield
-				'Done.'
+				'done'
 			rescue RestClient::ResourceNotFound => e
 				addon_error("no addon by that name")
 			rescue RestClient::RequestFailed => e
 				if e.http_code == 402
-					confirm_billing ? retry : 'Canceled'
+					confirm_billing ? retry : 'canceled'
 				else
 					error = Heroku::Command.extract_error(e.http_body)
 					addon_error(error)
@@ -78,7 +78,7 @@ module Heroku::Command
 			end
 
 			def addon_error(message)
-				"FAILED\n" + message.split("\n").map { |line| '!    ' + line }.join("\n")
+				"FAILED\n" + message.split("\n").map { |line| ' !   ' + line }.join("\n")
 			end
 	end
 end
