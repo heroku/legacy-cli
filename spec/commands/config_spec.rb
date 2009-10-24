@@ -25,6 +25,12 @@ module Heroku::Command
 			@config.add
 		end
 
+		it "allows config vars with = in the value" do
+			@config.stub!(:args).and_return(['a=b=c'])
+			@config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'b=c'})
+			@config.add
+		end
+
 		it "unsets config vars" do
 			@config.stub!(:args).and_return(['a'])
 			@config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
