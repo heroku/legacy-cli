@@ -30,6 +30,7 @@ module Heroku::Command
 			heroku.remove_config_var(app, args.first)
 			display "done."
 		end
+		alias :rm :remove
 
 		def clear
 			display "Clearing all config vars and restarting app...", false
