@@ -1,26 +1,26 @@
 module Heroku::Command
 	class Addons < BaseWithApp
-		def list
+		def index
+			installed = heroku.installed_addons(app)
+			if installed.empty?
+				display "No addons installed"
+			else
+				installed.each do |addon|
+					display addon['name']
+				end
+			end
+		end
+
+		def info
 			addons = heroku.addons
 			if addons.empty?
 				display "No addons available currently"
 			else
-				installed = heroku.installed_addons(app)
-				available = addons.select { |a| !installed.include? a }
-
-				display 'Activated addons:'
-				if installed.empty?
-					display '  (none)'
-				else
-					installed.each { |a| addon_display(a) }
+				addons.each do |addon|
+					display addon['name'].ljust(34) + (addon['url'] || '')
 				end
-
-				display ''
-				display 'Available addons:'
-				available.each { |a| addon_display(a) }
 			end
 		end
-		alias :index :list
 
 		def add
 			addon = args.shift
@@ -63,11 +63,6 @@ module Heroku::Command
 		end
 
 		private
-			def addon_display(attr)
-				space = ' ' * [1, (24 - attr['description'].size)].max
-				display "  #{attr['description']}#{space}#{attr['url']}"
-			end
-
 			def addon_run
 				yield
 				'Done.'

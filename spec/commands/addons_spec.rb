@@ -6,9 +6,9 @@ module Heroku::Command
 			@addons = prepare_command(Addons)
 		end
 
-		it "lists addons" do
-			@addons.heroku.should_receive(:addons).and_return([])
-			@addons.list
+		it "index lists installed addons" do
+			@addons.heroku.should_receive(:installed_addons).with('myapp').and_return([])
+			@addons.index
 		end
 
 		it "adds an addon" do
