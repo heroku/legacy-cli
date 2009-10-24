@@ -384,19 +384,19 @@ class Heroku::Client
 	end
 
 	def addons
-		JSON.parse get("/addons")
+		JSON.parse get("/addons", :accept => 'application/json')
 	end
 
 	def installed_addons(app_name)
-		JSON.parse get("/apps/#{app_name}/addons")
+		JSON.parse get("/apps/#{app_name}/addons", :accept => 'application/json')
 	end
 
 	def install_addon(app_name, addon, config={})
-		post("/apps/#{app_name}/addons/#{escape(addon)}", :config => config)
+		post("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json')
 	end
 
 	def uninstall_addon(app_name, addon)
-		delete("/apps/#{app_name}/addons/#{escape(addon)}")
+		delete("/apps/#{app_name}/addons/#{escape(addon)}", :accept => 'application/json')
 	end
 
 	def confirm_billing
@@ -430,8 +430,8 @@ class Heroku::Client
 		process(:put, uri, extra_headers, payload)
 	end
 
-	def delete(uri)    # :nodoc:
-		process(:delete, uri)
+	def delete(uri, extra_headers={})    # :nodoc:
+		process(:delete, uri, extra_headers)
 	end
 
 	def process(method, uri, extra_headers={}, payload=nil)
