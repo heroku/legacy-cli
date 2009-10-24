@@ -5,8 +5,15 @@ module Heroku::Command
 			if installed.empty?
 				display "No addons installed"
 			else
-				installed.each do |addon|
-					display addon['name']
+				available, pending = installed.partition { |a| a['configured'] }
+				available.map { |a| a['name'] }.sort.each do |addon|
+					display addon
+				end
+				unless pending.empty?
+					display "\n--- not configured ---"
+					pending.map { |a| a['name'] }.sort.each do |addon|
+						display addon.ljust(24) + "http://#{heroku.host}/myapps/#{app}/addons/#{addon}"
+					end
 				end
 			end
 		end
@@ -16,8 +23,11 @@ module Heroku::Command
 			if addons.empty?
 				display "No addons available currently"
 			else
-				addons.each do |addon|
-					display addon['name'].ljust(34) + (addon['url'] || '')
+				available, beta = addons.partition { |a| !a['beta'] }
+				display_addons(available)
+				if !beta.empty?
+					display "\n--- beta ---"
+					display_addons(beta)
 				end
 			end
 		end
@@ -63,6 +73,35 @@ module Heroku::Command
 		end
 
 		private
+			def display_addons(addons)
+				grouped = addons.inject({}) do |base, addon|
+					group, short = addon['name'].split(':')
+					base[group] ||= []
+					base[group] << addon.merge('short' => short)
+					base
+				end
+				grouped.keys.sort.each do |name|
+					addons = grouped[name]
+					row = name.dup
+					if addons.any? { |a| a['short'] }
+						row << ':'
+						size = row.size
+						stop = false
+						row << addons.map { |a| a['short'] }.sort.map do |short|
+							size += short.size
+							if size < 31
+								short
+							else
+								stop = true
+								nil
+							end
+						end.compact.join(', ')
+						row << '...' if stop
+					end
+					display row.ljust(34) + (addons.first['url'] || '')
+				end
+			end
+
 			def addon_run
 				yield
 				'done'
