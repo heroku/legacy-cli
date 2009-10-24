@@ -71,14 +71,23 @@ module Heroku
 			end
 
 			def extract_error(body)
-				msg = parse_error_xml(body) rescue ''
-				msg = 'Internal server error' if msg.empty?
+				msg = parse_error_xml(body)
+				msg ||= parse_error_json(body)
+				msg ||= 'Internal server error'
 				msg
 			end
 
 			def parse_error_xml(body)
 				xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
-				xml_errors.map { |a| a.text }.join(" / ")
+				msg = xml_errors.map { |a| a.text }.join(" / ")
+				return msg unless msg.empty?
+			rescue Exception
+			end
+
+			def parse_error_json(body)
+				json = JSON.parse(body)
+				json['error']
+			rescue JSON::ParserError
 			end
 		end
 	end
