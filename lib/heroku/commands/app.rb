@@ -104,8 +104,7 @@ module Heroku::Command
 				end
 			end
 		rescue Heroku::Client::AppCrashed => e
-			display "Couldn't run rake"
-			display e.message
+			error "Couldn't run rake\n#{e.message}"
 		end
 
 		def console
@@ -119,8 +118,7 @@ module Heroku::Command
 		rescue RestClient::RequestTimeout
 			error "Timed out. Long running requests are not supported on the console.\nPlease consider creating a rake task instead."
 		rescue Heroku::Client::AppCrashed => e
-			display "Couldn't run console command"
-			display e.message
+			error "Couldn't run console command\n#{e.message}"
 		end
 
 		def console_session(app)
