@@ -207,7 +207,7 @@ module Heroku::Command
 			def console_history_read(app)
 				history = File.read(console_history_file(app)).split("\n")
 				if history.size > 50
-					history = history[0,50]
+					history = history[(history.size - 51),(history.size - 1)]
 					File.open(console_history_file(app), "w") { |f| f.puts history.join("\n") }
 				end
 				history.each { |cmd| Readline::HISTORY.push(cmd) }
