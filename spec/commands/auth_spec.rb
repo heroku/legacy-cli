@@ -37,7 +37,7 @@ module Heroku::Command
 		end
 
 		it "sets ~/.heroku/credentials to be readable only by the user" do
-			unless RUBY_PLATFORM =~ /mswin32/
+			unless RUBY_PLATFORM =~ /mswin32|mingw32/
 				sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 				FileUtils.rm_rf(sandbox)
 				FileUtils.mkdir_p(sandbox)

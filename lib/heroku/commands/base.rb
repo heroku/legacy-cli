@@ -120,7 +120,7 @@ module Heroku::Command
 		end
 
 		def running_on_windows?
-			RUBY_PLATFORM =~ /mswin32/
+			RUBY_PLATFORM =~ /mswin32|mingw32/
 		end
 
 		def escape(value)
