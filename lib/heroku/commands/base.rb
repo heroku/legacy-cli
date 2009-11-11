@@ -19,6 +19,11 @@ module Heroku::Command
 			end
 		end
 
+		def format_date(date)
+			date = Time.parse(date) if date.is_a?(String)
+			date.strftime("%Y-%m-%d %H:%M %Z")
+		end
+
 		def error(msg)
 			Heroku::Command.error(msg)
 		end

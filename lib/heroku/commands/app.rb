@@ -69,6 +69,13 @@ module Heroku::Command
 				display "Data size:      #{data}"
 			end
 
+			if attrs[:cron_next_run]
+				display "Next cron:      scheduled for #{format_date(attrs[:cron_next_run])}"
+			end
+			if attrs[:cron_finished_at]
+				display "Last cron:      finished at   #{format_date(attrs[:cron_finished_at])}"
+			end
+
 			unless attrs[:addons].empty?
 				display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
 			end
