@@ -40,7 +40,16 @@ Created by Adam Wiggins
 
 Maintained by Pedro Belo
 
-Patches contributed by: Chris O'Sullivan, Blake Mizerany, Ricardo Chimal, Les Hill, Ryan Tomayko and Sarah Mei
+Patches contributed by:
+
+* Chris O'Sullivan
+* Blake Mizerany
+* Ricardo Chimal
+* Les Hill
+* Ryan Tomayko
+* Sarah Mei
+* Nick Quaranto
+* Matt Buck
 
 Released under the MIT license: http://www.opensource.org/licenses/mit-license.php
 
