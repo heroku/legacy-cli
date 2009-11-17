@@ -59,6 +59,7 @@ module Heroku::Command
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
 			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
 			display "Dynos:          #{attrs[:dynos]}"
+			display "Workers:        #{attrs[:workers]}"
 			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
 			display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
 			if attrs[:database_size]
@@ -157,6 +158,17 @@ module Heroku::Command
 			else
 				info = heroku.info(app)
 				display "#{app} is running on #{info[:dynos]} dyno#{'s' if info[:dynos].to_i > 1}"
+			end
+		end
+
+		def workers
+			app = extract_app
+			if workers = args.shift
+				current = heroku.set_workers(app, workers)
+				display "#{app} now running #{current} worker#{'s' if current != 1}"
+			else
+				info = heroku.info(app)
+				display "#{app} is running #{info[:workers]} worker#{'s' if info[:workers].to_i != 1}"
 			end
 		end
 

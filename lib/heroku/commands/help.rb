@@ -25,7 +25,8 @@ module Heroku::Command
  info                         # show app info, like web url and git repo
  open                         # open the app in a web browser
  rename <newname>             # rename the app
- dynos <qty>                  # set the app to use the specified qty of dynos
+ dynos <qty>                  # scale to qty web processes
+ workers <qty>                # scale to qty background processes
 
  sharing:add <email>          # add a collaborator
  sharing:remove <email>       # remove a collaborator

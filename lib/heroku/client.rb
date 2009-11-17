@@ -333,9 +333,14 @@ class Heroku::Client
 		get("/apps/#{app_name}/cron_logs")
 	end
 
-	# Scales the app.
+	# Scales the web processes.
 	def set_dynos(app_name, qty)
 		put("/apps/#{app_name}/dynos", :dynos => qty).to_i
+	end
+
+	# Scales the background processes.
+	def set_workers(app_name, qty)
+		put("/apps/#{app_name}/workers", :workers => qty).to_i
 	end
 
 	# Capture a bundle from the given app, as a backup or for download.
