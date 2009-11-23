@@ -354,6 +354,12 @@ class Heroku::Client
 		bundle['temporary_url']
 	end
 
+	# DEPRECATED:
+	def bundle_download(app_name, fname, bundle_name=nil)
+		data = RestClient.get(bundle_url(app_name, bundle_name))
+		File.open(fname, "wb") { |f| f.write data }
+	end
+
 	# Get a list of bundles of the app.
 	def bundles(app_name)
 		doc = xml(get("/apps/#{app_name}/bundles"))
