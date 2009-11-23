@@ -138,11 +138,9 @@ EOXML
 	end
 
 	describe "bundles" do
-		it "download bundles" do
+		it "gives a temporary URL where the bundle can be downloaded" do
 			@client.should_receive(:get).with("/apps/myapp/bundles/latest", {:accept=>"application/json"}).and_return("{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
-			RestClient.should_receive(:get).with('https://s3.amazonaws.com/herokubundles/123.tar.gz').and_return('bundle contents')
-			File.should_receive(:open).with('myapp.tar.gz', 'wb')
-			@client.bundle_download('myapp', 'myapp.tar.gz')
+			@client.bundle_url('myapp').should == 'https://s3.amazonaws.com/herokubundles/123.tar.gz'
 		end
 	end
 

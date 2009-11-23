@@ -347,12 +347,11 @@ class Heroku::Client
 		delete("/apps/#{app_name}/bundles/#{bundle_name}")
 	end
 
-	# Download a previously captured bundle.  If bundle_name is nil, the most
-	# recently captured bundle for that app will be downloaded.
-	def bundle_download(app_name, fname, bundle_name=nil)
+	# Get a temporary URL where the bundle can be downloaded.
+	# If bundle_name is nil it will use the most recently captured bundle for the app
+	def bundle_url(app_name, bundle_name=nil)
 		bundle = JSON.parse(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }))
-		data = RestClient.get(bundle['temporary_url'])
-		File.open(fname, "wb") { |f| f.write data }
+		bundle['temporary_url']
 	end
 
 	# Get a list of bundles of the app.
