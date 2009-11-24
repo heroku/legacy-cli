@@ -86,7 +86,9 @@ CLEAN.include [ 'build/*', '**/*.o', '**/*.so', '**/*.a', 'lib/*-*', '**/*.log',
 
 begin
   require 'jeweler'
-  Jeweler::Tasks.new(spec)
+  Jeweler::Tasks.new(spec) do |s|
+    s.version = version
+  end
   Jeweler::RubyforgeTasks.new
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
