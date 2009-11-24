@@ -359,8 +359,8 @@ class Heroku::Client
 		bundle['temporary_url']
 	end
 
-	# DEPRECATED:
 	def bundle_download(app_name, fname, bundle_name=nil)
+		warn "[DEPRECATION] `bundle_download` is deprecated. Please use `bundle_url` instead"
 		data = RestClient.get(bundle_url(app_name, bundle_name))
 		File.open(fname, "wb") { |f| f.write data }
 	end
