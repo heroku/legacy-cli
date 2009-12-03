@@ -277,8 +277,8 @@ class Heroku::Client
 		end
 	end
 
-	# Retreive service status information for the given app name.
-	def status(app_name)
+	# Retreive ps list for the given app name.
+	def ps(app_name)
 		doc = xml(get("/apps/#{app_name}/services"))
 		doc.elements.to_a('//services/service').map do |service|
 			hash = {}
