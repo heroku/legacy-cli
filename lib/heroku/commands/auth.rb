@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Heroku::Command
 	class Auth < Base
 		KEYCHAIN_SERVICE_NAME = 'heroku.com'
@@ -48,7 +50,7 @@ module Heroku::Command
 		end
 
 		def mac_keychain_read_credentials
-			keychain_data = `security find-generic-password -gs #{KEYCHAIN_SERVICE_NAME} 2>&1`
+			keychain_data = `security find-generic-password -gs #{KEYCHAIN_SERVICE_NAME.shellescape} 2>&1`
 			[ keychain_data =~ /^\s+"acct"<blob>="(.*)"$/ && $1,
 			  keychain_data =~ /^password: "(.*)"$/       && $1]
 		end
@@ -133,11 +135,11 @@ module Heroku::Command
 
 		def mac_keychain_write_credentials
 			cmd = "security add-generic-password"
-			cmd << " -s #{KEYCHAIN_SERVICE_NAME}"  # Service name
-			cmd << " -a #{user}"                   # Account
-			cmd << " -l 'Heroku client: #{user}'"  # Label (What appears on the Keychain listing)
-			cmd << " -w #{password}"               # Password
-			cmd << " -U"                           # Update if exists
+			cmd << " -s #{KEYCHAIN_SERVICE_NAME.shellescape}"      # Service name
+			cmd << " -a #{user}"                                   # Account
+			cmd << " -l " << "Heroku client: #{user}".shellescape  # Label (What appears on the Keychain listing)
+			cmd << " -w #{password.shellescape}"                   # Password
+			cmd << " -U"                                           # Update if exists
 			system cmd or raise
 		end
 
