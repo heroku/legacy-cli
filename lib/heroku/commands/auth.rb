@@ -51,8 +51,8 @@ module Heroku::Command
 
 		def mac_keychain_read_credentials
 			keychain_data = `security find-generic-password -gs #{KEYCHAIN_SERVICE_NAME.shellescape} 2>&1`
-			[ keychain_data =~ /^\s+"acct"<blob>="(.*)"$/ && $1,
-			  keychain_data =~ /^password: "(.*)"$/       && $1]
+			[ keychain_data[/^\s+"acct"<blob>="(.*)"$/, 1],
+			  keychain_data[/^password: "(.*)"$/      , 1]]
 		end
 
 		def echo_off
