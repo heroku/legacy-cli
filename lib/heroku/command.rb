@@ -1,5 +1,6 @@
 require 'commands/base'
 require 'plugin'
+Dir["#{File.dirname(__FILE__)}/commands/*"].each { |c| require c }
 
 module Heroku
 	module Command
@@ -32,11 +33,10 @@ module Heroku
 			end
 
 			def run_internal(command, args, heroku=nil)
-				namespace, command = parse(command)
-				require "commands/#{namespace}"
-				klass = Heroku::Command.const_get(namespace.capitalize).new(args, heroku)
-				raise InvalidCommand unless klass.respond_to?(command)
-				klass.send(command)
+				klass, method = parse(command)
+				runner = klass.new(args, heroku)
+				raise InvalidCommand unless runner.respond_to?(method)
+				runner.send(method)
 			end
 
 			def error(msg)
@@ -48,22 +48,19 @@ module Heroku
 				parts = command.split(':')
 				case parts.size
 					when 1
-						if namespaces.include? command
-							return command, 'index'
-						else
-							return 'app', command
+						begin
+							return Heroku::Command.const_get(command.capitalize), :index
+						rescue NameError
+							return Heroku::Command::App, command
 						end
 					when 2
-						raise InvalidCommand unless namespaces.include? parts[0]
-						return parts
+						begin
+							return Heroku::Command.const_get(parts[0].capitalize), parts[1]
+						rescue NameError
+							raise InvalidCommand
+						end
 					else
 						raise InvalidCommand
-				end
-			end
-
-			def namespaces
-				@@namespaces ||= Dir["#{File.dirname(__FILE__)}/commands/*"].map do |namespace|
-					namespace.gsub(/.*\//, '').gsub(/\.rb/, '')
 				end
 			end
 
