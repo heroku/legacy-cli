@@ -1,4 +1,5 @@
 require 'commands/base'
+require 'plugin'
 
 module Heroku
 	module Command
