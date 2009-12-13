@@ -13,7 +13,7 @@ module Heroku
 			Plugin.new('git://github.com/heroku/plugin.git').name.should == 'plugin'
 		end
 
-		describe "sandbox" do
+		describe "management" do
 			before(:each) do
 				@sandbox = "/tmp/heroku_plugins_spec_#{Process.pid}"
 				FileUtils.mkdir_p(@sandbox)
@@ -44,6 +44,20 @@ module Heroku
 				FileUtils.mkdir_p(@sandbox + '/plugin1')
 				Plugin.new('git://github.com/heroku/plugin1.git').uninstall
 				Plugin.list.should == []
+			end
+
+			it "adds the lib folder in the plugin to the load path, if present" do
+				FileUtils.mkdir_p(@sandbox + '/plugin/lib')
+				File.open(@sandbox + '/plugin/lib/my_custom_plugin_file.rb', 'w') { |f| f.write "" }
+				Plugin.load!
+				lambda { require 'my_custom_plugin_file' }.should_not raise_error(LoadError)
+			end
+
+			it "loads init.rb, if present" do
+				FileUtils.mkdir_p(@sandbox + '/plugin')
+				File.open(@sandbox + '/plugin/init.rb', 'w') { |f| f.write "LoadedInit = true" }
+				Plugin.load!
+				LoadedInit.should be_true
 			end
 		end
 	end

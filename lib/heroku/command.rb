@@ -1,5 +1,6 @@
 require 'commands/base'
 require 'plugin'
+
 Dir["#{File.dirname(__FILE__)}/commands/*"].each { |c| require c }
 
 module Heroku
@@ -9,27 +10,30 @@ module Heroku
 
 		class << self
 			def run(command, args, retries=0)
-				run_internal 'auth:reauthorize', args.dup if retries > 0
-				run_internal(command, args.dup)
-			rescue InvalidCommand
-				error "Unknown command. Run 'heroku help' for usage information."
-			rescue RestClient::Unauthorized
-				if retries < 3
-					STDERR.puts "Authentication failure"
-					run(command, args, retries+1)
-				else
-					error "Authentication failure"
+				Heroku::Plugin.load!
+				begin
+					run_internal 'auth:reauthorize', args.dup if retries > 0
+					run_internal(command, args.dup)
+				rescue InvalidCommand
+					error "Unknown command. Run 'heroku help' for usage information."
+				rescue RestClient::Unauthorized
+					if retries < 3
+						STDERR.puts "Authentication failure"
+						run(command, args, retries+1)
+					else
+						error "Authentication failure"
+					end
+				rescue RestClient::ResourceNotFound => e
+					error extract_not_found(e.http_body)
+				rescue RestClient::RequestFailed => e
+					error extract_error(e.http_body)
+				rescue RestClient::RequestTimeout
+					error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
+				rescue CommandFailed => e
+					error e.message
+				rescue Interrupt => e
+					error "\n[canceled]"
 				end
-			rescue RestClient::ResourceNotFound => e
-				error extract_not_found(e.http_body)
-			rescue RestClient::RequestFailed => e
-				error extract_error(e.http_body)
-			rescue RestClient::RequestTimeout
-				error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
-			rescue CommandFailed => e
-				error e.message
-			rescue Interrupt => e
-				error "\n[canceled]"
 			end
 
 			def run_internal(command, args, heroku=nil)

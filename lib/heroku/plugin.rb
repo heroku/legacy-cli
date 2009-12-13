@@ -15,6 +15,14 @@ module Heroku
 			end
 		end
 
+		def self.load!
+			list.each do |plugin|
+				folder = "#{self.directory}/#{plugin}"
+				$: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
+				load "#{folder}/init.rb" if File.exists?    "#{folder}/init.rb"
+			end
+		end
+
 		def initialize(uri)
 			@uri = uri
 			guess_name(uri)
