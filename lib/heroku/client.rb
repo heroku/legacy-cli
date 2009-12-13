@@ -279,16 +279,7 @@ class Heroku::Client
 
 	# Retreive ps list for the given app name.
 	def ps(app_name)
-		doc = xml(get("/apps/#{app_name}/services"))
-		doc.elements.to_a('//services/service').map do |service|
-			hash = {}
-			service.elements.each do |element|
-				value = element.text
-				value = Time.parse(value) if element.name == 'transitioned-at'
-				hash[element.name.tr('-', '_').to_sym] = value
-			end
-			hash
-		end
+		JSON.parse resource("/apps/#{app_name}/ps").get(:accept => 'application/json')
 	end
 
 	# Run a service. If Responds to #each and yields output as it's received.

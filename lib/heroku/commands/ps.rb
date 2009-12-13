@@ -1,17 +1,17 @@
 module Heroku::Command
 	class Ps < Base
 		def index
-			app = extract_app
-			services = heroku.ps(app)
+			ps = heroku.ps(extract_app)
 
-			services.sort! { |a,b| b[:transitioned_at] <=> a[:transitioned_at] }
 			output = []
-			output << "UPID     Slug          Inst    Command                     Status      Since"
-			output << "-------  ------------  ------  --------------------------  ----------  ---------"
-			services.each do |h|
-				since = time_ago(h[:transitioned_at])
-				output << "%-7s  %-12s  %-6s  %-26s  %-10s  %-9s" %
-					[h[:upid], h[:slug], h[:instance], truncate(h[:command], 22), h[:state], since]
+			output << "UPID     Slug          Command                     State       Since"
+			output << "-------  ------------  --------------------------  ----------  ---------"
+
+			ps.sort! { |a,b| b['transitioned_at'] <=> a['transitioned_at'] }
+			ps.each do |p|
+				since = time_ago(p['transitioned_at'])
+				output << "%-7s  %-12s  %-26s  %-10s  %-9s" %
+					[p['upid'], p['slug'], truncate(p['command'], 22), p['state'], since]
 			end
 
 			display output.join("\n")
@@ -19,7 +19,7 @@ module Heroku::Command
 
 	private
 		def time_ago(time)
-			duration = Time.now - time
+			duration = Time.now - Time.parse(time)
 			if duration < 60
 				"#{duration.floor}s ago"
 			elsif duration < (60 * 60)
