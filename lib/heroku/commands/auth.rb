@@ -136,7 +136,7 @@ module Heroku::Command
 		def mac_keychain_write_credentials
 			cmd = "security add-generic-password"
 			cmd << " -s #{KEYCHAIN_SERVICE_NAME.shellescape}"      # Service name
-			cmd << " -a #{user}"                                   # Account
+			cmd << " -a #{user.shellescape}"                       # Account
 			cmd << " -l " << "Heroku client: #{user}".shellescape  # Label (What appears on the Keychain listing)
 			cmd << " -w #{password.shellescape}"                   # Password
 			cmd << " -U"                                           # Update if exists
