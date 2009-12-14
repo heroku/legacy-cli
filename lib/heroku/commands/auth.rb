@@ -45,11 +45,11 @@ module Heroku::Command
 		end
 
 		def read_credentials
-			return mac_keychain_read_credentials if running_on_a_mac?
+			return read_credentials_from_mac_keychain if running_on_a_mac?
 			File.exists?(credentials_file) and File.read(credentials_file).split("\n")
 		end
 
-		def mac_keychain_read_credentials
+		def read_credentials_from_mac_keychain
 			keychain_data = `security find-generic-password -gs #{KEYCHAIN_SERVICE_NAME.shellescape} 2>&1`
 			[ keychain_data[/^\s+"acct"<blob>="(.*)"$/, 1],
 			  keychain_data[/^password: "(.*)"$/      , 1]]
@@ -125,7 +125,7 @@ module Heroku::Command
 		end
 
 		def write_credentials
-			return mac_keychain_write_credentials if running_on_a_mac?
+			return write_credentials_to_mac_keychain if running_on_a_mac?
 			FileUtils.mkdir_p(File.dirname(credentials_file))
 			File.open(credentials_file, 'w') do |f|
 				f.puts self.credentials
@@ -133,7 +133,7 @@ module Heroku::Command
 			set_credentials_permissions
 		end
 
-		def mac_keychain_write_credentials
+		def write_credentials_to_mac_keychain
 			cmd = "security add-generic-password"
 			cmd << " -s #{KEYCHAIN_SERVICE_NAME.shellescape}"      # Service name
 			cmd << " -a #{user.shellescape}"                       # Account
