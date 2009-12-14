@@ -1,7 +1,7 @@
 module Heroku::Command
 	class Plugins < Base
 		def list
-			Plugin.list.each do |plugin|
+			::Heroku::Plugin.list.each do |plugin|
 				display plugin
 			end
 		end
