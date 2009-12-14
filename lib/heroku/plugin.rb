@@ -35,8 +35,8 @@ module Heroku
 		def install
 			FileUtils.mkdir_p(install_path = "#{self.class.directory}/#{name}")
 			Dir.chdir install_path do
-				system("git init >& /dev/null")
-				if system("git pull --depth 1 #{uri}  >& /dev/null")
+				system("git init > /dev/null 2>&1")
+				if system("git pull --depth 1 #{uri}  > /dev/null 2>&1")
 					FileUtils.rm_rf %w(.git .gitignore)
 				else
 					FileUtils.rm_rf install_path
