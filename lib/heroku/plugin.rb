@@ -40,9 +40,7 @@ module Heroku
 			FileUtils.mkdir_p(path)
 			Dir.chdir(path) do
 				system("git init > /dev/null 2>&1")
-				if system("git pull --depth 1 #{uri}  > /dev/null 2>&1")
-					FileUtils.rm_rf %w(.git .gitignore)
-				else
+				if !system("git pull --depth 1 #{uri}  > /dev/null 2>&1")
 					FileUtils.rm_rf path
 				end
 			end
