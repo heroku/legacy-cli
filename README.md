@@ -58,6 +58,7 @@ Patches contributed by:
 * Sarah Mei
 * Nick Quaranto
 * Matt Buck
+* Terence Lee
 * Caio Chassot
 
 
