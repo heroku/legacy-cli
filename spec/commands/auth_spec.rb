@@ -7,6 +7,7 @@ module Heroku::Command
 			@sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
 			File.open(@sandbox, "w") { |f| f.write "user\npass\n" }
 			@cli.stub!(:credentials_file).and_return(@sandbox)
+			@cli.stub!(:running_on_a_mac?).and_return(false)
 		end
 
 		after do
