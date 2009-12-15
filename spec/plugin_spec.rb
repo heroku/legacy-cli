@@ -5,7 +5,7 @@ module Heroku
 		include SandboxHelper
 
 		it "lives in ~/.heroku/plugins" do
-			ENV.stub!(:[]).with('USERPROFILE').and_return('/home/user')
+			Plugin.stub!(:home_directory).and_return('/home/user')
 			Plugin.directory.should == '/home/user/.heroku/plugins'
 		end
 

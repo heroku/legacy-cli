@@ -2,11 +2,14 @@
 
 module Heroku
 	class Plugin
+		class << self
+			include Heroku::Helpers
+		end
+
 		attr_reader :name, :uri
 
 		def self.directory
-			home = ENV['USERPROFILE'] || ENV['HOME'] # TODO extract home_directory from Heroku::Command::Base
-			"#{home}/.heroku/plugins"
+			"#{home_directory}/.heroku/plugins"
 		end
 
 		def self.list
