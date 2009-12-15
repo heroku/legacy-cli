@@ -1,5 +1,3 @@
-require 'shellwords'
-
 module Heroku::Command
 	class Auth < Base
 		attr_accessor :credentials

@@ -2,6 +2,8 @@ require 'fileutils'
 
 module Heroku::Command
 	class Base
+		include Heroku::Helpers
+
 		attr_accessor :args
 		attr_reader :autodetected_app
 		def initialize(args, heroku=nil)
@@ -113,18 +115,6 @@ module Heroku::Command
 
 		def app_urls(name)
 			"#{web_url(name)} | #{git_url(name)}"
-		end
-
-		def home_directory
-			running_on_windows? ? ENV['USERPROFILE'] : ENV['HOME']
-		end
-
-		def running_on_windows?
-			RUBY_PLATFORM =~ /mswin32|mingw32/
-		end
-
-		def running_on_a_mac?
-			RUBY_PLATFORM =~ /-darwin\d/
 		end
 
 		def escape(value)

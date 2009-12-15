@@ -1,5 +1,6 @@
-require 'commands/base'
+require 'helpers'
 require 'plugin'
+require 'commands/base'
 
 Dir["#{File.dirname(__FILE__)}/commands/*"].each { |c| require c }
 
