@@ -75,10 +75,8 @@ module Heroku
 			end
 
 			def extract_error(body)
-				msg = parse_error_xml(body)
-				msg ||= parse_error_json(body)
-				msg ||= 'Internal server error'
-				msg
+				msg = parse_error_xml(body) || parse_error_json(body) || 'Internal server error'
+				msg.split("\n").map { |line| ' !   ' + line }.join("\n")
 			end
 
 			def parse_error_xml(body)

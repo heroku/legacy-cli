@@ -113,12 +113,8 @@ module Heroku::Command
 					confirm_billing ? retry : 'canceled'
 				else
 					error = Heroku::Command.extract_error(e.http_body)
-					addon_error(error)
+					"FAILED\n" + error
 				end
-			end
-
-			def addon_error(message)
-				"FAILED\n" + message.split("\n").map { |line| ' !   ' + line }.join("\n")
 			end
 	end
 end
