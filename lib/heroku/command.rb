@@ -27,7 +27,8 @@ module Heroku
 				rescue RestClient::ResourceNotFound => e
 					error extract_not_found(e.http_body)
 				rescue RestClient::RequestFailed => e
-					error extract_error(e.http_body)
+					error extract_error(e.http_body) unless e.http_code == 402
+					retry if run_internal('account:confirm_billing', args.dup)
 				rescue RestClient::RequestTimeout
 					error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
 				rescue CommandFailed => e
