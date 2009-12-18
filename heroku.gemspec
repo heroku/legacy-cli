@@ -5,17 +5,17 @@
 
 Gem::Specification.new do |s|
   s.name = %q{heroku}
-  s.version = "1.4"
+  s.version = "1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Heroku"]
-  s.date = %q{2009-11-23}
+  s.date = %q{2009-12-18}
   s.default_executable = %q{heroku}
   s.description = %q{Client library and command-line tool to manage and deploy Rails apps on Heroku.}
   s.email = %q{support@heroku.com}
   s.executables = ["heroku"]
   s.extra_rdoc_files = [
-    "README.rdoc"
+    "README.md"
   ]
   s.files = [
     "Rakefile",
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "lib/heroku.rb",
      "lib/heroku/client.rb",
      "lib/heroku/command.rb",
+     "lib/heroku/commands/account.rb",
      "lib/heroku/commands/addons.rb",
      "lib/heroku/commands/app.rb",
      "lib/heroku/commands/auth.rb",
@@ -35,10 +36,14 @@ Gem::Specification.new do |s|
      "lib/heroku/commands/keys.rb",
      "lib/heroku/commands/logs.rb",
      "lib/heroku/commands/maintenance.rb",
+     "lib/heroku/commands/plugins.rb",
+     "lib/heroku/commands/ps.rb",
      "lib/heroku/commands/service.rb",
      "lib/heroku/commands/sharing.rb",
      "lib/heroku/commands/ssl.rb",
      "lib/heroku/commands/version.rb",
+     "lib/heroku/helpers.rb",
+     "lib/heroku/plugin.rb",
      "spec/base.rb",
      "spec/client_spec.rb",
      "spec/command_spec.rb",
@@ -53,14 +58,17 @@ Gem::Specification.new do |s|
      "spec/commands/keys_spec.rb",
      "spec/commands/logs_spec.rb",
      "spec/commands/maintenance_spec.rb",
+     "spec/commands/plugins_spec.rb",
+     "spec/commands/ps_spec.rb",
      "spec/commands/sharing_spec.rb",
-     "spec/commands/ssl_spec.rb"
+     "spec/commands/ssl_spec.rb",
+     "spec/plugin_spec.rb"
   ]
   s.homepage = %q{http://heroku.com/}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{heroku}
-  s.rubygems_version = %q{1.3.4}
+  s.rubygems_version = %q{1.3.5}
   s.summary = %q{Client library and CLI to deploy Rails apps on Heroku.}
   s.test_files = [
     "spec/base.rb",
@@ -77,8 +85,11 @@ Gem::Specification.new do |s|
      "spec/commands/keys_spec.rb",
      "spec/commands/logs_spec.rb",
      "spec/commands/maintenance_spec.rb",
+     "spec/commands/plugins_spec.rb",
+     "spec/commands/ps_spec.rb",
      "spec/commands/sharing_spec.rb",
-     "spec/commands/ssl_spec.rb"
+     "spec/commands/ssl_spec.rb",
+     "spec/plugin_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
