@@ -9,8 +9,11 @@ module Heroku::Command
 
 		def install
 			plugin = Heroku::Plugin.new(args.shift)
-			plugin.install
-			display "#{plugin} installed"
+			if plugin.install
+				display "#{plugin} installed"
+			else
+				error "Could not install #{plugin}. Please check the URL and try again"
+			end
 		end
 
 		def uninstall

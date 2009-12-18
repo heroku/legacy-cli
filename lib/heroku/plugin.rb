@@ -45,8 +45,10 @@ module Heroku
 				system("git init > /dev/null 2>&1")
 				if !system("git pull --depth 1 #{uri}  > /dev/null 2>&1")
 					FileUtils.rm_rf path
+					return false
 				end
 			end
+			true
 		end
 
 		def uninstall
