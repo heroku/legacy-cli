@@ -76,6 +76,12 @@ module Heroku::Command
 
  destroy                      # destroy the app permanently
 
+=== Plugins
+
+ plugins                      # list installed plugins
+ plugins:install <url>        # install plugin from the specified git url
+ plugins:uninstall <url/name> # remove the specified plugin
+
 === Example:
 
  rails myapp
