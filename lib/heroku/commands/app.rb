@@ -71,10 +71,10 @@ module Heroku::Command
 			end
 
 			if attrs[:cron_next_run]
-				display "Next cron:      scheduled for #{format_date(attrs[:cron_next_run])}"
+				display "Next cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
 			end
 			if attrs[:cron_finished_at]
-				display "Last cron:      finished at   #{format_date(attrs[:cron_finished_at])}"
+				display "Last cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
 			end
 
 			unless attrs[:addons].empty?
