@@ -38,8 +38,7 @@ module Heroku::Command
 			args.each do |arg|
 				key, value = arg.strip.split('=', 2)
 				if value.nil?
-					addon_error("Non-config value \"#{arg}\".  Everything after the addon name should be a key=value pair.")
-					exit 1
+					error("Non-config value \"#{arg}\".\nEverything after the addon name should be a key=value pair")
 				else
 					config[key] = value
 				end
@@ -109,7 +108,7 @@ module Heroku::Command
 				yield
 				'done'
 			rescue RestClient::ResourceNotFound => e
-				addon_error("no addon by that name")
+				"FAILED\nno addon by that name"
 			rescue RestClient::RequestFailed => e
 				if e.http_code == 402
 					confirm_billing ? retry : 'canceled'
