@@ -4,6 +4,10 @@ module Heroku::Command
 			display usage
 		end
 
+		def version
+			display Heroku::Client.version
+		end
+
 		def usage
 			usage = <<EOTXT
 
