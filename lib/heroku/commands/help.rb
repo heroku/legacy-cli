@@ -32,7 +32,6 @@ module Heroku::Command
 
  dynos <qty>                  # scale to qty web processes
  workers <qty>                # scale to qty background processes
- ps                           # list running dynos, workers, and other processes
 
  sharing:add <email>          # add a collaborator
  sharing:remove <email>       # remove a collaborator
