@@ -8,7 +8,7 @@ module Heroku::Command
 
 		it "lists processes" do
 			@cli.heroku.should_receive(:ps).and_return([
-				{ 'command' => 'rake', 'transitioned_at' => Time.now.to_s }
+				{ 'command' => 'rake', 'elapsed' => 3 }
 			])
 			@cli.index
 		end

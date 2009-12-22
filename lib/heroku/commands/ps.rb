@@ -8,23 +8,21 @@ module Heroku::Command
 			output << "-------  ------------  --------------------------  ----------  ---------"
 
 			ps.each do |p|
-				since = time_ago(p['transitioned_at'])
 				output << "%-7s  %-12s  %-26s  %-10s  %-9s" %
-					[p['upid'], p['slug'], truncate(p['command'], 22), p['state'], since]
+					[p['upid'], p['slug'], truncate(p['command'], 22), p['state'], time_ago(p['elapsed'])]
 			end
 
 			display output.join("\n")
 		end
 
 	private
-		def time_ago(time)
-			duration = Time.now - Time.parse(time)
-			if duration < 60
-				"#{duration.floor}s ago"
-			elsif duration < (60 * 60)
-				"#{(duration / 60).floor}m ago"
+		def time_ago(elapsed)
+			if elapsed < 60
+				"#{elapsed.floor}s ago"
+			elsif elapsed < (60 * 60)
+				"#{(elapsed / 60).floor}m ago"
 			else
-				"#{(duration / 60 / 60).floor}h ago"
+				"#{(elapsed / 60 / 60).floor}h ago"
 			end
 		end
 
