@@ -7,7 +7,6 @@ module Heroku::Command
 			output << "UPID     Slug          Command                     State       Since"
 			output << "-------  ------------  --------------------------  ----------  ---------"
 
-			ps.sort! { |a,b| b['transitioned_at'] <=> a['transitioned_at'] }
 			ps.each do |p|
 				since = time_ago(p['transitioned_at'])
 				output << "%-7s  %-12s  %-26s  %-10s  %-9s" %
