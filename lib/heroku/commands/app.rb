@@ -54,10 +54,14 @@ module Heroku::Command
 		def info
 			name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
 			attrs = heroku.info(name)
+			
+			attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
+			attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
+			
 			display "=== #{attrs[:name]}"
-			display "Web URL:        http://#{attrs[:name]}.#{heroku.host}/"
+			display "Web URL:        #{attrs[:web_url]}"
 			display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
-			display "Git Repo:       git@#{heroku.host}:#{attrs[:name]}.git"
+			display "Git Repo:       #{attrs[:git_url]}"
 			display "Dynos:          #{attrs[:dynos]}"
 			display "Workers:        #{attrs[:workers]}"
 			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
