@@ -339,7 +339,7 @@ EOXML
 
 			res = @client.resource('/xyz')
 
-			res.url.should == 'https://heroku.com/xyz'
+			res.url.should == 'https://api.heroku.com/xyz'
 			res.user.should == 'joe@example.com'
 			res.password.should == 'secret'
 		end

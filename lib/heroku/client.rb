@@ -415,7 +415,7 @@ class Heroku::Client
 		if uri =~ /^https?/
 			RestClient::Resource.new(uri, user, password)
 		else
-			RestClient::Resource.new("https://#{host}", user, password)[uri]
+			RestClient::Resource.new("https://api.#{host}", user, password)[uri]
 		end
 	end
 
