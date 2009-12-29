@@ -56,7 +56,7 @@ module Heroku
 					when 1
 						begin
 							return Heroku::Command.const_get(command.capitalize), :index
-						rescue NameError
+						rescue NameError, NoMethodError
 							return Heroku::Command::App, command
 						end
 					when 2
