@@ -55,7 +55,7 @@ module Heroku
 				case parts.size
 					when 1
 						begin
-							return Heroku::Command.const_get(command.capitalize), :index
+							return eval("Heroku::Command::#{command.capitalize}"), :index
 						rescue NameError, NoMethodError
 							return Heroku::Command::App, command
 						end
