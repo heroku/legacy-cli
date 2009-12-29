@@ -244,7 +244,7 @@ class Heroku::Client
 		# Read the next chunk of output.
 		def read
 			chunk = @client.get(@next_chunk)
-			if chunk.nil?
+			if chunk.nil? or chunk == ''
 				# assume no content and back off
 				@interval = 2
 				''
