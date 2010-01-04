@@ -4,7 +4,7 @@ module Heroku::Command
 			list = heroku.bundles(app)
 			if list.size > 0
 				list.each do |bundle|
-					space  = ' ' * [(18 - bundle[:name].size),0].max
+					space  = ' ' * [(18 - bundle[:name].size),1].max
 					display "#{bundle[:name]}" + space + "#{bundle[:state]} #{bundle[:created_at].strftime("%m/%d/%Y %H:%M")}"
 				end
 			else
