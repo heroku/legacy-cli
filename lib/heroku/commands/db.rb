@@ -113,7 +113,7 @@ module Heroku::Command
 		def initialize(*args)
 			super(*args)
 
-			gem 'taps', '>= 0.2.8', '< 0.3.0'
+			gem 'taps', '>= 0.2.23', '< 0.3.0'
 			require 'taps/client_session'
 		rescue LoadError
 			error "Install the Taps gem to use db commands. On most systems this will be:\nsudo gem install taps"
