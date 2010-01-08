@@ -116,7 +116,10 @@ module Heroku::Command
 			gem 'taps', '>= 0.2.23', '< 0.3.0'
 			require 'taps/client_session'
 		rescue LoadError
-			error "Install the Taps gem to use db commands. On most systems this will be:\nsudo gem install taps"
+			message  = "Taps Load Error: #{$!.message}\n"
+			message << "You may need to install or update the taps gem to use db commands.\n"
+			message << "On most systems this will be:\n\nsudo gem install taps"
+			error message
 		end
 	end
 end
