@@ -59,7 +59,7 @@ spec = Gem::Specification.new do |s|
 
 	s.add_dependency('rest-client', '>= 1.2.0', '< 2.0.0')
 	s.add_dependency('launchy', '>=0.3.2')
-	s.add_dependency('json', '>= 1.1.0')
+	s.add_dependency('json', '>= 1.2.0')
 end
 
 Rake::GemPackageTask.new(spec) do |p|
