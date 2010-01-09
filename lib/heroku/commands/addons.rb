@@ -62,16 +62,8 @@ module Heroku::Command
 			end
 		end
 
-		# TODO merge with Account#confirm_billing
 		def confirm_billing
-			display("\n")
-			display("  This action will cause your account to be billed at the end of the month")
-			display("  For more information, see http://docs.heroku.com/billing")
-			display("  Are you sure you want to do this? (y/n) ", false)
-			if ask.downcase == 'y'
-				heroku.confirm_billing
-				return true
-			end
+			Heroku::Command.run_internal 'account:confirm_billing', []
 		end
 
 		private
@@ -110,12 +102,8 @@ module Heroku::Command
 			rescue RestClient::ResourceNotFound => e
 				"FAILED\nno addon by that name"
 			rescue RestClient::RequestFailed => e
-				if e.http_code == 402
-					confirm_billing ? retry : 'canceled'
-				else
-					error = Heroku::Command.extract_error(e.http_body)
-					"FAILED\n" + error
-				end
+				retry if e.http_code == 402 && confirm_billing
+				"FAILED\n" + Heroku::Command.extract_error(e.http_body)
 			end
 	end
 end
