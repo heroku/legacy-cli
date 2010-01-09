@@ -31,9 +31,17 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'fileutils'
 include FileUtils
-require 'lib/heroku'
 
-version = Heroku::Client.version
+begin
+	require 'lib/heroku'
+	version = Heroku::Client.version
+rescue LoadError
+	version = ""
+
+  puts "ERROR: Missing one or more dependencies. Make sure jeweler is installed and run: rake check_dependencies"
+	puts
+end
+
 name = "heroku"
 
 spec = Gem::Specification.new do |s|
