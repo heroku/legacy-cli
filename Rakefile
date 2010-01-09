@@ -65,9 +65,9 @@ spec = Gem::Specification.new do |s|
 	s.require_path = "lib"
 	s.bindir = "bin"
 
-	s.add_dependency('rest-client', '>= 1.2.0', '< 2.0.0')
-	s.add_dependency('launchy', '>=0.3.2')
-	s.add_dependency('json', '>= 1.2.0')
+	s.add_dependency 'rest-client', '~> 1.2'
+	s.add_dependency 'launchy',     '~> 0.3.2'
+	s.add_dependency 'json',        '~> 1.2.0'
 end
 
 Rake::GemPackageTask.new(spec) do |p|
