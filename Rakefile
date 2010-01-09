@@ -65,6 +65,10 @@ spec = Gem::Specification.new do |s|
 	s.require_path = "lib"
 	s.bindir = "bin"
 
+	s.add_development_dependency 'rake'
+	s.add_development_dependency 'rspec', '~> 1.2.0'
+	s.add_development_dependency 'taps',  '~> 0.2.23'
+
 	s.add_dependency 'rest-client', '~> 1.2'
 	s.add_dependency 'launchy',     '~> 0.3.2'
 	s.add_dependency 'json',        '~> 1.2.0'
