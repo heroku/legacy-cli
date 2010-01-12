@@ -23,82 +23,82 @@ module Heroku::Command
 		def self.group(title, &block)
 			groups << begin
 				group = HelpGroup.new(title)
-				group.instance_eval(&block)
+				yield group
 				group
 			end
 		end
 
 		def self.create_default_groups!
-			group('General Commands') do
-				command 'help',                         'show this usage'
-				command 'version',                      'show the gem version'
-				space
-				command 'list',                         'list your apps'
-				command 'create [<name>]',              'create a new app'
-				space
-				command 'keys',                         'show your user\'s public keys'
-				command 'keys:add [<path to keyfile>]', 'add a public key'
-				command 'keys:remove <keyname> ',       'remove a key by name (user@host)'
-				command 'keys:clear',                   'remove all keys'
-				space
-				command 'info',                         'show app info, like web url and git repo'
-				command 'open',                         'open the app in a web browser'
-				command 'rename <newname>',             'rename the app'
-				space
-				command 'dynos <qty>',                  'scale to qty web processes'
-				command 'workers <qty>',                'scale to qty background processes'
-				space
-				command 'sharing:add <email>',          'add a collaborator'
-				command 'sharing:remove <email>',       'remove a collaborator'
-				command 'sharing:transfer <email>',     'transfers the app ownership'
-				space
-				command 'domains:add <domain>',         'add a custom domain name'
-				command 'domains:remove <domain>',      'remove a custom domain name'
-				command 'domains:clear',                'remove all custom domains'
-				space
-				command 'ssl:add <pem> <key>',          'add SSL cert to the app'
-				command 'ssl:remove <domain>',          'removes SSL cert from the app domain'
-				space
-				command 'rake <command>',               'remotely execute a rake command'
-				command 'console <command>',            'remotely execute a single console command'
-				command 'console',                      'start an interactive console to the remote app'
-				space
-				command 'restart',                      'restart app servers'
-				command 'logs',                         'fetch recent log output for debugging'
-				command 'logs:cron',                    'fetch cron log output'
-				space
-				command 'maintenance:on',               'put the app into maintenance mode'
-				command 'maintenance:off',              'take the app out of maintenance mode'
-				space
-				command 'config',                       'display the app\'s config vars (environment)'
-				command 'config:add key=val [...]',     'add one or more config vars'
-				command 'config:remove key [...]',      'remove one or more config vars'
-				command 'config:clear',                 'clear user-set vars and reset to default'
-				space
-				command 'db:pull [<database_url>]',     'pull the app\'s database into a local database'
-				command 'db:push [<database_url>]',     'push a local database into the app\'s remote database'
-				command 'db:reset',                     'reset the database for the app'
-				space
-				command 'bundles',                      'list bundles for the app'
-				command 'bundles:capture [<bundle>]',   'capture a bundle of the app\'s code and data'
-				command 'bundles:download',             'download most recent app bundle as a tarball'
-				command 'bundles:download <bundle>',    'download the named bundle'
-				command 'bundles:animate <bundle>',     'animate a bundle into a new app'
-				command 'bundles:destroy <bundle>',     'destroy the named bundle'
-				space
-				command 'addons',                       'list installed addons'
-				command 'addons:info',                  'list all available addons'
-				command 'addons:add name [key=value]',  'install addon (with zero or more config vars)'
-				command 'addons:remove name',           'uninstall an addons'
-				command 'addons:clear',                 'uninstall all addons'
-				space
-				command 'destroy',                      'destroy the app permanently'
+			group 'General Commands' do |group|
+				group.command 'help',                         'show this usage'
+				group.command 'version',                      'show the gem version'
+				group.space
+				group.command 'list',                         'list your apps'
+				group.command 'create [<name>]',              'create a new app'
+				group.space
+				group.command 'keys',                         'show your user\'s public keys'
+				group.command 'keys:add [<path to keyfile>]', 'add a public key'
+				group.command 'keys:remove <keyname> ',       'remove a key by name (user@host)'
+				group.command 'keys:clear',                   'remove all keys'
+				group.space
+				group.command 'info',                         'show app info, like web url and git repo'
+				group.command 'open',                         'open the app in a web browser'
+				group.command 'rename <newname>',             'rename the app'
+				group.space
+				group.command 'dynos <qty>',                  'scale to qty web processes'
+				group.command 'workers <qty>',                'scale to qty background processes'
+				group.space
+				group.command 'sharing:add <email>',          'add a collaborator'
+				group.command 'sharing:remove <email>',       'remove a collaborator'
+				group.command 'sharing:transfer <email>',     'transfers the app ownership'
+				group.space
+				group.command 'domains:add <domain>',         'add a custom domain name'
+				group.command 'domains:remove <domain>',      'remove a custom domain name'
+				group.command 'domains:clear',                'remove all custom domains'
+				group.space
+				group.command 'ssl:add <pem> <key>',          'add SSL cert to the app'
+				group.command 'ssl:remove <domain>',          'removes SSL cert from the app domain'
+				group.space
+				group.command 'rake <command>',               'remotely execute a rake command'
+				group.command 'console <command>',            'remotely execute a single console command'
+				group.command 'console',                      'start an interactive console to the remote app'
+				group.space
+				group.command 'restart',                      'restart app servers'
+				group.command 'logs',                         'fetch recent log output for debugging'
+				group.command 'logs:cron',                    'fetch cron log output'
+				group.space
+				group.command 'maintenance:on',               'put the app into maintenance mode'
+				group.command 'maintenance:off',              'take the app out of maintenance mode'
+				group.space
+				group.command 'config',                       'display the app\'s config vars (environment)'
+				group.command 'config:add key=val [...]',     'add one or more config vars'
+				group.command 'config:remove key [...]',      'remove one or more config vars'
+				group.command 'config:clear',                 'clear user-set vars and reset to default'
+				group.space
+				group.command 'db:pull [<database_url>]',     'pull the app\'s database into a local database'
+				group.command 'db:push [<database_url>]',     'push a local database into the app\'s remote database'
+				group.command 'db:reset',                     'reset the database for the app'
+				group.space
+				group.command 'bundles',                      'list bundles for the app'
+				group.command 'bundles:capture [<bundle>]',   'capture a bundle of the app\'s code and data'
+				group.command 'bundles:download',             'download most recent app bundle as a tarball'
+				group.command 'bundles:download <bundle>',    'download the named bundle'
+				group.command 'bundles:animate <bundle>',     'animate a bundle into a new app'
+				group.command 'bundles:destroy <bundle>',     'destroy the named bundle'
+				group.space
+				group.command 'addons',                       'list installed addons'
+				group.command 'addons:info',                  'list all available addons'
+				group.command 'addons:add name [key=value]',  'install addon (with zero or more config vars)'
+				group.command 'addons:remove name',           'uninstall an addons'
+				group.command 'addons:clear',                 'uninstall all addons'
+				group.space
+				group.command 'destroy',                      'destroy the app permanently'
 			end
 
-			group('Plugins') do
-				command 'plugins',                      'list installed plugins'
-				command 'plugins:install <url>',        'install the plugin from the specified git url'
-				command 'plugins:uninstall <url/name>', 'remove the specified plugin'
+			group 'Plugins' do |group|
+				group.command 'plugins',                      'list installed plugins'
+				group.command 'plugins:install <url>',        'install the plugin from the specified git url'
+				group.command 'plugins:uninstall <url/name>', 'remove the specified plugin'
 			end
 		end
 
