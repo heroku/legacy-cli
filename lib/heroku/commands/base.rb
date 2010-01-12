@@ -125,6 +125,10 @@ module Heroku::Command
 		def escape(value)
 			heroku.escape(value)
 		end
+
+		def command(command, *args)
+		  Heroku::Command.run_internal command.to_s, args
+		end
 	end
 
 	class BaseWithApp < Base
