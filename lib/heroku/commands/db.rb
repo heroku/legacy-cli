@@ -32,8 +32,8 @@ module Heroku::Command
 				url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
 
 				display("Warning: All data in the '#{app}' database will be erased and will not be recoverable.")
-				display("Are you sure you wish to continue? (y/n)? ", false)
-				if ask.downcase == 'y'
+
+				if confirm
 					heroku.database_reset(app)
 					display "Database reset for '#{app}' (#{url})"
 				end

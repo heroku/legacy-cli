@@ -21,6 +21,11 @@ module Heroku::Command
 			end
 		end
 
+		def confirm(message="Are you sure you wish to continue? (y/n)?")
+			display("#{message} ", false)
+			ask.downcase == 'y'
+		end
+
 		def format_date(date)
 			date = Time.parse(date) if date.is_a?(String)
 			date.strftime("%Y-%m-%d %H:%M %Z")
