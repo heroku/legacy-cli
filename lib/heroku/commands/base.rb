@@ -1,8 +1,10 @@
 require 'fileutils'
+require 'plugin_interface'
 
 module Heroku::Command
 	class Base
 		include Heroku::Helpers
+		include Heroku::PluginInterface
 
 		attr_accessor :args
 		attr_reader :autodetected_app
@@ -124,10 +126,6 @@ module Heroku::Command
 
 		def escape(value)
 			heroku.escape(value)
-		end
-
-		def command(command, *args)
-		  Heroku::Command.run_internal command.to_s, args
 		end
 	end
 
