@@ -12,5 +12,9 @@ module Heroku::Command
 			display lines.join("\n")
 		end
 		alias :index :list
+
+		def migrate
+			display heroku.migrate_to_stack(app, args.shift.downcase)
+		end
 	end
 end

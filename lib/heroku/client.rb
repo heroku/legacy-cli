@@ -147,9 +147,14 @@ class Heroku::Client
 		delete("/user/keys")
 	end
 
-	# Get a list of stacks available to the app.
+	# Get a list of stacks available to the app, with the current one marked.
 	def list_stacks(app_name)
 		JSON.parse resource("/apps/#{app_name}/stack").get(:accept => 'application/json')
+	end
+
+	# Request a stack migration.
+	def migrate_to_stack(app_name, stack)
+		resource("/apps/#{app_name}/stack").put(stack, :accept => 'text/plain')
 	end
 
 	class AppCrashed < RuntimeError; end

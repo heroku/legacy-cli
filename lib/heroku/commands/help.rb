@@ -76,6 +76,7 @@ module Heroku::Command
 				group.command 'config:clear',                 'clear user-set vars and reset to default'
 				group.space
 				group.command 'stack',                        'show current stack and list of available stacks'
+				group.command 'stack:migrate',                'prepare migration of this app to a new stack'
 				group.space
 				group.command 'db:pull [<database_url>]',     'pull the app\'s database into a local database'
 				group.command 'db:push [<database_url>]',     'push a local database into the app\'s remote database'
