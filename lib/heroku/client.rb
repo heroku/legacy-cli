@@ -147,6 +147,11 @@ class Heroku::Client
 		delete("/user/keys")
 	end
 
+	# Get a list of stacks available to the app.
+	def list_stacks(app_name)
+		JSON.parse resource("/apps/#{app_name}/stack").get(:accept => 'application/json')
+	end
+
 	class AppCrashed < RuntimeError; end
 
 	# Run a rake command on the Heroku app and return all output as
