@@ -5,6 +5,8 @@ module Heroku::Command
 			lines = list.map do |stack|
 				if stack['current']
 					"* #{stack['name']}"
+				elsif stack['requested']
+					"  #{stack['name']} (prepared, will migrate on next git push)"					
 				else
 					"  #{stack['name']}"
 				end
