@@ -20,8 +20,9 @@ module Heroku::Command
 
 		def create
 			remote  = extract_option('--remote', 'heroku')
+			stack   = extract_option('--stack', 'aspen-mri-1.8.6')
 			name    = args.shift.downcase.strip rescue nil
-			name    = heroku.create(name, {})
+			name    = heroku.create(name, {:stack => stack})
 			display "Created #{app_urls(name)}"
 			if remote || File.exists?(Dir.pwd + '/.git')
 				remote ||= 'heroku'
