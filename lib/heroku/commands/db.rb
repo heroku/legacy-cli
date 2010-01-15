@@ -8,6 +8,9 @@ module Heroku::Command
 			end
 			raise(CommandFailed, "Invalid database url") if database_url == ''
 
+			# setting local timezone equal to Heroku timezone allowing TAPS to
+			# correctly transfer datetime fields between databases
+			ENV['TZ'] = 'America/Los_Angeles'
 			taps_client(database_url) do |client|
 				client.cmd_receive
 			end
