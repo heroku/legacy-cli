@@ -4,7 +4,7 @@ module Heroku::PluginInterface
 		base.extend Heroku::PluginInterface
 	end
 
-	def default_application_name
+	def selected_application
 		base_command.extract_app
 	rescue Heroku::Command::CommandFailed
 		nil
@@ -16,11 +16,12 @@ module Heroku::PluginInterface
 		end
 	end
 
+	def command(command, *args)
+		Heroku::Command.run_internal command.to_s, args
+	end
+
 	def base_command
 		@base_command ||= Heroku::Command::Base.new(ARGV)
 	end
 
-	def command(command, *args)
-		Heroku::Command.run_internal command.to_s, args
-	end
 end
