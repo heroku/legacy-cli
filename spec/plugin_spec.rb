@@ -28,7 +28,8 @@ module Heroku
 			it "lists installed plugins" do
 				FileUtils.mkdir_p(@sandbox + '/plugin1')
 				FileUtils.mkdir_p(@sandbox + '/plugin2')
-				Plugin.list.should == %w( plugin1 plugin2 )
+				Plugin.list.should include 'plugin1'
+				Plugin.list.should include 'plugin2'
 			end
 
 			it "installs pulling from the plugin url" do

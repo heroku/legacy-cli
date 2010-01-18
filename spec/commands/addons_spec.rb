@@ -27,6 +27,7 @@ module Heroku::Command
 			@addons.stub!(:args).and_return(%w( addon1 ))
 			e = RestClient::RequestFailed.new
 			e.stub!(:http_code).and_return(402)
+			e.stub!(:http_body).and_return('{error:"test"}')
 			@addons.heroku.should_receive(:install_addon).and_raise(e)
 			@addons.should_receive(:confirm_billing).and_return(false)
 			@addons.add

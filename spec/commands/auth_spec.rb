@@ -59,6 +59,7 @@ module Heroku::Command
 		end
 
 		it "preserves the args when running keys:add" do
+			@cli.stub!(:write_credentials)
 			@cli.stub!(:credentials)
 			@cli.stub!(:args).and_return(['mykey.pub'])
 			Heroku::Command.should_receive(:run_internal).with('keys:add', ['mykey.pub'])
