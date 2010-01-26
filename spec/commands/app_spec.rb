@@ -30,13 +30,13 @@ module Heroku::Command
 		end
 
 		it "creates without a name" do
-			@cli.heroku.should_receive(:create).with(nil, {}).and_return("untitled-123")
+			@cli.heroku.should_receive(:create).with(nil, {:stack => nil}).and_return("untitled-123")
 			@cli.create
 		end
 
 		it "creates with a name" do
 			@cli.stub!(:args).and_return([ 'myapp' ])
-			@cli.heroku.should_receive(:create).with('myapp', {}).and_return("myapp")
+			@cli.heroku.should_receive(:create).with('myapp', {:stack => nil}).and_return("myapp")
 			@cli.create
 		end
 
