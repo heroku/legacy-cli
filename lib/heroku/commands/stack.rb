@@ -16,7 +16,12 @@ module Heroku::Command
 		alias :index :list
 
 		def migrate
-			display heroku.migrate_to_stack(app, args.shift.downcase)
+			stack = args.shift.downcase.strip rescue nil
+			if !stack
+				display "Usage: heroku stack:migrate <target_stack>"
+			else
+				display heroku.migrate_to_stack(app, stack)
+			end
 		end
 	end
 end
