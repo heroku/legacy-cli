@@ -20,8 +20,9 @@ module Heroku::Command
 
 		def create
 			remote  = extract_option('--remote', 'heroku')
+			stack   = extract_option('--stack', 'aspen-mri-1.8.6')
 			name    = args.shift.downcase.strip rescue nil
-			name    = heroku.create(name, {})
+			name    = heroku.create(name, {:stack => stack})
 			display "Created #{app_urls(name)}"
 			if remote || File.exists?(Dir.pwd + '/.git')
 				remote ||= 'heroku'
@@ -66,6 +67,7 @@ module Heroku::Command
 			display "Workers:        #{attrs[:workers]}"
 			display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
 			display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
+			display "Stack:          #{attrs[:stack]}" if attrs[:stack]
 			if attrs[:database_size]
 				data = format_bytes(attrs[:database_size])
 				if tables = attrs[:database_tables]
