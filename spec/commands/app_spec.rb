@@ -132,6 +132,7 @@ module Heroku::Command
       it "creates adding heroku to git remote" do
         @cli.heroku.should_receive(:create_request).and_return('myapp')
         @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+        @cli.create
         bash("git remote").strip.should == 'heroku'
       end
 
