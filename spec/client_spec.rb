@@ -97,6 +97,13 @@ EOXML
     end
   end
 
+  it "console returns the response body of a failed request" do
+    stub_request(:post, %r{.*/apps/myapp/console}).to_return({
+      :body => "ERRMSG", :status => 502
+    })
+    lambda { @client.console('myapp') }.should raise_exception(Heroku::Client::AppCrashed, "ERRMSG")
+  end
+
   it "restart(app_name) -> restarts the app servers" do
     @client.should_receive(:resource).with('/apps/myapp/server').and_return(@resource)
     @resource.should_receive(:delete).with(anything)
@@ -164,6 +171,13 @@ EOXML
       @client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
       @resource.should_receive(:post).with({ 'collaborator[email]' => 'joe@example.com'}, anything)
       @client.add_collaborator('myapp', 'joe@example.com')
+    end
+
+    it "add_collaborator returns the response body of a failed request" do
+      stub_request(:post, %r{.*/apps/myapp/collaborators}).to_return({
+        :body => "ERRMSG", :status => 422
+      })
+      @client.add_collaborator('myapp', 'joe@example.com').should == "ERRMSG"
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do

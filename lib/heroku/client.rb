@@ -81,7 +81,7 @@ class Heroku::Client
     xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email }))
   rescue RestClient::RequestFailed => e
     raise e unless e.http_code == 422
-    e.response.body
+    e.response
   end
 
   # Remove a collaborator.
@@ -186,7 +186,7 @@ class Heroku::Client
       run_console_command("/apps/#{app_name}/console", cmd)
     end
   rescue RestClient::RequestFailed => e
-    raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
+    raise(AppCrashed, e.response) if e.response.code.to_i == 502
     raise e
   end
 

@@ -1,11 +1,14 @@
 require 'rubygems'
 require 'spec'
 require 'fileutils'
+require 'webmock/rspec'
 
 require File.dirname(__FILE__) + '/../lib/heroku'
 require 'command'
 require 'commands/base'
 Dir["#{File.dirname(__FILE__)}/../lib/heroku/commands/*"].each { |c| require c }
+
+include WebMock
 
 def prepare_command(klass)
   command = klass.new(['--app', 'myapp'])
