@@ -30,13 +30,15 @@ module Heroku::Command
     end
 
     it "creates without a name" do
-      @cli.heroku.should_receive(:create).with(nil, {:stack => nil}).and_return("untitled-123")
+      @cli.heroku.should_receive(:create_request).with(nil, {:stack => nil}).and_return("untitled-123")
+      @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
       @cli.create
     end
 
     it "creates with a name" do
       @cli.stub!(:args).and_return([ 'myapp' ])
-      @cli.heroku.should_receive(:create).with('myapp', {:stack => nil}).and_return("myapp")
+      @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
+      @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
       @cli.create
     end
 
@@ -128,20 +130,22 @@ module Heroku::Command
       end
 
       it "creates adding heroku to git remote" do
-        @cli.heroku.should_receive(:create).and_return('myapp')
-        @cli.create
+        @cli.heroku.should_receive(:create_request).and_return('myapp')
+        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
         bash("git remote").strip.should == 'heroku'
       end
 
       it "creates adding a custom git remote" do
         @cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
-        @cli.heroku.should_receive(:create).and_return('myapp')
+        @cli.heroku.should_receive(:create_request).and_return('myapp')
+        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
         @cli.create
         bash("git remote").strip.should == 'myremote'
       end
 
       it "doesn't add a git remote if it already exists" do
-        @cli.heroku.should_receive(:create).and_return('myapp')
+        @cli.heroku.should_receive(:create_request).and_return('myapp')
+        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
         bash "git remote add heroku #{@git}"
         @cli.create
       end
