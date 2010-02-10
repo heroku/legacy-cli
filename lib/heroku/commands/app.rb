@@ -21,8 +21,23 @@ module Heroku::Command
     def create
       remote  = extract_option('--remote', 'heroku')
       stack   = extract_option('--stack', 'aspen-mri-1.8.6')
+      timeout = extract_option('--timeout', 30).to_i
       name    = args.shift.downcase.strip rescue nil
-      name    = heroku.create(name, {:stack => stack})
+      name    = heroku.create_request(name, {:stack => stack})
+      display("Creating #{name}..", false)
+      begin
+        Timeout::timeout(timeout) do
+          loop do
+            break if heroku.create_complete?(name)
+            display(".", false)
+            sleep 1
+          end
+        end
+        display " done!"
+      rescue Timeout::Error
+        display "Timed Out! Check heroku info for status updates."
+      end
+
       display "Created #{app_urls(name)}"
       if remote || File.exists?(Dir.pwd + '/.git')
         remote ||= 'heroku'
@@ -55,10 +70,10 @@ module Heroku::Command
     def info
       name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
       attrs = heroku.info(name)
-      
+
       attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
       attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
-      
+
       display "=== #{attrs[:name]}"
       display "Web URL:        #{attrs[:web_url]}"
       display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
@@ -96,6 +111,10 @@ module Heroku::Command
           display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
           first = false
         end
+      end
+
+      if attrs[:create_status] != "complete"
+        display "Create Status:  #{attrs[:create_status]}"
       end
     end
 
