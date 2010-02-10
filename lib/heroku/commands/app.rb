@@ -34,11 +34,11 @@ module Heroku::Command
           end
         end
         display " done!"
+        display "Created #{app_urls(name)}"
       rescue Timeout::Error
         display "Timed Out! Check heroku info for status updates."
       end
 
-      display "Created #{app_urls(name)}"
       if remote || File.exists?(Dir.pwd + '/.git')
         remote ||= 'heroku'
         return if shell('git remote').split("\n").include?(remote)
