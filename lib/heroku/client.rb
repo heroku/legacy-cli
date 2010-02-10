@@ -53,8 +53,21 @@ class Heroku::Client
 
   # Create a new app, with an optional name.
   def create(name=nil, options={})
+    name = create_request(name, options)
+    loop do
+      break if create_complete?(name)
+      sleep 1
+    end
+    name
+  end
+
+  def create_request(name=nil, options={})
     options[:name] = name if name
     xml(post('/apps', :app => options)).elements["//app/name"].text
+  end
+
+  def create_complete?(name)
+    put("/apps/#{name}/status", {}).code == 201
   end
 
   # Update an app.  Available attributes:

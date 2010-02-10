@@ -41,22 +41,30 @@ EOXML
     @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
   end
 
-  it "create -> create a new blank app" do
+  it "create_request -> create a new blank app" do
     @client.should_receive(:resource).with('/apps').and_return(@resource)
     @resource.should_receive(:post).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <app><name>untitled-123</name></app>
 EOXML
-    @client.create.should == "untitled-123"
+    @client.create_request.should == "untitled-123"
   end
 
-  it "create(name) -> create a new blank app with a specified name" do
+  it "create_request(name) -> create a new blank app with a specified name" do
     @client.should_receive(:resource).with('/apps').and_return(@resource)
     @resource.should_receive(:post).with({ :app => { :name => 'newapp' } }, @client.heroku_headers).and_return <<EOXML
 <?xml version="1.0" encoding="UTF-8"?>
 <app><name>newapp</name></app>
 EOXML
-    @client.create("newapp").should == "newapp"
+    @client.create_request("newapp").should == "newapp"
+  end
+
+  it "create_complete?(name) -> checks if a create request is complete" do
+    @response = mock('response')
+    @response.should_receive(:code).and_return(202)
+    @client.should_receive(:resource).with('/apps/myapp/status').and_return(@resource)
+    @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
+    @client.create_complete?('myapp').should be_false
   end
 
   it "update(name, attributes) -> updates existing apps" do
