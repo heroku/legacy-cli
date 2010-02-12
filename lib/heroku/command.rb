@@ -87,7 +87,7 @@ module Heroku
       end
 
       def parse_error_json(body)
-        json = JSON.parse(body)
+        json = JSON.parse(body.to_s)
         json['error']
       rescue JSON::ParserError
       end

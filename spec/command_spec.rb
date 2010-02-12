@@ -12,4 +12,12 @@ describe Heroku::Command do
   it "shows Internal Server Error when the response doesn't contain a XML" do
     Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == ' !   Internal server error'
   end
+
+  it "handles a nil body in parse_error_xml" do
+    lambda { Heroku::Command.parse_error_xml(nil) }.should_not raise_error
+  end
+
+  it "handles a nil body in parse_error_json" do
+    lambda { Heroku::Command.parse_error_json(nil) }.should_not raise_error
+  end
 end
