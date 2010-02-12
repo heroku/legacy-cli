@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{heroku}
-  s.version = "1.7.1"
+  s.version = "1.8.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Heroku"]
-  s.date = %q{2010-02-10}
+  s.date = %q{2010-02-11}
   s.default_executable = %q{heroku}
   s.description = %q{Client library and command-line tool to manage and deploy Rails apps on Heroku.}
   s.email = %q{support@heroku.com}
@@ -73,25 +73,25 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Client library and CLI to deploy Rails apps on Heroku.}
   s.test_files = [
-    "spec/commands/db_spec.rb",
+    "spec/base.rb",
+     "spec/client_spec.rb",
+     "spec/command_spec.rb",
+     "spec/commands/addons_spec.rb",
+     "spec/commands/app_spec.rb",
+     "spec/commands/auth_spec.rb",
+     "spec/commands/base_spec.rb",
      "spec/commands/bundles_spec.rb",
+     "spec/commands/config_spec.rb",
+     "spec/commands/db_spec.rb",
      "spec/commands/domains_spec.rb",
+     "spec/commands/keys_spec.rb",
+     "spec/commands/logs_spec.rb",
+     "spec/commands/maintenance_spec.rb",
+     "spec/commands/plugins_spec.rb",
      "spec/commands/ps_spec.rb",
      "spec/commands/sharing_spec.rb",
-     "spec/commands/logs_spec.rb",
-     "spec/commands/config_spec.rb",
-     "spec/commands/auth_spec.rb",
-     "spec/commands/keys_spec.rb",
-     "spec/commands/base_spec.rb",
-     "spec/commands/maintenance_spec.rb",
-     "spec/commands/addons_spec.rb",
-     "spec/commands/plugins_spec.rb",
      "spec/commands/ssl_spec.rb",
-     "spec/commands/app_spec.rb",
-     "spec/plugin_spec.rb",
-     "spec/base.rb",
-     "spec/command_spec.rb",
-     "spec/client_spec.rb"
+     "spec/plugin_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
