@@ -185,7 +185,7 @@ EOXML
       stub_request(:post, %r{.*/apps/myapp/collaborators}).to_return({
         :body => "ERRMSG", :status => 422
       })
-      @client.add_collaborator('myapp', 'joe@example.com').should == "ERRMSG"
+      @client.add_collaborator('myapp', 'joe@example.com').to_s.should == "ERRMSG"
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
