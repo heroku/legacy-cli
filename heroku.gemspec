@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{heroku}
-  s.version = "1.8.0"
+  s.version = "1.8.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Heroku"]
-  s.date = %q{2010-02-11}
+  s.date = %q{2010-03-02}
   s.default_executable = %q{heroku}
   s.description = %q{Client library and command-line tool to manage and deploy Rails apps on Heroku.}
   s.email = %q{support@heroku.com}
@@ -70,7 +70,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{heroku}
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Client library and CLI to deploy Rails apps on Heroku.}
   s.test_files = [
     "spec/base.rb",
