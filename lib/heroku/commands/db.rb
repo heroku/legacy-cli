@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Heroku::Command
   class Db < BaseWithApp
     def pull
