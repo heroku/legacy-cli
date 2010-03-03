@@ -69,7 +69,9 @@ module Heroku::Command
         else
           return uri_hash_to_url(conf_to_uri_hash(conf))
       end
-    rescue Object => e
+    rescue Exception => ex
+      puts "Error parsing database.yml: #{ex.message}"
+      puts ex.backtrace
       ""
     end
 
