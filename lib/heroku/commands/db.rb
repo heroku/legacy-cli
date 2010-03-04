@@ -90,21 +90,29 @@ module Heroku::Command
       uri
     end
 
+    def userinfo_from_uri(uri)
+      username = uri['username'].to_s
+      password = uri['password'].to_s
+      return nil if username == ''
+
+      userinfo  = ""
+      userinfo << username
+      userinfo << ":" << password if password.length > 0
+      userinfo
+    end
+
     def uri_hash_to_url(uri)
-      url = "#{uri['scheme']}://"
-      if uri['username'].size
-        url += escape(uri['username'])
-        url += ':' + escape(uri['password']) if uri['password']
-        url += "@"
-        url += uri['host'] || '127.0.0.1'
-      else
-        url += uri['host'] if uri['host']
-      end
-      url += uri['port'] if uri['port']
-      url += "/"
-      url += uri['path']
-      url += "?#{uri['query']}" if uri['query']
-      url
+      uri_parts = {
+        :scheme   => uri['scheme'],
+        :userinfo => userinfo_from_uri(uri),
+        :password => uri['password'],
+        :host     => uri['host'] || '127.0.0.1',
+        :port     => uri['port'],
+        :path     => "/%s" % uri['path'],
+        :query    => uri['query'],
+      }
+
+      URI::Generic.build(uri_parts).to_s
     end
 
     def taps_client(database_url, &block)

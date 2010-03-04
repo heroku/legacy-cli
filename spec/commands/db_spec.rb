@@ -38,8 +38,15 @@ module Heroku::Command
     end
 
     it "defaults host to 127.0.0.1 with a username" do
-      @db.stub!(:escape).and_return('user')
       @db.send(:uri_hash_to_url, {'scheme' => 'db', 'username' => 'user', 'path' => 'database'}).should == 'db://user@127.0.0.1/database'
+    end
+
+    it "handles the lack of a username properly" do
+      @db.send(:uri_hash_to_url, {'scheme' => 'db', 'path' => 'database'}).should == 'db://127.0.0.1/database'
+    end
+
+    it "handles integer port number" do
+      @db.send(:uri_hash_to_url, {'scheme' => 'db', 'path' => 'database', 'port' => 9000}).should == 'db://127.0.0.1:9000/database'
     end
   end
 end
