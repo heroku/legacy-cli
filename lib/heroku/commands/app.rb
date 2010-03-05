@@ -24,7 +24,7 @@ module Heroku::Command
       timeout = extract_option('--timeout', 30).to_i
       name    = args.shift.downcase.strip rescue nil
       name    = heroku.create_request(name, {:stack => stack})
-      display("Creating #{name}..", false)
+      display("Creating #{name}...", false)
       begin
         Timeout::timeout(timeout) do
           loop do
@@ -33,7 +33,7 @@ module Heroku::Command
             sleep 1
           end
         end
-        display " done!"
+        display " done"
         display "Created #{app_urls(name)}"
       rescue Timeout::Error
         display "Timed Out! Check heroku info for status updates."
