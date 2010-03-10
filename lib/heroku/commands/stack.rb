@@ -6,7 +6,7 @@ module Heroku::Command
         if stack['current']
           "* #{stack['name']}"
         elsif stack['requested']
-          "  #{stack['name']} (prepared, will migrate on next git push)"          
+          "  #{stack['name']} (prepared, will migrate on next git push)"
         else
           "  #{stack['name']}"
         end
