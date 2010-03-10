@@ -3,13 +3,10 @@ module Heroku::Command
     def list
       list = heroku.list_stacks(app)
       lines = list.map do |stack|
-        if stack['current']
-          "* #{stack['name']}"
-        elsif stack['requested']
-          "  #{stack['name']} (prepared, will migrate on next git push)"
-        else
-          "  #{stack['name']}"
-        end
+        row = [stack['current'] ? '*' : ' ', stack['name']]
+        row << '(beta)' if stack['beta']
+        row << '(prepared, will migrate on next git push)' if stack['requested']
+        row.join(' ')
       end
       display lines.join("\n")
     end
