@@ -46,7 +46,7 @@ Meta
 
 Created by Adam Wiggins
 
-Maintained by Pedro Belo
+Maintained by David Dollar
 
 Patches contributed by:
 
