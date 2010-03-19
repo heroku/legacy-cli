@@ -94,16 +94,16 @@ class Heroku::Client
     xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email }).to_s)
   rescue RestClient::RequestFailed => e
     raise e unless e.http_code == 422
-    e.response.to_s
+    e.response.body
   end
 
   # Remove a collaborator.
   def remove_collaborator(app_name, email)
-    delete("/apps/#{app_name}/collaborators/#{escape(email)}").to_s
+    delete("/apps/#{app_name}/collaborators/#{escape(email)}").body
   end
 
   def list_domains(app_name)
-    doc = xml(get("/apps/#{app_name}/domains").to_s)
+    doc = xml(get("/apps/#{app_name}/domains").body)
     doc.elements.to_a("//domain-names/*").map do |d|
       attrs = { :domain => d.elements['domain'].text }
       if cert = d.elements['cert']
@@ -118,28 +118,28 @@ class Heroku::Client
   end
 
   def add_domain(app_name, domain)
-    post("/apps/#{app_name}/domains", domain).to_s
+    post("/apps/#{app_name}/domains", domain).body
   end
 
   def remove_domain(app_name, domain)
-    delete("/apps/#{app_name}/domains/#{domain}").to_s
+    delete("/apps/#{app_name}/domains/#{domain}").body
   end
 
   def remove_domains(app_name)
-    delete("/apps/#{app_name}/domains").to_s
+    delete("/apps/#{app_name}/domains").body
   end
 
   def add_ssl(app_name, pem, key)
-    JSON.parse(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
+    JSON.parse(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).body)
   end
 
   def remove_ssl(app_name, domain)
-    delete("/apps/#{app_name}/domains/#{domain}/ssl").to_s
+    delete("/apps/#{app_name}/domains/#{domain}/ssl").body
   end
 
   # Get the list of ssh public keys for the current user.
   def keys
-    doc = xml get('/user/keys').to_s
+    doc = xml get('/user/keys').body
     doc.elements.to_a('//keys/key').map do |key|
       key.elements['contents'].text
     end
@@ -147,27 +147,27 @@ class Heroku::Client
 
   # Add an ssh public key to the current user.
   def add_key(key)
-    post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' }).to_s
+    post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' }).body
   end
 
   # Remove an existing ssh public key from the current user.
   def remove_key(key)
-    delete("/user/keys/#{escape(key)}").to_s
+    delete("/user/keys/#{escape(key)}").body
   end
 
   # Clear all keys on the current user.
   def remove_all_keys
-    delete("/user/keys").to_s
+    delete("/user/keys").body
   end
 
   # Get a list of stacks available to the app, with the current one marked.
   def list_stacks(app_name)
-    JSON.parse resource("/apps/#{app_name}/stack").get(:accept => 'application/json').to_s
+    JSON.parse resource("/apps/#{app_name}/stack").get(:accept => 'application/json').body
   end
 
   # Request a stack migration.
   def migrate_to_stack(app_name, stack)
-    resource("/apps/#{app_name}/stack").put(stack, :accept => 'text/plain').to_s
+    resource("/apps/#{app_name}/stack").put(stack, :accept => 'text/plain').body
   end
 
   class AppCrashed < RuntimeError; end
@@ -192,20 +192,20 @@ class Heroku::Client
   # cmd is nil.
   def console(app_name, cmd=nil)
     if block_given?
-      id = post("/apps/#{app_name}/consoles").to_s
+      id = post("/apps/#{app_name}/consoles").body
       yield ConsoleSession.new(id, app_name, self)
-      delete("/apps/#{app_name}/consoles/#{id}").to_s
+      delete("/apps/#{app_name}/consoles/#{id}").body
     else
       run_console_command("/apps/#{app_name}/console", cmd)
     end
   rescue RestClient::RequestFailed => e
-    raise(AppCrashed, e.response.to_s) if e.response.code.to_i == 502
+    raise(AppCrashed, e.response.body) if e.response.code.to_i == 502
     raise e
   end
 
   # internal method to run console commands formatting the output
   def run_console_command(url, command, prefix=nil)
-    output = post(url, command).to_s
+    output = post(url, command).body
     return output unless prefix
     if output.include?("\n")
       lines  = output.split("\n")
@@ -235,7 +235,7 @@ class Heroku::Client
         command,
         :content_type => 'text/plain'
       )
-      @next_chunk = @response.to_s
+      @next_chunk = @response.body
       @interval = 0
       self
     rescue RestClient::RequestFailed => e
@@ -248,7 +248,7 @@ class Heroku::Client
         "/apps/#{@app}/services/#{@upid}",
         action,
         :content_type => 'text/plain'
-      ).to_s
+      ).body
       self
     rescue RestClient::RequestFailed => e
       raise AppCrashed, e.http_body  if e.http_code == 502
@@ -267,7 +267,7 @@ class Heroku::Client
     # Read the next chunk of output.
     def read
       chunk = @client.get(@next_chunk)
-      if chunk.to_s.nil? or chunk.to_s == ''
+      if chunk.body.nil? or chunk.body == ''
         # assume no content and back off
         @interval = 2
         ''
@@ -275,11 +275,11 @@ class Heroku::Client
         # some data read and next chunk available
         @next_chunk = location
         @interval = 0
-        chunk.to_s
+        chunk.body
       else
         # no more chunks
         @next_chunk = nil
-        chunk.to_s
+        chunk.body
       end
     end
 
@@ -302,7 +302,7 @@ class Heroku::Client
 
   # Retreive ps list for the given app name.
   def ps(app_name)
-    JSON.parse resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+    JSON.parse resource("/apps/#{app_name}/ps").get(:accept => 'application/json').body
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
@@ -334,54 +334,54 @@ class Heroku::Client
 
   # Restart the app servers.
   def restart(app_name)
-    delete("/apps/#{app_name}/server").to_s
+    delete("/apps/#{app_name}/server").body
   end
 
   # Fetch recent logs from the app server.
   def logs(app_name)
-    get("/apps/#{app_name}/logs").to_s
+    get("/apps/#{app_name}/logs").body
   end
 
   # Fetch recent cron logs from the app server.
   def cron_logs(app_name)
-    get("/apps/#{app_name}/cron_logs").to_s
+    get("/apps/#{app_name}/cron_logs").body
   end
 
   # Scales the web processes.
   def set_dynos(app_name, qty)
-    put("/apps/#{app_name}/dynos", :dynos => qty).to_s.to_i
+    put("/apps/#{app_name}/dynos", :dynos => qty).body.to_i
   end
 
   # Scales the background processes.
   def set_workers(app_name, qty)
-    put("/apps/#{app_name}/workers", :workers => qty).to_s.to_i
+    put("/apps/#{app_name}/workers", :workers => qty).body.to_i
   end
 
   # Capture a bundle from the given app, as a backup or for download.
   def bundle_capture(app_name, bundle_name=nil)
-    xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name }).to_s).elements["//bundle/name"].text
+    xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name }).body).elements["//bundle/name"].text
   end
 
   def bundle_destroy(app_name, bundle_name)
-    delete("/apps/#{app_name}/bundles/#{bundle_name}").to_s
+    delete("/apps/#{app_name}/bundles/#{bundle_name}").body
   end
 
   # Get a temporary URL where the bundle can be downloaded.
   # If bundle_name is nil it will use the most recently captured bundle for the app
   def bundle_url(app_name, bundle_name=nil)
-    bundle = JSON.parse(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
+    bundle = JSON.parse(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).body)
     bundle['temporary_url']
   end
 
   def bundle_download(app_name, fname, bundle_name=nil)
     warn "[DEPRECATION] `bundle_download` is deprecated. Please use `bundle_url` instead"
-    data = RestClient.get(bundle_url(app_name, bundle_name)).to_s
+    data = RestClient.get(bundle_url(app_name, bundle_name)).body
     File.open(fname, "wb") { |f| f.write data }
   end
 
   # Get a list of bundles of the app.
   def bundles(app_name)
-    doc = xml(get("/apps/#{app_name}/bundles").to_s)
+    doc = xml(get("/apps/#{app_name}/bundles").body)
     doc.elements.to_a("//bundles/bundle").map do |a|
       {
         :name => a.elements['name'].text,
@@ -392,39 +392,39 @@ class Heroku::Client
   end
 
   def config_vars(app_name)
-    JSON.parse get("/apps/#{app_name}/config_vars").to_s
+    JSON.parse get("/apps/#{app_name}/config_vars").body
   end
 
   def add_config_vars(app_name, new_vars)
-    put("/apps/#{app_name}/config_vars", new_vars.to_json).to_s
+    put("/apps/#{app_name}/config_vars", new_vars.to_json).body
   end
 
   def remove_config_var(app_name, key)
-    delete("/apps/#{app_name}/config_vars/#{key}").to_s
+    delete("/apps/#{app_name}/config_vars/#{key}").body
   end
 
   def clear_config_vars(app_name)
-    delete("/apps/#{app_name}/config_vars").to_s
+    delete("/apps/#{app_name}/config_vars").body
   end
 
   def addons
-    JSON.parse get("/addons", :accept => 'application/json').to_s
+    JSON.parse get("/addons", :accept => 'application/json').body
   end
 
   def installed_addons(app_name)
-    JSON.parse get("/apps/#{app_name}/addons", :accept => 'application/json').to_s
+    JSON.parse get("/apps/#{app_name}/addons", :accept => 'application/json').body
   end
 
   def install_addon(app_name, addon, config={})
-    post("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').to_s
+    post("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').body
   end
 
   def uninstall_addon(app_name, addon)
-    delete("/apps/#{app_name}/addons/#{escape(addon)}", :accept => 'application/json').to_s
+    delete("/apps/#{app_name}/addons/#{escape(addon)}", :accept => 'application/json').body
   end
 
   def confirm_billing
-    post("/user/#{escape(@user)}/confirm_billing").to_s
+    post("/user/#{escape(@user)}/confirm_billing").body
   end
 
   def on_warning(&blk)
@@ -496,19 +496,19 @@ class Heroku::Client
   end
 
   def database_session(app_name)
-    post("/apps/#{app_name}/database/session", '').to_s
+    post("/apps/#{app_name}/database/session", '').body
   end
 
   def database_reset(app_name)
-    post("/apps/#{app_name}/database/reset", '').to_s
+    post("/apps/#{app_name}/database/reset", '').body
   end
 
   def maintenance(app_name, mode)
     mode = mode == :on ? '1' : '0'
-    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
+    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).body
   end
 
 	def httpcache_purge(app_name)
-		delete("/apps/#{app_name}/httpcache").to_s
+		delete("/apps/#{app_name}/httpcache").body
 	end
 end
