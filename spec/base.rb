@@ -10,6 +10,10 @@ Dir["#{File.dirname(__FILE__)}/../lib/heroku/commands/*"].each { |c| require c }
 
 include WebMock
 
+def stub_api_request(method, path)
+  stub_request(method, "https://api.heroku.com#{path}")
+end
+
 def prepare_command(klass)
   command = klass.new(['--app', 'myapp'])
   command.stub!(:args).and_return([])

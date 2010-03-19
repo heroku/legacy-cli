@@ -8,14 +8,13 @@ describe Heroku::Client do
   end
 
   it "list -> get a list of this user's apps" do
-    @client.should_receive(:resource).with('/apps').and_return(@resource)
-    @resource.should_receive(:get).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<apps type="array">
-  <app><name>myapp1</name><owner>test@heroku.com</owner></app>
-  <app><name>myapp2</name><owner>test@heroku.com</owner></app>
-</apps>
-EOXML
+    stub_api_request(:get, "/apps").to_return(:body => <<-EOXML)
+      <?xml version='1.0' encoding='UTF-8'?>
+      <apps type="array">
+        <app><name>myapp1</name><owner>test@heroku.com</owner></app>
+        <app><name>myapp2</name><owner>test@heroku.com</owner></app>
+      </apps>
+    EOXML
     @client.list.should == [
       ["myapp1", "test@heroku.com"],
       ["myapp2", "test@heroku.com"]
@@ -23,39 +22,36 @@ EOXML
   end
 
   it "info -> get app attributes" do
-    @client.should_receive(:resource).with('/apps/myapp').and_return(@resource)
-    @resource.should_receive(:get).and_return <<EOXML
-<?xml version='1.0' encoding='UTF-8'?>
-<app>
-  <blessed type='boolean'>true</blessed>
-  <created-at type='datetime'>2008-07-08T17:21:50-07:00</created-at>
-  <id type='integer'>49134</id>
-  <name>testgems</name>
-  <production type='boolean'>true</production>
-  <share-public type='boolean'>true</share-public>
-  <domain_name/>
-</app>
-EOXML
+    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+      <?xml version='1.0' encoding='UTF-8'?>
+      <app>
+        <blessed type='boolean'>true</blessed>
+        <created-at type='datetime'>2008-07-08T17:21:50-07:00</created-at>
+        <id type='integer'>49134</id>
+        <name>myapp</name>
+        <production type='boolean'>true</production>
+        <share-public type='boolean'>true</share-public>
+        <domain_name/>
+      </app>
+    EOXML
     @client.stub!(:list_collaborators).and_return([:jon, :mike])
     @client.stub!(:installed_addons).and_return([:addon1])
-    @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'testgems', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
+    @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'myapp', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
   end
 
   it "create_request -> create a new blank app" do
-    @client.should_receive(:resource).with('/apps').and_return(@resource)
-    @resource.should_receive(:post).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<app><name>untitled-123</name></app>
-EOXML
+    stub_api_request(:post, "/apps").with(:body => "").to_return(:body => <<-EOXML)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <app><name>untitled-123</name></app>
+    EOXML
     @client.create_request.should == "untitled-123"
   end
 
   it "create_request(name) -> create a new blank app with a specified name" do
-    @client.should_receive(:resource).with('/apps').and_return(@resource)
-    @resource.should_receive(:post).with({ :app => { :name => 'newapp' } }, @client.heroku_headers).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<app><name>newapp</name></app>
-EOXML
+    stub_api_request(:post, "/apps").with(:body => "app[name]=newapp").to_return(:body => <<-EOXML)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <app><name>newapp</name></app>
+    EOXML
     @client.create_request("newapp").should == "newapp"
   end
 
@@ -68,37 +64,30 @@ EOXML
   end
 
   it "update(name, attributes) -> updates existing apps" do
-    @client.should_receive(:resource).with('/apps/myapp').and_return(@resource)
-    @resource.should_receive(:put).with({ :app => { :mode => 'production', :public => true } }, anything)
-    @client.update("myapp", :mode => 'production', :public => true)
+    stub_api_request(:put, "/apps/myapp").with(:body => "app[mode]=production")
+    @client.update("myapp", :mode => 'production')
   end
 
   it "destroy(name) -> destroy the named app" do
-    @client.should_receive(:resource).with('/apps/destroyme').and_return(@resource)
-    @resource.should_receive(:delete)
+    stub_api_request(:delete, "/apps/destroyme")
     @client.destroy("destroyme")
   end
 
   it "rake(app_name, cmd) -> run a rake command on the app" do
-    @client.should_receive(:resource).with('/apps/myapp/services').and_return(@resource)
-    @resource.should_receive(:post).with('rake db:migrate', @client.heroku_headers.merge(:content_type => 'text/plain'))
+    stub_api_request(:post, "/apps/myapp/services").with(:body => "rake db:migrate").to_return(:body => "foo")
+    stub_api_request(:get,  "/foo").to_return(:body => "output")
     @client.rake('myapp', 'db:migrate')
   end
 
   it "console(app_name, cmd) -> run a console command on the app" do
-    @client.should_receive(:resource).with('/apps/myapp/console').and_return(@resource)
-    @resource.should_receive(:post).with('2+2', @client.heroku_headers)
+    stub_api_request(:post, "/apps/myapp/console").with(:body => "2+2")
     @client.console('myapp', '2+2')
   end
 
   it "console(app_name) { |c| } -> opens a console session, yields one accessor and closes it after the block" do
-    @resources = %w( open run close ).inject({}) { |h, r| h[r] = mock("resource for console #{r}"); h }
-    @client.should_receive(:resource).with('/apps/myapp/consoles').and_return(@resources['open'])
-    @client.should_receive(:resource).with('/apps/myapp/consoles/42/command').and_return(@resources['run'])
-    @client.should_receive(:resource).with('/apps/myapp/consoles/42').and_return(@resources['close'])
-    @resources['open'].should_receive(:post).and_return(42)
-    @resources['run'].should_receive(:post).with("1+1", anything).and_return('2')
-    @resources['close'].should_receive(:delete)
+    stub_api_request(:post,   "/apps/myapp/consoles").to_return(:body => "consolename")
+    stub_api_request(:post,   "/apps/myapp/consoles/consolename/command").with(:body => "1+1").to_return(:body => "2")
+    stub_api_request(:delete, "/apps/myapp/consoles/consolename")
 
     @client.console('myapp') do |c|
       c.run("1+1").should == '=> 2'
@@ -113,26 +102,22 @@ EOXML
   end
 
   it "restart(app_name) -> restarts the app servers" do
-    @client.should_receive(:resource).with('/apps/myapp/server').and_return(@resource)
-    @resource.should_receive(:delete).with(anything)
+    stub_api_request(:delete, "/apps/myapp/server")
     @client.restart('myapp')
   end
 
   it "logs(app_name) -> returns recent output of the app logs" do
-    @client.should_receive(:resource).with('/apps/myapp/logs').and_return(@resource)
-    @resource.should_receive(:get).and_return('log')
+    stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "log")
     @client.logs('myapp').should == 'log'
   end
 
   it "cron_logs(app_name) -> returns recent output of the app logs" do
-    @client.should_receive(:resource).with('/apps/myapp/cron_logs').and_return(@resource)
-    @resource.should_receive(:get).and_return('cron log')
+    stub_api_request(:get, "/apps/myapp/cron_logs").to_return(:body => "cron log")
     @client.cron_logs('myapp').should == 'cron log'
   end
 
   it "set_dynos(app_name, qty) -> scales the app" do
-    @client.should_receive(:resource).with('/apps/myapp/dynos').and_return(@resource)
-    @resource.should_receive(:put).with({ :dynos => 3 }, anything)
+    stub_api_request(:put, "/apps/myapp/dynos").with(:body => "dynos=3")
     @client.set_dynos('myapp', 3)
   end
 
@@ -154,21 +139,20 @@ EOXML
 
   describe "bundles" do
     it "gives a temporary URL where the bundle can be downloaded" do
-      @client.should_receive(:get).with("/apps/myapp/bundles/latest", {:accept=>"application/json"}).and_return("{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
+      stub_api_request(:get, "/apps/myapp/bundles/latest").to_return(:body => "{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
       @client.bundle_url('myapp').should == 'https://s3.amazonaws.com/herokubundles/123.tar.gz'
     end
   end
 
   describe "collaborators" do
     it "list(app_name) -> list app collaborators" do
-      @client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
-      @resource.should_receive(:get).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<collaborators type="array">
-  <collaborator><email>joe@example.com</email></collaborator>
-  <collaborator><email>jon@example.com</email></collaborator>
-</collaborators>
-EOXML
+      stub_api_request(:get, "/apps/myapp/collaborators").to_return(:body => <<-EOXML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <collaborators type="array">
+          <collaborator><email>joe@example.com</email></collaborator>
+          <collaborator><email>jon@example.com</email></collaborator>
+        </collaborators>
+      EOXML
       @client.list_collaborators('myapp').should == [
         { :email => 'joe@example.com' },
         { :email => 'jon@example.com' }
@@ -176,8 +160,7 @@ EOXML
     end
 
     it "add_collaborator(app_name, email) -> adds collaborator to app" do
-      @client.should_receive(:resource).with('/apps/myapp/collaborators').and_return(@resource)
-      @resource.should_receive(:post).with({ 'collaborator[email]' => 'joe@example.com'}, anything)
+      stub_api_request(:post, "/apps/myapp/collaborators").with(:body => "collaborator%5Bemail%5D=joe%40example.com")
       @client.add_collaborator('myapp', 'joe@example.com')
     end
 
@@ -189,162 +172,138 @@ EOXML
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
-      @client.should_receive(:resource).with('/apps/myapp/collaborators/joe%40example%2Ecom').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/collaborators/joe%40example%2Ecom")
       @client.remove_collaborator('myapp', 'joe@example.com')
     end
   end
 
   describe "domain names" do
     it "list(app_name) -> list app domain names" do
-      @client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
-      @resource.should_receive(:get).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<domain-names type="array">
-  <domain-name><domain>example1.com</domain></domain-name>
-  <domain-name><domain>example2.com</domain></domain-name>
-</domain-names>
-EOXML
+      stub_api_request(:get, "/apps/myapp/domains").to_return(:body => <<-EOXML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <domain-names type="array">
+          <domain-name><domain>example1.com</domain></domain-name>
+          <domain-name><domain>example2.com</domain></domain-name>
+        </domain-names>
+      EOXML
       @client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
     end
 
     it "add_domain(app_name, domain) -> adds domain name to app" do
-      @client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
-      @resource.should_receive(:post).with('example.com', anything)
+      stub_api_request(:post, "/apps/myapp/domains").with(:body => "example.com")
       @client.add_domain('myapp', 'example.com')
     end
 
     it "remove_domain(app_name, domain) -> removes domain name from app" do
-      @client.should_receive(:resource).with('/apps/myapp/domains/example.com').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/domains/example.com")
       @client.remove_domain('myapp', 'example.com')
     end
 
     it "remove_domains(app_name) -> removes all domain names from app" do
-      @client.should_receive(:resource).with('/apps/myapp/domains').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/domains")
       @client.remove_domains('myapp')
     end
 
     it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do
-      @client.should_receive(:resource).with('/apps/myapp/ssl').and_return(@resource)
-      @resource.should_receive(:post).with({ :pem => 'pem', :key => 'key' }, anything).and_return('{}')
+      stub_api_request(:post, "/apps/myapp/ssl").with(:body => "key=key&pem=pem").to_return(:body => "{}")
       @client.add_ssl('myapp', 'pem', 'key')
     end
 
     it "remove_ssl(app_name, domain) -> removes the ssl cert for the domain" do
-      @client.should_receive(:resource).with('/apps/myapp/domains/example.com/ssl').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/domains/example.com/ssl")
       @client.remove_ssl('myapp', 'example.com')
     end
   end
 
   describe "ssh keys" do
     it "fetches a list of the user's current keys" do
-      @client.should_receive(:resource).with('/user/keys').and_return(@resource)
-      @resource.should_receive(:get).and_return <<EOXML
-<?xml version="1.0" encoding="UTF-8"?>
-<keys type="array">
-  <key>
-    <contents>ssh-dss thekey== joe@workstation</contents>
-  </key>
-</keys>
-EOXML
+      stub_api_request(:get, "/user/keys").to_return(:body => <<-EOXML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <keys type="array">
+          <key>
+            <contents>ssh-dss thekey== joe@workstation</contents>
+          </key>
+        </keys>
+      EOXML
       @client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
     end
 
     it "add_key(key) -> add an ssh key (e.g., the contents of id_rsa.pub) to the user" do
-      @client.should_receive(:resource).with('/user/keys').and_return(@resource)
-      @client.stub!(:heroku_headers).and_return({})
-      @resource.should_receive(:post).with('a key', 'Content-Type' => 'text/ssh-authkey')
+      stub_api_request(:post, "/user/keys").with(:body => "a key")
       @client.add_key('a key')
     end
 
     it "remove_key(key) -> remove an ssh key by name (user@box)" do
-      @client.should_receive(:resource).with('/user/keys/joe%40workstation').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/user/keys/joe%40workstation")
       @client.remove_key('joe@workstation')
     end
 
     it "remove_all_keys -> removes all ssh keys for the user" do
-      @client.should_receive(:resource).with('/user/keys').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/user/keys")
       @client.remove_all_keys
     end
 
     it "database_session(app_name) -> creates a taps database session" do
-      @client.should_receive(:resource).with('/apps/myapp/database/session').and_return(@resource)
-      @resource.should_receive(:post).with('', anything)
+      stub_api_request(:post, "/apps/myapp/database/session")
       @client.database_session('myapp')
     end
 
     it "database_reset(app_name) -> reset an app's database" do
-      @client.should_receive(:resource).with('/apps/myapp/database/reset').and_return(@resource)
-      @resource.should_receive(:post).with('', anything)
+      stub_api_request(:post, "/apps/myapp/database/reset")
       @client.database_reset('myapp')
     end
 
     it "maintenance(app_name, :on) -> sets maintenance mode for an app" do
-      @client.should_receive(:resource).with('/apps/myapp/server/maintenance').and_return(@resource)
-      @resource.should_receive(:post).with({:maintenance_mode => '1'}, anything)
+      stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=1")
       @client.maintenance('myapp', :on)
     end
 
     it "maintenance(app_name, :off) -> turns off maintenance mode for an app" do
-      @client.should_receive(:resource).with('/apps/myapp/server/maintenance').and_return(@resource)
-      @resource.should_receive(:post).with({:maintenance_mode => '0'}, anything)
+      stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=0")
       @client.maintenance('myapp', :off)
     end
   end
 
   describe "config vars" do
     it "config_vars(app_name) -> json hash of config vars for the app" do
-      @client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
-      @resource.should_receive(:get).and_return '{"A":"one", "B":"two"}'
+      stub_api_request(:get, "/apps/myapp/config_vars").to_return(:body => '{"A":"one", "B":"two"}')
       @client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
     end
 
     it "add_config_vars(app_name, vars)" do
-      @client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
-      @resource.should_receive(:put).with('{"x":"y"}', anything)
+      stub_api_request(:put, "/apps/myapp/config_vars").with(:body => '{"x":"y"}')
       @client.add_config_vars('myapp', {:x => 'y'})
     end
 
     it "remove_config_var(app_name, key)" do
-      @client.should_receive(:resource).with('/apps/myapp/config_vars/mykey').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/config_vars/mykey")
       @client.remove_config_var('myapp', 'mykey')
     end
 
     it "clear_config_vars(app_name) -> resets all config vars for this app" do
-      @client.should_receive(:resource).with('/apps/myapp/config_vars').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/config_vars")
       @client.clear_config_vars('myapp')
     end
   end
 
   describe "addons" do
     it "addons -> array with addons available for installation" do
-      @client.should_receive(:resource).with('/addons').and_return(@resource)
-      @resource.should_receive(:get).and_return '[{"name":"addon1"}, {"name":"addon2"}]'
+      stub_api_request(:get, "/addons").to_return(:body => '[{"name":"addon1"}, {"name":"addon2"}]')
       @client.addons.should == [{'name' => 'addon1'}, {'name' => 'addon2'}]
     end
 
     it "installed_addons(app_name) -> array of installed addons" do
-      @client.should_receive(:resource).with('/apps/myapp/addons').and_return(@resource)
-      @resource.should_receive(:get).and_return '[{"name":"addon1"}]'
+      stub_api_request(:get, "/apps/myapp/addons").to_return(:body => '[{"name":"addon1"}]')
       @client.installed_addons('myapp').should == [{'name' => 'addon1'}]
     end
 
     it "install_addon(app_name, addon_name)" do
-      @client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
-      @resource.should_receive(:post)
+      stub_api_request(:post, "/apps/myapp/addons/addon1")
       @client.install_addon('myapp', 'addon1')
     end
 
     it "uninstall_addon(app_name, addon_name)" do
-      @client.should_receive(:resource).with('/apps/myapp/addons/addon1').and_return(@resource)
-      @resource.should_receive(:delete)
+      stub_api_request(:delete, "/apps/myapp/addons/addon1")
       @client.uninstall_addon('myapp', 'addon1')
     end
   end
