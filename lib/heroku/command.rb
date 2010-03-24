@@ -9,7 +9,10 @@ module Heroku
     class InvalidCommand < RuntimeError; end
     class CommandFailed  < RuntimeError; end
 
+    extend Heroku::Helpers
+
     class << self
+
       def run(command, args, retries=0)
         Heroku::Plugin.load!
         begin
@@ -43,11 +46,6 @@ module Heroku
         runner = klass.new(args, heroku)
         raise InvalidCommand unless runner.respond_to?(method)
         runner.send(method)
-      end
-
-      def error(msg)
-        STDERR.puts(msg)
-        exit 1
       end
 
       def parse(command)

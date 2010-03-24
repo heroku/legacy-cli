@@ -14,15 +14,6 @@ module Heroku::Command
       @autodetected_app = false
     end
 
-    def display(msg, newline=true)
-      if newline
-        puts(msg)
-      else
-        print(msg)
-        STDOUT.flush
-      end
-    end
-
     def confirm(message="Are you sure you wish to continue? (y/n)?")
       display("#{message} ", false)
       ask.downcase == 'y'
@@ -31,10 +22,6 @@ module Heroku::Command
     def format_date(date)
       date = Time.parse(date) if date.is_a?(String)
       date.strftime("%Y-%m-%d %H:%M %Z")
-    end
-
-    def error(msg)
-      Heroku::Command.error(msg)
     end
 
     def ask
