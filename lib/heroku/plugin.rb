@@ -13,7 +13,7 @@ module Heroku
     end
 
     def self.list
-      Dir["#{directory}/*"].map do |folder|
+      Dir["#{directory}/*"].sort.map do |folder|
         File.basename(folder)
       end
     end
