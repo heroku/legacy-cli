@@ -22,7 +22,11 @@ module Heroku
       list.each do |plugin|
         folder = "#{self.directory}/#{plugin}"
         $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
-        load "#{folder}/init.rb" if File.exists?    "#{folder}/init.rb"
+        begin
+          load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
+        rescue Exception => e
+          display "Unable to load plugin: some_plugin: #{e.message}"
+        end
       end
     end
 

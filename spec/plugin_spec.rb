@@ -60,6 +60,31 @@ module Heroku
         Plugin.load!
         LoadedInit.should be_true
       end
+
+      describe "when there are plugin load errors" do
+        before(:each) do
+          FileUtils.mkdir_p(@sandbox + '/some_plugin/lib')
+          File.open(@sandbox + '/some_plugin/init.rb', 'w') { |f| f.write "require 'some_non_existant_file'" }
+        end
+
+        it "should not throw an error" do
+          Plugin.stub!(:display)
+          lambda { Plugin.load! }.should_not raise_error
+        end
+
+        it "should fail gracefully" do
+          Plugin.should_receive(:display).with(/Unable to load plugin: some_plugin/)
+          Plugin.load!
+        end
+
+        it "should still load other plugins" do
+          Plugin.stub!(:display)
+          FileUtils.mkdir_p(@sandbox + '/some_plugin_2/lib')
+          File.open(@sandbox + '/some_plugin_2/init.rb', 'w') { |f| f.write "LoadedPlugin2 = true" }
+          Plugin.load!
+          LoadedPlugin2.should be_true
+        end
+      end
     end
   end
 end
