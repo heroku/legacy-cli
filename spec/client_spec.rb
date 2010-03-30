@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/base'
+require "cgi"
 
 describe Heroku::Client do
   before do
@@ -205,8 +206,12 @@ describe Heroku::Client do
     end
 
     it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do
-      stub_api_request(:post, "/apps/myapp/ssl").with(:body => "key=key&pem=pem").to_return(:body => "{}")
-      @client.add_ssl('myapp', 'pem', 'key')
+      stub_api_request(:post, "/apps/myapp/ssl").with do |request|
+        body = CGI::parse(request.body)
+        body["key"].first.should == "thekey"
+        body["pem"].first.should == "thepem"
+      end.to_return(:body => "{}")
+      @client.add_ssl('myapp', 'thepem', 'thekey')
     end
 
     it "remove_ssl(app_name, domain) -> removes the ssl cert for the domain" do
