@@ -507,8 +507,4 @@ class Heroku::Client
     mode = mode == :on ? '1' : '0'
     post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode)
   end
-
-	def httpcache_purge(app_name)
-		delete("/apps/#{app_name}/httpcache")
-	end
 end
