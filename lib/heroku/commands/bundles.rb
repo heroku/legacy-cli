@@ -34,7 +34,7 @@ module Heroku::Command
       fname = "#{app}.tar.gz"
       bundle = args.shift.strip.downcase rescue nil
       url = heroku.bundle_url(app, bundle)
-      File.open(fname, "wb") { |f| f.write RestClient.get(url).body }
+      File.open(fname, "wb") { |f| f.write RestClient.get(url).to_s }
       display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
     end
 
