@@ -103,7 +103,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rspec>, ["~> 1.2.0"])
       s.add_development_dependency(%q<taps>, ["~> 0.2.23"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
-      s.add_runtime_dependency(%q<rest-client>, ["~> 1.4.0"])
+      s.add_runtime_dependency(%q<rest-client>, ["~> 1.3.0"])
       s.add_runtime_dependency(%q<launchy>, ["~> 0.3.2"])
       s.add_runtime_dependency(%q<json_pure>, ["~> 1.2.0"])
     else
@@ -111,7 +111,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rspec>, ["~> 1.2.0"])
       s.add_dependency(%q<taps>, ["~> 0.2.23"])
       s.add_dependency(%q<webmock>, [">= 0"])
-      s.add_dependency(%q<rest-client>, ["~> 1.4.0"])
+      s.add_dependency(%q<rest-client>, ["~> 1.3.0"])
       s.add_dependency(%q<launchy>, ["~> 0.3.2"])
       s.add_dependency(%q<json_pure>, ["~> 1.2.0"])
     end
@@ -120,7 +120,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>, ["~> 1.2.0"])
     s.add_dependency(%q<taps>, ["~> 0.2.23"])
     s.add_dependency(%q<webmock>, [">= 0"])
-    s.add_dependency(%q<rest-client>, ["~> 1.4.0"])
+    s.add_dependency(%q<rest-client>, ["~> 1.3.0"])
     s.add_dependency(%q<launchy>, ["~> 0.3.2"])
     s.add_dependency(%q<json_pure>, ["~> 1.2.0"])
   end
