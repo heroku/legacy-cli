@@ -131,7 +131,7 @@ module Heroku::Command
     def initialize(*args)
       super(*args)
 
-      gem 'taps', '>= 0.2.23', '< 0.3.0'
+      gem 'taps', '~> 0.3.0'
       require 'taps/client_session'
     rescue LoadError
       message  = "Taps Load Error: #{$!.message}\n"
