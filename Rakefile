@@ -67,7 +67,7 @@ spec = Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 1.2.0'
-  s.add_development_dependency 'taps',  '~> 0.2.23'
+  s.add_development_dependency 'taps',  '~> 0.3.0'
   s.add_development_dependency 'webmock'
 
   s.add_dependency 'rest-client', '~> 1.4.0'
