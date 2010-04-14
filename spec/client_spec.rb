@@ -205,7 +205,7 @@ describe Heroku::Client do
     end
 
     it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do
-      stub_api_request(:post, "/apps/myapp/ssl").with(:body => "key=key&pem=pem").to_return(:body => "{}")
+      stub_api_request(:post, "/apps/myapp/ssl").with(:body => "pem=pem&key=key").to_return(:body => "{}")
       @client.add_ssl('myapp', 'pem', 'key')
     end
 
