@@ -2,36 +2,27 @@ require 'yaml'
 
 module Heroku::Command
   class Db < BaseWithApp
-    def pull
-      database_url = args.shift.strip rescue ''
-      if database_url == ''
-        database_url = parse_database_yml
-        display "Auto-detected local database: #{database_url}" if database_url != ''
-      end
-      raise(CommandFailed, "Invalid database url") if database_url == ''
-
-      # setting local timezone equal to Heroku timezone allowing TAPS to
-      # correctly transfer datetime fields between databases
-      ENV['TZ'] = 'America/Los_Angeles'
-      taps_client(database_url) do |client|
-        client.cmd_receive
-      end
+    def initialize(*args)
+      super(*args)
+      gem 'taps', '~> 0.3.0'
+      require 'taps/operation'
+      require 'taps/cli'
+      display "Loaded Taps v#{Taps.version}"
+    rescue LoadError
+      message  = "Taps 0.3 Load Error: #{$!.message}\n"
+      message << "You may need to install or update the taps gem to use db commands.\n"
+      message << "On most systems this will be:\n\nsudo gem install taps"
+      error message
     end
 
     def push
-      database_url = args.shift.strip rescue ''
-      if database_url == ''
-        database_url = parse_database_yml
-        display "Auto-detected local database: #{database_url}" if database_url != ''
-      end
-      raise(CommandFailed, "Invalid database url") if database_url == ''
+      opts = parse_taps_opts
+      taps_client(:push, opts)
+    end
 
-      # setting local timezone equal to Heroku timezone allowing TAPS to
-      # correctly transfer datetime fields between databases
-      ENV['TZ'] = 'America/Los_Angeles'
-      taps_client(database_url) do |client|
-        client.cmd_send
-      end
+    def pull
+      opts = parse_taps_opts
+      taps_client(:pull, opts)
     end
 
     def reset
@@ -115,29 +106,46 @@ module Heroku::Command
       URI::Generic.build(uri_parts).to_s
     end
 
-    def taps_client(database_url, &block)
-      chunk_size = 1000
-      Taps::Config.database_url = database_url
-      Taps::Config.verify_database_url
+    def parse_taps_opts
+      opts = {}
+      opts[:default_chunksize] = extract_option("--chunksize") || 1000
+      opts[:default_chunksize] = opts[:default_chunksize].to_i rescue 1000
 
-      Taps::ClientSession.start(database_url, "http://heroku:osui59a24am79x@taps.#{heroku.host}", chunk_size) do |client|
-        uri = heroku.database_session(app)
-        client.set_session(uri)
-        client.verify_server
-        yield client
+      if filter = extract_option("--filter")
+        opts[:table_filter] = filter
       end
+
+      if extract_option("--disable-compression")
+        opts[:disable_compression] = true
+      end
+
+      if resume_file = extract_option("--resume-filename")
+        opts[:resume_filename] = resume_file
+      end
+
+      opts[:database_url] = args.shift.strip rescue ''
+      if opts[:database_url] == ''
+        opts[:database_url] = parse_database_yml
+        display "Auto-detected local database: #{opts[:database_url]}" if opts[:database_url] != ''
+      end
+      raise(CommandFailed, "Invalid database url") if opts[:database_url] == ''
+
+      # setting local timezone equal to Heroku timezone allowing TAPS to
+      # correctly transfer datetime fields between databases
+      ENV['TZ'] = 'America/Los_Angeles'
+      opts
     end
 
-    def initialize(*args)
-      super(*args)
-
-      gem 'taps', '~> 0.3.0'
-      require 'taps/client_session'
-    rescue LoadError
-      message  = "Taps Load Error: #{$!.message}\n"
-      message << "You may need to install or update the taps gem to use db commands.\n"
-      message << "On most systems this will be:\n\nsudo gem install taps"
-      error message
+    def taps_client(op, opts)
+      Taps::Config.verify_database_url(opts[:database_url])
+      if opts[:resume_filename]
+        Taps::Cli.new([]).clientresumexfer(op, opts)
+      else
+        info = heroku.database_session(app)
+        opts[:remote_url] = info['url']
+        opts[:session_uri] = info['session']
+        Taps::Cli.new([]).clientxfer(op, opts)
+      end
     end
   end
 end

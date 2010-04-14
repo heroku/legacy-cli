@@ -483,6 +483,7 @@ class Heroku::Client
     {
       'X-Heroku-API-Version' => '2',
       'User-Agent'           => self.class.gem_version_string,
+      'X-Ruby-Version'       => RUBY_VERSION,
     }
   end
 
@@ -496,7 +497,7 @@ class Heroku::Client
   end
 
   def database_session(app_name)
-    post("/apps/#{app_name}/database/session", '').to_s
+    JSON.parse(post("/apps/#{app_name}/database/session2", '', :x_taps_version => Taps.version).to_s)
   end
 
   def database_reset(app_name)

@@ -249,7 +249,7 @@ describe Heroku::Client do
     end
 
     it "database_session(app_name) -> creates a taps database session" do
-      stub_api_request(:post, "/apps/myapp/database/session")
+      stub_api_request(:post, "/apps/myapp/database/session2").to_return(:body => "{\"session_id\":\"x234\"}")
       @client.database_session('myapp')
     end
 

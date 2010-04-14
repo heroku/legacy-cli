@@ -9,15 +9,15 @@ module Heroku::Command
 
     it "pull database" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
-      @db.should_receive(:taps_client).with('postgres://postgres@localhost/db').and_yield(@taps_client)
-      @taps_client.should_receive(:cmd_receive)
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      @db.should_receive(:taps_client).with(:pull, opts)
       @db.pull
     end
 
     it "push database" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
-      @db.should_receive(:taps_client).with('postgres://postgres@localhost/db').and_yield(@taps_client)
-      @taps_client.should_receive(:cmd_send)
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      @db.should_receive(:taps_client).with(:push, opts)
       @db.push
     end
 
