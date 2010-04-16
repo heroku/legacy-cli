@@ -497,7 +497,7 @@ class Heroku::Client
   end
 
   def database_session(app_name)
-    JSON.parse(post("/apps/#{app_name}/database/session2", '', :x_taps_version => Taps.version).to_s)
+    JSON.parse(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
   end
 
   def database_reset(app_name)
