@@ -2,25 +2,14 @@ require 'yaml'
 
 module Heroku::Command
   class Db < BaseWithApp
-    def initialize(*args)
-      super(*args)
-      gem 'taps', '~> 0.3.0'
-      require 'taps/operation'
-      require 'taps/cli'
-      display "Loaded Taps v#{Taps.version}"
-    rescue LoadError
-      message  = "Taps 0.3 Load Error: #{$!.message}\n"
-      message << "You may need to install or update the taps gem to use db commands.\n"
-      message << "On most systems this will be:\n\nsudo gem install taps"
-      error message
-    end
-
     def push
+      load_taps
       opts = parse_taps_opts
       taps_client(:push, opts)
     end
 
     def pull
+      load_taps
       opts = parse_taps_opts
       taps_client(:pull, opts)
     end
@@ -146,6 +135,18 @@ module Heroku::Command
         opts[:session_uri] = info['session']
         Taps::Cli.new([]).clientxfer(op, opts)
       end
+    end
+
+    def load_taps
+      gem 'taps', '~> 0.3.0'
+      require 'taps/operation'
+      require 'taps/cli'
+      display "Loaded Taps v#{Taps.version}"
+    rescue LoadError
+      message  = "Taps 0.3 Load Error: #{$!.message}\n"
+      message << "You may need to install or update the taps gem to use db commands.\n"
+      message << "On most systems this will be:\n\nsudo gem install taps"
+      error message
     end
   end
 end
