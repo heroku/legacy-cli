@@ -102,6 +102,9 @@ module Heroku::Command
 
       if filter = extract_option("--filter")
         opts[:table_filter] = filter
+      elsif tables = extract_option("--tables")
+        r_tables = tables.split(",").collect { |t| "^#{t.strip}$" }
+        opts[:table_filter] = "(#{r_tables.join("|")})"
       end
 
       if extract_option("--disable-compression")

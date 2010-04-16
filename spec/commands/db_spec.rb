@@ -48,5 +48,11 @@ module Heroku::Command
     it "handles integer port number" do
       @db.send(:uri_hash_to_url, {'scheme' => 'db', 'path' => 'database', 'port' => 9000}).should == 'db://127.0.0.1:9000/database'
     end
+
+    it "maps --tables to the taps table_filter option" do
+      @db.stub!(:args).and_return(["--tables", "tags,countries", "sqlite://local.db"])
+      opts = @db.send(:parse_taps_opts)
+      opts[:table_filter].should == "(^tags$|^countries$)"
+    end
   end
 end
