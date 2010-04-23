@@ -267,7 +267,11 @@ class Heroku::Client
     # Read the next chunk of output.
     def read
       chunk = @client.get(@next_chunk)
-      if chunk.to_s == ''
+      if chunk.headers[:location].nil? && chunk.code != 204
+        # no more chunks
+        @next_chunk = nil
+        chunk.to_s
+      elsif chunk.to_s == ''
         # assume no content and back off
         @interval = 2
         ''
@@ -275,10 +279,6 @@ class Heroku::Client
         # some data read and next chunk available
         @next_chunk = location
         @interval = 0
-        chunk.to_s
-      else
-        # no more chunks
-        @next_chunk = nil
         chunk.to_s
       end
     end
