@@ -5,13 +5,23 @@ module Heroku::Command
     def push
       load_taps
       opts = parse_taps_opts
-      taps_client(:push, opts)
+
+      display("Warning: Data in the app '#{app}' will be overwritten and will not be recoverable.")
+
+      if confirm
+        taps_client(:push, opts)
+      end
     end
 
     def pull
       load_taps
       opts = parse_taps_opts
-      taps_client(:pull, opts)
+
+      display("Warning: Data in the database '#{opts[:database_url]}' will be overwritten and will not be recoverable.")
+
+      if confirm
+        taps_client(:pull, opts)
+      end
     end
 
     def reset

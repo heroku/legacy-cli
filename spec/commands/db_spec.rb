@@ -11,6 +11,7 @@ module Heroku::Command
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
       opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
       @db.should_receive(:taps_client).with(:pull, opts)
+      @db.should_receive(:confirm).and_return(true)
       @db.pull
     end
 
@@ -18,6 +19,7 @@ module Heroku::Command
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
       opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
       @db.should_receive(:taps_client).with(:push, opts)
+      @db.should_receive(:confirm).and_return(true)
       @db.push
     end
 
