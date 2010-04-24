@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{heroku}
-  s.version = "1.9.3"
+  s.version = "1.9.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Heroku"]
-  s.date = %q{2010-04-22}
+  s.date = %q{2010-04-23}
   s.default_executable = %q{heroku}
   s.description = %q{Client library and command-line tool to manage and deploy Rails apps on Heroku.}
   s.email = %q{support@heroku.com}
