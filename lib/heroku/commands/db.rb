@@ -151,7 +151,6 @@ module Heroku::Command
     end
 
     def load_taps
-      gem 'taps', '~> 0.3.0'
       require 'taps/operation'
       require 'taps/cli'
       display "Loaded Taps v#{Taps.version}"
