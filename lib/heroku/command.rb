@@ -1,6 +1,6 @@
-require 'helpers'
-require 'plugin'
-require 'commands/base'
+require 'heroku/helpers'
+require 'heroku/plugin'
+require 'heroku/commands/base'
 
 Dir["#{File.dirname(__FILE__)}/commands/*"].each { |c| require c }
 

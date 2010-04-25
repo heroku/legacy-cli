@@ -1,5 +1,5 @@
 require 'fileutils'
-require 'plugin_interface'
+require 'heroku/plugin_interface'
 
 module Heroku::Command
   class Base
