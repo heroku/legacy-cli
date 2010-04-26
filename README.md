@@ -60,6 +60,13 @@ Patches contributed by:
 * Matt Buck
 * Terence Lee
 * Caio Chassot
+* Charles Roper
+* James Lindenbaum
+* Joshua Peek
+* Julien Kirch
+* Morten Bagai
+* Noah Zoschke
+* Peter Thiell
 
 
 Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
