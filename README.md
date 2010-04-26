@@ -66,6 +66,7 @@ Patches contributed by:
 * Julien Kirch
 * Morten Bagai
 * Noah Zoschke
+* Pedro Belo
 * Peter Thiell
 
 
