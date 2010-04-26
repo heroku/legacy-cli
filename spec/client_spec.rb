@@ -100,7 +100,7 @@ describe Heroku::Client do
     stub_request(:post, %r{.*/apps/myapp/console}).to_return({
       :body => "ERRMSG", :status => 502
     })
-    lambda { @client.console('myapp') }.should raise_exception(Heroku::Client::AppCrashed, "ERRMSG")
+    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, "ERRMSG")
   end
 
   it "restart(app_name) -> restarts the app servers" do
