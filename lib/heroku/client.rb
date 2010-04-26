@@ -15,7 +15,7 @@ require 'json/pure'
 #
 class Heroku::Client
   def self.version
-    '1.9.7'
+    '1.9.8'
   end
 
   def self.gem_version_string
