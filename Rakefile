@@ -33,7 +33,8 @@ require 'fileutils'
 include FileUtils
 
 begin
-  require 'lib/heroku'
+  $:.unshift File.expand_path("../lib", __FILE__)
+  require "heroku"
   version = Heroku::Client.version
 rescue LoadError
   version = ""
