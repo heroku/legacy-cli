@@ -3,9 +3,8 @@ require 'spec'
 require 'fileutils'
 require 'webmock/rspec'
 
-require File.dirname(__FILE__) + '/../lib/heroku'
-require 'command'
-require 'commands/base'
+require 'heroku/command'
+require 'heroku/commands/base'
 Dir["#{File.dirname(__FILE__)}/../lib/heroku/commands/*"].each { |c| require c }
 
 include WebMock

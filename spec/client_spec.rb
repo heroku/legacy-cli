@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/base'
 require "cgi"
+require "heroku/client"
 
 describe Heroku::Client do
   before do
