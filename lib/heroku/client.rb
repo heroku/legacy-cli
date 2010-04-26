@@ -2,7 +2,7 @@ require 'rexml/document'
 require 'rest_client'
 require 'uri'
 require 'time'
-require 'json'
+require 'json/pure'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
