@@ -153,6 +153,7 @@ module Heroku::Command
     def load_taps
       require 'taps/operation'
       require 'taps/cli'
+      error "The heroku gem requires taps 0.3" unless Taps.version =~ /^0.3/
       display "Loaded Taps v#{Taps.version}"
     rescue LoadError
       message  = "Taps 0.3 Load Error: #{$!.message}\n"
