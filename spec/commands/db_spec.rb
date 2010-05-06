@@ -9,7 +9,7 @@ module Heroku::Command
 
     it "pull database" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:pull, opts)
       @db.should_receive(:confirm).and_return(true)
       @db.pull
@@ -17,7 +17,7 @@ module Heroku::Command
 
     it "push database" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:push, opts)
       @db.should_receive(:confirm).and_return(true)
       @db.push
@@ -25,7 +25,7 @@ module Heroku::Command
 
     it "does not confirm a pull when --force is specified" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db', '--force'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:pull, opts)
       @db.should_not_receive(:confirm)
       @db.pull
@@ -33,7 +33,7 @@ module Heroku::Command
 
     it "does not confirm a push when --force is specified" do
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db', '--force'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000 }
+      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:push, opts)
       @db.should_not_receive(:confirm)
       @db.push
