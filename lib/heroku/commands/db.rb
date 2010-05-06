@@ -125,6 +125,8 @@ module Heroku::Command
         opts[:resume_filename] = resume_file
       end
 
+      opts[:indexes_first] = !extract_option("--indexes-last")
+
       opts[:database_url] = args.shift.strip rescue ''
       if opts[:database_url] == ''
         opts[:database_url] = parse_database_yml
