@@ -42,6 +42,15 @@ module Heroku::Command
       @cli.create
     end
 
+    it "creates with addons" do
+      @cli.stub!(:args).and_return([ 'myapp', '--addons', 'foo:bar,fred:barney' ])
+      @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
+      @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
+      @cli.heroku.should_receive(:install_addon).with("myapp", "foo:bar", {})
+      @cli.heroku.should_receive(:install_addon).with("myapp", "fred:barney", {})
+      @cli.create
+    end
+
     it "renames an app" do
       @cli.stub!(:args).and_return([ 'myapp2' ])
       @cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })

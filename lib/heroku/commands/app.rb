@@ -22,6 +22,7 @@ module Heroku::Command
       remote  = extract_option('--remote', 'heroku')
       stack   = extract_option('--stack', 'aspen-mri-1.8.6')
       timeout = extract_option('--timeout', 30).to_i
+      addons  = (extract_option('--addons', '') || '').split(',')
       name    = args.shift.downcase.strip rescue nil
       name    = heroku.create_request(name, {:stack => stack})
       display("Creating #{name}...", false)
@@ -34,6 +35,13 @@ module Heroku::Command
           end
         end
         display " done"
+
+        addons.each do |addon|
+          addons_command = Heroku::Command::Addons.new([addon], heroku)
+          addons_command.app = name
+          addons_command.add
+        end
+
         display "Created #{app_urls(name)}"
       rescue Timeout::Error
         display "Timed Out! Check heroku info for status updates."
