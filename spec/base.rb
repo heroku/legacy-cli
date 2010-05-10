@@ -36,3 +36,8 @@ module SandboxHelper
     FileUtils.cd(@sandbox) { |d| return `#{cmd}` }
   end
 end
+
+module Heroku::Helpers
+  def display(msg, newline=true)
+  end
+end
