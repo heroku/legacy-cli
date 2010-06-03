@@ -1,4 +1,5 @@
 require 'yaml'
+require 'logger'
 
 module Heroku::Command
   class Db < BaseWithApp
@@ -133,6 +134,10 @@ module Heroku::Command
         display "Auto-detected local database: #{opts[:database_url]}" if opts[:database_url] != ''
       end
       raise(CommandFailed, "Invalid database url") if opts[:database_url] == ''
+
+      if extract_option("--debug")
+        Taps.log.level = Logger::DEBUG
+      end
 
       # setting local timezone equal to Heroku timezone allowing TAPS to
       # correctly transfer datetime fields between databases
