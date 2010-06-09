@@ -434,7 +434,7 @@ class Heroku::Client
   ##################
 
   def resource(uri)
-    RestClient.proxy = ENV['HTTP_PROXY']
+    RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
     if uri =~ /^https?/
       RestClient::Resource.new(uri, user, password)
     else
