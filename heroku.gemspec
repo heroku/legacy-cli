@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{heroku}
-  s.version = "1.9.9"
+  s.version = "1.9.10"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Heroku"]
-  s.date = %q{2010-05-06}
+  s.date = %q{2010-06-15}
   s.default_executable = %q{heroku}
   s.description = %q{Client library and command-line tool to manage and deploy Rails apps on Heroku.}
   s.email = %q{support@heroku.com}
@@ -70,7 +70,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{heroku}
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Client library and CLI to deploy Rails apps on Heroku.}
   s.test_files = [
     "spec/base.rb",
@@ -98,7 +98,7 @@ Gem::Specification.new do |s|
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_development_dependency(%q<rake>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["~> 1.2.0"])
       s.add_development_dependency(%q<taps>, ["~> 0.3.0"])
