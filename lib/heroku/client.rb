@@ -198,9 +198,8 @@ class Heroku::Client
     else
       run_console_command("/apps/#{app_name}/console", cmd)
     end
-  rescue RestClient::RequestFailed => e
-    raise(AppCrashed, e.response.to_s) if e.response.code.to_i == 502
-    raise e
+  rescue RestClient::BadGateway => e
+    raise(AppCrashed, e.response.to_s)
   end
 
   # internal method to run console commands formatting the output
