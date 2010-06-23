@@ -58,6 +58,14 @@ module Heroku::Command
       @cli.save_credentials
     end
 
+    it "doesn't upload authkey with --ignore-keys" do
+      @cli.stub!(:credentials)
+      @cli.stub!(:write_credentials)
+      @cli.stub!(:args).and_return(['--ignore-keys'])
+      Heroku::Command.should_receive(:run_internal).with('auth:check', anything)
+      @cli.save_credentials
+    end
+
     it "preserves the args when running keys:add" do
       @cli.stub!(:write_credentials)
       @cli.stub!(:credentials)

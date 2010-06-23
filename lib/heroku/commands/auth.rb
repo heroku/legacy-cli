@@ -12,6 +12,11 @@ module Heroku::Command
       client
     end
 
+    # just a stub; will raise if not authenticated
+    def check
+      client.list
+    end
+
     def host
       ENV['HEROKU_HOST'] || 'heroku.com'
     end
@@ -96,7 +101,8 @@ module Heroku::Command
     def save_credentials
       begin
         write_credentials
-        Heroku::Command.run_internal('keys:add', args)
+        command = args.any? { |a| a == '--ignore-keys' } ? 'auth:check' : 'keys:add'
+        Heroku::Command.run_internal(command, args)
       rescue RestClient::Unauthorized => e
         delete_credentials
         raise e unless retry_login?
