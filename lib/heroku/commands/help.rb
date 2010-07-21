@@ -86,7 +86,6 @@ module Heroku::Command
         group.command 'bundles:capture [<bundle>]',   'capture a bundle of the app\'s code and data'
         group.command 'bundles:download',             'download most recent app bundle as a tarball'
         group.command 'bundles:download <bundle>',    'download the named bundle'
-        group.command 'bundles:animate <bundle>',     'animate a bundle into a new app'
         group.command 'bundles:destroy <bundle>',     'destroy the named bundle'
         group.space
         group.command 'addons',                       'list installed addons'

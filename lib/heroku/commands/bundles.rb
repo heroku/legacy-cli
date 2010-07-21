@@ -37,15 +37,5 @@ module Heroku::Command
       File.open(fname, "wb") { |f| f.write RestClient.get(url).to_s }
       display "Downloaded #{File.stat(fname).size} byte bundle #{fname}"
     end
-
-    def animate
-      bundle = args.shift.strip.downcase rescue ""
-      if bundle.length == 0
-        display "Usage: heroku bundle:animate <bundle>"
-      else
-        name = heroku.create(nil, :origin_bundle_app => app, :origin_bundle => bundle)
-        display "Animated #{app} #{bundle} into #{app_urls(name)}"
-      end
-    end
-   end
+  end
 end

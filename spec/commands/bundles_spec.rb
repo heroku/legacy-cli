@@ -38,11 +38,5 @@ module Heroku::Command
       File.stub!(:stat).and_return(mock('app stat', :size => 1234))
       @bundles.download
     end
-
-    it "animates a bundle" do
-      @bundles.stub!(:args).and_return(['mybundle'])
-      @bundles.heroku.should_receive(:create).with(nil, :origin_bundle_app => 'myapp', :origin_bundle => 'mybundle')
-      @bundles.animate
-    end
   end
 end
