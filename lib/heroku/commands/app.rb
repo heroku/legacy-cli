@@ -94,7 +94,7 @@ module Heroku::Command
       if attrs[:database_size]
         data = format_bytes(attrs[:database_size])
         if tables = attrs[:database_tables]
-          data = data.gsub('(empty)', '0K') + " in #{tables} table#{'s' if tables.to_i > 1}"
+          data = data.gsub('(empty)', '0K') + " in #{tables} table#{'s' if tables.to_i != 1}"
         end
         display "Data size:      #{data}"
       end
