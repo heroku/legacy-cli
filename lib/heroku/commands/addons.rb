@@ -100,7 +100,7 @@ module Heroku::Command
         yield
         'done'
       rescue RestClient::ResourceNotFound => e
-        "FAILED\nno addon by that name"
+        "FAILED\n !   #{e.response.to_s}"
       rescue RestClient::RequestFailed => e
         retry if e.http_code == 402 && confirm_billing
         "FAILED\n" + Heroku::Command.extract_error(e.http_body)
