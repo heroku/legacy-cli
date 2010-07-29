@@ -103,7 +103,7 @@ begin
   Jeweler::Tasks.new(spec) do |s|
     s.version = version
   end
-  Jeweler::RubyforgeTasks.new
+  Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install jeweler"
 end
