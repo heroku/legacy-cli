@@ -10,6 +10,7 @@ gem 'json_pure',   '>= 1.2.0', '< 1.5.0'
 
 require 'spec'
 require 'fileutils'
+require 'tmpdir'
 require 'webmock/rspec'
 
 require 'heroku/command'
@@ -31,9 +32,21 @@ def prepare_command(klass)
   command
 end
 
+def with_blank_git_repository(&block)
+  sandbox = File.join(Dir.tmpdir, "heroku", Process.pid.to_s)
+  FileUtils.mkdir_p(sandbox)
+
+  Dir.chdir(sandbox) do
+    bash "git init"
+    block.call
+  end
+
+  FileUtils.rm_rf(sandbox)
+end
+
 module SandboxHelper
   def bash(cmd)
-    FileUtils.cd(@sandbox) { |d| return `#{cmd}` }
+    `#{cmd}`
   end
 end
 

@@ -126,63 +126,61 @@ module Heroku::Command
         FileUtils.rm_rf(@git)
       end
 
-      # setup sandbox in /tmp
-      before(:each) do
-        @sandbox = "/tmp/app_spec_#{Process.pid}"
-        FileUtils.mkdir_p(@sandbox)
-        bash "git init"
-        Dir.stub!(:pwd).and_return(@sandbox)
-      end
-
-      after(:each) do
-        FileUtils.rm_rf(@sandbox)
-      end
-
       it "creates adding heroku to git remote" do
-        @cli.heroku.should_receive(:create_request).and_return('myapp')
-        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-        @cli.create
-        bash("git remote").strip.should == 'heroku'
+        with_blank_git_repository do
+          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          @cli.create
+          bash("git remote").strip.should == 'heroku'
+        end
       end
 
       it "creates adding a custom git remote" do
-        @cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
-        @cli.heroku.should_receive(:create_request).and_return('myapp')
-        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-        @cli.create
-        bash("git remote").strip.should == 'myremote'
+        with_blank_git_repository do
+          @cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
+          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          @cli.create
+          bash("git remote").strip.should == 'myremote'
+        end
       end
 
       it "doesn't add a git remote if it already exists" do
-        @cli.heroku.should_receive(:create_request).and_return('myapp')
-        @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-        bash "git remote add heroku #{@git}"
-        @cli.create
+        with_blank_git_repository do
+          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          bash "git remote add heroku #{@git}"
+          @cli.create
+        end
       end
 
       it "renames updating the corresponding heroku git remote" do
-        bash "git remote add github     git@github.com:test/test.git"
-        bash "git remote add production git@heroku.com:myapp.git"
-        bash "git remote add staging    git@heroku.com:myapp-staging.git"
+        with_blank_git_repository do
+          bash "git remote add github     git@github.com:test/test.git"
+          bash "git remote add production git@heroku.com:myapp.git"
+          bash "git remote add staging    git@heroku.com:myapp-staging.git"
 
-        @cli.heroku.stub!(:update)
-        @cli.stub!(:args).and_return([ 'myapp2' ])
-        @cli.rename
-        remotes = bash("git remote -v")
-        remotes.should include('git@github.com:test/test.git')
-        remotes.should include('git@heroku.com:myapp-staging.git')
-        remotes.should include('git@heroku.com:myapp2.git')
-        remotes.should_not include('git@heroku.com:myapp.git')
+          @cli.heroku.stub!(:update)
+          @cli.stub!(:args).and_return([ 'myapp2' ])
+          @cli.rename
+          remotes = bash("git remote -v")
+          remotes.should include('git@github.com:test/test.git')
+          remotes.should include('git@heroku.com:myapp-staging.git')
+          remotes.should include('git@heroku.com:myapp2.git')
+          remotes.should_not include('git@heroku.com:myapp.git')
+        end
       end
 
       it "destroys removing any remotes pointing to the app" do
-        bash("git remote add heroku git@heroku.com:myapp.git")
-        @cli.stub!(:args).and_return(['--app', 'myapp'])
-        @cli.heroku.stub!(:info).and_return({})
-        @cli.stub!(:ask).and_return('y')
-        @cli.heroku.should_receive(:destroy)
-        @cli.destroy
-        bash("git remote").strip.should == ''
+        with_blank_git_repository do
+          bash("git remote add heroku git@heroku.com:myapp.git")
+          @cli.stub!(:args).and_return(['--app', 'myapp'])
+          @cli.heroku.stub!(:info).and_return({})
+          @cli.stub!(:ask).and_return('y')
+          @cli.heroku.should_receive(:destroy)
+          @cli.destroy
+          bash("git remote").strip.should == ''
+        end
       end
     end
   end
