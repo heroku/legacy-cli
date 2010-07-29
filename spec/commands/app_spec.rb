@@ -43,11 +43,11 @@ module Heroku::Command
     end
 
     it "creates with addons" do
-      @cli.stub!(:args).and_return([ 'myapp', '--addons', 'foo:bar,fred:barney' ])
-      @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
-      @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
-      @cli.heroku.should_receive(:install_addon).with("myapp", "foo:bar", {})
-      @cli.heroku.should_receive(:install_addon).with("myapp", "fred:barney", {})
+      @cli.stub!(:args).and_return([ 'addonapp', '--addons', 'foo:bar,fred:barney' ])
+      @cli.heroku.should_receive(:create_request).with('addonapp', {:stack => nil}).and_return("addonapp")
+      @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
+      @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
+      @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
       @cli.create
     end
 

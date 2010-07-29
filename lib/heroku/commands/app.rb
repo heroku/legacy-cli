@@ -37,9 +37,8 @@ module Heroku::Command
         display " done"
 
         addons.each do |addon|
-          addons_command = Heroku::Command::Addons.new([addon], heroku)
-          addons_command.app = name
-          addons_command.add
+          display "Adding #{addon} to #{name}... "
+          heroku.install_addon(name, addon)
         end
 
         display "Created #{app_urls(name)}"
