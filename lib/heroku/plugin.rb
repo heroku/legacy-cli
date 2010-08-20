@@ -51,7 +51,7 @@ module Heroku
       FileUtils.mkdir_p(path)
       Dir.chdir(path) do
         system("git init -q")
-        if !system("git pull #{uri} -q")
+        if !system("git pull #{uri} master -q")
           FileUtils.rm_rf path
           return false
         end
