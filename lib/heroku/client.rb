@@ -213,8 +213,13 @@ class Heroku::Client
       prefix + output
     end
   rescue RestClient::RequestFailed => e
-    raise e unless e.http_code == 422
-    e.http_body
+    if Heroku::Command.parse_error_xml(e.http_body)
+      Heroku::Command.extract_error(e.http_body)
+    elsif e.http_code == 422
+      e.http_body
+    else
+      raise e
+    end
   end
 
   class Service

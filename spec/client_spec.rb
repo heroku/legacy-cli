@@ -96,6 +96,11 @@ describe Heroku::Client do
     end
   end
 
+  it "console displays xml-formatted errors properly" do
+    stub_api_request(:post, "/apps/myapp/console").with(:body => 'test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
+    @client.console('myapp', 'test').should == ' !   Test Error'
+  end
+
   it "console returns the response body of a failed request" do
     stub_request(:post, %r{.*/apps/myapp/console}).to_return({
       :body => "ERRMSG", :status => 502
