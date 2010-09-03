@@ -47,18 +47,24 @@ module Heroku::Command
     end
 
     def extract_app_in_dir(dir)
-      return unless remotes = git_remotes(dir)
-
-      if remote = extract_option('--remote')
-        remotes[remote]
+      #just takes a file named .hg/heroku.yml containing a yaml hash with the damn appname in it
+      if test ?d, File.join(Dir.pwd, '.hg')
+        apprc=YAML::load(File.read(File.join(Dir.pwd, '.hg/heroku.yml')))
+        apprc['app']['name']
       else
-        apps = remotes.values.uniq
-        case apps.size
+        return unless remotes = git_remotes(dir)
+
+        if remote = extract_option('--remote')
+          remotes[remote]
+        else
+          apps = remotes.values.uniq
+          case apps.size
           when 0; return nil
           when 1; return apps.first
           else
             current_dir_name = dir.split('/').last.downcase
             apps.select { |a| a.downcase == current_dir_name }.first
+          end
         end
       end
     end
