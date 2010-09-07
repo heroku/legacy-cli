@@ -10,7 +10,7 @@ Parka::Specification.new do |gem|
   gem.homepage = "http://heroku.com/"
 
   gem.summary     = "Client library and CLI to deploy Rails apps on Heroku."
-  gem.description = "lient library and command-line tool to manage and deploy Rails apps on Heroku."
+  gem.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
   gem.homepage    = "http://github.com/ddollar/foreman"
   gem.executables = "heroku"
 end
