@@ -58,6 +58,7 @@ module Heroku::Command
         group.space
         group.command 'ssl:add <pem> <key>',          'add SSL cert to the app'
         group.command 'ssl:remove <domain>',          'removes SSL cert from the app domain'
+        group.command 'ssl:clear',                    'remove all SSL certs from the app'
         group.space
         group.command 'rake <command>',               'remotely execute a rake command'
         group.command 'console <command>',            'remotely execute a single console command'
