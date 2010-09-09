@@ -29,5 +29,10 @@ module Heroku::Command
       heroku.remove_ssl(app, domain)
       display "Removed certificate from #{domain}"
     end
+
+    def clear
+      heroku.clear_ssl(app)
+      display "Cleared certificates for #{app}"
+    end
   end
 end

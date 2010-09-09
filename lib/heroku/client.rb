@@ -137,6 +137,10 @@ class Heroku::Client
     delete("/apps/#{app_name}/domains/#{domain}/ssl").to_s
   end
 
+  def clear_ssl(app_name)
+    delete("/apps/#{app_name}/ssl")
+  end
+
   # Get the list of ssh public keys for the current user.
   def keys
     doc = xml get('/user/keys').to_s
