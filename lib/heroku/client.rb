@@ -492,6 +492,7 @@ class Heroku::Client
       'X-Heroku-API-Version' => '2',
       'User-Agent'           => self.class.gem_version_string,
       'X-Ruby-Version'       => RUBY_VERSION,
+      'X-Ruby-Platform'      => RUBY_PLATFORM
     }
   end
 
