@@ -60,7 +60,7 @@ module Heroku::Command
     it "runs a rake command on the app" do
       @cli.stub!(:args).and_return(([ 'db:migrate' ]))
       @cli.heroku.should_receive(:start).
-        with('myapp', 'rake db:migrate', attached=true).
+        with('myapp', 'rake db:migrate', :attached).
         and_return(['foo', 'bar', 'baz'])
       @cli.rake
     end

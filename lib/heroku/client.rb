@@ -179,7 +179,7 @@ class Heroku::Client
   # Run a rake command on the Heroku app and return all output as
   # a string.
   def rake(app_name, cmd)
-    start(app_name, "rake #{cmd}", attached=true).to_s
+    start(app_name, "rake #{cmd}", :attached).to_s
   end
 
   # support for console sessions
