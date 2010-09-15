@@ -37,10 +37,8 @@ module Heroku::Command
     end
 
     def extract_app(force=true)
-      app = extract_option('--app')
-      if app.is_a?(TrueClass)
-        raise(CommandFailed, "You must specify an app name after --app")
-      end
+      app = extract_option('--app', false)
+      raise(CommandFailed, "You must specify an app name after --app") if app == false
       unless app
         app = extract_app_in_dir(Dir.pwd) ||
         raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") if force
