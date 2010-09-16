@@ -151,6 +151,12 @@ module Heroku::Command
         Taps::Cli.new([]).clientresumexfer(op, opts)
       else
         info = heroku.database_session(app)
+
+        # TODO: this should be done API-side
+        if RUBY_VERSION =~ /^1\.9/
+          info["url"].gsub!('taps3.heroku.com', 'taps19.heroku.com')
+        end
+
         opts[:remote_url] = info['url']
         opts[:session_uri] = info['session']
         Taps::Cli.new([]).clientxfer(op, opts)
