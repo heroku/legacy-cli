@@ -2,7 +2,7 @@ require 'heroku/helpers'
 require 'heroku/plugin'
 require 'heroku/commands/base'
 
-Dir["#{File.dirname(__FILE__)}/commands/*"].each { |c| require c }
+Dir["#{File.dirname(__FILE__)}/commands/*.rb"].each { |c| require c }
 
 module Heroku
   module Command
