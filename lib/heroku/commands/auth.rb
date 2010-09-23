@@ -83,7 +83,8 @@ module Heroku::Command
         if char == 127 || char == 8 # backspace and delete
           password.slice!(-1, 1)
         else
-          password << char.chr
+          # windows might throw a -1 at us so make sure to handle RangeError
+          (password << char.chr) rescue RangeError
         end
       end
       puts
