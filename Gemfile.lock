@@ -41,7 +41,7 @@ DEPENDENCIES
   launchy (~> 0.3.2)
   parka (>= 0.5.0)
   rake
-  rest-client (~> 1.4.0)
+  rest-client (>= 1.4.0)
   rspec (~> 1.2.0)
   taps (~> 0.3.11)
   webmock (~> 1.2.2)
