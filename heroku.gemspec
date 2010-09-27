@@ -14,6 +14,8 @@ Gem::Specification.new do |gem|
   gem.homepage    = "http://github.com/ddollar/foreman"
   gem.executables = "heroku"
 
+  gem.files = Dir["**/*"].select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
+
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec",   "~> 1.2.0"
   gem.add_development_dependency "taps",    "~> 0.3.11"
