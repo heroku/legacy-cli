@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "taps",    "~> 0.3.11"
   gem.add_development_dependency "webmock", "~> 1.2.2"
 
-  gem.add_dependency "rest-client", ">= 1.4.0"
+  gem.add_dependency "rest-client", ">= 1.4.0", "< 1.7.0"
   gem.add_dependency "launchy",     "~> 0.3.2"
   gem.add_dependency "json_pure",   ">= 1.2.0", "< 1.5.0"
 end
