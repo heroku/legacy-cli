@@ -357,12 +357,12 @@ class Heroku::Client
 
   # Scales the web processes.
   def set_dynos(app_name, qty)
-    put("/apps/#{app_name}/dynos", :dynos => qty).to_s.to_i
+    put("/apps/#{app_name}/dynos", :dynos => qty).to_s
   end
 
   # Scales the background processes.
   def set_workers(app_name, qty)
-    put("/apps/#{app_name}/workers", :workers => qty).to_s.to_i
+    put("/apps/#{app_name}/workers", :workers => qty).to_s
   end
 
   # Capture a bundle from the given app, as a backup or for download.
