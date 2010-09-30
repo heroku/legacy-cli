@@ -47,6 +47,7 @@ module Heroku::Command
         group.space
         group.command 'dynos <qty>',                  'scale to qty web processes'
         group.command 'workers <qty>',                'scale to qty background processes'
+        group.command 'ps',                           'show process list'
         group.space
         group.command 'sharing:add <email>',          'add a collaborator'
         group.command 'sharing:remove <email>',       'remove a collaborator'
