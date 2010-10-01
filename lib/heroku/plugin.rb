@@ -9,7 +9,9 @@ module Heroku
     attr_reader :name, :uri
 
     def self.directory
-      "#{home_directory}/.heroku/plugins"
+      home = home_directory
+      home = home.gsub('\\', File::SEPARATOR) if running_on_windows?
+      "#{home}/.heroku/plugins"
     end
 
     def self.list
