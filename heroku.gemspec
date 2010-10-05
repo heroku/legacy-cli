@@ -1,13 +1,9 @@
 $:.unshift File.expand_path("../lib", __FILE__)
-
-# hack to read the version from the client so we don't have to require
-# everything, yet keep the gem backwards compatible
-HEROKU_CLIENT_RB = File.expand_path("../lib/heroku/client.rb", __FILE__)
-HEROKU_VERSION   = File.read(HEROKU_CLIENT_RB).match(/'(\d+\.\d+\.\d+)'/)[1]
+require "heroku/version"
 
 Gem::Specification.new do |gem|
   gem.name    = "heroku"
-  gem.version = HEROKU_VERSION
+  gem.version = Heroku::VERSION
 
   gem.author   = "Heroku"
   gem.email    = "support@heroku.com"

@@ -3,6 +3,7 @@ require 'rest_client'
 require 'uri'
 require 'time'
 require 'json/pure'
+require 'heroku/version'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -15,7 +16,7 @@ require 'json/pure'
 #
 class Heroku::Client
   def self.version
-    '1.10.12'
+    Heroku::VERSION
   end
 
   def self.gem_version_string
