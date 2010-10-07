@@ -46,12 +46,7 @@ module Heroku::Command
         display "Timed Out! Check heroku info for status updates."
       end
 
-      if remote || File.exists?(Dir.pwd + '/.git')
-        remote ||= 'heroku'
-        return if shell('git remote').split("\n").include?(remote)
-        shell "git remote add #{remote} git@#{heroku.host}:#{name}.git"
-        display "Git remote #{remote} added"
-      end
+      create_git_remote(name, remote || "heroku")
     end
 
     def rename
@@ -261,5 +256,10 @@ module Heroku::Command
         File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
       end
 
+      def create_git_remote(app, remote)
+        return if shell('git remote').split("\n").include?(remote)
+        shell "git remote add #{remote} git@#{heroku.host}:#{app}.git"
+        display "Git remote #{remote} added"
+      end
   end
 end

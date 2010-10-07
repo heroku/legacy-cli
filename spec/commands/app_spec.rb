@@ -32,6 +32,7 @@ module Heroku::Command
     it "creates without a name" do
       @cli.heroku.should_receive(:create_request).with(nil, {:stack => nil}).and_return("untitled-123")
       @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
+      @cli.should_receive(:create_git_remote).with("untitled-123", "heroku")
       @cli.create
     end
 
@@ -39,6 +40,7 @@ module Heroku::Command
       @cli.stub!(:args).and_return([ 'myapp' ])
       @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
       @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
+      @cli.should_receive(:create_git_remote).with("myapp", "heroku")
       @cli.create
     end
 
@@ -48,6 +50,15 @@ module Heroku::Command
       @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
       @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
       @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
+      @cli.should_receive(:create_git_remote).with("addonapp", "heroku")
+      @cli.create
+    end
+
+    it "creates with an alternate remote name" do
+      @cli.stub!(:args).and_return([ 'alternate-remote', '--remote', 'alternate' ])
+      @cli.heroku.should_receive(:create_request).and_return("alternate-remote")
+      @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
+      @cli.should_receive(:create_git_remote).with("alternate-remote", "alternate")
       @cli.create
     end
 
