@@ -258,6 +258,7 @@ module Heroku::Command
 
       def create_git_remote(app, remote)
         return if shell('git remote').split("\n").include?(remote)
+        return unless File.exists?(".git")
         shell "git remote add #{remote} git@#{heroku.host}:#{app}.git"
         display "Git remote #{remote} added"
       end
