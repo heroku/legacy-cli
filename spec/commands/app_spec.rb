@@ -96,12 +96,103 @@ module Heroku::Command
       @cli.restart
     end
 
-    it "scales dynos" do
-      @cli.stub!(:args).and_return(['+4'])
-      @cli.heroku.should_receive(:set_dynos).with('myapp', '+4').and_return(7)
-      @cli.dynos
+    describe "dynos command" do
+      describe "get dynos count" do
+        before { @cli.stub!(:args).and_return([]) }
+
+        it "with dynos count == 0" do
+          @cli.stub!(:args).and_return([])
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :dynos => '0' })
+          @cli.should_receive(:display).with("myapp is running on 0 dyno")
+          @cli.dynos
+        end
+
+        it "with dynos count == 1" do
+          @cli.stub!(:args).and_return([])
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :dynos => '1' })
+          @cli.should_receive(:display).with("myapp is running on 1 dyno")
+          @cli.dynos
+        end
+
+        it "with dynos count > 1" do
+          @cli.stub!(:args).and_return([])
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :dynos => '3' })
+          @cli.should_receive(:display).with("myapp is running on 3 dynos")
+          @cli.dynos
+        end
+      end
+
+      describe "scales dynos" do
+        it "with dynos count (after update) == 0" do
+          @cli.stub!(:args).and_return(['-2'])
+          @cli.heroku.should_receive(:set_dynos).with('myapp', '-2').and_return('0')
+          @cli.should_receive(:display).with("myapp now running on 0 dyno")
+          @cli.dynos
+        end
+
+        it "with dynos count (after update) == 1" do
+          @cli.stub!(:args).and_return(['-1'])
+          @cli.heroku.should_receive(:set_dynos).with('myapp', '-1').and_return('1')
+          @cli.should_receive(:display).with("myapp now running on 1 dyno")
+          @cli.dynos
+        end
+
+        it "with dynos count (after update) > 1" do
+          @cli.stub!(:args).and_return(['+2'])
+          @cli.heroku.should_receive(:set_dynos).with('myapp', '+2').and_return('4')
+          @cli.should_receive(:display).with("myapp now running on 4 dynos")
+          @cli.dynos
+        end
+      end
     end
 
+    describe "workers command" do
+      describe "get workers count" do
+        before { @cli.stub!(:args).and_return([]) }
+        
+        it "with workers count == 0" do
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :workers => '0' })
+          @cli.should_receive(:display).with("myapp is running 0 workers")
+          @cli.workers
+        end
+        
+        it "with workers count == 1" do
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :workers => '1' })
+          @cli.should_receive(:display).with("myapp is running 1 worker")
+          @cli.workers
+        end
+        
+        it "with workers count > 1" do
+          @cli.heroku.should_receive(:info).with('myapp').and_return({ :workers => '3' })
+          @cli.should_receive(:display).with("myapp is running 3 workers")
+          @cli.workers
+        end
+      end
+      
+      describe "scales workers" do
+        it "with workers count (after update) == 0" do
+          @cli.stub!(:args).and_return(['-2'])
+          @cli.heroku.should_receive(:set_workers).with('myapp', '-2').and_return('0')
+          @cli.should_receive(:display).with("myapp now running 0 workers")
+          @cli.workers
+        end
+        
+        it "with workers count (after update) == 1" do
+          @cli.stub!(:args).and_return(['-1'])
+          @cli.heroku.should_receive(:set_workers).with('myapp', '-1').and_return('1')
+          @cli.should_receive(:display).with("myapp now running 1 worker")
+          @cli.workers
+        end
+        
+        it "with workers count (after update) > 1" do
+          @cli.stub!(:args).and_return(['+2'])
+          @cli.heroku.should_receive(:set_workers).with('myapp', '+2').and_return('4')
+          @cli.should_receive(:display).with("myapp now running 4 workers")
+          @cli.workers
+        end
+      end
+    end
+    
     it "destroys the app specified with --app if user confirms" do
       @cli.stub!(:ask).and_return('y')
       @cli.stub!(:args).and_return(['--app', 'myapp'])

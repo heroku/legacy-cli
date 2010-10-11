@@ -128,6 +128,11 @@ describe Heroku::Client do
     @client.set_dynos('myapp', 3)
   end
 
+  it "set_workers(app_name, qty) -> scales the workers" do
+    stub_api_request(:put, "/apps/myapp/workers").with(:body => "workers=2")
+    @client.set_workers('myapp', 2)
+  end
+
   it "rake catches 502s and shows the app crashlog" do
     e = RestClient::RequestFailed.new
     e.stub!(:http_code).and_return(502)

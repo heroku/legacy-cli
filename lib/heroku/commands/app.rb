@@ -179,7 +179,7 @@ module Heroku::Command
       app = extract_app
       if dynos = args.shift
         current = heroku.set_dynos(app, dynos)
-        display "#{app} now running on #{current} dyno#{'s' if current > 1}"
+        display "#{app} now running on #{current} dyno#{'s' if current.to_i > 1}"
       else
         info = heroku.info(app)
         display "#{app} is running on #{info[:dynos]} dyno#{'s' if info[:dynos].to_i > 1}"
@@ -190,7 +190,7 @@ module Heroku::Command
       app = extract_app
       if workers = args.shift
         current = heroku.set_workers(app, workers)
-        display "#{app} now running #{current} worker#{'s' if current != 1}"
+        display "#{app} now running #{current} worker#{'s' if current.to_i != 1}"
       else
         info = heroku.info(app)
         display "#{app} is running #{info[:workers]} worker#{'s' if info[:workers].to_i != 1}"
