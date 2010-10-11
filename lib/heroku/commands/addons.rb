@@ -48,6 +48,23 @@ module Heroku::Command
       display addon_run { heroku.install_addon(app, addon, config) }
     end
 
+    def upgrade
+      addon = args.shift
+      config = {}
+      args.each do |arg|
+        key, value = arg.strip.split('=', 2)
+        if value.nil?
+          error("Non-config value \"#{arg}\".\nEverything after the addon name should be a key=value pair")
+        else
+          config[key] = value
+        end
+      end
+
+      display "Adding #{addon} to #{app}... ", false
+      display addon_run { heroku.upgrade_addon(app, addon, config) }
+    end
+    alias_method :downgrade, :upgrade
+
     def remove
       args.each do |name|
         display "Removing #{name} from #{app}... ", false

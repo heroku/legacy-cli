@@ -324,6 +324,16 @@ describe Heroku::Client do
       @client.install_addon('myapp', 'addon1')
     end
 
+    it "upgrade_addon(app_name, addon_name)" do
+      stub_api_request(:put, "/apps/myapp/addons/addon1")
+      @client.upgrade_addon('myapp', 'addon1')
+    end
+
+    it "downgrade_addon(app_name, addon_name)" do
+      stub_api_request(:put, "/apps/myapp/addons/addon1")
+      @client.downgrade_addon('myapp', 'addon1')
+    end
+
     it "uninstall_addon(app_name, addon_name)" do
       stub_api_request(:delete, "/apps/myapp/addons/addon1")
       @client.uninstall_addon('myapp', 'addon1')

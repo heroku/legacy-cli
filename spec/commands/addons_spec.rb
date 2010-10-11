@@ -23,6 +23,24 @@ module Heroku::Command
       @addons.add
     end
 
+    it "upgrades an addon" do
+      @addons.stub!(:args).and_return(%w(my_addon))
+      @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', {})
+      @addons.upgrade
+    end
+
+    it "downgrades an addon" do
+      @addons.stub!(:args).and_return(%w(my_addon))
+      @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', {})
+      @addons.downgrade
+    end
+
+    it "upgrade an addon with config vars" do
+      @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+      @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+      @addons.upgrade
+    end
+
     it "asks the user to confirm billing when API responds with 402" do
       @addons.stub!(:args).and_return(%w( addon1 ))
       e = RestClient::RequestFailed.new

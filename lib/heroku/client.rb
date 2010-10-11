@@ -428,6 +428,11 @@ class Heroku::Client
     post("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').to_s
   end
 
+  def upgrade_addon(app_name, addon, config={})
+    put("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').to_s
+  end
+  alias_method :downgrade_addon, :upgrade_addon
+
   def uninstall_addon(app_name, addon)
     delete("/apps/#{app_name}/addons/#{escape(addon)}", :accept => 'application/json').to_s
   end
