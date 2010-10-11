@@ -425,16 +425,16 @@ class Heroku::Client
   end
 
   def install_addon(app_name, addon, config={})
-    post("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').to_s
+    configure_addon :install, app_name, addon, config
   end
 
   def upgrade_addon(app_name, addon, config={})
-    put("/apps/#{app_name}/addons/#{escape(addon)}", { :config => config }, :accept => 'application/json').to_s
+    configure_addon :upgrade, app_name, addon, config
   end
   alias_method :downgrade_addon, :upgrade_addon
 
   def uninstall_addon(app_name, addon)
-    delete("/apps/#{app_name}/addons/#{escape(addon)}", :accept => 'application/json').to_s
+    configure_addon :uninstall, app_name, addon
   end
 
   def confirm_billing
@@ -527,4 +527,30 @@ class Heroku::Client
 	def httpcache_purge(app_name)
 		delete("/apps/#{app_name}/httpcache").to_s
 	end
+
+  private
+
+    def configure_addon(action, app_name, addon, config = {})
+      update_addon action,
+                   addon_path(app_name, addon),
+                   config
+    end
+
+    def addon_path(app_name, addon)
+      "/apps/#{app_name}/addons/#{escape(addon)}"
+    end
+
+    def update_addon(action, path, config)
+      config  = { :config => config }
+      headers = { :accept => 'application/json' }
+
+      case action
+      when :install
+        post path, config, headers
+      when :upgrade
+        put path, config, headers
+      when :uninstall
+        delete path, headers
+      end
+    end
 end
