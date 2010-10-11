@@ -531,9 +531,11 @@ class Heroku::Client
   private
 
     def configure_addon(action, app_name, addon, config = {})
-      update_addon action,
-                   addon_path(app_name, addon),
-                   config
+      response = update_addon action,
+                              addon_path(app_name, addon),
+                              config
+
+      JSON.parse(response)['message'] unless response.empty?
     end
 
     def addon_path(app_name, addon)

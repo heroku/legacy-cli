@@ -321,17 +321,38 @@ describe Heroku::Client do
 
     it "install_addon(app_name, addon_name)" do
       stub_api_request(:post, "/apps/myapp/addons/addon1")
-      @client.install_addon('myapp', 'addon1')
+      @client.install_addon('myapp', 'addon1').should be_nil
     end
 
     it "upgrade_addon(app_name, addon_name)" do
       stub_api_request(:put, "/apps/myapp/addons/addon1")
-      @client.upgrade_addon('myapp', 'addon1')
+      @client.upgrade_addon('myapp', 'addon1').should be_nil
     end
 
     it "downgrade_addon(app_name, addon_name)" do
       stub_api_request(:put, "/apps/myapp/addons/addon1")
-      @client.downgrade_addon('myapp', 'addon1')
+      @client.downgrade_addon('myapp', 'addon1').should be_nil
+    end
+
+    it "install_addon(app_name, addon_name) with response message" do
+      stub_request(:post, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:message => "Don't panic"))
+
+      @client.install_addon('myapp', 'addon1').should == "Don't panic"
+    end
+
+    it "upgrade_addon(app_name, addon_name) with response message" do
+      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:message => "Don't panic"))
+
+      @client.upgrade_addon('myapp', 'addon1').should == "Don't panic"
+    end
+
+    it "downgrade_addon(app_name, addon_name) with response message" do
+      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:message => "Don't panic"))
+
+      @client.downgrade_addon('myapp', 'addon1').should == "Don't panic"
     end
 
     it "uninstall_addon(app_name, addon_name)" do
