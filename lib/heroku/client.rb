@@ -204,7 +204,10 @@ class Heroku::Client
       run_console_command("/apps/#{app_name}/console", cmd)
     end
   rescue RestClient::BadGateway => e
-    raise(AppCrashed, e.response.to_s)
+    raise(AppCrashed, <<-ERROR)
+Your application is too busy to open a console session.
+Console sessions require an open dyno to use for execution.
+    ERROR
   end
 
   # internal method to run console commands formatting the output
