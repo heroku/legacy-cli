@@ -356,8 +356,10 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name)" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1")
-      @client.uninstall_addon('myapp', 'addon1')
+      stub_api_request(:delete, "/apps/myapp/addons/addon1").
+        to_return(:body => 'true')
+
+      @client.uninstall_addon('myapp', 'addon1').should be_nil
     end
   end
 
