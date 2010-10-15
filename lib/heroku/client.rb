@@ -535,7 +535,7 @@ class Heroku::Client
                               addon_path(app_name, addon),
                               config
 
-      JSON.parse(response)['message'] unless response.empty?
+      JSON.parse(response) unless response.empty?
     rescue JSON::ParserError
     end
 

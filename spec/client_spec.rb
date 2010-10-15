@@ -334,32 +334,43 @@ describe Heroku::Client do
       @client.downgrade_addon('myapp', 'addon1').should be_nil
     end
 
-    it "install_addon(app_name, addon_name) with response message" do
-      stub_request(:post, "https://api.heroku.com/apps/myapp/addons/addon1").
-        to_return(:body => JSON(:message => "Don't panic"))
-
-      @client.install_addon('myapp', 'addon1').should == "Don't panic"
-    end
-
-    it "upgrade_addon(app_name, addon_name) with response message" do
-      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
-        to_return(:body => JSON(:message => "Don't panic"))
-
-      @client.upgrade_addon('myapp', 'addon1').should == "Don't panic"
-    end
-
-    it "downgrade_addon(app_name, addon_name) with response message" do
-      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
-        to_return(:body => JSON(:message => "Don't panic"))
-
-      @client.downgrade_addon('myapp', 'addon1').should == "Don't panic"
-    end
-
     it "uninstall_addon(app_name, addon_name)" do
       stub_api_request(:delete, "/apps/myapp/addons/addon1").
         to_return(:body => 'true')
 
       @client.uninstall_addon('myapp', 'addon1').should be_nil
+    end
+
+    it "install_addon(app_name, addon_name) with response" do
+      stub_request(:post, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:price => 'free', :message => "Don't Panic"))
+
+      @client.install_addon('myapp', 'addon1').
+        should == { 'price' => 'free', 'message' => "Don't Panic" }
+    end
+
+    it "upgrade_addon(app_name, addon_name) with response" do
+      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:price => 'free', :message => "Don't Panic"))
+
+      @client.upgrade_addon('myapp', 'addon1').
+        should == { 'price' => 'free', 'message' => "Don't Panic" }
+    end
+
+    it "downgrade_addon(app_name, addon_name) with response" do
+      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:price => 'free', :message => "Don't Panic"))
+
+      @client.downgrade_addon('myapp', 'addon1').
+        should == { 'price' => 'free', 'message' => "Don't Panic" }
+    end
+
+    it "uninstall_addon(app_name, addon_name) with response" do
+      stub_api_request(:delete, "/apps/myapp/addons/addon1").
+        to_return(:body => JSON(:price => 'free', :message => "Don't Panic"))
+
+      @client.uninstall_addon('myapp', 'addon1').
+        should == { 'price' => 'free', 'message' => "Don't Panic" }
     end
   end
 

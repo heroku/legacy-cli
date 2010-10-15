@@ -23,21 +23,26 @@ module Heroku::Command
       @addons.add
     end
 
-    it "adds an addon with a response message" do
-      @addons.stub!(:args).and_return(%w(my_addon))
-      @addons.heroku.should_receive(:install_addon).
-        with('myapp', 'my_addon', {}).
-        and_return("Don't Panic")
+    describe 'adding' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
-      received_message = false
-      @addons.should_receive(:display).any_number_of_times do |message, newline|
-        received_message = received_message || message == "done Don't Panic"
+      it "adds an addon with a price" do
+        @addons.heroku.should_receive(:install_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free' })
+
+        lambda { @addons.add }.
+          should display_message(@addons, "done (free)")
       end
 
-      @addons.add
+      it "adds an addon with a price and message" do
+        @addons.heroku.should_receive(:install_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
-      received_message.should be_true,
-        'expected addon install message to be printed'
+        lambda { @addons.add }.
+          should display_message(@addons, "done (free) Don't Panic")
+      end
     end
 
     it "upgrades an addon" do
@@ -52,21 +57,26 @@ module Heroku::Command
       @addons.upgrade
     end
 
-    it "upgrades an addon with a response message" do
-      @addons.stub!(:args).and_return(%w(my_addon))
-      @addons.heroku.should_receive(:upgrade_addon).
-        with('myapp', 'my_addon', {}).
-        and_return("Don't Panic")
+    describe 'upgrading' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
-      received_message = false
-      @addons.should_receive(:display).any_number_of_times do |message, newline|
-        received_message = received_message || message == "done Don't Panic"
+      it "adds an addon with a price" do
+        @addons.heroku.should_receive(:upgrade_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free' })
+
+        lambda { @addons.upgrade }.
+          should display_message(@addons, "done (free)")
       end
 
-      @addons.upgrade
+      it "adds an addon with a price and message" do
+        @addons.heroku.should_receive(:upgrade_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
-      received_message.should be_true,
-        'expected addon upgrade message to be printed'
+        lambda { @addons.upgrade }.
+          should display_message(@addons, "done (free) Don't Panic")
+      end
     end
 
     it "downgrades an addon" do
@@ -81,21 +91,26 @@ module Heroku::Command
       @addons.downgrade
     end
 
-    it "downgrades an addon with a response message" do
-      @addons.stub!(:args).and_return(%w(my_addon))
-      @addons.heroku.should_receive(:upgrade_addon).
-        with('myapp', 'my_addon', {}).
-        and_return("Don't Panic")
+    describe 'downgrading' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
-      received_message = false
-      @addons.should_receive(:display).any_number_of_times do |message, newline|
-        received_message = received_message || message == "done Don't Panic"
+      it "adds an addon with a price" do
+        @addons.heroku.should_receive(:upgrade_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free' })
+
+        lambda { @addons.downgrade }.
+          should display_message(@addons, "done (free)")
       end
 
-      @addons.downgrade
+      it "adds an addon with a price and message" do
+        @addons.heroku.should_receive(:upgrade_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
-      received_message.should be_true,
-        'expected addon downgrade message to be printed'
+        lambda { @addons.downgrade }.
+          should display_message(@addons, "done (free) Don't Panic")
+      end
     end
 
     it "asks the user to confirm billing when API responds with 402" do
