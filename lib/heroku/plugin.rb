@@ -25,7 +25,7 @@ module Heroku
         begin
           load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
         rescue Exception => e
-          display "Unable to load plugin: some_plugin: #{e.message}"
+          display "Unable to load plugin: #{plugin}: #{e.message}"
         end
       end
     end
