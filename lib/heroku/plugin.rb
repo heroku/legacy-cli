@@ -20,14 +20,18 @@ module Heroku
 
     def self.load!
       list.each do |plugin|
-        folder = "#{self.directory}/#{plugin}"
-        $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
         begin
-          load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
+          load_plugin(plugin)
         rescue Exception => e
           display "Unable to load plugin: #{plugin}: #{e.message}"
         end
       end
+    end
+
+    def self.load_plugin(plugin)
+      folder = "#{self.directory}/#{plugin}"
+      $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
+      load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
     end
 
     def initialize(uri)
