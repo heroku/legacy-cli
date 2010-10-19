@@ -409,7 +409,7 @@ class Heroku::Client
   end
 
   def remove_config_var(app_name, key)
-    delete("/apps/#{app_name}/config_vars/#{key}").to_s
+    delete("/apps/#{app_name}/config_vars/#{escape(key)}").to_s
   end
 
   def clear_config_vars(app_name)

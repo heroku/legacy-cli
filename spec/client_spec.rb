@@ -301,6 +301,11 @@ describe Heroku::Client do
       stub_api_request(:delete, "/apps/myapp/config_vars")
       @client.clear_config_vars('myapp')
     end
+
+    it "can handle config vars with special characters" do
+      stub_api_request(:delete, "/apps/myapp/config_vars/foo%5Bbar%5D")
+      lambda { @client.remove_config_var('myapp', 'foo[bar]') }.should_not raise_error
+    end
   end
 
   describe "addons" do
