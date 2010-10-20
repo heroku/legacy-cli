@@ -19,6 +19,14 @@ module Heroku::Command
       @config.index
     end
 
+    it "shows configs in a shell compatible format" do
+      @config.stub!(:args).and_return(['--shell'])
+      @config.heroku.should_receive(:config_vars).and_return({ 'A' => 'one', 'B' => 'two' })
+      @config.should_receive(:display).with('A=one')
+      @config.should_receive(:display).with('B=two')
+      @config.index
+    end
+
     it "sets config vars" do
       @config.stub!(:args).and_return(['a=1', 'b=2'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'1','b'=>'2'})
