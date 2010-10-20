@@ -55,16 +55,17 @@ module Heroku
             begin
               return eval("Heroku::Command::#{command.capitalize}"), :index
             rescue NameError, NoMethodError
-              return Heroku::Command::App, command
+              return Heroku::Command::App, command.to_sym
             end
-          when 2
+          else
             begin
-              return Heroku::Command.const_get(parts[0].capitalize), parts[1]
+              const = Heroku::Command
+              command = parts.pop
+              parts.each { |part| const = const.const_get(part.capitalize) }
+              return const, command.to_sym
             rescue NameError
               raise InvalidCommand
             end
-          else
-            raise InvalidCommand
         end
       end
 

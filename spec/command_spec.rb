@@ -20,4 +20,14 @@ describe Heroku::Command do
   it "handles a nil body in parse_error_json" do
     lambda { Heroku::Command.parse_error_json(nil) }.should_not raise_error
   end
+
+  it "correctly resolves commands" do
+    class Heroku::Command::Test; end
+    class Heroku::Command::Test::Multiple; end
+
+    Heroku::Command.parse("foo").should == [ Heroku::Command::App, :foo ]
+    Heroku::Command.parse("test").should == [ Heroku::Command::Test, :index ]
+    Heroku::Command.parse("test:foo").should == [ Heroku::Command::Test, :foo   ]
+    Heroku::Command.parse("test:multiple:foo").should == [ Heroku::Command::Test::Multiple, :foo ]
+  end
 end
