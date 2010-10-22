@@ -95,12 +95,20 @@ module Heroku::Command
 
       def addon_run
         response = yield
+
         if response
-          price   = "(#{ response['price'] })" if response['price']
+          price = "(#{ response['price'] })" if response['price']
           message = response['message']
         end
 
-        [ 'done', price, message ].compact.join ' '
+        out = [ 'done', price ].compact.join(' ')
+        if message
+          out += "\n"
+          out += message.split("\n").map do |line|
+            "  #{line}"
+          end.join("\n")
+        end
+        out
       rescue RestClient::ResourceNotFound => e
         "FAILED\n !   #{e.response.to_s}"
       rescue RestClient::RequestFailed => e

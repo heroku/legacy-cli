@@ -41,7 +41,7 @@ module Heroku::Command
           and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
         lambda { @addons.add }.
-          should display_message(@addons, "done (free) Don't Panic")
+          should display_message(@addons, "done (free)\n  Don't Panic")
       end
     end
 
@@ -75,7 +75,7 @@ module Heroku::Command
           and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
         lambda { @addons.upgrade }.
-          should display_message(@addons, "done (free) Don't Panic")
+          should display_message(@addons, "done (free)\n  Don't Panic")
       end
     end
 
@@ -109,7 +109,7 @@ module Heroku::Command
           and_return({ 'price' => 'free', 'message' => "Don't Panic" })
 
         lambda { @addons.downgrade }.
-          should display_message(@addons, "done (free) Don't Panic")
+          should display_message(@addons, "done (free)\n  Don't Panic")
       end
     end
 
