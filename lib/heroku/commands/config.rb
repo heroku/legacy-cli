@@ -3,8 +3,9 @@ module Heroku::Command
     def index
       long  = args.delete('--long')
       shell = args.delete('--shell')
+      yaml  = args.delete('--yaml')
       vars  = heroku.config_vars(app)
-      display_vars(vars, :long => long, :shell => shell)
+      display_vars(vars, :long => long, :shell => shell, :yaml => yaml)
     end
 
     def add
@@ -42,9 +43,14 @@ module Heroku::Command
     protected
       def display_vars(vars, options={})
         max_length = vars.map { |v| v[0].size }.max
+        if options[:yaml]
+          display "#{vars['RACK_ENV'] || 'ENV'}:"
+        end
         vars.keys.sort.each do |key|
           if options[:shell]
             display "#{key}=#{vars[key]}"
+          elsif options[:yaml]
+            display "#{key}: #{vars[key]}" unless key == 'RACK_ENV'
           else
             spaces = ' ' * (max_length - key.size)
             display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
