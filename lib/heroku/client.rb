@@ -22,8 +22,8 @@ class Heroku::Client
   def self.gem_version_string
     "heroku-gem/#{version}"
   end
-  
-  attr_reader :host, :user, :password
+
+  attr_accessor :host, :user, :password
 
   def initialize(user, password, host='heroku.com')
     @user = user
@@ -454,6 +454,8 @@ Console sessions require an open dyno to use for execution.
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
     if uri =~ /^https?/
       RestClient::Resource.new(uri, user, password)
+    elsif host =~ /^https?/
+      RestClient::Resource.new(host, user, password)[uri]
     else
       RestClient::Resource.new("https://api.#{host}", user, password)[uri]
     end

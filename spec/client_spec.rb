@@ -391,6 +391,17 @@ describe Heroku::Client do
       res.password.should == 'secret'
     end
 
+    it "appends the api. prefix to the host" do
+      @client.host = "heroku.com"
+      @client.resource('/xyz').url.should == 'https://api.heroku.com/xyz'
+    end
+
+    it "doesn't add the api. prefix to full hosts" do
+      @client.host = 'http://resource'
+      res = @client.resource('/xyz')
+      res.url.should == 'http://resource/xyz'
+    end
+
     it "runs a callback when the API sets a warning header" do
       response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
       @client.should_receive(:resource).with('test').and_return(@resource)
