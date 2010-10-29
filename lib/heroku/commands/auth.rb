@@ -70,7 +70,7 @@ module Heroku::Command
       print "Password: "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
 
-      [ user, password ]
+      [Heroku::Client.auth(user, password, host)['api_key']]
     end
 
     def ask_for_password_on_windows
