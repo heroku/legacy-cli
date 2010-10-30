@@ -166,13 +166,7 @@ module Heroku::Command
     def load_taps
       require 'taps/operation'
       require 'taps/cli'
-      error "The heroku gem requires taps 0.3" unless Taps.version =~ /^0.3/
       display "Loaded Taps v#{Taps.version}"
-    rescue LoadError
-      message  = "Taps 0.3 Load Error: #{$!.message}\n"
-      message << "You may need to install or update the taps gem to use db commands.\n"
-      message << "On most systems this will be:\n\nsudo gem install taps"
-      error message
     end
   end
 end
