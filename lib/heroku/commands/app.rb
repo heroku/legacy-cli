@@ -172,7 +172,7 @@ module Heroku::Command
     def restart
       app_name = extract_app
       heroku.restart(app_name)
-      display "Servers restarted"
+      display "App processes restarted"
     end
 
     def dynos
