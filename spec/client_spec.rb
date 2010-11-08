@@ -101,11 +101,11 @@ describe Heroku::Client do
     @client.console('myapp', 'test').should == ' !   Test Error'
   end
 
-  it "console returns the response body of a failed request" do
+  it "shows an error message when a console request fails" do
     stub_request(:post, %r{.*/apps/myapp/console}).to_return({
       :body => "ERRMSG", :status => 502
     })
-    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, "ERRMSG")
+    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, "Your application is too busy to open a console session.\nConsole sessions require an open dyno to use for execution.\n")
   end
 
   it "restart(app_name) -> restarts the app servers" do
