@@ -41,19 +41,19 @@ module Heroku::Command
 
     protected
       def display_vars(vars, options={})
-        max_length = vars.map { |v| v[0].size }.max
+        max_length = vars.map { |v| v[0].to_s.size }.max
         vars.keys.sort.each do |key|
           if options[:shell]
             display "#{key}=#{vars[key]}"
           else
-            spaces = ' ' * (max_length - key.size)
+            spaces = ' ' * (max_length - key.to_s.size)
             display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
           end
         end
       end
 
       def format(value, options)
-        return value if options[:long] || value.size < 36
+        return value if options[:long] || value.to_s.size < 36
         value[0, 16] + '...' + value[-16, 16]
       end
   end
