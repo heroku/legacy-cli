@@ -88,7 +88,7 @@ module Heroku::Command
       if attrs[:database_size]
         data = format_bytes(attrs[:database_size])
         if tables = attrs[:database_tables]
-          data = data.gsub('(empty)', '0K') + " in #{tables} table#{'s' if tables.to_i != 1}"
+          data = data.gsub('(empty)', '0K') + " in #{quantify("table", tables)}"
         end
         display "Data size:      #{data}"
       end
@@ -172,17 +172,17 @@ module Heroku::Command
     def restart
       app_name = extract_app
       heroku.restart(app_name)
-      display "Servers restarted"
+      display "App processes restarted"
     end
 
     def dynos
       app = extract_app
       if dynos = args.shift
         current = heroku.set_dynos(app, dynos)
-        display "#{app} now running on #{current} dyno#{'s' if current > 1}"
+        display "#{app} now running #{quantify("dyno", current)}"
       else
         info = heroku.info(app)
-        display "#{app} is running on #{info[:dynos]} dyno#{'s' if info[:dynos].to_i > 1}"
+        display "#{app} is running #{quantify("dyno", info[:dynos])}"
       end
     end
 
@@ -190,10 +190,10 @@ module Heroku::Command
       app = extract_app
       if workers = args.shift
         current = heroku.set_workers(app, workers)
-        display "#{app} now running #{current} worker#{'s' if current != 1}"
+        display "#{app} now running #{quantify("worker", current)}"
       else
         info = heroku.info(app)
-        display "#{app} is running #{info[:workers]} worker#{'s' if info[:workers].to_i != 1}"
+        display "#{app} is running #{quantify("worker", info[:workers])}"
       end
     end
 
@@ -230,6 +230,10 @@ module Heroku::Command
         return "#{(amount / @@kb).round}k" if amount < @@mb
         return "#{(amount / @@mb).round}M" if amount < @@gb
         return "#{(amount / @@gb).round}G"
+      end
+
+      def quantify(string, num)
+        "%d %s" % [ num, num.to_i == 1 ? string : "#{string}s" ]
       end
 
       def console_history_dir

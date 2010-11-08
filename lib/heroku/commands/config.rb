@@ -1,9 +1,10 @@
 module Heroku::Command
   class Config < BaseWithApp
     def index
-      long = args.delete('--long')
-      vars = heroku.config_vars(app)
-      display_vars(vars, :long => long)
+      long  = args.delete('--long')
+      shell = args.delete('--shell')
+      vars  = heroku.config_vars(app)
+      display_vars(vars, :long => long, :shell => shell)
     end
 
     def add
@@ -42,8 +43,12 @@ module Heroku::Command
       def display_vars(vars, options={})
         max_length = vars.map { |v| v[0].size }.max
         vars.keys.sort.each do |key|
-          spaces = ' ' * (max_length - key.size)
-          display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
+          if options[:shell]
+            display "#{key}=#{vars[key]}"
+          else
+            spaces = ' ' * (max_length - key.size)
+            display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
+          end
         end
       end
 

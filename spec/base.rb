@@ -46,3 +46,8 @@ module Heroku::Helpers
   def display(msg, newline=true)
   end
 end
+
+require 'spec/support/display_message_matcher'
+Spec::Runner.configure do |config|
+  config.include(DisplayMessageMatcher)
+end

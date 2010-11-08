@@ -33,20 +33,17 @@ module Heroku::Command
     end
 
     def add
-      addon = args.shift
-      config = {}
-      args.each do |arg|
-        key, value = arg.strip.split('=', 2)
-        if value.nil?
-          error("Non-config value \"#{arg}\".\nEverything after the addon name should be a key=value pair")
-        else
-          config[key] = value
-        end
+      configure_addon('Adding') do |addon, config|
+        heroku.install_addon(app, addon, config)
       end
-
-      display "Adding #{addon} to #{app}... ", false
-      display addon_run { heroku.install_addon(app, addon, config) }
     end
+
+    def upgrade
+      configure_addon('Upgrading') do |addon, config|
+        heroku.upgrade_addon(app, addon, config)
+      end
+    end
+    alias_method :downgrade, :upgrade
 
     def remove
       args.each do |name|
@@ -97,13 +94,42 @@ module Heroku::Command
       end
 
       def addon_run
-        yield
-        'done'
+        response = yield
+
+        if response
+          price = "(#{ response['price'] })" if response['price']
+          message = response['message']
+        end
+
+        out = [ 'done', price ].compact.join(' ')
+        if message
+          out += "\n"
+          out += message.split("\n").map do |line|
+            "  #{line}"
+          end.join("\n")
+        end
+        out
       rescue RestClient::ResourceNotFound => e
         "FAILED\n !   #{e.response.to_s}"
       rescue RestClient::RequestFailed => e
         retry if e.http_code == 402 && confirm_billing
         "FAILED\n" + Heroku::Command.extract_error(e.http_body)
+      end
+
+      def configure_addon(label, &install_or_upgrade)
+        addon = args.shift
+        config = {}
+        args.each do |arg|
+          key, value = arg.strip.split('=', 2)
+          if value.nil?
+            error("Non-config value \"#{arg}\".\nEverything after the addon name should be a key=value pair")
+          else
+            config[key] = value
+          end
+        end
+
+        display "#{label} #{addon} to #{app}... ", false
+        display addon_run { install_or_upgrade.call(addon, config) }
       end
   end
 end
