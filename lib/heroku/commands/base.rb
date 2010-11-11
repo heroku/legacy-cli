@@ -24,7 +24,9 @@ module Heroku::Command
 
       if confirmed_app != app
         display "\n !    Potentially Destructive Action"
-        display " !    To proceed, re-run this command with --confirm #{@app}"
+        display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{@app}"
+        display "> ", false
+        return ask.downcase == app
 
         false
       else
