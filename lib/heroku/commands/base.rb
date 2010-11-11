@@ -19,6 +19,19 @@ module Heroku::Command
       ask.downcase == 'y'
     end
 
+    def confirm_command
+      confirmed_app = extract_option('--confirm', false)
+
+      if confirmed_app != app
+        display "\n !    Potentially Destructive Action"
+        display " !    To proceed, re-run this command with --confirm #{@app}"
+
+        false
+      else
+        true
+      end
+    end
+
     def format_date(date)
       date = Time.parse(date) if date.is_a?(String)
       date.strftime("%Y-%m-%d %H:%M %Z")
