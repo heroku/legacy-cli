@@ -198,24 +198,21 @@ module Heroku::Command
     end
 
     def destroy
-      if name = extract_option('--app')
-        info = heroku.info(name)
-        url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
-        conf = nil
+      app = extract_app
+      info = heroku.info(app)
+      url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
 
-        display("Permanently destroy #{url} (y/n)? ", false)
-        if ask.downcase == 'y'
-          heroku.destroy(name)
-          if remotes = git_remotes(Dir.pwd)
-            remotes.each do |remote_name, remote_app|
-              next if name != remote_app
-              shell "git remote rm #{remote_name}"
-            end
+      display "Destroying #{url}"
+      if confirm_command
+        redisplay "Destroying #{url}..."
+        heroku.destroy(name)
+        if remotes = git_remotes(Dir.pwd)
+          remotes.each do |remote_name, remote_app|
+            next if name != remote_app
+            shell "git remote rm #{remote_name}"
           end
-          display "Destroyed #{name}"
         end
-      else
-        display "Set the app you want to destroy adding --app <app name> to this command"
+        redisplay "Destroying #{url}... done"
       end
     end
 
