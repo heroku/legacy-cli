@@ -19,13 +19,15 @@ module Heroku::Command
       ask.downcase == 'y'
     end
 
-    def confirm_command
+    def confirm_command(app = app)
       if extract_option('--force')
-        display("WARNING: The --force switch is deprecated, and will be removed in a future release. Use --confirm #{app} instead.")
+        display("Warning: The --force switch is deprecated, and will be removed in a future release. Use --confirm #{app} instead.")
         return true
       end
 
       confirmed_app = extract_option('--confirm', false)
+
+      raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app
 
       if confirmed_app != app
         display "\n !    Potentially Destructive Action"

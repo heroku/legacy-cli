@@ -21,6 +21,10 @@ module Heroku
       end
     end
 
+    def redisplay(line, line_break = false)
+      display("\r\e[0K#{line}", line_break)
+    end
+
     def error(msg)
       STDERR.puts(msg)
       exit 1
