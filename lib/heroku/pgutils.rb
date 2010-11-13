@@ -9,7 +9,7 @@ module PgUtils
 
   def pg_config_var_names
     # all config vars that are a postgres:// URL
-    pg_config_vars = @config_vars.reject { |k,v| not v =~ /^postgres:\/\// }
+    pg_config_vars = config_vars.reject { |k,v| not v =~ /^postgres:\/\// }
     pg_config_vars.keys.sort!
   end
 
@@ -21,12 +21,12 @@ module PgUtils
     output = nil
     addon_config_vars = pg_config_var_names - ["DATABASE_URL"]
     addon_config_vars.each do |n|
-      next unless @config_vars[n] == @config_vars[name]
-      return n, @config_vars[n], @config_vars[n] == @config_vars["DATABASE_URL"]
+      next unless config_vars[n] == config_vars[name]
+      return n, config_vars[n], config_vars[n] == config_vars["DATABASE_URL"]
     end
 
     # database url isn't an alias for another var
-    return name, @config_vars[name], true if name == "DATABASE_URL"
+    return name, config_vars[name], true if name == "DATABASE_URL"
 
     if name
       display " !   Database #{name} not found in config."
@@ -37,10 +37,10 @@ module PgUtils
     display " !   Available database URLs:"
     addon_config_vars.each do |v|
       str = " !   #{v}"
-      str += " (currently DATABASE_URL)" if @config_vars[v] == @config_vars["DATABASE_URL"]
+      str += " (currently DATABASE_URL)" if config_vars[v] == config_vars["DATABASE_URL"]
       display str
     end
-    abort ""
+    abort
   end
 
 end

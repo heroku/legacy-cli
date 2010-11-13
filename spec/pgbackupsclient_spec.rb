@@ -24,7 +24,7 @@ describe PGBackups::Client do
 
       @client.create_transfer("postgres://from", "postgres://to", "FROMNAME", "TO_NAME")
 
-     pgbackups_api_request(:post, "/client/transfers").should have_been_made.once
+      pgbackups_api_request(:post, "/client/transfers").should have_been_made.once
     end
   end
 

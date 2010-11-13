@@ -24,9 +24,12 @@ module Heroku::Command
       pg_config_var_names.select { |n| n.match("HEROKU_POSTGRESQL") }
     end
 
+    def config_vars
+      @config_vars ||= heroku.config_vars(app)
+    end
+
     def initialize(*args)
       super
-      @config_vars =  heroku.config_vars(app)
     end
 
     def with_heroku_postgresql_database
@@ -85,7 +88,7 @@ module Heroku::Command
         return
       end
 
-      abort(" !   #{name} is already the DATABASE_URL.") if url == @config_vars["DATABASE_URL"]
+      abort(" !   #{name} is already the DATABASE_URL.") if url == config_vars["DATABASE_URL"]
 
       display "Setting config variable DATABASE_URL to #{name}", false
       return unless confirm_command
@@ -101,9 +104,13 @@ module Heroku::Command
 
     def reset
       db_id = extract_option("--db")
+
+      puts "DB:ID:#{db_id}"
+
       (name, url, primary) = resolve_db_id(db_id, :usage_message => " !   Usage: heroku pg:reset --db <DATABASE>")
 
       redisplay "Resetting #{name}#{primary ? ' (DATABASE_URL)' : ''}", false
+
 
       if confirm_command
         display "... ", false

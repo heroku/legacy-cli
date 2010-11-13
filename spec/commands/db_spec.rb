@@ -11,7 +11,7 @@ module Heroku::Command
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
       opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:pull, opts)
-      @db.should_receive(:confirm).and_return(true)
+      @db.should_receive(:confirm_command).and_return(true)
       @db.pull
     end
 
@@ -19,40 +19,8 @@ module Heroku::Command
       @db.stub!(:args).and_return(['postgres://postgres@localhost/db'])
       opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:push, opts)
-      @db.should_receive(:confirm).and_return(true)
+      @db.should_receive(:confirm_command).and_return(true)
       @db.push
-    end
-
-    it "does not confirm a pull when --force is specified" do
-      @db.stub!(:args).and_return(['postgres://postgres@localhost/db', '--force'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
-      @db.should_receive(:taps_client).with(:pull, opts)
-      @db.should_not_receive(:confirm)
-      @db.pull
-    end
-
-    it "does not confirm a push when --force is specified" do
-      @db.stub!(:args).and_return(['postgres://postgres@localhost/db', '--force'])
-      opts = { :database_url => 'postgres://postgres@localhost/db', :default_chunksize => 1000, :indexes_first => true }
-      @db.should_receive(:taps_client).with(:push, opts)
-      @db.should_not_receive(:confirm)
-      @db.push
-    end
-
-    it "resets the app's database specified with --app if user confirms" do
-      @db.stub!(:ask).and_return('y')
-      @db.stub!(:autodetected_app).and_return(false)
-      @db.heroku.stub!(:info).and_return({})
-      @db.heroku.should_receive(:database_reset).with('myapp')
-      @db.reset
-    end
-
-    it "doesn't reset the app's database if the user doesn't confirms" do
-      @db.stub!(:ask).and_return('no')
-      @db.stub!(:args).and_return(['--app', 'myapp'])
-      @db.heroku.stub!(:info).and_return({})
-      @db.heroku.should_not_receive(:database_reset)
-      @db.reset
     end
 
     it "defaults host to 127.0.0.1 with a username" do
