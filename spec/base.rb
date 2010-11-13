@@ -9,7 +9,7 @@ require 'heroku/command'
 require 'heroku/commands/base'
 Dir["#{File.dirname(__FILE__)}/../lib/heroku/commands/*"].each { |c| require c }
 
-include WebMock
+include WebMock::API
 
 def stub_api_request(method, path)
   stub_request(method, "https://api.heroku.com#{path}")

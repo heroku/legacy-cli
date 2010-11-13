@@ -4,30 +4,12 @@ module PGBackups
       @uri = URI.parse(uri)
     end
 
-    def check_client_version
-      heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"
-      begin
-        RestClient::Resource.new(
-          "#{heroku_postgresql_host}/client/version",
-          :headers => {:heroku_client_version => HerokuPostgresql::Client::Version}
-        ).get
-      rescue RestClient::BadRequest => e
-        if message = JSON.parse(e.response.to_s)["upgrade_message"]
-          abort(message)
-        else
-          raise e
-        end
-      end
-    end
-
     def authenticated_resource(path)
-      check_client_version
       host = "#{@uri.scheme}://#{@uri.host}"
       host += ":#{@uri.port}" if @uri.port
       RestClient::Resource.new("#{host}#{path}",
         :user     => @uri.user,
-        :password => @uri.password,
-        :headers  => {:heroku_client_version => HerokuPostgresql::Client::Version}
+        :password => @uri.password
       )
     end
 

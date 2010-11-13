@@ -120,7 +120,7 @@ module Heroku::Command
       abort("Backup name required") unless name
       backup = pgbackup_client.get_backup(name)
       abort("Backup #{name} already deleted.") if backup["destroyed_at"]
-      abort("Delete cancelled.")    unless confirm(message="Backup #{name} will be permanently deleted Are you sure (y/N)?")
+      abort("Delete cancelled.")    unless confirm(message="Backup #{name} will be permanently deleted. Are you sure (y/N)?")
 
       result = pgbackup_client.delete_backup(name)
       abort("Backup #{name} deleted.") if result
