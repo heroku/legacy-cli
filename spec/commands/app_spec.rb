@@ -120,7 +120,7 @@ module Heroku::Command
 
     it "doesn't destroy the app in the current dir" do
       @cli.stub!(:extract_app).and_return('myapp')
-      @cli.heroku.should_receive(:confirm_command)
+      @cli.heroku.stub!(:info).and_return({})
       @cli.heroku.should_not_receive(:destroy)
       @cli.destroy
     end
