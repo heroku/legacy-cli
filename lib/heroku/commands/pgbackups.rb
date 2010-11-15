@@ -36,8 +36,11 @@ module Heroku::Command
         backups << [backup_name(t['to_url']), t['created_at'], t['size'], t['from_name'], ]
       }
 
-      abort("No backups. Capture one with `heroku pgbackups:capture`.") if backups.empty?
-      display Display.new.render([["ID", "Backup Time", "Size", "Database"]], backups)
+      if backups.empty?
+        display("No backups. Capture one with `heroku pgbackups:capture`.")
+      else
+        display Display.new.render([["ID", "Backup Time", "Size", "Database"]], backups)
+      end
     end
 
     def url
