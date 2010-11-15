@@ -187,8 +187,8 @@ module Heroku::Command
         with_blank_git_repository do
           bash("git remote add heroku git@heroku.com:myapp.git")
           @cli.stub!(:args).and_return(['--app', 'myapp'])
+          @cli.stub!(:confirm_command).and_return(true)
           @cli.heroku.stub!(:info).and_return({})
-          @cli.stub!(:ask).and_return('y')
           @cli.heroku.should_receive(:destroy)
           @cli.destroy
           bash("git remote").strip.should == ''
