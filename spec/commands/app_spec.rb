@@ -103,23 +103,24 @@ module Heroku::Command
     end
 
     it "destroys the app specified with --app if user confirms" do
-      @cli.stub!(:ask).and_return('y')
       @cli.stub!(:args).and_return(['--app', 'myapp'])
       @cli.heroku.stub!(:info).and_return({})
+      @cli.heroku.should_receive(:confirm_command).with("myapp").and_return(true)
       @cli.heroku.should_receive(:destroy).with('myapp')
       @cli.destroy
     end
 
     it "doesn't destroy the app if the user doesn't confirms" do
-      @cli.stub!(:ask).and_return('no')
       @cli.stub!(:args).and_return(['--app', 'myapp'])
       @cli.heroku.stub!(:info).and_return({})
+      @cli.heroku.should_receive(:confirm_command).with("myapp").and_return(false)
       @cli.heroku.should_not_receive(:destroy)
       @cli.destroy
     end
 
     it "doesn't destroy the app in the current dir" do
       @cli.stub!(:extract_app).and_return('myapp')
+      @cli.heroku.should_receive(:confirm_command)
       @cli.heroku.should_not_receive(:destroy)
       @cli.destroy
     end

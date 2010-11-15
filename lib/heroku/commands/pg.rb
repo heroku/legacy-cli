@@ -105,8 +105,6 @@ module Heroku::Command
     def reset
       db_id = extract_option("--db")
 
-      puts "DB:ID:#{db_id}"
-
       (name, url, primary) = resolve_db_id(db_id, :usage_message => " !   Usage: heroku pg:reset --db <DATABASE>")
 
       redisplay "Resetting #{name}#{primary ? ' (DATABASE_URL)' : ''}", false
