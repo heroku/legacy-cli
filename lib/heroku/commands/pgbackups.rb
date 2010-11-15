@@ -17,13 +17,16 @@ module Heroku::Command
 
     def initialize(*args)
       super
-      @config_vars = heroku.config_vars(app)
-      @pgbackups_url = ENV["PGBACKUPS_URL"] || @config_vars["PGBACKUPS_URL"]
-      abort(" !   Please add the pgbackups addon first.") unless @pgbackups_url
+    end
+
+    def config_vars
+      @config_vars ||= heroku.config_vars(app)
     end
 
     def pgbackup_client
-      @pgbackup_client ||= PGBackups::Client.new(@pgbackups_url)
+      pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
+      abort(" !   Please add the pgbackups addon first.") unless pgbackups_url
+      @pgbackup_client ||= PGBackups::Client.new(pgbackups_url)
     end
 
     def index
@@ -98,7 +101,7 @@ module Heroku::Command
       end
 
       db_display = db_id
-      db_display += " (DATABASE_URL)" if db_id != "DATABASE_URL" && @config_vars[db_id] == @config_vars["DATABASE_URL"]
+      db_display += " (DATABASE_URL)" if db_id != "DATABASE_URL" && config_vars[db_id] == config_vars["DATABASE_URL"]
       padding = " " * "#{db_display}  <---restore---  ".length
       display "\n#{db_display}  <---restore---  #{backup_id}"
       if backup
