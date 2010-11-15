@@ -9,6 +9,12 @@ describe Heroku::Client do
     @client.stub!(:extract_warning)
   end
 
+  it "Client.auth -> get user details" do
+    user_info = { "api_key" => "abc" }
+    stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => user_info.to_json)
+    Heroku::Client.auth("foo", "bar").should == user_info
+  end
+
   it "list -> get a list of this user's apps" do
     stub_api_request(:get, "/apps").to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
