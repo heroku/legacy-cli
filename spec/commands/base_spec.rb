@@ -104,6 +104,33 @@ module Heroku::Command
       end
     end
 
+    describe "confirming" do
+      it "confirms the app via --confirm" do
+        @base.stub(:app).and_return("myapp")
+        @base.stub(:args).and_return(["--confirm", "myapp"])
+        @base.confirm_command.should be_true
+      end
+
+      it "does not confirms the app via --confirm on a mismatch" do
+        @base.stub(:app).and_return("myapp")
+        @base.stub(:args).and_return(["--confirm", "badapp"])
+        lambda { @base.confirm_command}.should raise_error CommandFailed
+      end
+
+
+      it "confirms the app interactively via ask" do
+        @base.stub(:app).and_return("myapp")
+        @base.stub(:ask).and_return("myapp")
+        @base.confirm_command.should be_true
+      end
+
+      it "fails if the interactive confirm doesn't match" do
+        @base.stub(:app).and_return("myapp")
+        @base.stub(:ask).and_return("badresponse")
+        @base.confirm_command.should be_false
+      end
+    end
+
     describe "formatting" do
       it "formats app urls (http and git), displayed as output on create and other commands" do
         @base.stub!(:heroku).and_return(mock('heroku client', :host => 'example.com'))
