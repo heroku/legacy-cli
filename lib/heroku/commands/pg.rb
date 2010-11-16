@@ -88,7 +88,7 @@ module Heroku::Command
       name = config_vars.reject { |(var, val)| var == "DATABASE_URL" }.invert[url] || "DATABASE_URL"
       # ps: it was even worse before
 
-      if name == "DATABASE_URL"
+      if db_id == "DATABASE_URL"
         puts " !  Promoting DATABASE_URL to DATABASE_URL has no effect."
         return
       end
