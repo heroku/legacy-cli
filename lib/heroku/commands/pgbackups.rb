@@ -1,4 +1,3 @@
-require "pty"
 require "heroku/pgutils"
 require "pgbackups/client"
 
