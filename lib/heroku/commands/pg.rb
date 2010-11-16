@@ -84,12 +84,11 @@ module Heroku::Command
       url = config_vars[db_id]
       abort(" !   Usage: heroku pg:promote --db <DATABASE>") unless url
 
-      # haha sucker, good luck figuring this one out
+      # look up the true name of the database, avoiding "DATABASE_URL" unless it's the only option
       name = config_vars.reject { |(var, val)| var == "DATABASE_URL" }.invert[url] || "DATABASE_URL"
-      # ps: it was even worse before
 
       if db_id == "DATABASE_URL"
-        puts " !  Promoting DATABASE_URL to DATABASE_URL has no effect."
+        abort(" !  Promoting DATABASE_URL to DATABASE_URL has no effect.")
         return
       end
 
