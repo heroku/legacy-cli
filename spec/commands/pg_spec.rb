@@ -48,6 +48,15 @@ module Heroku::Command
 
         lambda { @pg.promote }.should raise_error SystemExit
       end
+
+      it "does not promote DATABASE_URL" do
+        @pg.stub(:args).and_return(['--db', 'DATABASE_URL'])
+        @pg.stub!(:confirm_command).and_return(true)
+
+        @pg.heroku.should_not_receive(:add_config_vars)
+
+        lambda { @pg.promote }.should raise_error SystemExit
+      end
     end
 
     context "resolve_db_id" do
