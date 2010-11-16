@@ -72,7 +72,31 @@ module Heroku::Command
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
 
         @pgbackups.capture
-     end
+      end
+
+      it "destroys no backup without a name" do
+        @pgbackups.stub!(:args).and_return([])
+
+        fake_client = mock("pgbackups_client")
+        fake_client.should_not_receive(:delete_backup)
+        @pgbackups.should_not_receive(:pgbackup_client).and_return(fake_client)
+
+        @pgbackups.stub!(:abort).and_raise(SystemExit)
+
+        lambda { @pgbackups.destroy }.should raise_error SystemExit
+      end
+
+      it "destroys a backup on request if confirmed" do
+        name = "b001"
+        @pgbackups.stub!(:args).and_return([name])
+
+        fake_client = mock("pgbackups_client")
+        fake_client.should_receive(:get_backup).with(name).and_return({})
+        fake_client.should_receive(:delete_backup).with(name).and_return({})
+        @pgbackups.should_receive(:pgbackup_client).and_return(fake_client, fake_client)
+
+        @pgbackups.destroy
+      end
     end
 
   end
