@@ -33,9 +33,8 @@ If you wish to push or pull code, you must also have a working install of Git
 an ssh public key ("ssh-keygen -t rsa").
 
 The first time you run a command, such as "heroku list," you will be prompted
-for your Heroku username and password. If you're on a Mac, these are saved to
-your Keychain. Otherwise they are stored in plain text in ~/heroku/credentials
-for future requests.
+for your Heroku username and password. Your API key will be fetched and stored
+locally to authenticate future requests.
 
 Your public key (~/.ssh/id_[rd]sa.pub) will be uploaded to Heroku after you
 enter your credentials. Use heroku keys:add if you wish to upload additional
