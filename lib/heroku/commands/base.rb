@@ -25,19 +25,24 @@ module Heroku::Command
         return true
       end
 
-      confirmed_app = extract_option('--confirm', false)
-
       raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app
 
-      if confirmed_app != app
+      confirmed_app = extract_option('--confirm', false)
+      if confirmed_app
+        unless confirmed_app == app
+          raise(CommandFailed, "Confirmed app #{confirmed_app} did not match the selected app #{app}.")
+        end
+        return true
+      else
         display "\n !    Potentially Destructive Action"
         display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{@app}"
         display "> ", false
-        return ask.downcase == app
-
-        false
-      else
-        true
+        if ask.downcase != app
+          display " !    Input did not match #{app}. Aborted."
+          false
+        else
+          true
+        end
       end
     end
 
