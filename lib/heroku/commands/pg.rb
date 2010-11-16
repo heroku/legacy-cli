@@ -1,3 +1,4 @@
+require "heroku/command/help"
 require "heroku/pgutils"
 require "heroku-postgresql/client"
 
@@ -5,7 +6,7 @@ module Heroku::Command
   class Pg < BaseWithApp
     include PgUtils
 
-    Help.group("heroku-postgresql") do |group|
+    Heroku::Command::Help.group("heroku-postgresql") do |group|
       group.command "pg:info [--db <DATABASE>]",    "show database status"
       group.command "pg:reset --db <DATABASE>",   "delete all data in the specified database"
       group.command "pg:promote --db <DATABASE>", "set a database identifier to the DATABASE_URL"

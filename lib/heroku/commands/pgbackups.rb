@@ -1,3 +1,4 @@
+require "heroku/command/help"
 require "heroku/pgutils"
 require "pgbackups/client"
 
