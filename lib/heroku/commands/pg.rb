@@ -1,4 +1,4 @@
-require "heroku/command/help"
+require "heroku/commands/help"
 require "heroku/pgutils"
 require "heroku-postgresql/client"
 
