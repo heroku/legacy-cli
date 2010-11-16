@@ -61,6 +61,7 @@ module Heroku::Command
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
+        @pg.should_receive(:abort).with(" !   Usage: heroku pg:promote --db <DATABASE>").and_raise(SystemExit)
 
         lambda { @pg.promote }.should raise_error SystemExit
       end
@@ -70,6 +71,7 @@ module Heroku::Command
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
+        @pg.should_receive(:abort).with(" !   DATABASE_URL is already set to HEROKU_POSTGRESQL_RONIN_URL.").and_raise(SystemExit)
 
         lambda { @pg.promote }.should raise_error SystemExit
       end
@@ -79,27 +81,36 @@ module Heroku::Command
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
+        @pg.should_receive(:abort).with(" !  Promoting DATABASE_URL to DATABASE_URL has no effect.").and_raise(SystemExit)
 
         lambda { @pg.promote }.should raise_error SystemExit
       end
     end
 
     context "resolve_db_id" do
+      before(:each) do
+        @pg.stub!(:config_vars).and_return({
+          "DATABASE_URL" => "postgres://cloned_database_url",
+          "BRAVO_DATABASE_URL"  => "postgres://bravo_database_url",
+          "CLONED_DATABASE_URL" => "postgres://cloned_database_url"
+        })
+      end
+
       it "defaults to the current DATABASE_URL" do
-        pending
-        @pg.resolve_db_id(nil, :default => "DATABASE_URL").should == ["CLONED_DATABASE_URL", "postgres://database_url", true]
+        @pg.resolve_db_id(nil, :default => "DATABASE_URL").should == ["CLONED_DATABASE_URL", "postgres://cloned_database_url", true]
       end
 
       it "should use your specified database URL" do
-        pending
-        @pg.resolve_db_id("OTHER_DATABASE_URL", :default => "DATABASE_URL").should == ["OTHER_DATABASE_URL", "postgres://other_database_url", false]
+        @pg.resolve_db_id("BRAVO_DATABASE_URL", :default => "DATABASE_URL").should == ["BRAVO_DATABASE_URL", "postgres://bravo_database_url", false]
       end
 
       it "should fail if there's no default or URL provided" do
+        @pg.should_receive(:abort).with().and_raise(SystemExit)
         lambda { @pg.resolve_db_id(nil) }.should raise_error SystemExit
       end
 
       it "should fail if there's no default or URL provided" do
+        @pg.should_receive(:abort).with().and_raise(SystemExit)
         lambda { @pg.resolve_db_id(nil) }.should raise_error SystemExit
       end
     end
