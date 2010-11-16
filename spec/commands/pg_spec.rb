@@ -55,7 +55,7 @@ module Heroku::Command
 
         @pg.heroku.should_not_receive(:add_config_vars)
 
-        @pg.promote
+        lambda { @pg.promote }.should raise_error SystemExit
       end
 
       it "does not promote DATABASE_URL" do
