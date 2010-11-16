@@ -6,11 +6,11 @@ module Heroku::Command
     include PgUtils
 
     Help.group("heroku-postgresql") do |group|
-      group.command "pg:info",    "show database status"
-      group.command "pg:promote", "set a database identifier to the DATABASE_URL"
-      group.command "pg:psql",    "open a psql shell to the database"
-      group.command "pg:ingress", "allow new connections from this IP to the database for one minute"
-      group.command "pg:reset",   "delete all data in the specified database"
+      group.command "pg:info [--db <DATABASE>]",    "show database status"
+      group.command "pg:reset --db <DATABASE>",   "delete all data in the specified database"
+      group.command "pg:promote --db <DATABASE>", "set a database identifier to the DATABASE_URL"
+      group.command "pg:psql [--db <DATABASE>]",    "open a psql shell to the database (dedicated only)"
+      group.command "pg:ingress [--db <DATABASE>]", "allow new connections from this IP to the database for one minute (dedicated only)"
 
       # hidden
       # group.command "pg:wait",   "wait for the database to come online"
