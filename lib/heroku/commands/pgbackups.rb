@@ -6,7 +6,7 @@ module Heroku::Command
   class Pgbackups < BaseWithApp
     include PgUtils
 
-    Help.group("pgbackups") do |group|
+    Heroku::Command::Help.group("pgbackups") do |group|
       group.command "pgbackups",                                  "list captured backups"
       group.command "pgbackups:capture [<DB_ID>]",                "capture a backup from database ID (default: DATABASE_URL)"
       group.command "pgbackups:url [<BACKUP_ID>]",                "get a temporary URL for a backup"
