@@ -30,6 +30,22 @@ module Heroku::Command
       @pg.reset
     end
 
+    context "info" do
+      it "requests the info from the server" do
+        fake_client = mock("heroku_postgresql_client")
+        fake_client.should_receive("get_database").and_return({
+          :state => "available",
+          :state_updated_at => Time.now.to_s,
+          :num_bytes => 123123,
+          :num_tables => 10,
+          :created_at => Time.now.to_s
+        })
+
+        @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
+        @pg.info
+      end
+    end
+
     context "promotion" do
       it "promotes the specified database" do
         @pg.stub!(:args).and_return(['--db', 'SHARED_DATABASE_URL'])

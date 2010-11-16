@@ -117,7 +117,6 @@ module Heroku::Command
         lambda { @base.confirm_command}.should raise_error CommandFailed
       end
 
-
       it "confirms the app interactively via ask" do
         @base.stub(:app).and_return("myapp")
         @base.stub(:ask).and_return("myapp")
