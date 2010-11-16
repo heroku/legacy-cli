@@ -326,9 +326,9 @@ module Heroku::Command
       end
     end
 
-    KB = 1024
-    MB = 1024 * KB
-    GB = 1024 * MB
+    KB = 1024      unless defined?(:KB)
+    MB = 1024 * KB unless defined?(:MB)
+    GB = 1024 * MB unless defined?(:GB)
 
     def size_format(bytes)
       return "#{bytes}B" if bytes < KB
