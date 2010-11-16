@@ -97,7 +97,57 @@ module Heroku::Command
 
         @pgbackups.destroy
       end
-    end
 
+    end
+    context "restore" do
+      before do
+        from_url = "postgres://fromhost/database"
+        from_name = "FROM_NAME"
+        @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
+
+        @pgbackups_client = mock("pgbackups_client")
+        @pgbackups.stub!(:pgbackup_client).and_return(@pgbackups_client)
+      end
+
+      after do
+        @pgbackups.restore
+      end
+
+      it "should receive a confirm_command on restore" do
+        @pgbackups_client.stub!(:get_latest_backup).and_return({"to_url" => "s3://bucket/user/bXXX.dump"})
+
+        @pgbackups.should_receive(:confirm_command).and_return(false)
+        @pgbackups_client.should_not_receive(:transfer!)
+      end
+
+      context "for commands which perform restores" do
+        before do
+          @backup_obj = {
+            "to_name" => "TO_NAME",
+            "to_url" => "s3://bucket/userid/bXXX.dump",
+            "from_url" => "FROM_NAME",
+            "from_name" => "postgres://databasehost/dbname"
+          }
+
+          @pgbackups.stub!(:confirm_command).and_return(true)
+          @pgbackups_client.should_receive(:create_transfer).and_return(@backup_obj)
+          @pgbackups.stub!(:poll_transfer!).and_return(@backup_obj)
+        end
+        it "should default to the latest backup" do
+          @pgbackups.stub(:args).and_return([])
+          @pgbackups_client.should_receive(:get_latest_backup).and_return(@backup_obj)
+        end
+        it "should restore the named backup" do
+          name = "backupname"
+          @pgbackups.stub(:args).and_return([name])
+          @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
+        end
+        it "should handle external restores" do
+          @pgbackups.stub(:args).and_return(["http://external/file.dump"])
+          @pgbackups_client.should_not_receive(:get_backup)
+          @pgbackups_client.should_not_receive(:get_latest_backup)
+        end
+      end
+    end
   end
 end
