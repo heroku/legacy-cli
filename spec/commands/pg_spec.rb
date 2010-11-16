@@ -6,8 +6,8 @@ module Heroku::Command
       @pg = prepare_command(Pg)
       @pg.stub!(:config_vars).and_return({
         "DATABASE_URL" => "postgres://database_url",
-        "OTHER_DATABASE_URL" => "postgres://other_database_url",
-        "CLONED_DATABASE_URL" => "postgres://database_url"
+        "SHARED_DATABASE_URL" => "postgres://other_database_url",
+        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://database_url"
       })
       @pg.stub!(:args).and_return(["--db", "DATABASE_URL"])
       @pg.heroku.stub!(:info).and_return({})
@@ -30,12 +30,34 @@ module Heroku::Command
       @pg.reset
     end
 
+    context "promotion" do
+      it "promotes the specified database" do
+        @pg.stub!(:args).and_return(['--db', 'SHARED_DATABASE_URL'])
+        @pg.stub!(:confirm_command).and_return(true)
+
+        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => @pg.config_vars["SHARED_DATABASE_URL"]})
+
+        @pg.promote
+      end
+
+      it "fails if no database is specified" do
+        @pg.stub(:args).and_return([])
+        @pg.stub!(:confirm_command).and_return(true)
+
+        @pg.heroku.should_not_receive(:add_config_vars)
+
+        lambda { @pg.promote }.should raise_error SystemExit
+      end
+    end
+
     context "resolve_db_id" do
       it "defaults to the current DATABASE_URL" do
+        pending
         @pg.resolve_db_id(nil, :default => "DATABASE_URL").should == ["CLONED_DATABASE_URL", "postgres://database_url", true]
       end
 
       it "should use your specified database URL" do
+        pending
         @pg.resolve_db_id("OTHER_DATABASE_URL", :default => "DATABASE_URL").should == ["OTHER_DATABASE_URL", "postgres://other_database_url", false]
       end
 

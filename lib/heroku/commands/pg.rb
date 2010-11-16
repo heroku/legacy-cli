@@ -81,14 +81,19 @@ module Heroku::Command
 
     def promote
       db_id = extract_option("--db")
-      (name, url) = resolve_db_id(db_id, :usage_message => " !   Usage: heroku pg:promote --db <DATABASE>")
+      url = config_vars[db_id]
+      abort(" !   Usage: heroku pg:promote --db <DATABASE>") unless url
+
+      # haha sucker, good luck figuring this one out
+      name = config_vars.reject { |(var, val)| var == "DATABASE_URL" }.invert[url] || "DATABASE_URL"
+      # ps: it was even worse before
 
       if name == "DATABASE_URL"
-        puts " !  This command promotes a database to DATABASE_URL."
+        puts " !  Promoting DATABASE_URL to DATABASE_URL has no effect."
         return
       end
 
-      abort(" !   #{name} is already the DATABASE_URL.") if url == config_vars["DATABASE_URL"]
+      abort(" !   DATABASE_URL is already set to #{name}.") if url == config_vars["DATABASE_URL"]
 
       display "Setting config variable DATABASE_URL to #{name}", false
       return unless confirm_command
