@@ -1,5 +1,6 @@
 require 'yaml'
 require 'logger'
+require 'uri'
 
 module Heroku::Command
   class Db < BaseWithApp
@@ -116,8 +117,9 @@ module Heroku::Command
 
       opts[:indexes_first] = !extract_option("--indexes-last")
 
-      opts[:database_url] = args.shift.strip rescue ''
-      if opts[:database_url] == ''
+      opts[:database_url] = args.detect { |a| URI.parse(a).host } rescue nil
+
+      unless opts[:database_url]
         opts[:database_url] = parse_database_yml
         display "Auto-detected local database: #{opts[:database_url]}" if opts[:database_url] != ''
       end

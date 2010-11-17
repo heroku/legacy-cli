@@ -40,5 +40,20 @@ module Heroku::Command
       opts = @db.send(:parse_taps_opts)
       opts[:table_filter].should == "(^tags$|^countries$)"
     end
+
+    it "handles both a url and a --confirm on the command line" do
+      @db.stub!(:args).and_return(["mysql://user:pass@host/db", "--confirm", "myapp"])
+      opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
+      @db.should_receive(:taps_client).with(:pull, opts)
+      @db.pull
+    end
+
+    it "handles no url and --confirm on the command line" do
+      @db.stub!(:args).and_return(["--confirm", "myapp"])
+      opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
+      @db.should_receive(:parse_database_yml).and_return("mysql://user:pass@host/db")
+      @db.should_receive(:taps_client).with(:pull, opts)
+      @db.pull
+    end
   end
 end
