@@ -538,6 +538,18 @@ Console sessions require an open dyno to use for execution.
 		delete("/apps/#{app_name}/httpcache").to_s
 	end
 
+  def releases(app)
+    JSON.parse get("/apps/#{app}/releases").to_s
+  end
+
+  def release(app, release)
+    JSON.parse get("/apps/#{app}/releases/#{release}").to_s
+  end
+
+  def rollback(app, release=nil)
+    post("/apps/#{app}/releases", :rollback => release)
+  end
+
   private
 
     def configure_addon(action, app_name, addon, config = {})
