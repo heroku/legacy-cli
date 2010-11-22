@@ -1,11 +1,11 @@
 module Heroku::Command
-  class Releases < Base
-    Help.group("Releases") do |group|
-      group.command "releases",                 "list releases"
-      group.command "releases:info <release>",  "detailed info for a release"
-      group.command "rollback [<release>]",     "roll back to a prior release"
-    end
+  Help.group("Releases") do |group|
+    group.command "releases",                 "list releases"
+    group.command "releases:info <release>",  "detailed info for a release"
+    group.command "rollback [<release>]",     "roll back to a prior release"
+  end
 
+  class Releases < Base
     def index
       releases = heroku.releases(extract_app)
 
