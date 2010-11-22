@@ -34,6 +34,8 @@ module Heroku::Command
 
       if remote = extract_option('--remote')
         remotes[remote]
+      elsif remote = extract_app_from_git_config
+        remotes[remote]
       else
         apps = remotes.values.uniq
         case apps.size
@@ -44,6 +46,11 @@ module Heroku::Command
             apps.select { |a| a.downcase == current_dir_name }.first
         end
       end
+    end
+
+    def extract_app_from_git_config
+      remote = %x{ git config heroku.remote }.strip
+      remote == "" ? nil : remote
     end
 
     def git_remotes(base_dir)
