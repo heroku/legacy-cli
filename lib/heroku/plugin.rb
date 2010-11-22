@@ -6,6 +6,8 @@ module Heroku
       include Heroku::Helpers
     end
 
+    DEPRECATED_PLUGINS = %w( heroku-releases heroku-postgresql heroku-pgdumps )
+
     attr_reader :name, :uri
 
     def self.directory
@@ -21,6 +23,7 @@ module Heroku
     def self.load!
       list.each do |plugin|
         begin
+          check_for_deprecation(plugin)
           load_plugin(plugin)
         rescue Exception => e
           display "Unable to load plugin: #{plugin}: #{e.message}"
@@ -32,6 +35,20 @@ module Heroku
       folder = "#{self.directory}/#{plugin}"
       $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
       load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
+    end
+
+    def self.remove_plugin(plugin)
+      FileUtils.rm_rf("#{self.directory}/#{plugin}")
+    end
+
+    def self.check_for_deprecation(plugin)
+      return unless STDIN.tty?
+
+      if DEPRECATED_PLUGINS.include?(plugin)
+        if confirm "The plugin #{plugin} has been deprecated. Would you like to remove it? (y/N)"
+          remove_plugin(plugin)
+        end
+      end
     end
 
     def initialize(uri)

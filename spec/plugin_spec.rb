@@ -85,6 +85,29 @@ module Heroku
           LoadedPlugin2.should be_true
         end
       end
+
+      describe "deprecated plugins" do
+        before(:each) do
+          FileUtils.mkdir_p(@sandbox + '/heroku-releases/lib')
+        end
+
+        after(:each) do
+          FileUtils.rm_rf(@sandbox + '/heroku-releases/lib')
+        end
+
+        it "should show confirmation to remove deprecated plugins" do
+          Plugin.should_receive(:confirm).with("The plugin heroku-releases has been deprecated. Would you like to remove it? (y/N)").and_return(true)
+          Plugin.should_receive(:remove_plugin).with("heroku-releases")
+          Plugin.load!
+        end
+
+        it "should not prompt for deprecation if not in an interactive shell" do
+          STDIN.should_receive(:tty?).and_return(false)
+          Plugin.should_not_receive(:confirm)
+          Plugin.should_not_receive(:remove_plugin).with("heroku-releases")
+          Plugin.load!
+        end
+      end
     end
   end
 end
