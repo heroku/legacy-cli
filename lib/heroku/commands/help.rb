@@ -82,7 +82,6 @@ module Heroku::Command
         group.space
         group.command 'db:pull [<database_url>]',     'pull the app\'s database into a local database'
         group.command 'db:push [<database_url>]',     'push a local database into the app\'s remote database'
-        group.command 'db:reset',                     'reset the database for the app'
         group.space
         group.command 'bundles',                      'list bundles for the app'
         group.command 'bundles:capture [<bundle>]',   'capture a bundle of the app\'s code and data'
