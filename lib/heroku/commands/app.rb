@@ -202,7 +202,7 @@ module Heroku::Command
       info = heroku.info(app)
       url  = info[:domain_name] || "http://#{info[:name]}.#{heroku.host}/"
 
-      display "Destroying #{url}"
+      redisplay "Destroying #{url}"
       if confirm_command(app)
         redisplay "Destroying #{url}..."
         heroku.destroy(app)
@@ -212,7 +212,7 @@ module Heroku::Command
             shell "git remote rm #{remote_name}"
           end
         end
-        redisplay "Destroying #{url}... done"
+        redisplay "Destroying #{url}... done\n"
       end
     end
 
