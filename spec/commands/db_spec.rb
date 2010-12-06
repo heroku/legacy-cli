@@ -55,5 +55,12 @@ module Heroku::Command
       @db.should_receive(:taps_client).with(:pull, opts)
       @db.pull
     end
+
+    it "works with a file-based url" do
+      url = "sqlite://tmp/foo.db"
+      @db.stub!(:args).and_return([url, "--confirm", "myapp"])
+      @db.should_receive(:taps_client).with(:pull, hash_including(:database_url => url))
+      @db.pull
+    end
   end
 end
