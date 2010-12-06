@@ -117,7 +117,7 @@ module Heroku::Command
 
       opts[:indexes_first] = !extract_option("--indexes-last")
 
-      opts[:database_url] = args.detect { |a| URI.parse(a).host } rescue nil
+      opts[:database_url] = args.detect { |a| URI.parse(a).scheme } rescue nil
 
       unless opts[:database_url]
         opts[:database_url] = parse_database_yml
