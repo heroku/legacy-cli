@@ -50,7 +50,7 @@ module Heroku
         end
         return true
       else
-        display "\n !    Potentially Destructive Action"
+        display "\n !    WARNING: Potentially Destructive Action On App: #{app}"
         display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{@app}"
         display "> ", false
         if ask.downcase != app
