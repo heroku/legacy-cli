@@ -32,7 +32,8 @@ module Heroku::Command
     def index
       backups = []
       pgbackup_client.get_transfers.each { |t|
-        next unless t['to_name'] == 'BACKUP' && !t['error_at'] && !t['destroyed_at']
+        next if t['error_at'] || t['destroyed_at']
+        next unless t['to_name'] =~ /BACKUP/
         backups << [backup_name(t['to_url']), t['created_at'], t['size'], t['from_name'], ]
       }
 
