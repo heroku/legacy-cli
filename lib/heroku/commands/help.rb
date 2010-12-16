@@ -29,6 +29,8 @@ module Heroku::Command
     end
 
     def self.create_default_groups!
+      return if @defaults_created
+      @defaults_created = true
       group 'General Commands' do |group|
         group.command 'help',                         'show this usage'
         group.command 'version',                      'show the gem version'
