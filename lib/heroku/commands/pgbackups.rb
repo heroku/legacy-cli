@@ -32,7 +32,7 @@ module Heroku::Command
 
     def index
       user = pgbackup_client.get_user
-      if (["hourly", "nightly"].include? user['plan']) && !user['backup_url']
+      if (["hourly", "daily"].include? user['plan']) && !user['backup_url']
         display "WARNING: Automatic backups not configured. Use pgbackups:automate to automatically back up your primary database.\n"
       end
 
