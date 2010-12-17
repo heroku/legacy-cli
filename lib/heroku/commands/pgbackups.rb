@@ -13,6 +13,7 @@ module Heroku::Command
       group.command "pgbackups:destroy <BACKUP_ID>",              "destroy a backup"
       group.command "pgbackups:restore <BACKUP_ID> --db <DB_ID>", "restore the database ID (default: DATABASE_URL) from a backup"
       group.command "pgbackups:restore <url> --db <DB_ID>",       "restore the database ID (default: DATABASE_URL) from a URL"
+      group.command "pgbackups:automate [<DB_ID>]",               "start capturing automatic backups from database ID (default: DATABASE_URL)"
     end
 
     def initialize(*args)
@@ -134,6 +135,18 @@ module Heroku::Command
       else
         abort("Error deleting backup #{name}.")
       end
+    end
+
+    def automate
+      db_id = args.shift || "DATABASE_URL"
+      from_name, from_url = resolve_db_id(db_id, :default => "DATABASE_URL")
+
+      result = pgbackup_client.update_user(from_url, from_name)
+      abort(" !    Error starting automatic backups") unless result
+
+      db_display = from_name
+      db_display += " (DATABASE_URL)" if from_name != "DATABASE_URL" && config_vars[from_name] == config_vars["DATABASE_URL"]
+      display("Capturing automatic backup from #{db_display}")
     end
 
     protected
