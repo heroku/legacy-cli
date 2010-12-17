@@ -57,6 +57,11 @@ module PGBackups
       end
     end
 
+    def get_user
+      resource = authenticated_resource("/client/user")
+      JSON.parse resource.get.body
+    end
+
     def update_user(backup_url, backup_name)
       resource = authenticated_resource("/client/user")
       params = {:backup_url => backup_url, :backup_name => backup_name}

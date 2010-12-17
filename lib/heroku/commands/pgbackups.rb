@@ -31,6 +31,11 @@ module Heroku::Command
     end
 
     def index
+      user = pgbackup_client.get_user
+      if (["hourly", "nightly"].include? user['plan']) && !user['backup_url']
+        display "WARNING: Automatic backups not configured. Use pgbackups:automate to automatically back up your primary database.\n"
+      end
+
       backups = []
       pgbackup_client.get_transfers.each { |t|
         next if t['error_at'] || t['destroyed_at']
