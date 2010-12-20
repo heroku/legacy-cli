@@ -4,16 +4,18 @@ module Heroku::Command
   describe Pgbackups do
     before do
       @pgbackups = prepare_command(Pgbackups)
+      @pgbackups_url = "https://ip:password@pgbackups.heroku.com/client"
       @pgbackups.stub!(:config_vars).and_return({
-        "PGBACKUPS_URL" => "https://ip:password@pgbackups.heroku.com/client"
+        "PGBACKUPS_URL" => @pgbackups_url
       })
       @pgbackups.heroku.stub!(:info).and_return({})
     end
 
     it "requests a pgbackups transfer list for the index command" do
       fake_client = mock("pgbackups_client")
+      fake_client.should_receive(:get_user).and_return({})
       fake_client.should_receive(:get_transfers).and_return([])
-      @pgbackups.should_receive(:pgbackup_client).with.and_return(fake_client)
+      PGBackups::Client.should_receive(:new).with(@pgbackups_url).and_return(fake_client)
 
       @pgbackups.index
     end
@@ -99,6 +101,22 @@ module Heroku::Command
       end
 
     end
+
+    context "automatic scheduled backups" do
+      it "posts a database name and URL to start automatic scheduled backups from" do
+        from_url = "postgres://from/bar"
+        from_name = "SHARED_DATABASE_URL"
+        @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
+
+        @pgbackups_client = mock("pgbackups_client")
+        @pgbackups.should_receive(:pgbackup_client).and_return(@pgbackups_client)
+
+        @pgbackups_client.should_receive(:update_user).with(from_url, from_name).and_return({})
+
+        @pgbackups.automate
+      end
+    end
+
     context "restore" do
       before do
         from_url = "postgres://fromhost/database"
