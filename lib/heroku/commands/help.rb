@@ -35,6 +35,9 @@ module Heroku::Command
         group.command 'help',                         'show this usage'
         group.command 'version',                      'show the gem version'
         group.space
+        group.command 'login',                        'log in with your heroku credentials'
+        group.command 'logout',                       'clear local authentication credentials'
+        group.space
         group.command 'list',                         'list your apps'
         group.command 'create [<name>]',              'create a new app'
         group.space

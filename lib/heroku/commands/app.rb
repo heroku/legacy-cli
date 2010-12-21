@@ -3,6 +3,15 @@ require 'launchy'
 
 module Heroku::Command
   class App < Base
+    def login
+      Heroku::Command.run_internal "auth:reauthorize", args.dup
+    end
+
+    def logout
+      Heroku::Command.run_internal "auth:delete_credentials", args.dup
+      display "Local credentials cleared."
+    end
+
     def list
       list = heroku.list
       if list.size > 0
