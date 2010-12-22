@@ -77,6 +77,8 @@ module Heroku::Command
         end
 
         display_info("Born", time_format(database[:created_at]))
+        display_info("Mem Used", "%0.2f %" % database[:mem_percent_used]) if database[:mem_percent_used]
+        display_info("CPU Used", "%0.2f %" % (100 - database[:cpu_idle].to_f)) if database[:cpu_idle]
       end
     end
 
