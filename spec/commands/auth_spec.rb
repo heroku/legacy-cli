@@ -66,11 +66,13 @@ module Heroku::Command
       @cli.save_credentials
     end
 
-    it "preserves the args when running keys:add" do
+    # we dont want the args from the command they were trying to run to
+    # be passed in as the keyfile name to keys:add
+    it "does not preserve the args when running keys:add" do
       @cli.stub!(:write_credentials)
       @cli.stub!(:credentials)
-      @cli.stub!(:args).and_return(['mykey.pub'])
-      Heroku::Command.should_receive(:run_internal).with('keys:add', ['mykey.pub'])
+      @cli.stub!(:args).and_return(['--foo', 'bar'])
+      Heroku::Command.should_receive(:run_internal).with('keys:add', [])
       @cli.save_credentials
     end
 

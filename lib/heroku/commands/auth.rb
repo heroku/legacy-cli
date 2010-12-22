@@ -103,7 +103,7 @@ module Heroku::Command
       begin
         write_credentials
         command = args.any? { |a| a == '--ignore-keys' } ? 'auth:check' : 'keys:add'
-        Heroku::Command.run_internal(command, args)
+        Heroku::Command.run_internal(command, [])
       rescue RestClient::Unauthorized => e
         delete_credentials
         raise e unless retry_login?
