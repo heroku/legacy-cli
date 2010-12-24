@@ -84,7 +84,7 @@ module Heroku::Command
         attrs = heroku.info(app)
         display("=== #{app} legacy database")
         if attrs[:database_size]
-          display("Data size: #{size_format( attrs[:database_size] )}")
+          display("Data size: #{size_format( attrs[:database_size].to_i )}")
         else
           display("Data size not currently available.")
         end
