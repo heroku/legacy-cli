@@ -54,29 +54,40 @@ module Heroku::Command
     end
 
     def info
-      with_heroku_postgresql_database do |name, url|
-        database = heroku_postgresql_client(url).get_database
-        display("=== #{app} database #{name}")
+      if heroku_postgresql_var_names.length > 0
+        with_heroku_postgresql_database do |name, url|
+          database = heroku_postgresql_client(url).get_database
+          display("=== #{app} database #{name}")
 
-        display_info("State",
-          "#{database[:state]} for " +
-          "#{delta_format(Time.parse(database[:state_updated_at]))}")
+          display_info("State",
+                       "#{database[:state]} for " +
+                       "#{delta_format(Time.parse(database[:state_updated_at]))}")
 
-        if database[:num_bytes] && database[:num_tables]
-          display_info("Data size",
-            "#{size_format(database[:num_bytes])} in " +
-            "#{database[:num_tables]} table#{database[:num_tables] == 1 ? "" : "s"}")
+          if database[:num_bytes] && database[:num_tables]
+            display_info("Data size",
+                         "#{size_format(database[:num_bytes])} in " +
+                         "#{database[:num_tables]} table#{database[:num_tables] == 1 ? "" : "s"}")
+          end
+
+          if @heroku_postgresql_url
+            display_info("URL", @heroku_postgresql_url)
+          end
+
+          if version = database[:postgresql_version]
+            display_info("PG version", version)
+          end
+
+          display_info("Born", time_format(database[:created_at]))
         end
-
-        if @heroku_postgresql_url
-          display_info("URL", @heroku_postgresql_url)
+      else
+        # there's no addon db, so we'll show stats for the default legacy database
+        attrs = heroku.info(app)
+        display("=== #{app} legacy database")
+        if attrs[:database_size]
+          display("Data size: #{size_format( attrs[:database_size] )}")
+        else
+          display("Data size not currently available.")
         end
-
-        if version = database[:postgresql_version]
-          display_info("PG version", version)
-        end
-
-        display_info("Born", time_format(database[:created_at]))
       end
     end
 
