@@ -37,7 +37,8 @@ module Heroku::Command
     end
 
     def credentials_file
-      "#{home_directory}/.heroku/credentials"
+      prefix = (host == 'heroku.com') ? '' : "#{host}_"
+      "#{home_directory}/.heroku/#{prefix}credentials"
     end
 
     def get_credentials    # :nodoc:
