@@ -7,6 +7,7 @@ require 'spec'
 require 'fileutils'
 require 'tmpdir'
 require 'webmock/rspec'
+require 'fakefs/safe'
 
 require 'heroku/command'
 require 'heroku/commands/base'

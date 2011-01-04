@@ -1,3 +1,5 @@
+require "heroku/client"
+
 module Heroku::Command
   class Auth < Base
     attr_accessor :credentials
@@ -22,7 +24,7 @@ module Heroku::Command
     end
 
     def reauthorize
-      @credentials = ask_for_credentials
+      @credentials = ask_for_and_save_credentials
       write_credentials
     end
 
@@ -43,8 +45,7 @@ module Heroku::Command
     def get_credentials    # :nodoc:
       return if @credentials
       unless @credentials = read_credentials
-        @credentials = ask_for_credentials
-        save_credentials
+        ask_for_and_save_credentials
       end
       @credentials
     end
@@ -69,8 +70,9 @@ module Heroku::Command
 
       print "Password: "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
+      api_key = Heroku::Client.auth(user, password, host)['api_key']
 
-      [user, Heroku::Client.auth(user, password, host)['api_key']]
+      [user, api_key]
     end
 
     def ask_for_password_on_windows
@@ -99,23 +101,64 @@ module Heroku::Command
       return password
     end
 
-    def save_credentials
+    def ask_for_and_save_credentials
       begin
-        write_credentials
-        command = args.any? { |a| a == '--ignore-keys' } ? 'auth:check' : 'keys:add'
-        Heroku::Command.run_internal(command, [])
-      rescue RestClient::Unauthorized => e
-        delete_credentials
-        raise e unless retry_login?
-
-        display "\nAuthentication failed"
         @credentials = ask_for_credentials
-        @client = init_heroku
-        retry
+        write_credentials
+        check
+      rescue ::RestClient::Unauthorized, ::RestClient::ResourceNotFound => e
+        delete_credentials
+        @client = nil
+        @credentials = nil
+        display "Authentication failed."
+        retry if retry_login?
+        exit 1
       rescue Exception => e
         delete_credentials
         raise e
       end
+      check_for_associated_ssh_key
+    end
+
+    def check_for_associated_ssh_key
+      return unless client.keys.length.zero?
+      public_keys = available_ssh_public_keys
+
+      case public_keys.length
+      when 0 then
+        display "Could not find an existing public key."
+        display "Would you like to generate one? [Yn] ", false
+        unless ask.strip.downcase == "n"
+          display "Generating new SSH public key."
+          generate_ssh_key("id_rsa")
+          associate_key("#{home_directory}/.ssh/id_rsa.pub")
+        end
+      when 1 then
+        display "Found existing public key: #{public_keys.first}"
+        display "Would you like to associate it with your Heroku account? [Yn] ", false
+        associate_key(public_keys.first) unless ask.strip.downcase == "n"
+      else
+        display "Found the following SSH public keys:"
+        public_keys.sort.each_with_index do |key, index|
+          display "#{index+1}) #{File.basename(key)}"
+        end
+        display "Which would you like to use with your Heroku account? ", false
+        chosen = public_keys[ask.to_i-1] rescue error("Invalid choice")
+        associate_key(chosen)
+      end
+    end
+
+    def generate_ssh_key(keyfile)
+      `ssh-keygen -t rsa -f #{home_directory}/.ssh/#{keyfile} 2>&1`
+    end
+
+    def associate_key(key)
+      return unless key
+      run_command('keys:add', [key])
+    end
+
+    def available_ssh_public_keys
+      Dir["#{home_directory}/.ssh/*.pub"]
     end
 
     def retry_login?

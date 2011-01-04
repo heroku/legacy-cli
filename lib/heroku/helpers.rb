@@ -77,6 +77,10 @@ module Heroku
     def shell(cmd)
       FileUtils.cd(Dir.pwd) {|d| return `#{cmd}`}
     end
+
+    def run_command(command, args=[])
+      Heroku::Command.run_internal(command, args)
+    end
   end
 end
 

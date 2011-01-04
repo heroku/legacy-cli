@@ -25,8 +25,9 @@ module Heroku::Command
 
     it "asks for credentials when the file doesn't exist" do
       FileUtils.rm_rf(@sandbox)
-      @cli.should_receive(:ask_for_credentials).and_return([ 'u', 'p'])
-      @cli.should_receive(:save_credentials)
+      @cli.stub!(:check)
+      @cli.stub!(:ask_for_credentials).and_return(["u", "p"])
+      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.get_credentials.should == [ 'u', 'p' ]
     end
 
@@ -53,63 +54,108 @@ module Heroku::Command
 
     it "writes credentials and uploads authkey when credentials are saved" do
       @cli.stub!(:credentials)
+      @cli.stub!(:check)
+      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       @cli.should_receive(:write_credentials)
-      Heroku::Command.should_receive(:run_internal).with('keys:add', [])
-      @cli.save_credentials
-    end
-
-    it "doesn't upload authkey with --ignore-keys" do
-      @cli.stub!(:credentials)
-      @cli.stub!(:write_credentials)
-      @cli.stub!(:args).and_return(['--ignore-keys'])
-      Heroku::Command.should_receive(:run_internal).with('auth:check', anything)
-      @cli.save_credentials
-    end
-
-    # we dont want the args from the command they were trying to run to
-    # be passed in as the keyfile name to keys:add
-    it "does not preserve the args when running keys:add" do
-      @cli.stub!(:write_credentials)
-      @cli.stub!(:credentials)
-      @cli.stub!(:args).and_return(['--foo', 'bar'])
-      Heroku::Command.should_receive(:run_internal).with('keys:add', [])
-      @cli.save_credentials
+      @cli.should_receive(:check_for_associated_ssh_key)
+      @cli.ask_for_and_save_credentials
     end
 
     it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
       @cli.stub!(:write_credentials)
       @cli.stub!(:retry_login?).and_return(false)
-      Heroku::Command.should_receive(:run_internal).with('keys:add', []).and_raise(RestClient::Unauthorized)
+      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
+      @cli.stub!(:check) { raise RestClient::Unauthorized }
       @cli.should_receive(:delete_credentials)
-      lambda { @cli.save_credentials }.should raise_error(RestClient::Unauthorized)
-    end
-
-    it "save_credentials deletes the credentials when there's no authkey" do
-      @cli.stub!(:write_credentials)
-      Heroku::Command.should_receive(:run_internal).with('keys:add', []).and_raise(RuntimeError)
-      @cli.should_receive(:delete_credentials)
-      lambda { @cli.save_credentials }.should raise_error
-    end
-
-    it "save_credentials deletes the credentials when the authkey is weak" do
-      @cli.stub!(:write_credentials)
-      Heroku::Command.should_receive(:run_internal).with('keys:add', []).and_raise(RestClient::RequestFailed)
-      @cli.should_receive(:delete_credentials)
-      lambda { @cli.save_credentials }.should raise_error
+      lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
 
     it "asks for login again when not authorized, for three times" do
       @cli.stub!(:read_credentials)
       @cli.stub!(:write_credentials)
       @cli.stub!(:delete_credentials)
-      Heroku::Command.stub!(:run_internal).with('keys:add', []).and_raise(RestClient::Unauthorized)
-      @cli.should_receive(:ask_for_credentials).exactly(4).times
-      lambda { @cli.save_credentials }.should raise_error(RestClient::Unauthorized)
+      @cli.stub!(:check_for_associated_ssh_key)
+      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
+      @cli.stub!(:check) { raise RestClient::Unauthorized }
+      @cli.should_receive(:ask_for_credentials).exactly(3).times
+      lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
 
     it "deletes the credentials file" do
       FileUtils.should_receive(:rm_f).with(@cli.credentials_file)
       @cli.delete_credentials
+    end
+
+    describe "automatic key uploading" do
+      before(:each) do
+        FakeFS.activate!
+        FileUtils.mkdir_p("~/.ssh")
+        FileUtils.mkdir_p("~/.heroku")
+        FileUtils.touch("~/.heroku/credentials")
+        @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
+      end
+
+      after(:each) do
+        FakeFS.deactivate!
+      end
+
+      describe "an account with existing keys" do
+        before :each do
+          @client = mock(Object)
+          @client.should_receive(:keys).and_return(["existingkey"])
+          @cli.should_receive(:client).and_return(@client)
+        end
+
+        it "should not do anything if the account already has keys" do
+          @cli.should_not_receive(:associate_key)
+          @cli.check_for_associated_ssh_key
+        end
+      end
+
+      describe "an account with no keys" do
+        before :each do
+          @client = mock(Object)
+          @client.should_receive(:keys).and_return([])
+          @cli.should_receive(:client).and_return(@client)
+        end
+
+        describe "with zero public keys" do
+          it "should ask to generate a key" do
+            @cli.should_receive(:generate_ssh_key).with("id_rsa")
+            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
+            @cli.check_for_associated_ssh_key
+          end
+        end
+
+        describe "with one public key" do
+          before(:each) { FileUtils.touch("~/.ssh/id_rsa.pub") }
+          after(:each)  { FileUtils.rm("~/.ssh/id_rsa.pub") }
+
+          it "should prompt to upload the key" do
+            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
+            @cli.should_receive(:ask).and_return("y")
+            @cli.check_for_associated_ssh_key
+          end
+        end
+
+        describe "with many public keys" do
+          before(:each) do
+            FileUtils.touch("~/.ssh/id_rsa.pub")
+            FileUtils.touch("~/.ssh/id_rsa2.pub")
+          end
+
+          after(:each) do
+            FileUtils.rm("~/.ssh/id_rsa.pub")
+            FileUtils.rm("~/.ssh/id_rsa2.pub")
+          end
+
+          it "should ask which key to upload" do
+            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa2.pub"))
+            @cli.should_receive(:ask).and_return("2")
+            @cli.check_for_associated_ssh_key
+          end
+        end
+      end
     end
   end
 end

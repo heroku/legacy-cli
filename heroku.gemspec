@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
 
   gem.files = Dir["**/*"].select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
 
+  gem.add_development_dependency "fakefs",  "~> 0.3.1"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec",   "~> 1.3.0"
   gem.add_development_dependency "taps",    "~> 0.3.11"
