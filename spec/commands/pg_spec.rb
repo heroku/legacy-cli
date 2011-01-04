@@ -114,5 +114,46 @@ module Heroku::Command
         lambda { @pg.resolve_db_id(nil) }.should raise_error SystemExit
       end
     end
+
+    context "with_heroku_postgresql_database" do
+      it "exits if a non HEROKU_POSTGRESQL url is explicitly specified" do
+        @pg.stub!(:config_vars).and_return({
+          "DATABASE_URL"                => "postgres://shared",
+          "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin",
+          "HEROKU_POSTGRESQL_IKA_URL"   => "postgres://ika"
+        })
+
+        @pg.should_receive(:abort).with(" !  This command is only available for addon databases.").and_raise(SystemExit)
+        lambda {
+          @pg.with_heroku_postgresql_database { |name, url| }
+        }.should raise_error SystemExit
+      end
+
+      it "defaults to the db DATABASE_URL references if no args" do
+        @pg.stub!(:args).and_return([])
+        @pg.stub!(:config_vars).and_return({
+          "DATABASE_URL"                => "postgres://ronin",
+          "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin",
+          "HEROKU_POSTGRESQL_IKA_URL"   => "postgres://ika"
+        })
+
+        @pg.with_heroku_postgresql_database do |name, url|
+          name.should == "HEROKU_POSTGRESQL_RONIN_URL"
+        end
+      end
+
+      it "defaults to the first (alphabetical) HEROKU_POSTGRESQL_*_URL if no args and DATABASE_URL isn't helpful" do
+        @pg.stub!(:args).and_return([])
+        @pg.stub!(:config_vars).and_return({
+          "DATABASE_URL"                => "postgres://shared",
+          "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin",
+          "HEROKU_POSTGRESQL_IKA_URL"   => "postgres://ika"
+        })
+
+        @pg.with_heroku_postgresql_database do |name, url|
+          name.should == "HEROKU_POSTGRESQL_IKA_URL"
+        end
+      end
+    end
   end
 end
