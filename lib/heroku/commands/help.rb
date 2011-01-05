@@ -80,7 +80,6 @@ module Heroku::Command
         group.command 'config',                       'display the app\'s config vars (environment)'
         group.command 'config:add key=val [...]',     'add one or more config vars'
         group.command 'config:remove key [...]',      'remove one or more config vars'
-        group.command 'config:clear',                 'clear user-set vars and reset to default'
         group.space
         group.command 'stack',                        'show current stack and list of available stacks'
         group.command 'stack:migrate',                'prepare migration of this app to a new stack'
