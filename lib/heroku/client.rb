@@ -557,7 +557,7 @@ Console sessions require an open dyno to use for execution.
                               addon_path(app_name, addon),
                               config
 
-      JSON.parse(response) unless response.empty?
+      JSON.parse(response.to_s) unless response.empty?
     rescue JSON::ParserError
     end
 
