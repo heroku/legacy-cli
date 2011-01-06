@@ -50,7 +50,7 @@ module Heroku::Command
           heroku.install_addon(name, addon)
         end
 
-        display "Created #{app_urls(name)}"
+        display app_urls(name)
       rescue Timeout::Error
         display "Timed Out! Check heroku info for status updates."
       end
