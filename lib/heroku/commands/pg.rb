@@ -33,22 +33,23 @@ module Heroku::Command
       super
     end
 
+    def extract_db(opts={})
+      db_id = extract_option("--db")
+      (name, database) = resolve_db_id(db_id, :default => 'DATABASE_URL') # get DATABASE_URL first
+
+      return name, database if opts[:include_shared] || name.match("HEROKU_POSTGRESQL")
+
+      (name, database) = resolve_db_id(db_id, :default => heroku_postgresql_var_names.first) # get any HEROKU_POSTGRESQL_*_URL next
+      return name, database if name.match("HEROKU_POSTGRESQL")
+    end
+
     def with_heroku_postgresql_database
       if !heroku_postgresql_var_names
         abort("The addon is not installed for the app #{app}")
       end
 
-      db_id = extract_option("--db")
-
-      (name, database) = resolve_db_id(db_id, :default => 'DATABASE_URL') # try DATABASE_URL first
-
-      unless name.match("HEROKU_POSTGRESQL")
-        (name, database) = resolve_db_id(db_id, :default => heroku_postgresql_var_names.first) # try any HEROKU_POSTGRESQL_*_URL next
-      end
-
-      unless name.match("HEROKU_POSTGRESQL")
-        abort " !  This command is only available for addon databases."
-      end
+      (name, database) = extract_db
+      abort " !  This command is only available for addon databases." unless name
 
       yield name, database
     end
@@ -59,6 +60,16 @@ module Heroku::Command
     end
 
     def info
+      (name, database) = extract_db(:include_shared => true)
+
+      unless name.match("HEROKU_POSTGRESQL")
+        attrs = heroku.info(app)
+        display("=== #{app} database #{name}")
+        display_info("Data size",
+          "#{size_format(attrs[:database_size].to_i)}")
+        return
+      end
+
       with_heroku_postgresql_database do |name, url|
         database = heroku_postgresql_client(url).get_database
         display("=== #{app} database #{name}")
@@ -82,8 +93,8 @@ module Heroku::Command
         end
 
         display_info("Born", time_format(database[:created_at]))
-        display_info("Mem Used", "%0.2f %" % database[:mem_percent_used]) if database[:mem_percent_used]
-        display_info("CPU Used", "%0.2f %" % (100 - database[:cpu_idle].to_f)) if database[:cpu_idle]
+        display_info("Mem Used", "%0.2f %" % database[:mem_percent_used]) unless [nil, ""].include? database[:mem_percent_used]
+        display_info("CPU Used", "%0.2f %" % (100 - database[:cpu_idle].to_f)) unless [nil, ""].include? database[:cpu_idle]
       end
     end
 
