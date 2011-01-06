@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     heroku (1.16.2)
-      json_pure (>= 1.2.0, < 1.5.0)
+      json (~> 1.4.6)
       launchy (~> 0.3.2)
       rest-client (>= 1.4.0, < 1.7.0)
 
@@ -13,6 +13,7 @@ GEM
     configuration (1.2.0)
     crack (0.1.8)
     fakefs (0.3.1)
+    json (1.4.6)
     json_pure (1.4.6)
     launchy (0.3.7)
       configuration (>= 0.0.5)
@@ -44,7 +45,7 @@ PLATFORMS
 DEPENDENCIES
   fakefs (~> 0.3.1)
   heroku!
-  json_pure (>= 1.2.0, < 1.5.0)
+  json (~> 1.4.6)
   launchy (~> 0.3.2)
   rake
   rest-client (>= 1.4.0, < 1.7.0)
