@@ -6,7 +6,7 @@ module Heroku
       include Heroku::Helpers
     end
 
-    DEPRECATED_PLUGINS = %w( heroku-releases heroku-postgresql heroku-pgdumps )
+    DEPRECATED_PLUGINS = %w( heroku-releases heroku-postgresql heroku-pgdumps heroku-logging )
 
     attr_reader :name, :uri
 
