@@ -119,6 +119,33 @@ describe Heroku::Client do
     @client.restart('myapp')
   end
 
+  describe "read_logs" do
+    describe "old style" do
+      before(:each) do
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "Use old logs") 
+        stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "oldlogs")
+      end
+
+      it "can read old style logs" do
+        @client.should_receive(:display).with("oldlogs")
+        @client.read_logs("myapp")
+      end
+    end
+
+    describe "new style" do
+      before(:each) do
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url") 
+        stub_api_request(:get, "/logplex_url").to_return(:body => "newlogs")
+      end
+
+      it "can read new style logs" do
+        @client.read_logs("myapp") do |logs|
+          logs.should == "newlogs"
+        end
+      end
+    end
+  end
+
   it "logs(app_name) -> returns recent output of the app logs" do
     stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "log")
     @client.logs('myapp').should == 'log'

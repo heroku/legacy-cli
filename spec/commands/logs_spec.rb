@@ -7,8 +7,7 @@ module Heroku::Command
     end
 
     it "shows the app logs" do
-      @cli.heroku.should_receive(:logs).with('myapp').and_return('logs')
-      @cli.should_receive(:display).with('logs')
+      @cli.heroku.should_receive(:read_logs).with('myapp', [])
       @cli.index
     end
 
