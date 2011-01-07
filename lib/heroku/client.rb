@@ -364,11 +364,11 @@ Console sessions require an open dyno to use for execution.
     get("/apps/#{app_name}/cron_logs").to_s
   end
 
-  def read_logs(app_name, options)
+  def read_logs(app_name, options=[])
     query = "&" + options.join("&") unless options.empty?
     url = get("/apps/#{app_name}/logs?logplex=true#{query}").to_s
     if url == 'Use old logs'
-      puts get("/apps/#{app_name}/logs").to_s
+      display get("/apps/#{app_name}/logs").to_s
     else
       uri  = URI.parse(url);
       http = Net::HTTP.new(uri.host, uri.port)
