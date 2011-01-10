@@ -11,7 +11,6 @@ Gem::Specification.new do |gem|
 
   gem.summary     = "Client library and CLI to deploy Rails apps on Heroku."
   gem.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
-  gem.homepage    = "http://github.com/heroku/heroku"
   gem.executables = "heroku"
 
   gem.files = Dir["**/*"].select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
