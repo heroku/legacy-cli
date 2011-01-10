@@ -5,10 +5,9 @@ Gem::Specification.new do |gem|
   gem.name    = "heroku"
   gem.version = Heroku::VERSION
 
-  gem.author   = "Heroku"
-  gem.email    = "support@heroku.com"
-  gem.homepage = "http://heroku.com/"
-
+  gem.author      = "Heroku"
+  gem.email       = "support@heroku.com"
+  gem.homepage    = "http://heroku.com/"
   gem.summary     = "Client library and CLI to deploy Rails apps on Heroku."
   gem.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
   gem.executables = "heroku"
