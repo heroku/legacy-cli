@@ -20,8 +20,13 @@ module Heroku::Command
           when "-s", "--source" then options << "source=#{URI.encode(args.shift)}"
           end
       end
+
+      @line_start = true
+      @token = nil
+
       heroku.read_logs(app, options) do |chk|
-        display_with_colors chk
+        next unless output = format_with_colors(chk)
+        puts output
       end
     end
 
@@ -51,12 +56,18 @@ module Heroku::Command
       raise(CommandFailed, "usage: heroku logs:drains <add | remove | clear>")
     end
 
-    def init_colors
-      require 'term/ansicolor'
+    def init_colors(colorizer=nil)
+      if !colorizer
+        require 'term/ansicolor'
+        @colorizer = Term::ANSIColor
+      else
+        @colorizer = colorizer
+      end
+
       @assigned_colors = {}
 
       trap("INT") do
-        puts Term::ANSIColor.reset
+        puts @colorizer.reset
         exit
       end
     rescue LoadError
@@ -64,20 +75,20 @@ module Heroku::Command
 
     COLORS = %w( cyan yellow green magenta red )
 
-    def display_with_colors(log)
-      if !@assigned_colors
-        puts log
-        return
-      end
+    def format_with_colors(chunk)
+      return if chunk.empty?
+      return chunk unless @colorizer
 
-      header, identifier, body = parse_log(log)
-      return unless header
-      @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
-      print Term::ANSIColor.send(@assigned_colors[identifier])
-      print header
-      print Term::ANSIColor.reset
-      print body
-      puts
+      chunk.split("\n").map do |line|
+        header, identifier, body = parse_log(line)
+        @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
+        [
+          @colorizer.send(@assigned_colors[identifier]),
+          header,
+          @colorizer.reset,
+          body,
+        ].join("")
+      end.join("\n")
     end
 
     def parse_log(log)
