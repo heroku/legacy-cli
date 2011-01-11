@@ -71,6 +71,7 @@ module Heroku::Command
       end
 
       header, identifier, body = parse_log(log)
+      return unless header
       @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
       print Term::ANSIColor.send(@assigned_colors[identifier])
       print header
