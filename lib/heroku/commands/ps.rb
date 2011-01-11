@@ -1,15 +1,19 @@
 module Heroku::Command
   class Ps < Base
     def index
-      ps = heroku.ps(extract_app)
+      app = extract_app
+      ps = heroku.ps(app)
 
       output = []
-      output << "UPID     Slug          Command                     State       Since"
-      output << "-------  ------------  --------------------------  ----------  ---------"
+      output << "Process       State               Command"
+      output << "------------  ------------------  ------------------------------"
 
-      ps.each do |p|
-        output << "%-7s  %-12s  %-26s  %-10s  %-9s" %
-          [p['upid'], p['slug'], truncate(p['command'], 22), p['state'], time_ago(p['elapsed'])]
+      ps.sort_by do |p|
+        t,n = p['process'].split(".")
+        [t, n.to_i]
+      end.each do |p|
+        output << "%-12s  %-18s  %s" %
+          [ p['process'], "#{p['state']} for #{time_ago(p['elapsed']).gsub(/ ago/, '')}", truncate(p['command'], 36) ]
       end
 
       display output.join("\n")
