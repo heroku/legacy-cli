@@ -122,19 +122,19 @@ describe Heroku::Client do
   describe "read_logs" do
     describe "old style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "Use old logs") 
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "Use old logs")
         stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "oldlogs")
       end
 
       it "can read old style logs" do
-        @client.should_receive(:display).with("oldlogs")
+        @client.should_receive(:puts).with("oldlogs")
         @client.read_logs("myapp")
       end
     end
 
     describe "new style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url") 
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url")
         stub_api_request(:get, "/logplex_url").to_return(:body => "newlogs")
       end
 

@@ -7,9 +7,9 @@ require 'json'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
-# 
+#
 # Example:
-# 
+#
 #   require 'heroku'
 #   heroku = Heroku::Client.new('me@example.com', 'mypass')
 #   heroku.create('myapp')
@@ -368,7 +368,7 @@ Console sessions require an open dyno to use for execution.
     query = "&" + options.join("&") unless options.empty?
     url = get("/apps/#{app_name}/logs?logplex=true#{query}").to_s
     if url == 'Use old logs'
-      display get("/apps/#{app_name}/logs").to_s
+      puts get("/apps/#{app_name}/logs").to_s
     else
       uri  = URI.parse(url);
       http = Net::HTTP.new(uri.host, uri.port)
