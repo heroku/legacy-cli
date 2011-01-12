@@ -1,13 +1,13 @@
 module Heroku::Command
-  class Logs < BaseWithApp
-    Help.group("Logging (Expanded)") do |group|
-      group.command "logs --tail",              "realtime logs tail"
-      group.command "logs:drains",              "list syslog drains"
-      group.command "logs:drains add <url>",    "add a syslog drain"
-      group.command "logs:drains remove <url>", "remove a syslog drain"
-      group.command "logs:drains clear",        "remove all syslog drains"
-    end
+  Heroku::Commands::Help.group("Logging (Expanded)") do |group|
+    group.command "logs --tail",              "realtime logs tail"
+    group.command "logs:drains",              "list syslog drains"
+    group.command "logs:drains add <url>",    "add a syslog drain"
+    group.command "logs:drains remove <url>", "remove a syslog drain"
+    group.command "logs:drains clear",        "remove all syslog drains"
+  end
 
+  class Logs < BaseWithApp
     def index
       init_colors
 
