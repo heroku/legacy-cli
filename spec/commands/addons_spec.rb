@@ -134,5 +134,14 @@ module Heroku::Command
       @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1')
       @addons.clear
     end
+
+    it "opens an addon" do
+      @addons.stub!(:args).and_return(%w(my_addon))
+      Kernel.stub!(:system)
+      Kernel.should_receive(:system).with("open https://api.heroku.com/myapps/myapp/addons/my_addon")
+
+      lambda { @addons.open }.
+        should display_message(@addons, "Opening my_addon for myapp...")
+    end
   end
 end

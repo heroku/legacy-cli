@@ -59,6 +59,13 @@ module Heroku::Command
       end
     end
 
+    def open
+      args.each do |name|
+        display "Opening #{name} for #{app}..."
+        Kernel.system "open https://api.#{heroku.host}/myapps/#{app}/addons/#{name}"
+      end
+    end
+
     def confirm_billing
       Heroku::Command.run_internal 'account:confirm_billing', []
     end
