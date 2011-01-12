@@ -96,8 +96,9 @@ module Heroku::Command
         group.command 'addons',                       'list installed addons'
         group.command 'addons:info',                  'list all available addons'
         group.command 'addons:add name [key=value]',  'install addon (with zero or more config vars)'
-        group.command 'addons:remove name',           'uninstall an addons'
+        group.command 'addons:remove name',           'uninstall an addon'
         group.command 'addons:clear',                 'uninstall all addons'
+        group.command 'addons:open name',             'open an addon\'s page in your browser'
         group.space
         group.command 'destroy',                      'destroy the app permanently'
       end
