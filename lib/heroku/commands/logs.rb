@@ -1,5 +1,5 @@
 module Heroku::Command
-  Heroku::Commands::Help.group("Logging (Expanded)") do |group|
+  Heroku::Command::Help.group("Logging (Expanded)") do |group|
     group.command "logs --tail",              "realtime logs tail"
     group.command "logs:drains",              "list syslog drains"
     group.command "logs:drains add <url>",    "add a syslog drain"
