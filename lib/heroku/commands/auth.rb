@@ -25,7 +25,6 @@ module Heroku::Command
 
     def reauthorize
       @credentials = ask_for_and_save_credentials
-      write_credentials
     end
 
     def user    # :nodoc:
