@@ -5,8 +5,10 @@ module Heroku::Command
     before do
       @cli = prepare_command(Auth)
       @sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
-      File.open(@sandbox, "w") { |f| f.write "user\npass\n" }
-      @cli.stub!(:credentials_file).and_return(@sandbox)
+      FileUtils.mkdir_p(@sandbox)
+      @credentials_file = "#{@sandbox}/credentials"
+      File.open(@credentials_file, "w") { |f| f.write "user\npass\n" }
+      @cli.stub!(:credentials_file).and_return(@credentials_file)
       @cli.stub!(:running_on_a_mac?).and_return(false)
     end
 
@@ -35,7 +37,7 @@ module Heroku::Command
       @cli.stub!(:credentials).and_return(['one', 'two'])
       @cli.should_receive(:set_credentials_permissions)
       @cli.write_credentials
-      File.read(@sandbox).should == "one\ntwo\n"
+      File.read(@credentials_file).should == "one\ntwo\n"
     end
 
     it "sets ~/.heroku/credentials to be readable only by the user" do
