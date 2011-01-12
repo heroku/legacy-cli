@@ -1,3 +1,5 @@
+require "heroku/commands/help"
+
 module Heroku::Command
   Heroku::Command::Help.group("Logging (Expanded)") do |group|
     group.command "logs --tail",              "realtime logs tail"
