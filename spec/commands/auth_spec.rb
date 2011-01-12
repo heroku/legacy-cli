@@ -88,6 +88,14 @@ module Heroku::Command
       @cli.delete_credentials
     end
 
+    it "writes the login information to the credentials file for the 'heroku login' command" do
+      @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
+      @cli.stub!(:check)
+      @cli.stub!(:check_for_associated_ssh_key)
+      @cli.reauthorize
+      File.read(@credentials_file).should == "one\ntwo\n"
+    end
+
     describe "automatic key uploading" do
       before(:each) do
         FakeFS.activate!
