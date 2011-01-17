@@ -153,13 +153,19 @@ module Heroku::Command
       end
     end
 
+    def enforce_taps_version(version)
+      unless Taps.version >= version
+        error "Your taps gem is out of date (v#{version} or higher required)."
+      end
+    end
+
     def load_taps
       require 'taps/operation'
       require 'taps/cli'
-      error "The heroku gem requires taps 0.3" unless Taps.version =~ /^0.3/
+      enforce_taps_version "0.3.15"
       display "Loaded Taps v#{Taps.version}"
     rescue LoadError
-      message  = "Taps 0.3 Load Error: #{$!.message}\n"
+      message  = "Taps Load Error: #{$!.message}\n"
       message << "You may need to install or update the taps gem to use db commands.\n"
       message << "On most systems this will be:\n\nsudo gem install taps"
       error message
