@@ -454,4 +454,16 @@ describe Heroku::Client do
       @callback_called.should == 1
     end
   end
+
+  describe "stacks" do
+    it "list_stacks(app_name) -> json hash of available stacks" do
+      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=false").to_return(:body => '{"stack":"one"}')
+      @client.list_stacks("myapp").should == { 'stack' => 'one' }
+    end
+
+    it "list_stacks(app_name, include_deprecated=true) passes the deprecated option" do
+      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=true").to_return(:body => '{"stack":"one"}')
+      @client.list_stacks("myapp", :include_deprecated => true).should == { 'stack' => 'one' }
+    end
+  end
 end

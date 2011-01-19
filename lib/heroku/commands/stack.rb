@@ -1,11 +1,9 @@
 module Heroku::Command
   class Stack < BaseWithApp
     def list
-      if extract_option("--all")
-        show_deprecated = true
-      end
+      include_deprecated = true if extract_option("--all")
 
-      list = heroku.list_stacks(app,show_deprecated)
+      list = heroku.list_stacks(app, :include_deprecated => include_deprecated)
       lines = list.map do |stack|
         row = [stack['current'] ? '*' : ' ', stack['name']]
         row << '(beta)' if stack['beta']

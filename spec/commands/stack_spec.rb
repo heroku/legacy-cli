@@ -10,7 +10,7 @@ module Heroku::Command
         describe "heroku" do
           it "should receive list_stacks with show_deprecated = true" do
             @cli.stub!(:args).and_return(['--all'])
-            @cli.heroku.should_receive(:list_stacks).with('myapp',true).and_return([])
+            @cli.heroku.should_receive(:list_stacks).with('myapp', { :include_deprecated => true }).and_return([])
             @cli.list
           end
         end
