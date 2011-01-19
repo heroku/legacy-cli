@@ -171,8 +171,8 @@ class Heroku::Client
   end
 
   # Get a list of stacks available to the app, with the current one marked.
-  def list_stacks(app_name)
-    JSON.parse resource("/apps/#{app_name}/stack").get(:accept => 'application/json').to_s
+  def list_stacks(app_name,show_deprecated=false)
+    JSON.parse resource("/apps/#{app_name}/stack?include_deprecated=#{show_deprecated}").get(:accept => 'application/json').to_s
   end
 
   # Request a stack migration.

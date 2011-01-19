@@ -1,7 +1,11 @@
 module Heroku::Command
   class Stack < BaseWithApp
     def list
-      list = heroku.list_stacks(app)
+      if extract_option("--all")
+        show_deprecated = true
+      end
+
+      list = heroku.list_stacks(app,show_deprecated)
       lines = list.map do |stack|
         row = [stack['current'] ? '*' : ' ', stack['name']]
         row << '(beta)' if stack['beta']
