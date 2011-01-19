@@ -1,6 +1,10 @@
+require "heroku/helpers"
+
 module HerokuPostgresql
   class Client
     Version = 9
+
+    include Heroku::Helpers
 
     def initialize(database_user, database_password, database_name)
       @heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"
@@ -76,7 +80,9 @@ module HerokuPostgresql
 
     def http_get(path)
       checking_client_version do
-        sym_keys(JSON.parse(@heroku_postgresql_resource[path].get.to_s))
+        retry_on_exception(RestClient::Exception) do
+          sym_keys(JSON.parse(@heroku_postgresql_resource[path].get.to_s))
+        end
       end
     end
 

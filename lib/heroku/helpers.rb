@@ -81,6 +81,18 @@ module Heroku
     def run_command(command, args=[])
       Heroku::Command.run_internal(command, args)
     end
+
+    def retry_on_exception(*exceptions)
+      retry_count = 0
+      begin
+        yield
+      rescue *exceptions => ex
+        raise ex if retry_count >= 3
+        sleep 3
+        retry_count += 1
+        retry
+      end
+    end
   end
 end
 

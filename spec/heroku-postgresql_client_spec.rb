@@ -29,4 +29,11 @@ describe HerokuPostgresql::Client do
     hk_pg_api_request(:put, "databases/#{@dbname}/ingress").should have_been_made.once
   end
 
+  it "retries on error, then raises" do
+    hk_pg_api_stub(:get, "databases/#{@dbname}").to_return(:body => "error", :status => 500)
+    @client.stub(:sleep)
+    lambda { @client.get_database }.should raise_error RestClient::InternalServerError
+    hk_pg_api_request(:get, "databases/#{@dbname}").should have_been_made.times(4)
+  end
+
 end
