@@ -60,9 +60,19 @@ module Heroku::Command
     end
 
     def open
-      args.each do |name|
-        display "Opening #{name} for #{app}..."
-        Kernel.system "open https://api.#{heroku.host}/myapps/#{app}/addons/#{name}"
+      addon = args.shift
+      app_addons = heroku.installed_addons(app).map { |a| a["name"] }
+      matches = app_addons.select { |a| a =~ /^#{addon}/ }
+
+      case matches.length
+      when 0 then
+        error "Unknown addon: #{addon}"
+      when 1 then
+        addon_to_open = matches.first
+        display "Opening #{addon_to_open} for #{app}..."
+        Launchy.open "https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}"
+      else
+        error "Ambiguous addon name: #{addon}"
       end
     end
 

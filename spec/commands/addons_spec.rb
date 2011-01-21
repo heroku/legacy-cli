@@ -135,13 +135,33 @@ module Heroku::Command
       @addons.clear
     end
 
-    it "opens an addon" do
-      @addons.stub!(:args).and_return(%w(my_addon))
-      Kernel.stub!(:system)
-      Kernel.should_receive(:system).with("open https://api.heroku.com/myapps/myapp/addons/my_addon")
+    describe "opening an addon" do
+      before(:each) { @addons.stub!(:args).and_return(["red"]) }
 
-      lambda { @addons.open }.
-        should display_message(@addons, "Opening my_addon for myapp...")
+      it "opens the addon if only one matches" do
+        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
+          { "name" => "redistogo:basic" }
+        ])
+        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:basic")
+        @addons.open
+      end
+
+      it "complains about ambiguity" do
+        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
+          { "name" => "redistogo:basic" },
+          { "name" => "red:color" }
+        ])
+        @addons.should_receive(:error).with("Ambiguous addon name: red")
+        @addons.open
+      end
+
+      it "complains if nothing matches" do
+        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
+          { "name" => "newrelic:bronze" }
+        ])
+        @addons.should_receive(:error).with("Unknown addon: red")
+        @addons.open
+      end
     end
   end
 end
