@@ -34,7 +34,7 @@ module Heroku::Command
     alias :rm :remove
 
     def clear
-      deprecate
+      deprecate("1.19")
       display "Clearing all config vars and restarting app...", false
       heroku.clear_config_vars(app)
       display "done."

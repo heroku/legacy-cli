@@ -25,10 +25,10 @@ module Heroku
       display("\r\e[0K#{line}", line_break)
     end
 
-    def deprecate
+    def deprecate(version)
       display ""
       display " ! "
-      display " ! WARNING: This command will be deprecated"
+      display " ! WARNING: This command will be deprecated in version #{version}"
       display " ! "
       display ""
     end
