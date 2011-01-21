@@ -26,10 +26,7 @@ module Heroku
     end
 
     def deprecate(version)
-      display ""
-      display " ! "
-      display " ! WARNING: This command will be deprecated in version #{version}"
-      display " ! "
+      display "!!! DEPRECATION WARNING: This command will be removed in version #{version}"
       display ""
     end
 
