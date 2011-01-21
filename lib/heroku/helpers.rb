@@ -25,6 +25,14 @@ module Heroku
       display("\r\e[0K#{line}", line_break)
     end
 
+    def deprecate
+      display ""
+      display " ! "
+      display " ! WARNING: This command will be deprecated"
+      display " ! "
+      display ""
+    end
+
     def error(msg)
       STDERR.puts(msg)
       exit 1
