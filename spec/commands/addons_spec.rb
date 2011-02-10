@@ -6,9 +6,21 @@ module Heroku::Command
       @addons = prepare_command(Addons)
     end
 
-    it "index lists installed addons" do
-      @addons.heroku.should_receive(:installed_addons).with('myapp').and_return([])
-      @addons.index
+    describe "index" do
+      context "when working with addons" do
+        it "lists installed addons" do
+          @addons.heroku.should_receive(:installed_addons).with('myapp').and_return([])
+          @addons.index
+        end
+      end
+      context "when workign with addons and attachments" do
+        it "should list attachments" do
+          c = [{"configured"=>true, "name"=>"heroku-postgresql:ronin", "attachment_name"=>"HEROKU_POSTGRESQL_RED"}]
+          @addons.heroku.should_receive(:installed_addons).with('myapp').and_return(c)
+          @addons.should_receive(:display).with("heroku-postgresql:ronin => HEROKU_POSTGRESQL_RED")
+          @addons.index
+        end
+      end
     end
 
     it "adds an addon" do

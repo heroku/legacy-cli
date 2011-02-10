@@ -6,9 +6,17 @@ module Heroku::Command
         display "No addons installed"
       else
         available, pending = installed.partition { |a| a['configured'] }
-        available.map { |a| a['name'] }.sort.each do |addon|
-          display addon
+
+        available.map do |a|
+          if a['attachment_name']
+            a['name'] + ' => ' + a['attachment_name']
+          else
+            a['name']
+          end
+        end.sort.each do |addon|
+          display(addon)
         end
+
         unless pending.empty?
           display "\n--- not configured ---"
           pending.map { |a| a['name'] }.sort.each do |addon|
