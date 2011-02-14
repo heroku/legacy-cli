@@ -58,12 +58,6 @@ module Heroku::Command
         @base.extract_app.should == 'myapp'
       end
 
-      it "uses the remote named after the current folder name when there are multiple" do
-        @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
-        Dir.stub!(:pwd).and_return('/home/dev/myapp')
-        @base.extract_app.should == 'myapp'
-      end
-
       it "accepts a --remote argument to choose the app from the remote name" do
         @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
         @base.stub!(:args).and_return(['--remote', 'staging'])

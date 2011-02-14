@@ -38,13 +38,7 @@ module Heroku::Command
         remotes[remote]
       else
         apps = remotes.values.uniq
-        case apps.size
-          when 0; return nil
-          when 1; return apps.first
-          else
-            current_dir_name = dir.split('/').last.downcase
-            apps.select { |a| a.downcase == current_dir_name }.first
-        end
+        return apps.first if apps.size == 1
       end
     end
 
