@@ -60,6 +60,8 @@ module Heroku::Command
       from_name, from_url = resolve_db_id(db_id, :default => "DATABASE_URL")
       db_id ||= "DATABASE_URL"
 
+      abort(" !   No database addon detected.") unless from_url
+
       to_name = "BACKUP"
       to_url = nil # server will assign
 
@@ -80,6 +82,8 @@ module Heroku::Command
       confirm = extract_option("--confirm")
       to_name, to_url = resolve_db_id(db_id, :default => "DATABASE_URL")
       db_id = to_name
+
+      abort(" !   No database addon detected.") unless to_url
 
       backup_id = args.shift
 
