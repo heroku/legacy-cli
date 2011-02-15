@@ -1,3 +1,5 @@
+require 'heroku/commands/logs'
+
 module Heroku::Command
   class Tail < Logs
     def index
