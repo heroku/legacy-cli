@@ -98,7 +98,13 @@ module Heroku::Command
         @pgbackups.destroy
       end
 
+      it "aborts if no database addon is present" do
+        @pgbackups.stub!(:resolve_db_id).and_return(["DATABASE_URL", nil])
+        @pgbackups.should_receive(:abort).with(" !   No database addon detected.").and_raise(SystemExit)
+        lambda { @pgbackups.capture }.should raise_error SystemExit
+      end
     end
+
     context "restore" do
       before do
         from_url = "postgres://fromhost/database"
@@ -109,15 +115,19 @@ module Heroku::Command
         @pgbackups.stub!(:pgbackup_client).and_return(@pgbackups_client)
       end
 
-      after do
-        @pgbackups.restore
-      end
-
       it "should receive a confirm_command on restore" do
         @pgbackups_client.stub!(:get_latest_backup).and_return({"to_url" => "s3://bucket/user/bXXX.dump"})
 
         @pgbackups.should_receive(:confirm_command).and_return(false)
         @pgbackups_client.should_not_receive(:transfer!)
+
+        @pgbackups.restore
+      end
+
+      it "aborts if no database addon is present" do
+        @pgbackups.stub!(:resolve_db_id).and_return(["DATABASE_URL", nil])
+        @pgbackups.should_receive(:abort).with(" !   No database addon detected.").and_raise(SystemExit)
+        lambda { @pgbackups.restore }.should raise_error SystemExit
       end
 
       context "for commands which perform restores" do
@@ -133,19 +143,25 @@ module Heroku::Command
           @pgbackups_client.should_receive(:create_transfer).and_return(@backup_obj)
           @pgbackups.stub!(:poll_transfer!).and_return(@backup_obj)
         end
+
         it "should default to the latest backup" do
           @pgbackups.stub(:args).and_return([])
           @pgbackups_client.should_receive(:get_latest_backup).and_return(@backup_obj)
+          @pgbackups.restore
         end
+
         it "should restore the named backup" do
           name = "backupname"
           @pgbackups.stub(:args).and_return([name])
           @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
+          @pgbackups.restore
         end
+
         it "should handle external restores" do
           @pgbackups.stub(:args).and_return(["http://external/file.dump"])
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
+          @pgbackups.restore
         end
       end
     end
