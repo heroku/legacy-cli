@@ -53,7 +53,6 @@ module Heroku::Command
       display b['public_url']
     end
 
-
     def capture
       expire = extract_option("--expire")
       db_id = args.shift
@@ -74,7 +73,12 @@ module Heroku::Command
 
       backup = poll_transfer!(backup)
 
-      abort(" !    An error occurred and your backup did not finish.") if backup["error_at"]
+      if backup["error_at"]
+        message  =   " !    An error occurred and your backup did not finish."
+        message += "\n !    The database is not yet online. Please try again." if backup['log'] =~ /Name or service not known/
+        message += "\n !    The database credentials are incorrect."           if backup['log'] =~ /psql: FATAL:/
+        abort(message)
+      end
     end
 
     def restore
@@ -121,7 +125,12 @@ module Heroku::Command
       if confirm_command
         restore = transfer!(from_url, from_name, to_url, to_name)
         restore = poll_transfer!(restore)
-        abort(" !    An error occurred and your restore did not finish.") if restore["error_at"]
+
+        if restore["error_at"]
+          message  =   " !    An error occurred and your restore did not finish."
+          message += "\n !    The backup url is invalid. Use `pgbackups:url` to generate a new temporary URL." if restore['log'] =~ /Invalid dump format: .*: XML  document text/
+          abort(message)
+        end
       end
     end
 
