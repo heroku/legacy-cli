@@ -103,6 +103,45 @@ module Heroku::Command
         @pgbackups.should_receive(:abort).with(" !   No database addon detected.").and_raise(SystemExit)
         lambda { @pgbackups.capture }.should raise_error SystemExit
       end
+
+      context "on errors" do
+        def stub_failed_capture(log)
+          backup_obj = {
+            "error_at" => Time.now.to_s,
+            "log" => log,
+            'to_url' => 'postgres://from/bar'
+          }
+          @pgbackups.stub!(:transfer!).and_return(backup_obj)
+          @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
+        end
+
+        before(:each) do
+          @pgbackups.stub!(:resolve_db_id).and_return(["postgres://from/bar","postgres://from/bar"])
+        end
+
+        it 'aborts on a generic error' do
+          stub_failed_capture "something generic"
+          @pgbackups.should_receive(:abort).with(" !    An error occurred and your backup did not finish.")
+          @pgbackups.capture
+        end
+
+        it 'aborts and informs when the database isnt up yet' do
+          stub_failed_capture 'could not translate host name "ec2-42-42-42-42.compute-1.amazonaws.com" to address: Name or service not known'
+          @pgbackups.should_receive(:abort) do |message|
+            message.should =~ /The database is not yet online/
+            message.should =~ /Please try again/
+          end
+          @pgbackups.capture
+        end
+
+        it 'aborts and informs when the credentials are incorrect' do
+          stub_failed_capture 'psql: FATAL:  database "randomname" does not exist'
+          @pgbackups.should_receive(:abort) do |message|
+            message.should =~ /The database credentials are incorrect/
+          end
+          @pgbackups.capture
+        end
+      end
     end
 
     context "restore" do
@@ -161,6 +200,35 @@ module Heroku::Command
           @pgbackups.stub(:args).and_return(["http://external/file.dump"])
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
+          @pgbackups.restore
+        end
+      end
+
+      context "on errors" do
+        before(:each) do
+          @pgbackups_client.stub!(:get_latest_backup).and_return({"to_url" => "s3://bucket/user/bXXX.dump"})
+          @pgbackups.stub!(:confirm_command).and_return(true)
+        end
+
+        def stub_error_backup_with_log(log)
+          @backup_obj = {
+            "error_at" => Time.now.to_s,
+            "log" => log
+          }
+
+          @pgbackups_client.should_receive(:create_transfer).and_return(@backup_obj)
+          @pgbackups.stub!(:poll_transfer!).and_return(@backup_obj)
+        end
+
+        it 'aborts for a generic error' do
+          stub_error_backup_with_log 'something generic'
+          @pgbackups.should_receive(:abort).with(" !    An error occurred and your restore did not finish.")
+          @pgbackups.restore
+        end
+
+        it 'aborts and informs for expired s3 urls' do
+          stub_error_backup_with_log 'Invalid dump format: /tmp/aDMyoXPrAX/b031.dump: XML  document text'
+          @pgbackups.should_receive(:abort).with { |message| message.should =~ /backup url is invalid/ }
           @pgbackups.restore
         end
       end
