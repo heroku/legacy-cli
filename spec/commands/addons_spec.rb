@@ -147,6 +147,12 @@ module Heroku::Command
       @addons.clear
     end
 
+    it "doesn't remove shared database" do
+      @addons.heroku.should_receive(:installed_addons).with('myapp').and_return([{ 'name' => 'shared-database:5mb'}])
+      @addons.heroku.should_not_receive(:uninstall_addon).with('myapp', 'shared-database:5mb')
+      @addons.clear
+    end
+
     describe "opening an addon" do
       before(:each) { @addons.stub!(:args).and_return(["red"]) }
 
