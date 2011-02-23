@@ -74,7 +74,7 @@ module Heroku
       end
 
       def extract_error(body)
-        msg = parse_error_xml(body) || parse_error_json(body) || 'Internal server error'
+        msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || 'Internal server error'
         msg.split("\n").map { |line| ' !   ' + line }.join("\n")
       end
 
@@ -89,6 +89,11 @@ module Heroku
         json = JSON.parse(body.to_s)
         json['error']
       rescue JSON::ParserError
+      end
+
+      def parse_error_plain(body)
+        return unless body.respond_to?(:headers) && body.headers[:content_type].include?("text/plain")
+        body.to_s
       end
     end
   end

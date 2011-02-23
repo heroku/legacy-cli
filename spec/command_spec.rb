@@ -9,8 +9,18 @@ describe Heroku::Command do
     Heroku::Command.extract_error("{\"error\":\"Invalid app name\"}").should == ' !   Invalid app name'
   end
 
-  it "shows Internal Server Error when the response doesn't contain a XML" do
+  it "extracts error messages from response when available in JSON" do
+    response = mock(:to_s => "Invalid app name", :headers => { :content_type => "text/plain; charset=UTF8" })
+    Heroku::Command.extract_error(response).should == ' !   Invalid app name'
+  end
+
+  it "shows Internal Server Error when the response doesn't contain a XML or JSON" do
     Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == ' !   Internal server error'
+  end
+
+  it "shows Internal Server Error when the response is not plain text" do
+    response = mock(:to_s => "Foobar", :headers => { :content_type => "application/xml" })
+    Heroku::Command.extract_error(response).should == ' !   Internal server error'
   end
 
   it "handles a nil body in parse_error_xml" do
