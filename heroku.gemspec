@@ -17,10 +17,10 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "fakefs",  "~> 0.3.1"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec",   "~> 1.3.0"
-  gem.add_development_dependency "taps",    "~> 0.3.11"
+  gem.add_development_dependency "taps",    "~> 0.3.16"
   gem.add_development_dependency "webmock", "~> 1.5.0"
 
   gem.add_dependency "rest-client", ">= 1.4.0", "< 1.7.0"
   gem.add_dependency "launchy",     "~> 0.3.2"
-  gem.add_dependency "json",        "~> 1.4.6"
+  gem.add_dependency "json",        "~> 1.5.1"
 end
