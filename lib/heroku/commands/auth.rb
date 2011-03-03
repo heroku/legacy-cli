@@ -168,9 +168,10 @@ module Heroku::Command
 
     def write_credentials
       FileUtils.mkdir_p(File.dirname(credentials_file))
-      File.open(credentials_file, 'w') do |f|
-        f.puts self.credentials
-      end
+      f = File.open(credentials_file, 'w')
+      f.chmod(0600)
+      f.puts self.credentials
+      f.close
       set_credentials_permissions
     end
 
