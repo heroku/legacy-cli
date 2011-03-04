@@ -79,11 +79,25 @@ module Heroku::Command
     end
 
     def info
-      name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
-      attrs = heroku.info(name)
+      attrs = heroku.info(extract_app)
 
       attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
       attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
+
+      unless args.empty?
+        arg_symbols = args.map(&:to_sym)
+        invalid_keys = arg_symbols - attrs.keys
+        if invalid_keys.empty?
+          arg_symbols.each { |k| display attrs[k] }
+          return
+        else
+          error <<-eos
+Invalid keys: #{invalid_keys.map(&:to_s).join(', ')}
+
+Valid keys are: #{attrs.keys.map(&:to_s).join(', ')}
+eos
+        end
+      end
 
       display "=== #{attrs[:name]}"
       display "Web URL:        #{attrs[:web_url]}"

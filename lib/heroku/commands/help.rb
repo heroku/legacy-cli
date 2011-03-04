@@ -40,7 +40,7 @@ module Heroku::Command
         group.space
         group.command 'list',                         'list your apps'
         group.command 'create [<name>]',              'create a new app'
-        group.command 'info',                         'show app info, like web url and git repo'
+        group.command 'info [<key>] [...]',           'show app info, like web url and git repo'
         group.command 'open',                         'open the app in a web browser'
         group.command 'rename <newname>',             'rename the app'
         group.command 'destroy',                      'destroy the app permanently'
