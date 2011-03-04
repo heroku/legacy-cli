@@ -7,7 +7,6 @@ module Heroku::Command
     end
 
     it "shows app info, converting bytes to kbs/mbs" do
-      @cli.stub!(:args).and_return(['myapp'])
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024 })
       @cli.should_receive(:display).with('=== myapp')
       @cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
@@ -26,6 +25,14 @@ module Heroku::Command
       @cli.stub!(:args).and_return([])
       @cli.stub!(:extract_app_in_dir).and_return('myapp')
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
+      @cli.info
+    end
+
+    it "shows app info for a specific key" do
+      @cli.stub!(:args).and_return(['database_size', 'name'])
+      @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :database_size => 5*1024*1024 })
+      @cli.should_receive(:display).with(5242880)
+      @cli.should_receive(:display).with("myapp")
       @cli.info
     end
 
