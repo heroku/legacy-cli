@@ -1,6 +1,6 @@
 require File.expand_path("../base", File.dirname(__FILE__))
 
-module Heroku::Command
+module Salesforce::Command
   describe Db do
     before do
       @db = prepare_command(Db)

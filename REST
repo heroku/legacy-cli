@@ -1,12 +1,12 @@
-= Heroku REST API
+= Salesforce REST API
 
-Typically the command-line program is used for manually manipulating Heroku
-apps; or from a Ruby script (like a Rakefile), one uses the Heroku::Client
+Typically the command-line program is used for manually manipulating Salesforce
+apps; or from a Ruby script (like a Rakefile), one uses the Salesforce::Client
 class.  This document describes the underlying REST API used by both.
 
 == Authentication
 
-Use HTTP basic auth to provide the Heroku username (email) and password with
+Use HTTP basic auth to provide the Salesforce username (email) and password with
 each request.
 
 == Content Types
@@ -88,7 +88,7 @@ keyname, since @ is not a valid URL character.
 
 == Example
 
-Although one would normally use Heroku::Client from a Ruby program, here's some
+Although one would normally use Salesforce::Client from a Ruby program, here's some
 sample code for reference.  It creates an app named foobaz by posting to /apps.
 
 Using Net::HTTP:

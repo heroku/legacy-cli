@@ -1,31 +1,31 @@
 require File.expand_path("../base", File.dirname(__FILE__))
 
-module Heroku::Command
+module Salesforce::Command
   describe Sharing do
     before do
       @cli = prepare_command(Sharing)
     end
 
     it "lists collaborators" do
-      @cli.heroku.should_receive(:list_collaborators).and_return([])
+      @cli.salesforce.should_receive(:list_collaborators).and_return([])
       @cli.list
     end
 
     it "adds collaborators with default access to view only" do
       @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com')
+      @cli.salesforce.should_receive(:add_collaborator).with('myapp', 'joe@example.com')
       @cli.add
     end
 
     it "removes collaborators" do
       @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
+      @cli.salesforce.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
       @cli.remove
     end
 
     it "transfers ownership" do
       @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:update).with('myapp', :transfer_owner => 'joe@example.com')
+      @cli.salesforce.should_receive(:update).with('myapp', :transfer_owner => 'joe@example.com')
       @cli.transfer
     end
   end

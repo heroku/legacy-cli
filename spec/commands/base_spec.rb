@@ -1,22 +1,22 @@
 require File.expand_path("../base", File.dirname(__FILE__))
 
-module Heroku::Command
+module Salesforce::Command
   describe Base do
     before do
       @args = [1, 2]
       @base = Base.new(@args)
       @base.stub!(:display)
-      @client = mock('heroku client', :host => 'heroku.com')
+      @client = mock('salesforce client', :host => 'heroku.com')
     end
 
-    it "initializes the heroku client with the Auth command" do
-      Heroku::Command.should_receive(:run_internal).with('auth:client', @args)
-      @base.heroku
+    it "initializes the salesforce client with the Auth command" do
+      Salesforce::Command.should_receive(:run_internal).with('auth:client', @args)
+      @base.salesforce
     end
 
     context "detecting the app" do
       before do
-        @base.stub!(:heroku).and_return(@client)
+        @base.stub!(:salesforce).and_return(@client)
       end
 
       it "attempts to find the app via the --app argument" do
@@ -54,7 +54,7 @@ module Heroku::Command
       end
 
       it "gets the app from remotes when there's only one app" do
-        @base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
+        @base.stub!(:git_remotes).and_return({ 'salesforce' => 'myapp' })
         @base.extract_app.should == 'myapp'
       end
 
@@ -66,7 +66,7 @@ module Heroku::Command
 
       it "raises when cannot determine which app is it" do
         @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
-        lambda { @base.extract_app }.should raise_error(Heroku::Command::CommandFailed)
+        lambda { @base.extract_app }.should raise_error(Salesforce::Command::CommandFailed)
       end
     end
 
@@ -126,7 +126,7 @@ module Heroku::Command
 
     describe "formatting" do
       it "formats app urls (http and git), displayed as output on create and other commands" do
-        @base.stub!(:heroku).and_return(mock('heroku client', :host => 'example.com'))
+        @base.stub!(:salesforce).and_return(mock('salesforce client', :host => 'example.com'))
         @base.app_urls('test').should == "http://test.example.com/ | git@example.com:test.git"
       end
     end

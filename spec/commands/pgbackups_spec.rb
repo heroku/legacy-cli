@@ -1,13 +1,13 @@
 require File.expand_path("../base", File.dirname(__FILE__))
 
-module Heroku::Command
+module Salesforce::Command
   describe Pgbackups do
     before do
       @pgbackups = prepare_command(Pgbackups)
       @pgbackups.stub!(:config_vars).and_return({
         "PGBACKUPS_URL" => "https://ip:password@pgbackups.heroku.com/client"
       })
-      @pgbackups.heroku.stub!(:info).and_return({})
+      @pgbackups.salesforce.stub!(:info).and_return({})
     end
 
     it "requests a pgbackups transfer list for the index command" do

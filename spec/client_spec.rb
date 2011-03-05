@@ -1,18 +1,18 @@
 require File.expand_path("./base", File.dirname(__FILE__))
 require "cgi"
-require "heroku/client"
+require "salesforce/client"
 
-describe Heroku::Client do
+describe Salesforce::Client do
   before do
-    @client = Heroku::Client.new(nil, nil)
-    @resource = mock('heroku rest resource')
+    @client = Salesforce::Client.new(nil, nil)
+    @resource = mock('salesforce rest resource')
     @client.stub!(:extract_warning)
   end
 
   it "Client.auth -> get user details" do
     user_info = { "api_key" => "abc" }
     stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => user_info.to_json)
-    Heroku::Client.auth("foo", "bar").should == user_info
+    Salesforce::Client.auth("foo", "bar").should == user_info
   end
 
   it "list -> get a list of this user's apps" do
@@ -67,7 +67,7 @@ describe Heroku::Client do
     @response = mock('response')
     @response.should_receive(:code).and_return(202)
     @client.should_receive(:resource).with('/apps/myapp/status').and_return(@resource)
-    @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
+    @resource.should_receive(:put).with({}, @client.salesforce_headers).and_return(@response)
     @client.create_complete?('myapp').should be_false
   end
 
@@ -111,7 +111,7 @@ describe Heroku::Client do
     stub_request(:post, %r{.*/apps/myapp/console}).to_return({
       :body => "ERRMSG", :status => 502
     })
-    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, "Your application is too busy to open a console session.\nConsole sessions require an open dyno to use for execution.\n")
+    lambda { @client.console('myapp') }.should raise_error(Salesforce::Client::AppCrashed, "Your application is too busy to open a console session.\nConsole sessions require an open dyno to use for execution.\n")
   end
 
   it "restart(app_name) -> restarts the app servers" do
@@ -134,7 +134,7 @@ describe Heroku::Client do
 
     describe "new style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url")
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url") 
         stub_api_request(:get, "/logplex_url").to_return(:body => "newlogs")
       end
 
@@ -166,7 +166,7 @@ describe Heroku::Client do
     e.stub!(:http_code).and_return(502)
     e.stub!(:http_body).and_return('the crashlog')
     @client.should_receive(:post).and_raise(e)
-    lambda { @client.rake('myapp', '') }.should raise_error(Heroku::Client::AppCrashed)
+    lambda { @client.rake('myapp', '') }.should raise_error(Salesforce::Client::AppCrashed)
   end
 
   it "rake passes other status codes (i.e., 500) as standard restclient exceptions" do
@@ -179,8 +179,8 @@ describe Heroku::Client do
 
   describe "bundles" do
     it "gives a temporary URL where the bundle can be downloaded" do
-      stub_api_request(:get, "/apps/myapp/bundles/latest").to_return(:body => "{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
-      @client.bundle_url('myapp').should == 'https://s3.amazonaws.com/herokubundles/123.tar.gz'
+      stub_api_request(:get, "/apps/myapp/bundles/latest").to_return(:body => "{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/salesforcebundles\\/123.tar.gz\"}")
+      @client.bundle_url('myapp').should == 'https://s3.amazonaws.com/salesforcebundles/123.tar.gz'
     end
   end
 
@@ -409,7 +409,7 @@ describe Heroku::Client do
 
   describe "internal" do
     before do
-      @client = Heroku::Client.new(nil, nil)
+      @client = Salesforce::Client.new(nil, nil)
     end
 
     it "creates a RestClient resource for making calls" do
@@ -436,7 +436,7 @@ describe Heroku::Client do
     end
 
     it "runs a callback when the API sets a warning header" do
-      response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+      response = mock('rest client response', :headers => { :x_salesforce_warning => 'Warning' })
       @client.should_receive(:resource).with('test').and_return(@resource)
       @resource.should_receive(:get).and_return(response)
       @client.on_warning { |msg| @callback = msg }
@@ -445,7 +445,7 @@ describe Heroku::Client do
     end
 
     it "doesn't run the callback twice for the same warning" do
-      response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+      response = mock('rest client response', :headers => { :x_salesforce_warning => 'Warning' })
       @client.stub!(:resource).and_return(@resource)
       @resource.stub!(:get).and_return(response)
       @client.on_warning { |msg| @callback_called ||= 0; @callback_called += 1 }

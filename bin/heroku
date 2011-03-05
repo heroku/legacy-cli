@@ -3,12 +3,12 @@
 lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
 $LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
 
-require 'heroku'
-require 'heroku/command'
+require 'salesforce'
+require 'salesforce/command'
 
 args = ARGV.dup
 ARGV.clear
 command = args.shift.strip rescue 'help'
 
-Heroku::Command.run(command, args)
+Salesforce::Command.run(command, args)
 

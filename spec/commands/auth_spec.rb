@@ -1,6 +1,6 @@
 require File.expand_path("../base", File.dirname(__FILE__))
 
-module Heroku::Command
+module Salesforce::Command
   describe Auth do
     before do
       @cli = prepare_command(Auth)
@@ -40,7 +40,7 @@ module Heroku::Command
       File.read(@credentials_file).should == "one\ntwo\n"
     end
 
-    it "sets ~/.heroku/credentials to be readable only by the user" do
+    it "sets ~/.salesforce/credentials to be readable only by the user" do
       unless RUBY_PLATFORM =~ /mswin32|mingw32/
         sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
         FileUtils.rm_rf(sandbox)
@@ -88,7 +88,7 @@ module Heroku::Command
       @cli.delete_credentials
     end
 
-    it "writes the login information to the credentials file for the 'heroku login' command" do
+    it "writes the login information to the credentials file for the 'salesforce login' command" do
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
       @cli.stub!(:check_for_associated_ssh_key)
@@ -100,8 +100,8 @@ module Heroku::Command
       before(:each) do
         FakeFS.activate!
         FileUtils.mkdir_p("~/.ssh")
-        FileUtils.mkdir_p("~/.heroku")
-        FileUtils.touch("~/.heroku/credentials")
+        FileUtils.mkdir_p("~/.salesforce")
+        FileUtils.touch("~/.salesforce/credentials")
         @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       end
 
