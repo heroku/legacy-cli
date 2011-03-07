@@ -144,6 +144,8 @@ module Heroku::Command
 
       def configure_addon(label, &install_or_upgrade)
         addon = args.shift
+        raise CommandFailed.new("Missing add-on name") unless addon
+
         config = {}
         args.each do |arg|
           key, value = arg.strip.split('=', 2)

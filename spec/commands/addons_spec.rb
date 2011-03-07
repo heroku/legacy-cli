@@ -26,6 +26,11 @@ module Heroku::Command
     describe 'adding' do
       before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
+      it "requires an addon name" do
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.add }.should raise_error(CommandFailed)
+      end
+
       it "adds an addon" do
         @addons.stub!(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', {})
@@ -60,6 +65,11 @@ module Heroku::Command
     describe 'upgrading' do
       before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
+      it "requires an addon name" do
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.upgrade }.should raise_error(CommandFailed)
+      end
+
       it "upgrades an addon" do
         @addons.stub!(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', {})
@@ -93,6 +103,11 @@ module Heroku::Command
 
     describe 'downgrading' do
       before { @addons.stub!(:args).and_return(%w(my_addon)) }
+
+      it "requires an addon name" do
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.downgrade }.should raise_error(CommandFailed)
+      end
 
       it "downgrades an addon" do
         @addons.stub!(:args).and_return(%w(my_addon))
