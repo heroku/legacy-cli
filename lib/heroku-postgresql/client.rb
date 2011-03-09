@@ -1,12 +1,11 @@
 require "heroku/helpers"
-require "heroku/util/json"
+require "heroku/json"
 
 module HerokuPostgresql
   class Client
     Version = 9
 
     include Heroku::Helpers
-    include Heroku::Util::JSON
 
     def initialize(database_user, database_password, database_name)
       @heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"

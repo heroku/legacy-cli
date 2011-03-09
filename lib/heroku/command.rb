@@ -1,7 +1,7 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
 require 'heroku/commands/base'
-require 'heroku/util/json'
+require 'heroku/json'
 
 Dir["#{File.dirname(__FILE__)}/commands/*.rb"].each { |c| require c }
 
@@ -11,7 +11,6 @@ module Heroku
     class CommandFailed  < RuntimeError; end
 
     extend Heroku::Helpers
-    extend Heroku::Util::JSON
 
     class << self
 

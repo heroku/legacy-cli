@@ -1,52 +1,9 @@
-require 'heroku'
 require 'strscan'
 
-# borrowed from https://github.com/flori/json/raw/master/lib/json/pure/parser.rb
-#
-module Heroku::Util
-  module JSON
-    # added for heroku gem compat
-    module JSON
-      def self.parse(data)
-        Parser.new(data).parse
-      end
-
-      # borrowed from https://github.com/flori/json/blob/master/lib/json/common.rb
-      class << self
-        attr_accessor :create_id
-      end
-
-      self.create_id = 'json_class'
-
-      def deep_const_get(path) # :nodoc:
-        path.to_s.split(/::/).inject(Object) do |p, c|
-          case
-          when c.empty?                     then p
-          when JSON.const_defined_in?(p, c) then p.const_get(c)
-          else
-            begin
-              p.const_missing(c)
-            rescue NameError => e
-              raise ArgumentError, "can't get const #{path}: #{e}"
-            end
-          end
-        end
-      end
-
-      # Shortuct for iconv.
-      if ::String.method_defined?(:encode)
-        def self.iconv(to, from, string)
-          string.encode(to, from)
-        end
-      else
-        require 'iconv'
-        def self.iconv(to, from, string)
-          Iconv.iconv(to, from, string).first
-        end
-      end
-    end
-
-    # This class implements the JSON parser that is used to parse a JSON string # into a Ruby data structure.
+module JSON
+  module Pure
+    # This class implements the JSON parser that is used to parse a JSON string
+    # into a Ruby data structure.
     class Parser < StringScanner
       STRING                = /" ((?:[^\x0-\x1f"\\] |
                                    # escaped special characters:

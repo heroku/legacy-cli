@@ -1,9 +1,7 @@
-require "heroku/util/json"
+require "heroku/json"
 
 module PGBackups
   class Client
-    include Heroku::Util::JSON
-
     def initialize(uri)
       @uri = URI.parse(uri)
     end
