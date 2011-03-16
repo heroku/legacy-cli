@@ -69,9 +69,11 @@ module Heroku::Command
       if remotes = git_remotes(Dir.pwd)
         remotes.each do |remote_name, remote_app|
           next if remote_app != name
-          shell "git remote rm #{remote_name}"
-          shell "git remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
-          display "Git remote #{remote_name} updated"
+          if has_git?
+            git "remote rm #{remote_name}"
+            git "remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
+            display "Git remote #{remote_name} updated"
+          end
         end
       else
         display "Don't forget to update your Git remotes on any local checkouts."
@@ -217,7 +219,7 @@ module Heroku::Command
         if remotes = git_remotes(Dir.pwd)
           remotes.each do |remote_name, remote_app|
             next if app != remote_app
-            shell "git remote rm #{remote_name}"
+            git "remote rm #{remote_name}"
           end
         end
         display "done"
@@ -271,9 +273,10 @@ module Heroku::Command
       end
 
       def create_git_remote(app, remote)
-        return if shell('git remote').split("\n").include?(remote)
+        return unless has_git?
+        return if git('remote').split("\n").include?(remote)
         return unless File.exists?(".git")
-        shell "git remote add #{remote} git@#{heroku.host}:#{app}.git"
+        git "remote add #{remote} git@#{heroku.host}:#{app}.git"
         display "Git remote #{remote} added"
       end
   end

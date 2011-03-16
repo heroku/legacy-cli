@@ -5,6 +5,7 @@ module Heroku
     class << self
       include Heroku::Helpers
     end
+    include Heroku::Helpers
 
     DEPRECATED_PLUGINS = %w( heroku-releases heroku-postgresql heroku-pgdumps heroku-logging )
 
@@ -67,8 +68,9 @@ module Heroku
     def install
       FileUtils.mkdir_p(path)
       Dir.chdir(path) do
-        system("git init -q")
-        if !system("git pull #{uri} master -q")
+        git("init -q")
+        git("pull #{uri} master -q")
+        unless $?.success?
           FileUtils.rm_rf path
           return false
         end

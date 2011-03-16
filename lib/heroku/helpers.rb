@@ -98,6 +98,16 @@ module Heroku
         retry
       end
     end
+
+    def has_git?
+      %x{ which git }.strip != ""
+    end
+
+    def git(args)
+      return "" unless has_git?
+      flattened_args = [args].flatten.compact.join(" ")
+      %x{ git #{flattened_args} 2>&1 }.strip
+    end
   end
 end
 

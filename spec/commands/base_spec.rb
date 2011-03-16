@@ -25,32 +25,16 @@ module Heroku::Command
       end
 
       it "read remotes from git config" do
-        File.stub!(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
-        File.stub!(:read).with('/home/dev/myapp/.git/config').and_return("
-[core]
-  repositoryformatversion = 0
-  filemode = true
-  bare = false
-  logallrefupdates = true
-[remote \"staging\"]
-  url = git@heroku.com:myapp-staging.git
-  fetch = +refs/heads/*:refs/remotes/staging/*
-[remote \"production\"]
-  url = git@heroku.com:myapp.git
-  fetch = +refs/heads/*:refs/remotes/production/*
-[remote \"github\"]
-  url = git@github.com:myapp.git
-  fetch = +refs/heads/*:refs/remotes/github/*
-        ")
+        Dir.stub(:chdir)
+        @base.should_receive(:git).with('remote -v').and_return(<<-REMOTES)
+staging\tgit@heroku.com:myapp-staging.git (fetch)
+staging\tgit@heroku.com:myapp-staging.git (push)
+production\tgit@heroku.com:myapp.git (fetch)
+production\tgit@heroku.com:myapp.git (push)
+other\tgit@other.com:other.git (fetch)
+other\tgit@other.com:other.git (push)
+        REMOTES
         @base.git_remotes('/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
-      end
-
-      it "attempts to find the git config file in parent folders" do
-        File.should_receive(:exists?).with('/home/dev/myapp/app/models/.git/config').and_return(false)
-        File.should_receive(:exists?).with('/home/dev/myapp/app/.git/config').and_return(false)
-        File.should_receive(:exists?).with('/home/dev/myapp/.git/config').and_return(true)
-        File.should_receive(:read).with('/home/dev/myapp/.git/config').and_return('')
-        @base.git_remotes('/home/dev/myapp/app/models')
       end
 
       it "gets the app from remotes when there's only one app" do

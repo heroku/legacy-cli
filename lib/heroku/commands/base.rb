@@ -43,28 +43,24 @@ module Heroku::Command
     end
 
     def extract_app_from_git_config
-      remote = %x{ git config heroku.remote }.strip
+      remote = git("config heroku.remote")
       remote == "" ? nil : remote
     end
 
-    def git_remotes(base_dir)
-      git_config = "#{base_dir}/.git/config"
-      unless File.exists?(git_config)
-        parent = base_dir.split('/')[0..-2].join('/')
-        return git_remotes(parent) unless parent.empty?
-      else
-        remotes = {}
-        current_remote = nil
-        File.read(git_config).split(/\n/).each do |l|
-          current_remote = $1 if l.match(/\[remote \"([\w\d-]+)\"\]/)
-          app = (l.match(/url = git@#{heroku.host}:([\w\d-]+)\.git/) || [])[1]
-          if current_remote && app
-            remotes[current_remote.downcase] = app
-            current_remote = nil
-          end
+    def git_remotes(base_dir=Dir.pwd)
+      remotes = {}
+      original_dir = Dir.pwd
+      Dir.chdir(base_dir)
+
+      git("remote -v").split("\n").each do |remote|
+        name, url, method = remote.split(/\s/)
+        if url =~ /^git@#{heroku.host}:([\w\d-]+)\.git$/
+          remotes[name] = $1
         end
-        return remotes
       end
+
+      Dir.chdir(original_dir)
+      remotes
     end
 
     def extract_option(options, default=true)
