@@ -1,10 +1,9 @@
 module Heroku::Command
   class Config < BaseWithApp
     def index
-      long  = args.delete('--long')
       shell = args.delete('--shell')
       vars  = heroku.config_vars(app)
-      display_vars(vars, :long => long, :shell => shell)
+      display_vars(vars, :long => true, :shell => shell)
     end
 
     def add
