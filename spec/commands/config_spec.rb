@@ -13,9 +13,9 @@ module Heroku::Command
       @config.index
     end
 
-    it "trims long values" do
+    it "does not trim long values" do
       @config.heroku.should_receive(:config_vars).and_return({ 'LONG' => 'A' * 60 })
-      @config.should_receive(:display).with('LONG => AAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAA')
+      @config.should_receive(:display).with('LONG => AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
       @config.index
     end
 
