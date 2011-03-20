@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "fakefs",  "~> 0.3.1"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec",   "~> 1.3.0"
-  gem.add_development_dependency "taps",    "~> 0.3.19"
+  gem.add_development_dependency "taps",    "~> 0.3.20.pre1"
   gem.add_development_dependency "webmock", "~> 1.5.0"
 
   gem.add_dependency "activesupport", ">= 2.1.0"
