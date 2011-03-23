@@ -100,7 +100,8 @@ module Heroku
     end
 
     def has_git?
-      %x{ which git }.strip != ""
+      %x{ git --version }
+      $?.success?
     end
 
     def git(args)
