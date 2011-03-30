@@ -3,7 +3,7 @@ require 'rest_client'
 require 'uri'
 require 'time'
 require 'heroku/version'
-require 'heroku/json'
+require 'vendor/okjson'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -28,7 +28,7 @@ class Heroku::Client
 
   def self.auth(user, password, host='heroku.com')
     client = new(user, password, host)
-    JSON.parse client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
+    OkJson.decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
   def initialize(user, password, host='heroku.com')
@@ -137,7 +137,7 @@ class Heroku::Client
   end
 
   def add_ssl(app_name, pem, key)
-    JSON.parse(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
+    OkJson.decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
   end
 
   def remove_ssl(app_name, domain)
@@ -175,7 +175,7 @@ class Heroku::Client
   def list_stacks(app_name, options={})
     include_deprecated = options.delete(:include_deprecated) || false
 
-    JSON.parse resource("/apps/#{app_name}/stack").get(
+    OkJson.decode resource("/apps/#{app_name}/stack").get(
       :params => { :include_deprecated => include_deprecated },
       :accept => 'application/json'
     ).to_s
@@ -325,7 +325,7 @@ Console sessions require an open dyno to use for execution.
 
   # Retreive ps list for the given app name.
   def ps(app_name)
-    JSON.parse resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+    OkJson.decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
@@ -438,7 +438,7 @@ Console sessions require an open dyno to use for execution.
   # Get a temporary URL where the bundle can be downloaded.
   # If bundle_name is nil it will use the most recently captured bundle for the app
   def bundle_url(app_name, bundle_name=nil)
-    bundle = JSON.parse(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
+    bundle = OkJson.decode(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
     bundle['temporary_url']
   end
 
@@ -461,7 +461,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def config_vars(app_name)
-    JSON.parse get("/apps/#{app_name}/config_vars").to_s
+    OkJson.decode get("/apps/#{app_name}/config_vars").to_s
   end
 
   def add_config_vars(app_name, new_vars)
@@ -477,11 +477,11 @@ Console sessions require an open dyno to use for execution.
   end
 
   def addons
-    JSON.parse get("/addons", :accept => 'application/json').to_s
+    OkJson.decode get("/addons", :accept => 'application/json').to_s
   end
 
   def installed_addons(app_name)
-    JSON.parse get("/apps/#{app_name}/addons", :accept => 'application/json').to_s
+    OkJson.decode get("/apps/#{app_name}/addons", :accept => 'application/json').to_s
   end
 
   def install_addon(app_name, addon, config={})
@@ -574,7 +574,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def database_session(app_name)
-    JSON.parse(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
+    OkJson.decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
   end
 
   def database_reset(app_name)
@@ -591,11 +591,11 @@ Console sessions require an open dyno to use for execution.
 	end
 
   def releases(app)
-    JSON.parse get("/apps/#{app}/releases").to_s
+    OkJson.decode get("/apps/#{app}/releases").to_s
   end
 
   def release(app, release)
-    JSON.parse get("/apps/#{app}/releases/#{release}").to_s
+    OkJson.decode get("/apps/#{app}/releases/#{release}").to_s
   end
 
   def rollback(app, release=nil)
@@ -609,8 +609,8 @@ Console sessions require an open dyno to use for execution.
                               addon_path(app_name, addon),
                               config
 
-      JSON.parse(response.to_s) unless response.to_s.empty?
-    rescue JSON::ParserError
+      OkJson.decode(response.to_s) unless response.to_s.empty?
+    rescue OkJson::ParserError
     end
 
     def addon_path(app_name, addon)

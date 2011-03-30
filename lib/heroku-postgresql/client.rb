@@ -1,5 +1,5 @@
 require "heroku/helpers"
-require "heroku/json"
+require "vendor/okjson"
 
 module HerokuPostgresql
   class Client
@@ -71,7 +71,7 @@ module HerokuPostgresql
       begin
         yield
       rescue RestClient::BadRequest => e
-        if message = JSON.parse(e.response.to_s)["upgrade_message"]
+        if message = OkJson.decode(e.response.to_s)["upgrade_message"]
           abort(message)
         else
           raise e
@@ -82,20 +82,20 @@ module HerokuPostgresql
     def http_get(path)
       checking_client_version do
         retry_on_exception(RestClient::Exception) do
-          sym_keys(JSON.parse(@heroku_postgresql_resource[path].get.to_s))
+          sym_keys(OkJson.decode(@heroku_postgresql_resource[path].get.to_s))
         end
       end
     end
 
     def http_post(path, payload = {})
       checking_client_version do
-        sym_keys(JSON.parse(@heroku_postgresql_resource[path].post(payload.to_json).to_s))
+        sym_keys(OkJson.decode(@heroku_postgresql_resource[path].post(OkJson.encode(payload)).to_s))
       end
     end
 
     def http_put(path, payload = {})
       checking_client_version do
-        sym_keys(JSON.parse(@heroku_postgresql_resource[path].put(payload.to_json).to_s))
+        sym_keys(OkJson.decode(@heroku_postgresql_resource[path].put(OkJson.encode(payload)).to_s))
       end
     end
   end

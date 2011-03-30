@@ -1,7 +1,7 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
 require 'heroku/commands/base'
-require 'heroku/json'
+require 'vendor/okjson'
 
 Dir["#{File.dirname(__FILE__)}/commands/*.rb"].each { |c| require c }
 
@@ -87,9 +87,9 @@ module Heroku
       end
 
       def parse_error_json(body)
-        json = JSON.parse(body.to_s)
+        json = OkJson.decode(body.to_s)
         json['error']
-      rescue JSON::ParserError
+      rescue OkJson::ParserError
       end
 
       def parse_error_plain(body)
