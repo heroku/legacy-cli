@@ -102,6 +102,15 @@ Heroku::Command.run(command, args)
 
   %x{ chmod +x #{package_dir}/heroku }
 
+  if plugins = (ENV["PLUGINS"] || "").split(" ")
+    plugins.each do |plugin|
+      puts "plugin: #{plugin}"
+      %x{ mkdir -p #{package_dir}/plugins }
+      %x{ cd #{package_dir}/plugins && git clone #{plugin} 2>&1 }
+      %x{ rm -rf $(find #{package_dir}/plugins -name .git) }
+    end
+  end
+
   %x{ cd #{package_dir}/.. && tar czvpf #{base_dir}/pkg/heroku-#{Heroku::VERSION}.tgz * 2>&1 }
 
   puts "package: pkg/heroku-#{Heroku::VERSION}.tgz"
