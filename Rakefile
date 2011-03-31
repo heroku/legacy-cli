@@ -24,15 +24,38 @@ Spec::Rake::SpecTask.new('rcov') do |t|
 end
 
 def gem_paths
-  Gem::Specification.load("heroku.gemspec").dependencies.select do |dep|
-    dep.type == :runtime
-  end.map do |dep|
-    %x{ bundle show #{dep.name} }
-  end
+  %x{ bundle show }.split("\n").map do |line|
+    if line =~ /^  \* (.*?) \((.*?)\)/
+      %x{ bundle show #{$1} }.strip
+    end
+  end.compact
+end
+
+GEM_BLACKLIST = %w( activesupport bundler heroku rack sequel sinatra sqlite3 sqlite3-ruby )
+
+def copy_gems(package_gem_dir)
+  lines = %x{ bundle show }.strip.split("\n")
+  raise "error running bundler" unless $?.success?
+
+  gemspec = Gem::Specification.load("heroku.gemspec")
+  deps_by_name = gemspec.dependencies.inject({}) { |h,d| h.update(d.name => d) }
+
+  %x{ bundle show }.split("\n").each do |line|
+    if line =~ /^  \* (.*?) \((.*?)\)/
+      next if GEM_BLACKLIST.include?($1)
+      next if deps_by_name[$1] && deps_by_name[$1].type == :development
+      puts "vendoring: #{$1}-#{$2}"
+      gem_dir = %x{ bundle show #{$1} }.strip
+      %x{ cp -R #{gem_dir} #{package_gem_dir}/ }
+    end
+  end.compact
 end
 
 def package_path(path, stream)
-  Dir["#{path}/**/*.rb"].each do |file|
+  puts "#{path}/**/*.rb"
+  Dir["#{path}/**/*"].each do |file|
+    next unless File.file?(file)
+    puts "finding file: #{file}"
     relative = file.gsub(/^#{path}/, '')
     relative.gsub!(/^\//, '')
     stream.puts("__FILE__ #{relative}")
@@ -43,46 +66,45 @@ end
 
 desc "Package as a single file"
 task :package do
-  out = File.open("pkg/heroku-#{Heroku::VERSION}.rb", "w")
-  out.puts <<-PREAMBLE
-    #!/usr/bin/env ruby
+  base_dir = File.dirname(__FILE__)
 
-    EMBEDDED_FILES = DATA.read.split(/^__ENDFILE__/).inject({}) do |hash, file|
-      lines = file.strip.split("\\n")
-      next(hash) if lines.empty?
-      name = lines.shift.split(" ").last
-      hash.update(name => lines.join("\\n"))
-    end
+  require "tmpdir"
+  package_dir = "#{Dir.mktmpdir}/heroku-#{Heroku::VERSION}"
+  package_gem_dir = "#{package_dir}/vendor/gems"
 
-    module Kernel
-      alias :original_require_before_packager :require
-      private :original_require_before_packager
+  puts "building in: #{package_dir}"
+  %x{ mkdir -p #{package_gem_dir} }
+  copy_gems package_gem_dir
 
-      @@already_required_by_packager = []
+  %x{ cp -R #{base_dir}/lib #{package_dir} }
 
-      def require(path)
-        return if @@already_required_by_packager.include?(path)
-        if data = EMBEDDED_FILES[\"\#{path}.rb\"]
-          eval(data)
-          @@already_required_by_packager << path
-        else
-          original_require_before_packager path
-        end
-      end
-    end
+  File.open("#{package_dir}/heroku", "w") do |file|
+    file.puts <<-PREAMBLE
+#!/usr/bin/env ruby
 
-    require "heroku"
-    require "heroku/command"
+gem_dir = File.expand_path("../vendor/gems", __FILE__)
+Dir["\#{gem_dir}/**/lib"].each do |libdir|
+$:.unshift libdir
+end
 
-    args = ARGV.dup
-    ARGV.clear
-    command = args.shift.strip rescue "help"
-    Heroku::Command.run(command, args)
+$:.unshift File.expand_path("../lib", __FILE__)
 
-  PREAMBLE
-  out.puts "__END__"
-  package_path("lib", out)
-  out.close
+require 'heroku'
+require 'heroku/command'
+
+args = ARGV.dup
+ARGV.clear
+command = args.shift.strip rescue 'help'
+
+Heroku::Command.run(command, args)
+    PREAMBLE
+  end
+
+  %x{ chmod +x #{package_dir}/heroku }
+
+  %x{ cd #{package_dir}/.. && tar czvpf #{base_dir}/pkg/heroku-#{Heroku::VERSION}.tgz * 2>&1 }
+
+  puts "package: pkg/heroku-#{Heroku::VERSION}.tgz"
 end
 
 task :default => :spec
