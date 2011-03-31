@@ -31,19 +31,15 @@ def gem_paths
   end.compact
 end
 
-GEM_BLACKLIST = %w( activesupport bundler heroku rack sequel sinatra sqlite3 sqlite3-ruby )
+GEM_BLACKLIST = %w( bundler heroku )
 
 def copy_gems(package_gem_dir)
   lines = %x{ bundle show }.strip.split("\n")
   raise "error running bundler" unless $?.success?
 
-  gemspec = Gem::Specification.load("heroku.gemspec")
-  deps_by_name = gemspec.dependencies.inject({}) { |h,d| h.update(d.name => d) }
-
-  %x{ bundle show }.split("\n").each do |line|
+  %x{ env BUNDLE_WITHOUT="development:test" bundle show }.split("\n").each do |line|
     if line =~ /^  \* (.*?) \((.*?)\)/
       next if GEM_BLACKLIST.include?($1)
-      next if deps_by_name[$1] && deps_by_name[$1].type == :development
       puts "vendoring: #{$1}-#{$2}"
       gem_dir = %x{ bundle show #{$1} }.strip
       %x{ cp -R #{gem_dir} #{package_gem_dir}/ }
