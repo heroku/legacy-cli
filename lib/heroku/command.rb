@@ -1,5 +1,6 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
+require 'heroku/builtin_plugin'
 require 'heroku/commands/base'
 require 'vendor/okjson'
 
@@ -16,6 +17,7 @@ module Heroku
 
       def run(command, args, retries=0)
         Heroku::Plugin.load!
+        Heroku::BuiltinPlugin.load!
         begin
           run_internal 'auth:reauthorize', args.dup if retries > 0
           run_internal(command, args.dup)
