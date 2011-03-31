@@ -107,6 +107,7 @@ Heroku::Command.run(command, args)
     end
   end
 
+  %x{ mkdir -p #{base_dir}/pkg }
   %x{ cd #{package_dir}/.. && tar czvpf #{base_dir}/pkg/heroku-#{Heroku::VERSION}.tgz * 2>&1 }
 
   puts "package: pkg/heroku-#{Heroku::VERSION}.tgz"
