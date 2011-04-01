@@ -20,7 +20,7 @@ describe HerokuPostgresql::Client do
 
   it "sends an ingress request to the client" do
     hk_pg_api_stub(:put, "databases/#{@dbname}/ingress").to_return(
-      :body => {:message => "ok"}.to_json,
+      :body => OkJson.encode({:message => "ok"}),
       :status => 200
     )
 

@@ -18,7 +18,7 @@ describe PGBackups::Client do
   describe "transfers" do
     it "sends a request to the client" do
       pgbackups_api_stub(:post, "/client/transfers").to_return(
-        :body => {:message => "success"}.to_json,
+        :body => OkJson.encode({:message => "success"}),
         :status => 200
       )
 

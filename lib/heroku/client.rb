@@ -465,7 +465,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def add_config_vars(app_name, new_vars)
-    put("/apps/#{app_name}/config_vars", new_vars.to_json).to_s
+    put("/apps/#{app_name}/config_vars", OkJson.encode(new_vars)).to_s
   end
 
   def remove_config_var(app_name, key)

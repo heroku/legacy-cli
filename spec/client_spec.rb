@@ -11,7 +11,7 @@ describe Heroku::Client do
 
   it "Client.auth -> get user details" do
     user_info = { "api_key" => "abc" }
-    stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => user_info.to_json)
+    stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => OkJson.encode(user_info))
     Heroku::Client.auth("foo", "bar").should == user_info
   end
 
