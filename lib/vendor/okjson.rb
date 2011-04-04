@@ -61,8 +61,7 @@ module OkJson
     case typ
     when '{' then objparse(ts)
     when '[' then arrparse(ts)
-    else
-      raise OkJson::ParserError, "unexpected #{val.inspect}"
+    else valparse(ts)
     end
   end
 
