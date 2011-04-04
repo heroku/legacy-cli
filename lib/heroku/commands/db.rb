@@ -142,9 +142,14 @@ module Heroku::Command
       else
         info = heroku.database_session(app)
 
-        # TODO: this should be done API-side
-        if RUBY_VERSION =~ /^1\.9/
-          info["url"].gsub!('taps3.heroku.com', 'taps19.heroku.com')
+        replacement_host = case
+          when ENV["TAPS_HOST"] then ENV["TAPS_HOST"]
+          when RUBY_VERSION >= '1.9' then "taps19.heroku.com"
+          else nil
+        end
+
+        if replacement_host
+          info["url"].gsub!("taps3.heroku.com", replacement_host)
         end
 
         opts[:remote_url] = info['url']
