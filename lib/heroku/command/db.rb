@@ -18,6 +18,7 @@ module Heroku::Command
     #
     # -c, --chunksize SIZE # specify the number of rows to send in each batch
     # -d, --debug          # enable debugging output
+    # -e, --exclude TABLES # exclude the specified tables from the push
     # -f, --filter REGEX   # only push certain tables
     # -r, --resume FILE    # resume transfer described by a .dat file
     # -t, --tables TABLES  # only push the specified tables
@@ -41,6 +42,7 @@ module Heroku::Command
     #
     # -c, --chunksize SIZE # specify the number of rows to send in each batch
     # -d, --debug          # enable debugging output
+    # -e, --exclude TABLES # exclude the specified tables from the pull
     # -f, --filter REGEX   # only pull certain tables
     # -r, --resume FILE    # resume transfer described by a .dat file
     # -t, --tables TABLES  # only pull the specified tables
@@ -135,6 +137,10 @@ module Heroku::Command
 
       if extract_option("--disable-compression")
         opts[:disable_compression] = true
+      end
+
+      if excluded_tables = extract_option("--exclude")
+        opts[:exclude_tables] = excluded_tables
       end
 
       if resume_file = extract_option("--resume")
