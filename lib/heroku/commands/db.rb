@@ -111,6 +111,10 @@ module Heroku::Command
         opts[:disable_compression] = true
       end
 
+      if excluded_tables = extract_option("--exclude_tables")
+        opts[:exclude_tables] = excluded_tables
+      end
+
       if resume_file = extract_option("--resume-filename")
         opts[:resume_filename] = resume_file
       end
