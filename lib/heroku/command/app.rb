@@ -16,6 +16,10 @@ module Heroku::Command
       display "Local credentials cleared."
     end
 
+    # list
+    #
+    # list your apps
+
     def list
       list = heroku.list
       if list.size > 0
@@ -282,6 +286,10 @@ module Heroku::Command
         return unless File.exists?(".git")
         git "remote add #{remote} git@#{heroku.host}:#{app}.git"
         display "Git remote #{remote} added"
+      end
+
+      def app_urls(name)
+        "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
       end
   end
 end

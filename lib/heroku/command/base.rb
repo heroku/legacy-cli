@@ -40,8 +40,8 @@ protected
     resolved_method = (method.to_s == "index") ? nil : method.to_s
 
     command = [ self.namespace, resolved_method ].compact.join(":")
-    banner  = help.split("\n").first
-    options = []
+    banner  = extract_banner(help)
+    options = extract_options(help)
 
     Heroku::Command.register_command(
       :klass     => self,
@@ -55,15 +55,47 @@ protected
   end
 
   def self.extract_help(file, line)
-    # puts "FILE: #{file}"
-    # puts "LINE: #{line}"
-<<HELP
-# command [ARGS]
-#
-# This is some help text
-#
-# -s, --stack: Add to stack
-HELP
+    buffer = []
+    lines  = File.read(file).split("\n")
+
+    catch(:done) do
+      (line.to_i-2).downto(1) do |i|
+        case lines[i].strip[0..0]
+          when "", "#" then buffer << lines[i]
+          else throw(:done)
+        end
+      end
+    end
+
+    buffer.map! do |line|
+      line.strip.gsub(/^#/, "")
+    end
+
+    buffer.reverse.join("\n").strip
+  end
+
+  def self.extract_banner(help)
+    help.split("\n").first
+  end
+
+  def self.extract_options(help)
+    help.split("\n").map(&:strip).select do |line|
+      line =~ /^-(.+)#(.+)/
+    end.inject({}) do |hash, line|
+      description = line.split("#", 2).last.strip
+      long  = line.match(/--([A-Za-z ]+)/)[1].strip
+      short = line.match(/-([A-Za-z ])/)[1].strip
+      hash.update(long.split(" ").first => { :desc => description, :short => short, :long => long })
+    end
+  end
+
+  def extract_option(name, default=true)
+    key = name.gsub("--", "").to_sym
+    return unless options[key]
+    value = options[key] || default
+    # puts "NAME:#{name}"
+    # puts "VALUE:#{value}"
+    block_given? ? yield(value) : value
   end
 
   def extract_app
@@ -79,7 +111,7 @@ HELP
   def extract_app_in_dir(dir)
     return unless remotes = git_remotes(dir)
 
-    if remote = extract_option('--remote')
+    if remote = options[:remote]
       remotes[remote]
     elsif remote = extract_app_from_git_config
       remotes[remote]
@@ -108,34 +140,6 @@ HELP
 
     Dir.chdir(original_dir)
     remotes
-  end
-
-  def extract_option(options, default=true)
-    values = options.is_a?(Array) ? options : [options]
-    return unless opt_index = args.select { |a| values.include? a }.first
-    opt_position = args.index(opt_index) + 1
-    if args.size > opt_position && opt_value = args[opt_position]
-      if opt_value.include?('--')
-        opt_value = nil
-      else
-        args.delete_at(opt_position)
-      end
-    end
-    opt_value ||= default
-    args.delete(opt_index)
-    block_given? ? yield(opt_value) : opt_value
-  end
-
-  def web_url(name)
-    "http://#{name}.#{heroku.host}/"
-  end
-
-  def git_url(name)
-    "git@#{heroku.host}:#{name}.git"
-  end
-
-  def app_urls(name)
-    "#{web_url(name)} | #{git_url(name)}"
   end
 
   def escape(value)

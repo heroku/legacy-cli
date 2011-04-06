@@ -9,7 +9,7 @@ module Heroku::Command
         "SHARED_DATABASE_URL" => "postgres://other_database_url",
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://database_url"
       })
-      @pg.stub!(:args).and_return(["--db", "DATABASE_URL"])
+      @pg.stub!(:options).and_return(:db => "DATABASE_URL")
       @pg.heroku.stub!(:info).and_return({})
     end
 
@@ -48,7 +48,7 @@ module Heroku::Command
 
     context "promotion" do
       it "promotes the specified database" do
-        @pg.stub!(:args).and_return(['--db', 'SHARED_DATABASE_URL'])
+        @pg.stub!(:options).and_return(:db => "SHARED_DATABASE_URL")
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => @pg.config_vars["SHARED_DATABASE_URL"]})
@@ -57,7 +57,7 @@ module Heroku::Command
       end
 
       it "fails if no database is specified" do
-        @pg.stub(:args).and_return([])
+        @pg.stub(:options).and_return({})
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
@@ -67,7 +67,7 @@ module Heroku::Command
       end
 
       it "does not repromote the current DATABASE_URL" do
-        @pg.stub(:args).and_return(['--db', 'HEROKU_POSTGRESQL_RONIN_URL'])
+        @pg.stub(:options).and_return(:db => "HEROKU_POSTGRESQL_RONIN_URL")
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
@@ -130,7 +130,7 @@ module Heroku::Command
       end
 
       it "defaults to the db DATABASE_URL references if no args" do
-        @pg.stub!(:args).and_return([])
+        @pg.stub!(:options).and_return({})
         @pg.stub!(:config_vars).and_return({
           "DATABASE_URL"                => "postgres://ronin",
           "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin",
@@ -143,7 +143,7 @@ module Heroku::Command
       end
 
       it "defaults to the first (alphabetical) HEROKU_POSTGRESQL_*_URL if no args and DATABASE_URL isn't helpful" do
-        @pg.stub!(:args).and_return([])
+        @pg.stub!(:options).and_return({})
         @pg.stub!(:config_vars).and_return({
           "DATABASE_URL"                => "postgres://shared",
           "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin",

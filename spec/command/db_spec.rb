@@ -36,20 +36,22 @@ module Heroku::Command
     end
 
     it "maps --tables to the taps table_filter option" do
-      @db.stub!(:args).and_return(["--tables", "tags,countries", "sqlite://local.db"])
+      @db.stub!(:args).and_return(["sqlite://local.db"])
+      @db.stub!(:options).and_return(:tables => "tags,countries")
       opts = @db.send(:parse_taps_opts)
       opts[:table_filter].should == "(^tags$|^countries$)"
     end
 
     it "handles both a url and a --confirm on the command line" do
-      @db.stub!(:args).and_return(["mysql://user:pass@host/db", "--confirm", "myapp"])
+      @db.stub!(:args).and_return(["mysql://user:pass@host/db"])
+      @db.stub!(:options).and_return(:confirm => "myapp")
       opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:pull, opts)
       @db.pull
     end
 
     it "handles no url and --confirm on the command line" do
-      @db.stub!(:args).and_return(["--confirm", "myapp"])
+      @db.stub!(:options).and_return(:confirm => "myapp")
       opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:parse_database_yml).and_return("mysql://user:pass@host/db")
       @db.should_receive(:taps_client).with(:pull, opts)
@@ -58,7 +60,8 @@ module Heroku::Command
 
     it "works with a file-based url" do
       url = "sqlite://tmp/foo.db"
-      @db.stub!(:args).and_return([url, "--confirm", "myapp"])
+      @db.stub(:args).and_return([url])
+      @db.stub(:options).and_return(:confirm => "myapp")
       @db.should_receive(:taps_client).with(:pull, hash_including(:database_url => url))
       @db.pull
     end

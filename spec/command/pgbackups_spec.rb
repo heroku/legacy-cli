@@ -65,7 +65,7 @@ module Heroku::Command
 
         @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
-        @pgbackups.stub!(:args).and_return(['--expire'])
+        @pgbackups.stub!(:options).and_return(:expire => true)
 
         fake_client = mock("pgbackups_client")
         fake_client.should_receive(:create_transfer).with(from_url, from_name, nil, "BACKUP", {:expire => true}).and_return(backup_obj)

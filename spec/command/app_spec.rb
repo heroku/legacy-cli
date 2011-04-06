@@ -4,10 +4,10 @@ module Heroku::Command
   describe App do
     before(:each) do
       @cli = prepare_command(App)
+      @cli.stub(:options).and_return(:app => "myapp")
     end
 
     it "shows app info, converting bytes to kbs/mbs" do
-      @cli.stub!(:args).and_return(['myapp'])
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024 })
       @cli.should_receive(:display).with('=== myapp')
       @cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
@@ -17,13 +17,12 @@ module Heroku::Command
     end
 
     it "shows app info using the --app syntax" do
-      @cli.stub!(:args).and_return(['--app', 'myapp'])
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
       @cli.info
     end
 
     it "shows app info reading app from current git dir" do
-      @cli.stub!(:args).and_return([])
+      @cli.stub!(:options).and_return({})
       @cli.stub!(:extract_app_in_dir).and_return('myapp')
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
       @cli.info
@@ -37,7 +36,7 @@ module Heroku::Command
     end
 
     it "creates with a name" do
-      @cli.stub!(:args).and_return([ 'myapp' ])
+      @cli.stub!(:args).and_return(["myapp"])
       @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
       @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
       @cli.should_receive(:create_git_remote).with("myapp", "heroku")
@@ -45,7 +44,8 @@ module Heroku::Command
     end
 
     it "creates with addons" do
-      @cli.stub!(:args).and_return([ 'addonapp', '--addons', 'foo:bar,fred:barney' ])
+      @cli.stub!(:args).and_return(["addonapp"])
+      @cli.stub!(:options).and_return(:addons => "foo:bar,fred:barney")
       @cli.heroku.should_receive(:create_request).with('addonapp', {:stack => nil}).and_return("addonapp")
       @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
       @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
@@ -55,7 +55,8 @@ module Heroku::Command
     end
 
     it "creates with an alternate remote name" do
-      @cli.stub!(:args).and_return([ 'alternate-remote', '--remote', 'alternate' ])
+      @cli.stub!(:options).and_return(:remote => "alternate")
+      @cli.stub!(:args).and_return([ 'alternate-remote' ])
       @cli.heroku.should_receive(:create_request).and_return("alternate-remote")
       @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
       @cli.should_receive(:create_git_remote).with("alternate-remote", "alternate")
@@ -98,12 +99,13 @@ module Heroku::Command
 
     it "scales dynos" do
       @cli.stub!(:args).and_return(['+4'])
+      @cli.stub!(:options).and_return(:app => "myapp")
       @cli.heroku.should_receive(:set_dynos).with('myapp', '+4').and_return(7)
       @cli.dynos
     end
 
     it "destroys the app specified with --app if user confirms" do
-      @cli.stub!(:args).and_return(['--app', 'myapp'])
+      @cli.stub!(:options).and_return(:app => "myapp")
       @cli.should_receive(:confirm_command).with("myapp").and_return(true)
       @cli.heroku.stub!(:info).and_return({})
       @cli.heroku.should_receive(:destroy).with('myapp')
@@ -111,7 +113,7 @@ module Heroku::Command
     end
 
     it "doesn't destroy the app if the user doesn't confirms" do
-      @cli.stub!(:args).and_return(['--app', 'myapp'])
+      @cli.stub!(:options).and_return(:app => "myapp")
       @cli.should_receive(:confirm_command).with("myapp").and_return(false)
       @cli.heroku.stub!(:info).and_return({})
       @cli.heroku.should_not_receive(:destroy)
@@ -149,7 +151,8 @@ module Heroku::Command
 
       it "creates adding a custom git remote" do
         with_blank_git_repository do
-          @cli.stub!(:args).and_return([ 'myapp', '--remote', 'myremote' ])
+          @cli.stub!(:args).and_return([ 'myapp' ])
+          @cli.stub!(:options).and_return(:remote => "myremote")
           @cli.heroku.should_receive(:create_request).and_return('myapp')
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
           @cli.create

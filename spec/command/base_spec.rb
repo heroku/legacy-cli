@@ -3,9 +3,7 @@ require File.expand_path("../base", File.dirname(__FILE__))
 module Heroku::Command
   describe Base do
     before do
-      @args = [1, 2]
-      @options = { :foo => "bar" }
-      @base = Base.new(@args, @options)
+      @base = Base.new
       @base.stub!(:display)
       @client = mock('heroku client', :host => 'heroku.com')
     end
@@ -41,13 +39,13 @@ module Heroku::Command
     describe "confirming" do
       it "confirms the app via --confirm" do
         @base.stub(:app).and_return("myapp")
-        @base.stub(:args).and_return(["--confirm", "myapp"])
+        @base.stub(:options).and_return(:confirm => "myapp")
         @base.confirm_command.should be_true
       end
 
       it "does not confirms the app via --confirm on a mismatch" do
         @base.stub(:app).and_return("myapp")
-        @base.stub(:args).and_return(["--confirm", "badapp"])
+        @base.stub(:options).and_return(:confirm => "badapp")
         lambda { @base.confirm_command}.should raise_error CommandFailed
       end
 
@@ -98,7 +96,7 @@ other\tgit@other.com:other.git (push)
 
       it "accepts a --remote argument to choose the app from the remote name" do
         @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
-        @base.stub!(:args).and_return(['--remote', 'staging'])
+        @base.stub!(:options).and_return(:remote => "staging")
         @base.app.should == 'myapp-staging'
       end
 

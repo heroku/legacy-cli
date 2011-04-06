@@ -20,7 +20,9 @@ def stub_api_request(method, path)
 end
 
 def prepare_command(klass)
-  command = klass.new([], { :app => 'myapp' })
+  command = klass.new
+  command.stub!(:app).and_return("myapp")
+  command.stub!(:ask).and_return("")
   command.stub!(:display)
   command.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
   command
@@ -36,9 +38,9 @@ def with_blank_git_repository(&block)
   bash "git init"
   block.call
 
-  Dir.chdir(old_dir)
-
   FileUtils.rm_rf(sandbox)
+ensure
+  Dir.chdir(old_dir)
 end
 
 module SandboxHelper

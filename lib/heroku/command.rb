@@ -53,17 +53,25 @@ module Heroku
       end
 
       OptionParser.new do |parser|
+        parser.on("-a", "--app APP") do |value|
+          opts[:app] = value
+        end
+        parser.on("-c", "--confirm APP") do |value|
+          opts[:confirm] = value
+        end
+        parser.on("-r", "--remote REMOTE") do |value|
+          opts[:remote] = value
+        end
         command[:options].each do |name, option|
-          parser.on("-#{option[:short]}", "--#{name}", optparse_class(option[:default]), option[:desc]) do |value|
+          parser.on("-#{option[:short]}", "--#{option[:long]}", option[:desc]) do |value|
             opts[name.to_sym] = value
           end
         end
       end.parse!(args)
-
       object = command[:klass].new(args, opts)
       object.send(command[:method])
-    rescue OptionParser::ParseError
-      puts "INVALID OPTIONS"
+    rescue OptionParser::ParseError => ex
+      puts ex.message
       run "help", [cmd]
     rescue InvalidCommand
       error "Unknown command. Run 'heroku help' for usage information."

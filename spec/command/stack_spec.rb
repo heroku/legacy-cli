@@ -9,7 +9,7 @@ module Heroku::Command
       context "when --all is specified" do
         describe "heroku" do
           it "should receive list_stacks with show_deprecated = true" do
-            @cli.stub!(:args).and_return(['--all'])
+            @cli.stub(:options).and_return(:all => true)
             @cli.heroku.should_receive(:list_stacks).with('myapp', { :include_deprecated => true }).and_return([])
             @cli.list
           end
