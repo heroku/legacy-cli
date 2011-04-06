@@ -10,8 +10,8 @@ require 'webmock/rspec'
 require 'fakefs/safe'
 
 require 'heroku/command'
-require 'heroku/commands/base'
-Dir["#{File.dirname(__FILE__)}/../lib/heroku/commands/*"].each { |c| require c }
+require 'heroku/command/base'
+Dir["#{File.dirname(__FILE__)}/../lib/heroku/command/*"].each { |c| require c }
 
 include WebMock::API
 

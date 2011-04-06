@@ -84,7 +84,7 @@ module Heroku
     end
 
     def run_command(command, args=[])
-      Heroku::Command.run_internal(command, args)
+      Heroku::Command.run(command, args)
     end
 
     def retry_on_exception(*exceptions)

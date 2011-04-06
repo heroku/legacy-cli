@@ -1,4 +1,5 @@
-require "heroku/commands/help"
+require "heroku/command/base"
+require "heroku/command/help"
 
 module Heroku::Command
   Help.group("Releases") do |group|

@@ -1,3 +1,5 @@
+require "heroku/command/base"
+
 module Heroku::Command
   class Addons < BaseWithApp
     def index
@@ -86,7 +88,7 @@ module Heroku::Command
     end
 
     def confirm_billing
-      Heroku::Command.run_internal 'account:confirm_billing', []
+      Heroku::Command.run 'account:confirm_billing'
     end
 
     private

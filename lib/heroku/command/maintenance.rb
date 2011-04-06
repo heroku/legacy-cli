@@ -1,3 +1,5 @@
+require "heroku/command/base"
+
 module Heroku::Command
   class Maintenance < BaseWithApp
     def on

@@ -1,14 +1,18 @@
+require "heroku/command/base"
+
 require 'readline'
 require 'launchy'
 
 module Heroku::Command
   class App < Base
+    def self.namespace; nil; end
+
     def login
-      Heroku::Command.run_internal "auth:reauthorize", args.dup
+      Heroku::Command.login
     end
 
     def logout
-      Heroku::Command.run_internal "auth:delete_credentials", args.dup
+      Heroku::Command.logout
       display "Local credentials cleared."
     end
 

@@ -1,3 +1,5 @@
+require "heroku/command/base"
+
 module Heroku::Command
   class Service < Base
     def start
