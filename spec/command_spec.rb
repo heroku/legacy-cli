@@ -35,9 +35,8 @@ describe Heroku::Command do
     class Heroku::Command::Test; end
     class Heroku::Command::Test::Multiple; end
 
-    Heroku::Command.parse("foo").should == [ Heroku::Command::App, :foo ]
-    Heroku::Command.parse("test").should == [ Heroku::Command::Test, :index ]
-    Heroku::Command.parse("test:foo").should == [ Heroku::Command::Test, :foo   ]
-    Heroku::Command.parse("test:multiple:foo").should == [ Heroku::Command::Test::Multiple, :foo ]
+    Heroku::Command.parse("unknown").should include(:klass => Heroku::Command::Help, :method => :index)
+    Heroku::Command.parse("list").should include(:klass => Heroku::Command::App, :method => :list)
+    Heroku::Command.parse("config:add").should include(:klass => Heroku::Command::Config, :method => :add)
   end
 end

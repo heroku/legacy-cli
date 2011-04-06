@@ -12,9 +12,13 @@ class Heroku::Command::Base
   attr_reader :args
   attr_reader :options
 
-  def initialize(args, options)
+  def initialize(args=[], options={})
     @args = args
     @options = options
+  end
+
+  def heroku
+    Heroku::Auth.client
   end
 
 protected
@@ -62,19 +66,14 @@ protected
 HELP
   end
 
-  def heroku
-    Heroku::Auth.client
-  end
-
-  def extract_app(force=true)
-    app = extract_option('--app', false)
-    raise(CommandFailed, "You must specify an app name after --app") if app == false
-    unless app
-      app = extract_app_in_dir(Dir.pwd) ||
-      raise(CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") if force
-      @autodetected_app = true
+  def extract_app
+    if options[:app].is_a?(String)
+      options[:app]
+    elsif app_from_dir = extract_app_in_dir(Dir.pwd)
+      app_from_dir
+    else
+      raise Heroku::Command::CommandFailed, "No app specified.\nRun this command from an app folder or specify which app to use with --app <app name>"
     end
-    app
   end
 
   def extract_app_in_dir(dir)
@@ -145,10 +144,11 @@ HELP
 end
 
 class Heroku::Command::BaseWithApp < Heroku::Command::Base
-  attr_accessor :app
+  def initialize(args=[], options={})
+    super
+  end
 
-  def initialize(args, heroku=nil)
-    super(args, heroku)
-    @app ||= extract_app
+  def app
+    extract_app
   end
 end

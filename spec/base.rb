@@ -20,11 +20,9 @@ def stub_api_request(method, path)
 end
 
 def prepare_command(klass)
-  command = klass.new(['--app', 'myapp'])
-  command.stub!(:args).and_return([])
+  command = klass.new([], { :app => 'myapp' })
   command.stub!(:display)
   command.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
-  command.stub!(:extract_app).and_return('myapp')
   command
 end
 
@@ -32,10 +30,13 @@ def with_blank_git_repository(&block)
   sandbox = File.join(Dir.tmpdir, "heroku", Process.pid.to_s)
   FileUtils.mkdir_p(sandbox)
 
-  Dir.chdir(sandbox) do
-    bash "git init"
-    block.call
-  end
+  old_dir = Dir.pwd
+  Dir.chdir(sandbox)
+
+  bash "git init"
+  block.call
+
+  Dir.chdir(old_dir)
 
   FileUtils.rm_rf(sandbox)
 end

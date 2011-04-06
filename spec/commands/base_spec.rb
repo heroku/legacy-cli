@@ -4,83 +4,39 @@ module Heroku::Command
   describe Base do
     before do
       @args = [1, 2]
-      @base = Base.new(@args)
+      @options = { :foo => "bar" }
+      @base = Base.new(@args, @options)
       @base.stub!(:display)
       @client = mock('heroku client', :host => 'heroku.com')
     end
 
-    it "initializes the heroku client with the Auth command" do
-      Heroku::Command.should_receive(:run_internal).with('auth:client', @args)
-      @base.heroku
-    end
+    # context "option parsing" do
+    #   it "extracts options from args" do
+    #     @base.stub!(:args).and_return(%w( a b --something value c d ))
+    #     @base.extract_option('--something').should == 'value'
+    #   end
 
-    context "detecting the app" do
-      before do
-        @base.stub!(:heroku).and_return(@client)
-      end
+    #   it "accepts options without value" do
+    #     @base.stub!(:args).and_return(%w( a b --something))
+    #     @base.extract_option('--something').should be_true
+    #   end
 
-      it "attempts to find the app via the --app argument" do
-        @base.stub!(:args).and_return(['--app', 'myapp'])
-        @base.extract_app.should == 'myapp'
-      end
+    #   it "doesn't consider parameters as a value" do
+    #     @base.stub!(:args).and_return(%w( a b --something --something-else c d))
+    #     @base.extract_option('--something').should be_true
+    #   end
 
-      it "read remotes from git config" do
-        Dir.stub(:chdir)
-        @base.should_receive(:git).with('remote -v').and_return(<<-REMOTES)
-staging\tgit@heroku.com:myapp-staging.git (fetch)
-staging\tgit@heroku.com:myapp-staging.git (push)
-production\tgit@heroku.com:myapp.git (fetch)
-production\tgit@heroku.com:myapp.git (push)
-other\tgit@other.com:other.git (fetch)
-other\tgit@other.com:other.git (push)
-        REMOTES
-        @base.git_remotes('/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
-      end
+    #   it "accepts a default value" do
+    #     @base.stub!(:args).and_return(%w( a b --something))
+    #     @base.extract_option('--something', 'default').should == 'default'
+    #   end
 
-      it "gets the app from remotes when there's only one app" do
-        @base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
-        @base.extract_app.should == 'myapp'
-      end
-
-      it "accepts a --remote argument to choose the app from the remote name" do
-        @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
-        @base.stub!(:args).and_return(['--remote', 'staging'])
-        @base.extract_app.should == 'myapp-staging'
-      end
-
-      it "raises when cannot determine which app is it" do
-        @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
-        lambda { @base.extract_app }.should raise_error(Heroku::Command::CommandFailed)
-      end
-    end
-
-    context "option parsing" do
-      it "extracts options from args" do
-        @base.stub!(:args).and_return(%w( a b --something value c d ))
-        @base.extract_option('--something').should == 'value'
-      end
-
-      it "accepts options without value" do
-        @base.stub!(:args).and_return(%w( a b --something))
-        @base.extract_option('--something').should be_true
-      end
-
-      it "doesn't consider parameters as a value" do
-        @base.stub!(:args).and_return(%w( a b --something --something-else c d))
-        @base.extract_option('--something').should be_true
-      end
-
-      it "accepts a default value" do
-        @base.stub!(:args).and_return(%w( a b --something))
-        @base.extract_option('--something', 'default').should == 'default'
-      end
-
-      it "is not affected by multiple arguments with the same value" do
-        @base.stub!(:args).and_return(%w( --arg1 val --arg2 val ))
-        @base.extract_option('--arg1').should == 'val'
-        @base.args.should == ['--arg2', 'val']
-      end
-    end
+    #   it "is not affected by multiple arguments with the same value" do
+    #     @base.stub!(:args).and_return(%w( --arg1 val --arg2 val ))
+    #     @base.extract_option('--arg1').should == 'val'
+    #     @base.args.should == ['--arg2', 'val']
+    #   end
+    # end
 
     describe "confirming" do
       it "confirms the app via --confirm" do
@@ -107,12 +63,50 @@ other\tgit@other.com:other.git (push)
         @base.confirm_command.should be_false
       end
     end
+  end
+  
+  describe BaseWithApp do
+    context "detecting the app" do
+      before do
+        @base = BaseWithApp.new
+      end
 
-    describe "formatting" do
-      it "formats app urls (http and git), displayed as output on create and other commands" do
-        @base.stub!(:heroku).and_return(mock('heroku client', :host => 'example.com'))
-        @base.app_urls('test').should == "http://test.example.com/ | git@example.com:test.git"
+      it "attempts to find the app via the --app option" do
+        @base.stub!(:options).and_return(:app => "myapp")
+        @base.app.should == "myapp"
+      end
+
+      it "read remotes from git config" do
+        Dir.stub(:chdir)
+        @base.should_receive(:git).with('remote -v').and_return(<<-REMOTES)
+staging\tgit@heroku.com:myapp-staging.git (fetch)
+staging\tgit@heroku.com:myapp-staging.git (push)
+production\tgit@heroku.com:myapp.git (fetch)
+production\tgit@heroku.com:myapp.git (push)
+other\tgit@other.com:other.git (fetch)
+other\tgit@other.com:other.git (push)
+        REMOTES
+
+        # need a better way to test internal functionality
+        @base.send(:git_remotes, '/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
+      end
+
+      it "gets the app from remotes when there's only one app" do
+        @base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
+        @base.app.should == 'myapp'
+      end
+
+      it "accepts a --remote argument to choose the app from the remote name" do
+        @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
+        @base.stub!(:args).and_return(['--remote', 'staging'])
+        @base.app.should == 'myapp-staging'
+      end
+
+      it "raises when cannot determine which app is it" do
+        @base.stub!(:git_remotes).and_return({ 'staging' => 'myapp-staging', 'production' => 'myapp' })
+        lambda { @base.app }.should raise_error(Heroku::Command::CommandFailed)
       end
     end
+
   end
 end

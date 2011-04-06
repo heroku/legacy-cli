@@ -1,5 +1,6 @@
 require "heroku"
 require "heroku/client"
+require "heroku/helpers"
 
 class Heroku::Auth
   attr_accessor :credentials

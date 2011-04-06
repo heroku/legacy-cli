@@ -46,7 +46,7 @@ module Heroku
     end
 
     def self.run(cmd, args=[])
-      command = commands[cmd] || commands["help"]
+      command = parse(cmd)
 
       opts = command[:options].inject({}) do |hash, (name, option)|
         hash.update(name.to_sym => option[:default])
@@ -83,6 +83,10 @@ module Heroku
       error e.message
     rescue Interrupt => e
       error "\n[canceled]"
+    end
+
+    def self.parse(cmd)
+      commands[cmd] || commands["help"]
     end
 
     def self.extract_not_found(body)

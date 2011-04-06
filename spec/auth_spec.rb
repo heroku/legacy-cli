@@ -1,6 +1,6 @@
-require File.expand_path("../base", File.dirname(__FILE__))
+require "heroku/auth"
 
-module Heroku::Command
+module Heroku
   describe Auth do
     before do
       @cli = prepare_command(Auth)
