@@ -167,7 +167,7 @@ module Heroku::Command
     def load_taps
       require 'taps/operation'
       require 'taps/cli'
-      enforce_taps_version "0.3.22"
+      enforce_taps_version "0.3.23"
       display "Loaded Taps v#{Taps.version}"
     rescue LoadError
       message  = "Taps Load Error: #{$!.message}\n"
