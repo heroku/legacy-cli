@@ -105,33 +105,88 @@ module Heroku::Command
     end
 
     def index
-      display usage
+      if command = args.shift
+        help_for_command(command)
+      else
+        help_for_root
+      end
     end
 
-    def version
-      display Heroku::Client.version
+  private
+
+    def commands_for_namespace(name)
+      Heroku::Command.commands.values.select do |command|
+        command[:namespace] == name && command[:method] != :index
+      end
     end
 
-    def usage
-      longest_command_length = self.class.groups.map do |group|
-        group.map { |g| g.first.length }
-      end.flatten.max
+    def namespaces
+      namespaces = Heroku::Command.namespaces
+      namespaces.delete("app")
+      namespaces
+    end
 
-      self.class.groups.inject(StringIO.new) do |output, group|
-        output.puts "=== %s" % group.title
-        output.puts
+    def commands
+      commands = Heroku::Command.commands
+    end
 
-        group.each do |command, description|
-          if command.empty?
-            output.puts
-          else
-            output.puts "%-*s # %s" % [longest_command_length, command, description]
+    def longest(items)
+      items.map(&:to_s).map(&:length).sort.last
+    end
+
+    def legacy_help_for_command(command)
+    end
+
+    def help_for_root
+      puts "Usage: heroku COMMAND"
+      puts
+      help_for_namespace(nil)
+      puts
+      puts "Additional commands, type \"heroku help GROUP\" for more details:"
+      puts
+      size = longest(namespaces.values.map { |n| n[:name] })
+      namespaces.sort_by(&:first).each do |name, namespace|
+        puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
+      end
+      puts
+    end
+
+    def help_for_namespace(name)
+      namespace_commands = commands_for_namespace(name)
+
+      unless namespace_commands.empty?
+        size = longest(namespace_commands.map { |c| c[:banner] })
+        namespace_commands.sort_by { |c| c[:method] }.each do |command|
+          puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
+        end
+      end
+    end
+
+    def help_for_command(name)
+      command = commands[name]
+
+      if command
+        puts "Usage: heroku #{command[:banner]}"
+        puts
+        puts command[:description]
+
+        unless command[:options].empty?
+          puts
+          size = longest(command[:options].values.map { |o| o[:banner] })
+          command[:options].sort_by(&:first).each do |name, option|
+            puts "  %-#{size}s  # %s" % [ option[:banner], option[:description] ]
           end
         end
 
-        output.puts
-        output
-      end.string
+        unless commands_for_namespace(name).empty?
+          puts
+          puts "Additional commands, type \"heroku help COMMAND\" for more details:"
+          puts
+          help_for_namespace(name)
+        end
+      end
+
+      puts
     end
   end
 end

@@ -39,18 +39,18 @@ protected
 
     resolved_method = (method.to_s == "index") ? nil : method.to_s
 
-    command = [ self.namespace, resolved_method ].compact.join(":")
-    banner  = extract_banner(help)
-    options = extract_options(help)
+    command     = [ self.namespace, resolved_method ].compact.join(":")
 
     Heroku::Command.register_command(
-      :klass     => self,
-      :method    => method,
-      :namespace => self.namespace,
-      :command   => command,
-      :banner    => banner,
-      :help      => help,
-      :options   => options
+      :klass       => self,
+      :method      => method,
+      :namespace   => self.namespace,
+      :command     => command,
+      :banner      => extract_banner(help) || command,
+      :help        => help,
+      :summary     => extract_summary(help),
+      :description => extract_description(help),
+      :options     => extract_options(help)
     )
   end
 
@@ -76,6 +76,18 @@ protected
 
   def self.extract_banner(help)
     help.split("\n").first
+  end
+
+  def self.extract_summary(help)
+    extract_description(help).split("\n").first
+  end
+
+  def self.extract_description(help)
+    lines = help.split("\n").map(&:strip)
+    lines.shift
+    lines.reject do |line|
+      line =~ /^-(.+)#(.+)/
+    end.join("\n").strip
   end
 
   def self.extract_options(help)
