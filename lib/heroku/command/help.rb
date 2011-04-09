@@ -134,7 +134,20 @@ module Heroku::Command
       items.map(&:to_s).map(&:length).sort.last
     end
 
+    def legacy_help_for_namespace(namespace)
+      instance = Heroku::Command::Help.groups.map do |group|
+        [ group.title, group.select { |c| c.first =~ /^#{namespace}/ }.length ]
+      end.sort_by(&:last).last
+      instance.last.zero? ? nil : instance.first
+    end
+
     def legacy_help_for_command(command)
+      Heroku::Command::Help.groups.each do |group|
+        group.each do |cmd, description|
+          return description if cmd == command
+        end
+      end
+      nil
     end
 
     def help_for_root
@@ -146,6 +159,7 @@ module Heroku::Command
       puts
       size = longest(namespaces.values.map { |n| n[:name] })
       namespaces.sort_by(&:first).each do |name, namespace|
+        namespace[:description] ||= legacy_help_for_namespace(name)
         puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
       end
       puts
@@ -157,6 +171,7 @@ module Heroku::Command
       unless namespace_commands.empty?
         size = longest(namespace_commands.map { |c| c[:banner] })
         namespace_commands.sort_by { |c| c[:method] }.each do |command|
+          command[:summary] ||= legacy_help_for_command(command[:command])
           puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
         end
       end
@@ -168,7 +183,7 @@ module Heroku::Command
       if command
         puts "Usage: heroku #{command[:banner]}"
         puts
-        puts command[:description]
+        puts command[:description] || legacy_help_for_command(name)
 
         unless command[:options].empty?
           puts
