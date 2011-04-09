@@ -7,10 +7,18 @@ module Heroku::Command
   class App < Base
     def self.namespace; nil; end
 
+    # login
+    #
+    # log in with your heroku credentials
+    #
     def login
       Heroku::Command.login
     end
 
+    # logout
+    #
+    # clear local authentication credentials
+    #
     def logout
       Heroku::Command.logout
       display "Local credentials cleared."
@@ -19,7 +27,7 @@ module Heroku::Command
     # list
     #
     # list your apps
-
+    #
     def list
       list = heroku.list
       if list.size > 0
@@ -35,6 +43,13 @@ module Heroku::Command
       end
     end
 
+    # create [NAME]
+    #
+    # create a new app
+    #
+    # -r, --remote # the git remote to create, default "heroku"
+    # -s, --stack  # the stack on which to create the app
+    #
     def create
       remote  = extract_option('--remote', 'heroku')
       stack   = extract_option('--stack', 'aspen-mri-1.8.6')
@@ -66,6 +81,10 @@ module Heroku::Command
       create_git_remote(name, remote || "heroku")
     end
 
+    # rename NEWNAME
+    #
+    # rename the app
+    #
     def rename
       name    = extract_app
       newname = args.shift.downcase.strip rescue ''
@@ -88,6 +107,10 @@ module Heroku::Command
       end
     end
 
+    # info
+    #
+    # show detailed app information
+    #
     def info
       name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
       attrs = heroku.info(name)
@@ -139,6 +162,10 @@ module Heroku::Command
       end
     end
 
+    # open
+    #
+    # open the app in a web browser
+    #
     def open
       app = extract_app
 
@@ -147,6 +174,10 @@ module Heroku::Command
       Launchy.open url
     end
 
+    # rake
+    #
+    # remotely execute a rake command
+    #
     def rake
       app = extract_app
       cmd = args.join(' ')
@@ -159,6 +190,12 @@ module Heroku::Command
       error "Couldn't run rake\n#{e.message}"
     end
 
+    # console [COMMAND]
+    #
+    # open a remote console session
+    #
+    # if COMMAND is specified, run the command and exit
+    #
     def console
       app = extract_app
       cmd = args.join(' ').strip
@@ -173,27 +210,22 @@ module Heroku::Command
       error e.message
     end
 
-    def console_session(app)
-      heroku.console(app) do |console|
-        console_history_read(app)
-
-        display "Ruby console for #{app}.#{heroku.host}"
-        while cmd = Readline.readline('>> ')
-          unless cmd.nil? || cmd.strip.empty?
-            console_history_add(app, cmd)
-            break if cmd.downcase.strip == 'exit'
-            display console.run(cmd)
-          end
-        end
-      end
-    end
-
+    # restart
+    #
+    # restart app processes
+    #
     def restart
       app_name = extract_app
       heroku.restart(app_name)
       display "App processes restarted"
     end
 
+    # dynos [QTY]
+    #
+    # scale to QTY web processes
+    #
+    # if QTY is not specified, display the number of web processes currently running
+    #
     def dynos
       app = extract_app
       if dynos = args.shift
@@ -205,6 +237,12 @@ module Heroku::Command
       end
     end
 
+    # workers [QTY]
+    #
+    # scale to QTY background processes
+    #
+    # if QTY is not specified, display the number of background processes currently running
+    #
     def workers
       app = extract_app
       if workers = args.shift
@@ -216,6 +254,10 @@ module Heroku::Command
       end
     end
 
+    # destroy
+    #
+    # permanently destroy the app
+    #
     def destroy
       app = extract_app
       info = heroku.info(app)
@@ -254,6 +296,21 @@ module Heroku::Command
       def console_history_dir
         FileUtils.mkdir_p(path = "#{home_directory}/.heroku/console_history")
         path
+      end
+
+      def console_session(app)
+        heroku.console(app) do |console|
+          console_history_read(app)
+
+          display "Ruby console for #{app}.#{heroku.host}"
+          while cmd = Readline.readline('>> ')
+            unless cmd.nil? || cmd.strip.empty?
+              console_history_add(app, cmd)
+              break if cmd.downcase.strip == 'exit'
+              display console.run(cmd)
+            end
+          end
+        end
       end
 
       def console_history_file(app)
