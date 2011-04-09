@@ -24,6 +24,7 @@ class Heroku::Command::Base
 protected
 
   def self.inherited(klass)
+    return if klass == Heroku::Command::BaseWithApp
     Heroku::Command.register_namespace(
       :name => klass.namespace,
       :description => nil
