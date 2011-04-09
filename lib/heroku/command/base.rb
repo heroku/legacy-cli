@@ -34,6 +34,7 @@ protected
     return if self == Heroku::Command::Base
     return if self == Heroku::Command::BaseWithApp
     return if private_method_defined?(method)
+    return if protected_method_defined?(method)
 
     help = extract_help(*(caller.first.split(":")[0..1]))
 
