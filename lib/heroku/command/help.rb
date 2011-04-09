@@ -181,24 +181,8 @@ module Heroku::Command
       command = commands[name]
 
       if command
-        puts "Usage: heroku #{command[:banner]}"
-        puts
-        puts command[:description] || legacy_help_for_command(name)
-
-        unless command[:options].empty?
-          puts
-          size = longest(command[:options].values.map { |o| o[:banner] })
-          command[:options].sort_by(&:first).each do |name, option|
-            puts "  %-#{size}s  # %s" % [ option[:banner], option[:description] ]
-          end
-        end
-
-        unless commands_for_namespace(name).empty?
-          puts
-          puts "Additional commands, type \"heroku help COMMAND\" for more details:"
-          puts
-          help_for_namespace(name)
-        end
+        print "Usage: "
+        puts command[:help]
       end
 
       puts
