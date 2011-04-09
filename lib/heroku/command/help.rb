@@ -144,7 +144,7 @@ module Heroku::Command
     def legacy_help_for_command(command)
       Heroku::Command::Help.groups.each do |group|
         group.each do |cmd, description|
-          return description if cmd == command
+          return description if cmd.split(" ").first == command
         end
       end
       nil
