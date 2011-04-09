@@ -181,11 +181,17 @@ module Heroku::Command
       command = commands[name]
 
       if command
-        print "Usage: "
-        puts command[:help]
+        if command[:help].strip.length > 0
+          print "Usage: "
+          puts command[:help]
+          puts
+        else
+          puts "Usage: heroku #{command[:banner]}"
+          puts
+          puts legacy_help_for_command(name)
+          puts
+        end
       end
-
-      puts
     end
   end
 end
