@@ -87,10 +87,6 @@ module Heroku::Command
       end
     end
 
-    def confirm_billing
-      Heroku::Command.run 'account:confirm_billing'
-    end
-
     private
       def display_addons(addons)
         grouped = addons.inject({}) do |base, addon|

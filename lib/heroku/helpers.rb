@@ -35,6 +35,17 @@ module Heroku
       exit 1
     end
 
+    def confirm_billing
+      display ""
+      display "This action will cause your account to be billed at the end of the month"
+      display "For more information, see http://devcenter.heroku.com/articles/billing"
+      display "Are you sure you want to do this? (y/n) ", false
+      if ask.downcase == 'y'
+        heroku.confirm_billing
+        return true
+      end
+    end
+
     def confirm(message="Are you sure you wish to continue? (y/n)?")
       display("#{message} ", false)
       ask.downcase == 'y'
