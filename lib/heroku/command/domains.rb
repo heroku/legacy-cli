@@ -2,7 +2,7 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Domains < BaseWithApp
-    def list
+    def index
       domains = heroku.list_domains(app)
       if domains.empty?
         display "No domain names for #{app}.#{heroku.host}"
@@ -11,7 +11,6 @@ module Heroku::Command
         display domains.map { |d| d[:domain] }.join("\n")
       end
     end
-    alias :index :list
 
     def add
       domain = args.shift.downcase rescue nil
