@@ -2,6 +2,11 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Addons < BaseWithApp
+
+    # addons
+    #
+    # list installed addons
+    #
     def index
       installed = heroku.installed_addons(app)
       if installed.empty?
@@ -28,6 +33,10 @@ module Heroku::Command
       end
     end
 
+    # addons:list
+    #
+    # list all available addons
+    #
     def list
       addons = heroku.addons
       if addons.empty?
@@ -42,19 +51,36 @@ module Heroku::Command
       end
     end
 
+    # addons:add ADDON
+    #
+    # install an addon
+    #
     def add
       configure_addon('Adding') do |addon, config|
         heroku.install_addon(app, addon, config)
       end
     end
 
+    # addons:upgrade ADDON
+    #
+    # upgrade an existing addon
+    #
     def upgrade
       configure_addon('Upgrading') do |addon, config|
         heroku.upgrade_addon(app, addon, config)
       end
     end
+
+    # addons:downgrade ADDON
+    #
+    # downgrade an existing addon
+    #
     alias_method :downgrade, :upgrade
 
+    # addons:remove ADDON
+    #
+    # uninstall an addon
+    #
     def remove
       args.each do |name|
         display "Removing #{name} from #{app}... ", false
@@ -62,6 +88,10 @@ module Heroku::Command
       end
     end
 
+    # addons:open ADDON
+    #
+    # open an addon's dashboard in your browser
+    #
     def open
       addon = args.shift
       app_addons = heroku.installed_addons(app).map { |a| a["name"] }
