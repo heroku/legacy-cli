@@ -33,13 +33,6 @@ module Heroku::Command
       display "done."
     end
 
-    def clear
-      deprecate("1.19")
-      display "Clearing all config vars and restarting app...", false
-      heroku.clear_config_vars(app)
-      display "done."
-    end
-
     protected
       def display_vars(vars, options={})
         max_length = vars.map { |v| v[0].to_s.size }.max
