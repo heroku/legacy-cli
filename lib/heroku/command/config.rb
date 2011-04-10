@@ -1,8 +1,10 @@
 require "heroku/command/base"
 
 module Heroku::Command
+
+  # manage app config vars
+  #
   class Config < BaseWithApp
-    group "manage app config vars"
 
     # config
     #

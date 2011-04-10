@@ -1,9 +1,10 @@
 require "heroku/command/base"
-require "heroku/command/help"
 
 module Heroku::Command
+
+  # display logs for an app
+  #
   class Logs < BaseWithApp
-    group "display logs for an app"
 
     # logs
     #

@@ -5,8 +5,10 @@ require 'logger'
 require 'uri'
 
 module Heroku::Command
+
+  # manage the database for an app
+  #
   class Db < BaseWithApp
-    group "manage an app's database"
 
     # db:push [DATABASE_URL]
     #

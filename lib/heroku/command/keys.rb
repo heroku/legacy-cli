@@ -1,8 +1,10 @@
 require "heroku/command/base"
 
 module Heroku::Command
+
+  # manage authentication keys
+  #
   class Keys < Base
-    group "manage authentication keys"
 
     # keys
     #

@@ -1,8 +1,10 @@
 require "heroku/command/base"
 
 module Heroku::Command
+
+  # manage custom domains
+  #
   class Domains < BaseWithApp
-    group "manage custom domains"
 
     # domains
     #

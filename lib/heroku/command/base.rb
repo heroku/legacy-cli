@@ -25,9 +25,12 @@ protected
 
   def self.inherited(klass)
     return if klass == Heroku::Command::BaseWithApp
+
+    help = extract_help(*(caller.first.split(":")[0..1])).strip
+
     Heroku::Command.register_namespace(
       :name => klass.namespace,
-      :description => nil
+      :description => help.split("\n").first
     )
   end
 
@@ -54,10 +57,6 @@ protected
       :description => extract_description(help),
       :options     => extract_options(help)
     )
-  end
-
-  def self.group(description)
-    Heroku::Command.namespaces[self.namespace][:description] = description
   end
 
   def self.extract_help(file, line)

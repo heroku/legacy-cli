@@ -1,9 +1,10 @@
 require "heroku/command/base"
 
 module Heroku::Command
-  class Addons < BaseWithApp
 
-    group "manage addon resources"
+  # manage addon resources
+  #
+  class Addons < BaseWithApp
 
     # addons
     #
