@@ -3,6 +3,8 @@ require "heroku/command/base"
 module Heroku::Command
   class Addons < BaseWithApp
 
+    group "manage addon resources"
+
     # addons
     #
     # list installed addons
