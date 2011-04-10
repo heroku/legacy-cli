@@ -6,6 +6,19 @@ require 'uri'
 
 module Heroku::Command
   class Db < BaseWithApp
+    group "manage an app's database"
+
+    # db:push [DATABASE_URL]
+    #
+    # push local data up to your app
+    #
+    # if DATABASE_URL is not specified it will be guessed from config/database.yml
+    #
+    # -c, --chunksize SIZE # specify the number of rows to send in each batch
+    # -d, --debug          # enable debugging output
+    # -f, --filter REGEX   # only push certain tables
+    # -r, --resume FILE    # resume transfer described by a .dat file
+    #
     def push
       load_taps
       opts = parse_taps_opts
@@ -17,6 +30,17 @@ module Heroku::Command
       end
     end
 
+    # db:pull [DATABASE_URL]
+    #
+    # pull local data up to your app
+    #
+    # if DATABASE_URL is not specified it will be guessed from config/database.yml
+    #
+    # -c, --chunksize SIZE # specify the number of rows to send in each batch
+    # -d, --debug          # enable debugging output
+    # -f, --filter REGEX   # only push certain tables
+    # -r, --resume FILE    # resume transfer described by a .dat file
+    #
     def pull
       load_taps
       opts = parse_taps_opts
