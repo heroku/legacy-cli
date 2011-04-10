@@ -188,7 +188,7 @@ module Heroku::Command
         else
           puts "Usage: heroku #{command[:banner]}"
           puts
-          puts " " + legacy_help_for_command(name)
+          puts " " + legacy_help_for_command(name).to_s
           puts
         end
       end
