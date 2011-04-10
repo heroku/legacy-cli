@@ -2,8 +2,16 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Keys < Base
+    group "manage authentication keys"
+
+    # keys
+    #
+    # display keys for the current user
+    #
+    # -l, --long  # display extended information for each key
+    #
     def index
-      long = args.any? { |a| a == '--long' }
+      long = options[:long]
       keys = heroku.keys
       if keys.empty?
         display "No keys for #{heroku.user}"
@@ -15,6 +23,12 @@ module Heroku::Command
       end
     end
 
+    # keys:add [KEY]
+    #
+    # add a key for the current user
+    #
+    # if no KEY is specified, will try to find ~/.ssh/id_[rd]sa.pub
+    #
     def add
       keyfile = args.first || find_key
       key = File.read(keyfile)
@@ -23,11 +37,19 @@ module Heroku::Command
       heroku.add_key(key)
     end
 
+    # keys:remove KEY
+    #
+    # remove a key from the current user
+    #
     def remove
       heroku.remove_key(args.first)
       display "Key #{args.first} removed."
     end
 
+    # keys:clear
+    #
+    # remove all authentication keys from the current user
+    #
     def clear
       heroku.remove_all_keys
       display "All keys removed."
