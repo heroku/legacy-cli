@@ -2,12 +2,24 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Config < BaseWithApp
+    group "manage app config vars"
+
+    # config
+    #
+    # display the config vars for an app
+    #
+    # -s, --shell  # output config vars in shell format
+    #
     def index
       shell = args.delete('--shell')
       vars  = heroku.config_vars(app)
       display_vars(vars, :long => true, :shell => shell)
     end
 
+    # config:add KEY1=VALUE1 ...
+    #
+    # add one or more config vars
+    #
     def add
       unless args.size > 0 and args.all? { |a| a.include?('=') }
         raise CommandFailed, "Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]"
@@ -27,6 +39,10 @@ module Heroku::Command
       display "done."
     end
 
+    # config:remove KEY
+    #
+    # remove a config var
+    #
     def remove
       display "Removing #{args.first} and restarting app...", false
       heroku.remove_config_var(app, args.first)
