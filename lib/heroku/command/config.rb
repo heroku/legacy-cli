@@ -32,7 +32,6 @@ module Heroku::Command
       heroku.remove_config_var(app, args.first)
       display "done."
     end
-    alias :rm :remove
 
     def clear
       deprecate("1.19")
