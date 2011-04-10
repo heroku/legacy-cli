@@ -1,3 +1,10 @@
+begin
+  require "octotest"
+rescue LoadError
+  puts "missing the 'octotest' gem"
+  exit 1
+end
+
 Autotest.add_discovery { "octotest" }
 Autotest.add_discovery { "rspec" }
 
