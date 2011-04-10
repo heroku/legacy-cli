@@ -28,10 +28,6 @@ module Heroku::Command
       end
     end
 
-    def reset
-      display "ERROR: This command is deprecated. Use 'pg:reset' instead."
-    end
-
     protected
 
     def parse_database_yml
