@@ -123,6 +123,7 @@ module Heroku
 
         describe "with zero public keys" do
           it "should ask to generate a key" do
+            @cli.should_receive(:ask).and_return("y")
             @cli.should_receive(:generate_ssh_key).with("id_rsa")
             @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
             @cli.check_for_associated_ssh_key
