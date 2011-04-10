@@ -12,7 +12,7 @@ module Heroku::Command
     # log in with your heroku credentials
     #
     def login
-      Heroku::Command.login
+      Heroku::Auth.login
     end
 
     # logout
@@ -20,7 +20,7 @@ module Heroku::Command
     # clear local authentication credentials
     #
     def logout
-      Heroku::Command.logout
+      Heroku::Auth.logout
       display "Local credentials cleared."
     end
 
