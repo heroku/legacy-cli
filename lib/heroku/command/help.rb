@@ -2,6 +2,8 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Help < Base
+    group "show this help"
+
     class HelpGroup < Array
       attr_reader :title
 
