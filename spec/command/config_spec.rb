@@ -44,11 +44,5 @@ module Heroku::Command
       @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
       @config.remove
     end
-
-    it "resets config" do
-      @config.should_receive(:deprecate)
-      @config.heroku.should_receive(:clear_config_vars).with('myapp')
-      @config.clear
-    end
   end
 end

@@ -1,19 +1,25 @@
+require "fakefs/safe"
 require "heroku/auth"
 
 module Heroku
   describe Auth do
     before do
-      @cli = prepare_command(Auth)
-      @sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
-      FileUtils.mkdir_p(@sandbox)
-      @credentials_file = "#{@sandbox}/credentials"
-      File.open(@credentials_file, "w") { |f| f.write "user\npass\n" }
-      @cli.stub!(:credentials_file).and_return(@credentials_file)
+      @cli = Heroku::Auth
+      @cli.stub!(:check)
+      @cli.stub!(:display)
       @cli.stub!(:running_on_a_mac?).and_return(false)
+      @cli.stub!(:set_credentials_permissions)
+      @cli.credentials = nil
+
+      FakeFS.activate!
+
+      File.open(@cli.credentials_file, "w") do |file|
+        file.puts "user\npass"
+      end
     end
 
     after do
-      FileUtils.rm_rf(@sandbox)
+      FakeFS.deactivate!
     end
 
     it "reads credentials from the credentials file" do
@@ -21,37 +27,29 @@ module Heroku
     end
 
     it "takes the user from the first line and the password from the second line" do
+      @cli.read_credentials
       @cli.user.should == 'user'
       @cli.password.should == 'pass'
     end
 
     it "asks for credentials when the file doesn't exist" do
-      FileUtils.rm_rf(@sandbox)
-      @cli.stub!(:check)
-      @cli.stub!(:ask_for_credentials).and_return(["u", "p"])
+      @cli.delete_credentials
+      @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
       @cli.should_receive(:check_for_associated_ssh_key)
-      @cli.get_credentials.should == [ 'u', 'p' ]
+      @cli.user.should == 'u'
+      @cli.password.should == 'p'
     end
 
     it "writes the credentials to a file" do
-      @cli.stub!(:credentials).and_return(['one', 'two'])
+      @cli.should_receive(:credentials).and_return(%w( one two ))
       @cli.should_receive(:set_credentials_permissions)
       @cli.write_credentials
-      File.read(@credentials_file).should == "one\ntwo\n"
+      File.read(@cli.credentials_file).should == "one\ntwo\n"
     end
 
     it "sets ~/.heroku/credentials to be readable only by the user" do
-      unless RUBY_PLATFORM =~ /mswin32|mingw32/
-        sandbox = "#{Dir.tmpdir}/cli_spec_#{Process.pid}"
-        FileUtils.rm_rf(sandbox)
-        FileUtils.mkdir_p(sandbox)
-        fname = "#{sandbox}/file"
-        system "touch #{fname}"
-        @cli.stub!(:credentials_file).and_return(fname)
-        @cli.set_credentials_permissions
-        File.stat(sandbox).mode.should == 040700
-        File.stat(fname).mode.should == 0100600
-      end
+      @cli.should_receive(:set_credentials_permissions)
+      @cli.write_credentials
     end
 
     it "writes credentials and uploads authkey when credentials are saved" do
@@ -92,21 +90,15 @@ module Heroku
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
       @cli.stub!(:check_for_associated_ssh_key)
+      @cli.should_receive(:set_credentials_permissions)
       @cli.reauthorize
-      File.read(@credentials_file).should == "one\ntwo\n"
+      File.read(@cli.credentials_file).should == "one\ntwo\n"
     end
 
     describe "automatic key uploading" do
       before(:each) do
-        FakeFS.activate!
         FileUtils.mkdir_p("~/.ssh")
-        FileUtils.mkdir_p("~/.heroku")
-        FileUtils.touch("~/.heroku/credentials")
         @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
-      end
-
-      after(:each) do
-        FakeFS.deactivate!
       end
 
       describe "an account with existing keys" do

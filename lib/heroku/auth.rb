@@ -15,7 +15,6 @@ class Heroku::Auth
     end
 
     def login
-      @credentials = nil
       delete_credentials
       get_credentials
     end
@@ -181,7 +180,6 @@ class Heroku::Auth
     def write_credentials
       FileUtils.mkdir_p(File.dirname(credentials_file))
       f = File.open(credentials_file, 'w')
-      f.chmod(0600)
       f.puts self.credentials
       f.close
       set_credentials_permissions
@@ -194,6 +192,7 @@ class Heroku::Auth
 
     def delete_credentials
       FileUtils.rm_f(credentials_file)
+      @credentials = nil
     end
   end
 end

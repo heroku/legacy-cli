@@ -8,7 +8,7 @@ module Heroku::Command
 
     it "lists domains" do
       @domains.heroku.should_receive(:list_domains).and_return([])
-      @domains.list
+      @domains.index
     end
 
     it "adds domain names" do
