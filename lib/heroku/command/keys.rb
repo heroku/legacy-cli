@@ -2,7 +2,7 @@ require "heroku/command/base"
 
 module Heroku::Command
   class Keys < Base
-    def list
+    def index
       long = args.any? { |a| a == '--long' }
       keys = heroku.keys
       if keys.empty?
@@ -14,7 +14,6 @@ module Heroku::Command
         end
       end
     end
-    alias :index :list
 
     def add
       keyfile = args.first || find_key
