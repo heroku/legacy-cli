@@ -62,14 +62,6 @@ module Heroku::Command
       end
     end
 
-    def clear
-      heroku.installed_addons(app).each do |addon|
-        next if addon['name'] =~ /^shared-database/
-        display "Removing #{addon['description']} from #{app}... ", false
-        display addon_run { heroku.uninstall_addon(app, addon['name']) }
-      end
-    end
-
     def open
       addon = args.shift
       app_addons = heroku.installed_addons(app).map { |a| a["name"] }
