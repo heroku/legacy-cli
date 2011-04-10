@@ -2,41 +2,52 @@ require "heroku/command/base"
 require "heroku/command/help"
 
 module Heroku::Command
-  Heroku::Command::Help.group("Logging (Expanded)") do |group|
-    group.command "logs --tail",              "realtime logs tail"
-    group.command "logs:drains",              "list syslog drains"
-    group.command "logs:drains add <url>",    "add a syslog drain"
-    group.command "logs:drains remove <url>", "remove a syslog drain"
-    group.command "logs:drains clear",        "remove all syslog drains"
-  end
-
   class Logs < BaseWithApp
+    group "display logs for an app"
+
+    # logs
+    #
+    # display recent log output
+    #
+    # -n, --num NUM        # the number of lines to display
+    # -p, --ps PS          # only display logs from the given process
+    # -s, --source SOURCE  # only display logs from the given source
+    # -t, --tail           # continually stream logs
+    #
     def index
       init_colors
 
-      options = []
-      until args.empty? do
-        case args.shift
-          when "-t", "--tail"   then options << "tail=1"
-          when "-n", "--num"    then options << "num=#{args.shift.to_i}"
-          when "-p", "--ps"     then options << "ps=#{URI.encode(args.shift)}"
-          when "-s", "--source" then options << "source=#{URI.encode(args.shift)}"
-          end
-      end
+      opts = []
+      opts << "tail=1"                                 if options[:tail]
+      opts << "num=#{options[:num]}"                   if options[:num]
+      opts << "ps=#{URI.encode(options[:ps])}"         if options[:ps]
+      opts << "source=#{URI.encode(options[:source])}" if options[:source]
 
       @line_start = true
       @token = nil
 
-      heroku.read_logs(app, options) do |chk|
+      heroku.read_logs(app, opts) do |chk|
         next unless output = format_with_colors(chk)
         puts output
       end
     end
 
+    # logs:cron
+    #
+    # DEPRECATED: display cron logs from legacy logging
+    #
     def cron
       display heroku.cron_logs(app)
     end
 
+    # logs:drains
+    #
+    # manage syslog drains
+    #
+    # logs:drains add URL     # add a syslog drain
+    # logs:drains remove URL  # remove a syslog drain
+    # logs:drains clear       # remove all syslog drains
+    #
     def drains
       if args.empty?
         puts heroku.list_drains(app)
@@ -58,6 +69,8 @@ module Heroku::Command
       end
       raise(CommandFailed, "usage: heroku logs:drains <add | remove | clear>")
     end
+
+  protected
 
     def init_colors(colorizer=nil)
       if !colorizer
