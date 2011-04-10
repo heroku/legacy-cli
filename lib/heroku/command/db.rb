@@ -109,7 +109,7 @@ module Heroku::Command
         opts[:disable_compression] = true
       end
 
-      if resume_file = extract_option("--resume-filename")
+      if resume_file = extract_option("--resume")
         opts[:resume_filename] = resume_file
       end
 
