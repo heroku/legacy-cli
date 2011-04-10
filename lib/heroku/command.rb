@@ -56,7 +56,7 @@ module Heroku
         parser.on("-a", "--app APP") do |value|
           opts[:app] = value
         end
-        parser.on("-c", "--confirm APP") do |value|
+        parser.on("--confirm APP") do |value|
           opts[:confirm] = value
         end
         parser.on("-r", "--remote REMOTE") do |value|
