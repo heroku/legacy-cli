@@ -28,7 +28,7 @@ module Heroku::Command
       end
     end
 
-    def info
+    def list
       addons = heroku.addons
       if addons.empty?
         display "No addons available currently"
