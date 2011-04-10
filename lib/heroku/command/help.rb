@@ -191,13 +191,13 @@ module Heroku::Command
           puts " " + legacy_help_for_command(name)
           puts
         end
+      end
 
-        unless commands_for_namespace(name).empty?
-          puts "Additional commands, type \"heroku help COMMAND\" for more details:"
-          puts
-          help_for_namespace(name)
-          puts
-        end
+      unless commands_for_namespace(name).empty?
+        puts "Additional commands, type \"heroku help COMMAND\" for more details:"
+        puts
+        help_for_namespace(name)
+        puts
       end
     end
   end
