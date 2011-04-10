@@ -11,7 +11,7 @@ require 'fakefs/safe'
 
 require 'heroku/command'
 require 'heroku/command/base'
-Dir["#{File.dirname(__FILE__)}/../lib/heroku/command/*"].each { |c| require c }
+Dir["#{File.dirname(__FILE__)}/../lib/heroku/command/*.rb"].each { |c| require c }
 
 include WebMock::API
 
