@@ -157,7 +157,7 @@ module Heroku::Command
       puts
       help_for_namespace(nil)
       puts
-      puts "Additional commands, type \"heroku help GROUP\" for more details:"
+      puts "Additional command groups, type \"heroku help GROUP\" for more details:"
       puts
       size = longest(namespaces.values.map { |n| n[:name] })
       namespaces.sort_by(&:first).each do |name, namespace|
