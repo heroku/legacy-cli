@@ -182,7 +182,7 @@ module Heroku::Command
 
       if command
         if command[:help].strip.length > 0
-          print "Usage: "
+          print "Usage: heroku "
           puts command[:help]
           puts
         else
