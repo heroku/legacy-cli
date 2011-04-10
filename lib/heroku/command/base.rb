@@ -56,6 +56,10 @@ protected
     )
   end
 
+  def self.group(description)
+    Heroku::Command.namespaces[self.namespace][:description] = description
+  end
+
   def self.extract_help(file, line)
     buffer = []
     lines  = File.read(file).split("\n")
