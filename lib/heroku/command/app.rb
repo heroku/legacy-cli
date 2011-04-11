@@ -299,6 +299,14 @@ module Heroku::Command
       display output.join("\n")
     end
 
+    # version
+    #
+    # show heroku client version
+    #
+    def version
+      display Heroku::Client.gem_version_string
+    end
+
     protected
       @@kb = 1024
       @@mb = 1024 * @@kb
