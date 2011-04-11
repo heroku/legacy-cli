@@ -4,32 +4,15 @@ require "heroku/pgutils"
 require "pgbackups/client"
 
 module Heroku::Command
+
+  # manage backups of heroku postgresql databases
   class Pgbackups < BaseWithApp
     include PgUtils
 
-    Heroku::Command::Help.group("pgbackups") do |group|
-      group.command "pgbackups",                                  "list captured backups"
-      group.command "pgbackups:capture [<DB_ID>]",                "capture a backup from database ID (default: DATABASE_URL)"
-      group.command "pgbackups:url [<BACKUP_ID>]",                "get a temporary URL for a backup"
-      group.command "pgbackups:destroy <BACKUP_ID>",              "destroy a backup"
-      group.command "pgbackups:restore <BACKUP_ID> --db <DB_ID>", "restore the database ID (default: DATABASE_URL) from a backup"
-      group.command "pgbackups:restore <url> --db <DB_ID>",       "restore the database ID (default: DATABASE_URL) from a URL"
-    end
-
-    def initialize(*args)
-      super
-    end
-
-    def config_vars
-      @config_vars ||= heroku.config_vars(app)
-    end
-
-    def pgbackup_client
-      pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
-      abort(" !   Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
-      @pgbackup_client ||= PGBackups::Client.new(pgbackups_url)
-    end
-
+    # pgbackups
+    #
+    # list captured backups
+    #
     def index
       backups = []
       pgbackup_client.get_transfers.each { |t|
@@ -44,6 +27,10 @@ module Heroku::Command
       end
     end
 
+    # pgbackups:url [BACKUP_ID]
+    #
+    # get a temporary URL for a backup
+    #
     def url
       if name = args.shift
         b = pgbackup_client.get_backup(name)
@@ -54,6 +41,14 @@ module Heroku::Command
       display b['public_url']
     end
 
+    # pgbackups:capture [DATABASE_ID]
+    #
+    # capture a backup from a database id
+    #
+    # if no DATABASE_ID is specified, defaults to DATABASE_URL
+    #
+    # -e, --expire  # if no slots are available to capture, delete the oldest backup to make room
+    #
     def capture
       expire = extract_option("--expire")
       db_id = args.shift
@@ -82,6 +77,14 @@ module Heroku::Command
       end
     end
 
+    # pgbackups:restore [BACKUP_ID]
+    #
+    # restore a backup to a database id
+    #
+    # if no BACKUP_ID is specified, uses the most recent backup
+    #
+    # -d, --db  # the database id to target for the restore
+    #
     def restore
       db_id = extract_option("--db")
       confirm = extract_option("--confirm")
@@ -135,6 +138,10 @@ module Heroku::Command
       end
     end
 
+    # pgbackups:destroy BACKUP_ID
+    #
+    # destroys a backup
+    #
     def destroy
       name = args.shift
       abort("Backup name required") unless name
@@ -150,6 +157,16 @@ module Heroku::Command
     end
 
     protected
+
+    def config_vars
+      @config_vars ||= heroku.config_vars(app)
+    end
+
+    def pgbackup_client
+      pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
+      abort(" !   Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
+      @pgbackup_client ||= PGBackups::Client.new(pgbackups_url)
+    end
 
     def backup_name(to_url)
       # translate s3://bucket/email/foo/bar.dump => foo/bar
