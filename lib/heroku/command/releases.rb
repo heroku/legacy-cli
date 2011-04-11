@@ -2,13 +2,15 @@ require "heroku/command/base"
 require "heroku/command/help"
 
 module Heroku::Command
-  Help.group("Releases") do |group|
-    group.command "releases",                 "list releases"
-    group.command "releases:info <release>",  "detailed info for a release"
-    group.command "rollback [<release>]",     "roll back to a prior release"
-  end
 
+  # view release history of an app
+  #
   class Releases < Base
+
+    # releases
+    #
+    # list releases
+    #
     def index
       releases = heroku.releases(extract_app)
 
@@ -27,6 +29,10 @@ module Heroku::Command
       display output.join("\n")
     end
 
+    # releases:info RELEASE
+    #
+    # view detailed information for a release
+    #
     def info
       release = args.shift.downcase.strip rescue nil
       raise(CommandFailed, "Specify a release") unless release
@@ -81,7 +87,15 @@ module Heroku::Command
     end
   end
 
+  # roll back to an older release of an app
   class Rollback < Base
+
+    # rollback [RELEASE]
+    #
+    # roll back to an older release
+    #
+    # if RELEASE is not specified, will roll back one step
+    #
     def index
       app = extract_app
       release = args.shift.downcase.strip rescue nil
