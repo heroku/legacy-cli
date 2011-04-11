@@ -175,6 +175,7 @@ module Heroku::Command
       unless namespace_commands.empty?
         size = longest(namespace_commands.map { |c| c[:banner] })
         namespace_commands.sort_by { |c| c[:method] }.each do |command|
+          next if command[:help] =~ /DEPRECATED/
           command[:summary] ||= legacy_help_for_command(command[:command])
           puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
         end
