@@ -1,14 +1,24 @@
 require "heroku/command/base"
 
 module Heroku::Command
+
+  # manage plugins to the heroku gem
   class Plugins < Base
-    def list
+
+    # plugins
+    #
+    # list installed plugins
+    #
+    def index
       ::Heroku::Plugin.list.each do |plugin|
         display plugin
       end
     end
-    alias :index :list
 
+    # plugins:install GIT_URL
+    #
+    # install a plugin from a git url
+    #
     def install
       plugin = Heroku::Plugin.new(args.shift)
       if plugin.install
@@ -23,6 +33,10 @@ module Heroku::Command
       end
     end
 
+    # plugins:uninstall PLUGIN
+    #
+    # uninstall a plugin
+    #
     def uninstall
       plugin = Heroku::Plugin.new(args.shift)
       plugin.uninstall
