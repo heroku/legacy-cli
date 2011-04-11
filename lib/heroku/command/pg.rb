@@ -4,62 +4,18 @@ require "heroku/pgutils"
 require "heroku-postgresql/client"
 
 module Heroku::Command
+
+  # manage heroku postgresql databases
   class Pg < BaseWithApp
+
     include PgUtils
 
-    Heroku::Command::Help.group("heroku-postgresql") do |group|
-      group.command "pg:info [--db <DATABASE>]",    "show database status"
-      group.command "pg:reset --db <DATABASE>",   "delete all data in the specified database"
-      group.command "pg:promote --db <DATABASE>", "set a database identifier to the DATABASE_URL"
-      group.command "pg:psql [--db <DATABASE>]",    "open a psql shell to the database (dedicated only)"
-      group.command "pg:ingress [--db <DATABASE>]", "allow new connections from this IP to the database for one minute (dedicated only)"
-
-      # hidden
-      # group.command "pg:wait",   "wait for the database to come online"
-
-      # hidden legacy pgpipe methods
-      # group.command "pg:backups",             "list legacy backups"
-      # group.command "pg:backup_url [<name>]", "get download URL for a legacy backup"
-    end
-
-    def heroku_postgresql_var_names
-      pg_config_var_names.select { |n| n.match("HEROKU_POSTGRESQL") }
-    end
-
-    def config_vars
-      @config_vars ||= heroku.config_vars(app)
-    end
-
-    def initialize(*args)
-      super
-    end
-
-    def extract_db(opts={})
-      db_id = extract_option("--db")
-      (name, database) = resolve_db_id(db_id, :default => 'DATABASE_URL') # get DATABASE_URL first
-
-      return name, database if opts[:include_shared] || name.match("HEROKU_POSTGRESQL")
-
-      (name, database) = resolve_db_id(db_id, :default => heroku_postgresql_var_names.first) # get any HEROKU_POSTGRESQL_*_URL next
-      return name, database if name.match("HEROKU_POSTGRESQL")
-    end
-
-    def with_heroku_postgresql_database
-      if !heroku_postgresql_var_names
-        abort("The addon is not installed for the app #{app}")
-      end
-
-      (name, database) = extract_db
-      abort " !  This command is only available for addon databases." unless name
-
-      yield name, database
-    end
-
-    def heroku_postgresql_client(url)
-      uri = URI.parse(url)
-      HerokuPostgresql::Client.new(uri.user, uri.password, uri.path[1..-1])
-    end
-
+    # pg:info
+    #
+    # show database status
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def info
       (name, database) = extract_db(:include_shared => true)
 
@@ -99,6 +55,12 @@ module Heroku::Command
       end
     end
 
+    # pg:promote
+    #
+    # promote a database identifier to DATABASE_URL
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def promote
       db_id = extract_option("--db")
       url = config_vars[db_id]
@@ -126,6 +88,12 @@ module Heroku::Command
       display ""
     end
 
+    # pg:reset
+    #
+    # delete all data in the specified database
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def reset
       db_id = extract_option("--db")
 
@@ -146,8 +114,14 @@ module Heroku::Command
       end
     end
 
-    # TODO: this should check that no heroku database is pre-running
+    # pg:wait
+    #
+    # monitor a database currently being created, exit when complete
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def wait
+      # TODO: this should check that no heroku database is pre-running
       with_heroku_postgresql_database do |name, url|
         ticking do |ticks|
           database = heroku_postgresql_client(url).get_database
@@ -168,7 +142,12 @@ module Heroku::Command
       end
     end
 
-
+    # pg:psql
+    #
+    # open a psql shell to the database (dedicated only)
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def psql
       with_psql_binary do
         with_heroku_postgresql_database do |name, url|
@@ -184,6 +163,12 @@ module Heroku::Command
       end
     end
 
+    # pg:ingress
+    #
+    # allow direct connections to the database from this IP for one minute (dedicated only)
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def ingress
       with_heroku_postgresql_database do |name, url|
         database = heroku_postgresql_client(url).get_database
@@ -197,10 +182,14 @@ module Heroku::Command
       end
     end
 
-    def backup
-      abort("This feature has been deprecated. Please see http://docs.heroku.com/pgbackups#legacy")
-    end
-
+    # pg:backups
+    #
+    # list legacy postgres backups
+    #
+    # DEPRECATED: see http://docs.heroku.com/pgbackups#legacy
+    #
+    # -d, --db DATABASE # the config var that contains the database URL you'd like to use
+    #
     def backups
       display "This feature has been deprecated. Please see http://docs.heroku.com/pgbackups#legacy\n"
       backups = heroku_postgresql_client.get_backups
@@ -223,16 +212,41 @@ module Heroku::Command
       end
     end
 
-    def backup_url
-      display "This feature has been deprecated. Please see http://docs.heroku.com/pgbackups#legacy\n"
-
-      with_optionally_named_backup do |backup|
-        display("URL for backup #{backup[:name]}:\n#{backup[:dump_url]}")
-      end
-    end
-
     protected
 
+    def heroku_postgresql_var_names
+      pg_config_var_names.select { |n| n.match("HEROKU_POSTGRESQL") }
+    end
+
+    def config_vars
+      @config_vars ||= heroku.config_vars(app)
+    end
+
+    def extract_db(opts={})
+      db_id = extract_option("--db")
+      (name, database) = resolve_db_id(db_id, :default => 'DATABASE_URL') # get DATABASE_URL first
+
+      return name, database if opts[:include_shared] || name.match("HEROKU_POSTGRESQL")
+
+      (name, database) = resolve_db_id(db_id, :default => heroku_postgresql_var_names.first) # get any HEROKU_POSTGRESQL_*_URL next
+      return name, database if name.match("HEROKU_POSTGRESQL")
+    end
+
+    def with_heroku_postgresql_database
+      if !heroku_postgresql_var_names
+        abort("The addon is not installed for the app #{app}")
+      end
+
+      (name, database) = extract_db
+      abort " !  This command is only available for addon databases." unless name
+
+      yield name, database
+    end
+
+    def heroku_postgresql_client(url)
+      uri = URI.parse(url)
+      HerokuPostgresql::Client.new(uri.user, uri.password, uri.path[1..-1])
+    end
 
     def with_optionally_named_backup
       backup_name = args.first && args.first.strip

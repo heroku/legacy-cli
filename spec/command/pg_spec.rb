@@ -50,8 +50,7 @@ module Heroku::Command
       it "promotes the specified database" do
         @pg.stub!(:options).and_return(:db => "SHARED_DATABASE_URL")
         @pg.stub!(:confirm_command).and_return(true)
-
-        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => @pg.config_vars["SHARED_DATABASE_URL"]})
+        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => "postgres://other_database_url"})
 
         @pg.promote
       end
@@ -125,7 +124,7 @@ module Heroku::Command
 
         @pg.should_receive(:abort).with(" !  This command is only available for addon databases.").and_raise(SystemExit)
         lambda {
-          @pg.with_heroku_postgresql_database { |name, url| }
+          @pg.send(:with_heroku_postgresql_database)
         }.should raise_error SystemExit
       end
 
@@ -137,7 +136,7 @@ module Heroku::Command
           "HEROKU_POSTGRESQL_IKA_URL"   => "postgres://ika"
         })
 
-        @pg.with_heroku_postgresql_database do |name, url|
+        @pg.send(:with_heroku_postgresql_database) do |name, url|
           name.should == "HEROKU_POSTGRESQL_RONIN_URL"
         end
       end
@@ -150,7 +149,7 @@ module Heroku::Command
           "HEROKU_POSTGRESQL_IKA_URL"   => "postgres://ika"
         })
 
-        @pg.with_heroku_postgresql_database do |name, url|
+        @pg.send(:with_heroku_postgresql_database) do |name, url|
           name.should == "HEROKU_POSTGRESQL_IKA_URL"
         end
       end
