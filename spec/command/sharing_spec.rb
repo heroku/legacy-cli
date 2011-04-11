@@ -8,7 +8,7 @@ module Heroku::Command
 
     it "lists collaborators" do
       @cli.heroku.should_receive(:list_collaborators).and_return([])
-      @cli.list
+      @cli.index
     end
 
     it "adds collaborators with default access to view only" do
