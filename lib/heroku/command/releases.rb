@@ -63,10 +63,6 @@ module Heroku::Command
       end
     end
 
-    def truncate(text, length)
-      (text.size > length) ? text[0, length - 3] + "..." : text
-    end
-
     def display_info(label, info)
       display(format("%-12s %s", "#{label}:", info))
     end
