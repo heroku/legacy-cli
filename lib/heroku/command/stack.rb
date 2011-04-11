@@ -1,8 +1,17 @@
 require "heroku/command/base"
 
 module Heroku::Command
+
+  # manage the stack for an app
   class Stack < BaseWithApp
-    def list
+
+    # stack
+    #
+    # show the list of available stacks
+    #
+    # --all  # include deprecated stacks
+    #
+    def index
       include_deprecated = true if extract_option("--all")
 
       list = heroku.list_stacks(app, :include_deprecated => include_deprecated)
@@ -14,15 +23,15 @@ module Heroku::Command
       end
       display lines.join("\n")
     end
-    alias :index :list
 
+    # stack:migrate STACK
+    #
+    # prepare migration of this app to a new stack
+    #
     def migrate
       stack = args.shift.downcase.strip rescue nil
-      if !stack
-        display "Usage: heroku stack:migrate <target_stack>"
-      else
-        display heroku.migrate_to_stack(app, stack)
-      end
+      error "No target stack specified." unless stack
+      display heroku.migrate_to_stack(app, stack)
     end
   end
 end

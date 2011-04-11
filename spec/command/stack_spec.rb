@@ -5,13 +5,13 @@ module Heroku::Command
     before do
       @cli = prepare_command(Stack)
     end
-    describe "list" do
+    describe "index" do
       context "when --all is specified" do
         describe "heroku" do
           it "should receive list_stacks with show_deprecated = true" do
             @cli.stub(:options).and_return(:all => true)
             @cli.heroku.should_receive(:list_stacks).with('myapp', { :include_deprecated => true }).and_return([])
-            @cli.list
+            @cli.index
           end
         end
       end
