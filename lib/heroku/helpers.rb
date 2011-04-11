@@ -133,6 +133,34 @@ module Heroku
         text
       end
     end
+
+    @@kb = 1024
+    @@mb = 1024 * @@kb
+    @@gb = 1024 * @@mb
+    def format_bytes(amount)
+      amount = amount.to_i
+      return '(empty)' if amount == 0
+      return amount if amount < @@kb
+      return "#{(amount / @@kb).round}k" if amount < @@mb
+      return "#{(amount / @@mb).round}M" if amount < @@gb
+      return "#{(amount / @@gb).round}G"
+    end
+
+    def quantify(string, num)
+      "%d %s" % [ num, num.to_i == 1 ? string : "#{string}s" ]
+    end
+
+    def create_git_remote(app, remote)
+      return unless has_git?
+      return if git('remote').split("\n").include?(remote)
+      return unless File.exists?(".git")
+      git "remote add #{remote} git@#{heroku.host}:#{app}.git"
+      display "Git remote #{remote} added"
+    end
+
+    def app_urls(name)
+      "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
+    end
   end
 end
 

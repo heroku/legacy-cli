@@ -30,7 +30,6 @@ module Heroku
     def self.register_command(command)
       namespace = command[:klass].namespace
       name = command[:method].to_s == "index" ? nil : command[:method]
-      complete = [ namespace, name ].flatten.compact.join(":")
       commands[command[:command]] = command
     end
 

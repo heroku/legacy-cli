@@ -36,7 +36,7 @@ describe Heroku::Command do
     class Heroku::Command::Test::Multiple; end
 
     Heroku::Command.parse("unknown").should include(:klass => Heroku::Command::Help, :method => :index)
-    Heroku::Command.parse("list").should include(:klass => Heroku::Command::App, :method => :list)
+    Heroku::Command.parse("list").should include(:klass => Heroku::Command::Lifecycle, :method => :list)
     Heroku::Command.parse("config:add").should include(:klass => Heroku::Command::Config, :method => :add)
   end
 end

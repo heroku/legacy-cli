@@ -44,7 +44,8 @@ protected
 
     resolved_method = (method.to_s == "index") ? nil : method.to_s
 
-    command     = [ self.namespace, resolved_method ].compact.join(":")
+    default_command = [ self.namespace, resolved_method ].compact.join(":")
+    command = extract_command(help) || default_command
 
     Heroku::Command.register_command(
       :klass       => self,
@@ -77,6 +78,10 @@ protected
     end
 
     buffer.reverse.join("\n").strip
+  end
+
+  def self.extract_command(help)
+    extract_banner(help).to_s.split(" ").first
   end
 
   def self.extract_banner(help)
