@@ -256,7 +256,7 @@ module Heroku::Command
 
     # destroy
     #
-    # permanently destroy the app
+    # permanently destroy an app
     #
     def destroy
       app = extract_app
@@ -274,6 +274,29 @@ module Heroku::Command
         end
         display "done"
       end
+    end
+
+    # ps
+    #
+    # list processes for an app
+    #
+    def ps
+      app = extract_app
+      ps = heroku.ps(app)
+
+      output = []
+      output << "Process       State               Command"
+      output << "------------  ------------------  ------------------------------"
+
+      ps.sort_by do |p|
+        t,n = p['process'].split(".")
+        [t, n.to_i]
+      end.each do |p|
+        output << "%-12s  %-18s  %s" %
+          [ p['process'], "#{p['state']} for #{time_ago(p['elapsed']).gsub(/ ago/, '')}", truncate(p['command'], 36) ]
+      end
+
+      display output.join("\n")
     end
 
     protected

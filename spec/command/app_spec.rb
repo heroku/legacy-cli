@@ -127,6 +127,14 @@ module Heroku::Command
       @cli.destroy
     end
 
+    it "lists processes" do
+      @cli.should_receive(:extract_app).and_return("myapp")
+      @cli.heroku.should_receive(:ps).and_return([
+        { 'process' => 'ps.1', 'command' => 'rake', 'elapsed' => 3 }
+      ])
+      @cli.ps
+    end
+
     context "Git Integration" do
       include SandboxHelper
       before(:all) do
