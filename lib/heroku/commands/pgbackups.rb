@@ -194,7 +194,7 @@ module Heroku::Command
       step_map = {
         "dump"      => "Capturing",
         "upload"    => "Storing",
-        "download"  => "Retreiving",
+        "download"  => "Retrieving",
         "restore"   => "Restoring",
         "gunzip"    => "Uncompressing",
         "load"      => "Restoring",
