@@ -15,9 +15,9 @@ module Heroku::Command
       end
     end
 
-    # plugins:install GIT_URL
+    # plugins:install URL
     #
-    # install a plugin from a git url
+    # install a plugin
     #
     def install
       plugin = Heroku::Plugin.new(args.shift)
