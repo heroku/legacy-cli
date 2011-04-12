@@ -12,6 +12,8 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.verbose = true
 end
 
+task :default => :spec
+
 def builder(action, ext)
   package_file = "pkg/heroku-#{Heroku::VERSION}.#{ext}"
   puts "#{action}: #{package_file}"
@@ -47,5 +49,3 @@ end
 
 desc "release all"
 task :release => %w( release:gem release:tgz )
-
-task :default => :spec
