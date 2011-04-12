@@ -17,7 +17,7 @@ GEM
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
     mime-types (1.16)
-    parka (0.6.0)
+    parka (0.6.2)
       crack
       rest-client
       thor

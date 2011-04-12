@@ -9,5 +9,5 @@ end
 
 Dir.chdir(File.expand_path("../..", package_file))
 
-system "parka push"
+system "parka push -f #{package_file}"
 
