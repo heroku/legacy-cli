@@ -41,11 +41,11 @@ module Heroku::Command
       display b['public_url']
     end
 
-    # pgbackups:capture [DATABASE_ID]
+    # pgbackups:capture [DATABASE]
     #
     # capture a backup from a database id
     #
-    # if no DATABASE_ID is specified, defaults to DATABASE_URL
+    # if no DATABASE is specified, defaults to DATABASE_URL
     #
     # -e, --expire  # if no slots are available to capture, delete the oldest backup to make room
     #
@@ -83,7 +83,7 @@ module Heroku::Command
     #
     # if no BACKUP_ID is specified, uses the most recent backup
     #
-    # -d, --db  # the database id to target for the restore
+    # -d, --db DATABASE  # the database id to target for the restore
     #
     def restore
       db_id = extract_option("--db")
