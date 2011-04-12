@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
   gem.executables = "heroku"
 
-  gem.files = Dir["**/*"].select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
+  gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
 
   gem.add_development_dependency "fakefs",  "~> 0.3.1"
   gem.add_development_dependency "rake"
