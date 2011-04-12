@@ -43,7 +43,7 @@ PLATFORMS
 DEPENDENCIES
   fakefs (~> 0.3.1)
   heroku!
-  rake
+  rake (>= 0.8.7)
   rspec (~> 1.3.0)
-  taps (~> 0.3.23)
+  taps (>= 0.3.23)
   webmock (~> 1.5.0)
