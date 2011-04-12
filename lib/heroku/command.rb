@@ -44,8 +44,14 @@ module Heroku
       end
     end
 
+    def self.current_command
+      @current_command
+    end
+
     def self.run(cmd, args=[])
       command = parse(cmd)
+
+      @current_command = cmd
 
       opts = command[:options].inject({}) do |hash, (name, option)|
         hash.update(name.to_sym => option[:default])
