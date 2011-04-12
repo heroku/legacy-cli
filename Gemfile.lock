@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    heroku (2.0.0.pre3)
+    heroku (2.0.0.pre4)
       launchy (~> 0.3.2)
-      rest-client (>= 1.4.0, < 1.7.0)
+      rest-client (< 1.7.0, >= 1.4.0)
 
 GEM
   remote: http://rubygems.org/
