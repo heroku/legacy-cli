@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+project_root = ARGV.shift
+package_file = ARGV.shift
+
+unless project_root && package_file
+  puts "usage: gem/package PROJECT_ROOT PACKAGE_FILE"
+  exit 1
+end
+
+Dir.chdir(project_root)
+
+system "parka build -f #{project_root}/#{package_file}"
+

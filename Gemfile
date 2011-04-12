@@ -4,6 +4,7 @@ gemspec
 
 group :development do
   gem "fakefs"
+  gem "parka"
   gem "rake"
   gem "rspec"
   gem "taps"
