@@ -1,4 +1,5 @@
-require File.expand_path("../base", File.dirname(__FILE__))
+require "spec_helper"
+require "heroku/command/pgbackups"
 
 module Heroku::Command
   describe Pgbackups do

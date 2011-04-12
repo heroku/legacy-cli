@@ -1,4 +1,5 @@
-require File.expand_path("./base", File.dirname(__FILE__))
+require "spec_helper"
+require "heroku/command"
 
 describe Heroku::Command do
   it "extracts error messages from response when available in XML" do

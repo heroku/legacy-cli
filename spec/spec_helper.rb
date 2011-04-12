@@ -1,17 +1,9 @@
-require 'rubygems'
+require "rubygems"
+require "bundler/setup"
 
-# ruby 1.9.2 drops . from the load path
-$:.unshift File.expand_path("../..", __FILE__)
-
-require 'spec'
-require 'fileutils'
-require 'tmpdir'
-require 'webmock/rspec'
-require 'fakefs/safe'
-
-require 'heroku/command'
-require 'heroku/command/base'
-Dir["#{File.dirname(__FILE__)}/../lib/heroku/command/*.rb"].each { |c| require c }
+require "rspec"
+require "fakefs/safe"
+require "webmock/rspec"
 
 include WebMock::API
 
@@ -54,7 +46,10 @@ module Heroku::Helpers
   end
 end
 
-require 'spec/support/display_message_matcher'
-Spec::Runner.configure do |config|
-  config.include(DisplayMessageMatcher)
+require "support/display_message_matcher"
+
+Rspec.configure do |config|
+  config.color_enabled = true
+  config.include DisplayMessageMatcher
 end
+

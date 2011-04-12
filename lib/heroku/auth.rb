@@ -19,7 +19,7 @@ class Heroku::Auth
       get_credentials
     end
 
-    def logout
+    def logout 
       delete_credentials
     end
 

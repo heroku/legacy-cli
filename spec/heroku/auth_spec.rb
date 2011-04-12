@@ -1,4 +1,4 @@
-require "fakefs/safe"
+require "spec_helper"
 require "heroku/auth"
 
 module Heroku

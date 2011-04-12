@@ -1,4 +1,5 @@
-require File.expand_path("../base", File.dirname(__FILE__))
+require "spec_helper"
+require "heroku/command/keys"
 
 module Heroku::Command
   describe Keys do

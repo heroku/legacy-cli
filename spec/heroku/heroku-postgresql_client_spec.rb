@@ -1,5 +1,4 @@
-require File.expand_path("./base", File.dirname(__FILE__))
-require "cgi"
+require "spec_helper"
 require "heroku-postgresql/client"
 
 def hk_pg_api_stub(method, path)
