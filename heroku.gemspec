@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
 
-  gem.add_dependency "rest-client", ">= 1.4.0", "< 1.7.0"
-  gem.add_dependency "launchy",     "~> 0.3.2"
+  gem.add_dependency "term-ansicolor", "~> 1.0.5"
+  gem.add_dependency "rest-client",    ">= 1.4.0", "< 1.7.0"
+  gem.add_dependency "launchy",        "~> 0.3.2"
 end
