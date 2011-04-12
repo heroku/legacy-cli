@@ -27,6 +27,8 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
   #
   # show detailed app information
   #
+  # -r, --raw  # output info as raw key/value pairs
+  #
   def info
     name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
     attrs = heroku.info(name)
@@ -34,47 +36,60 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
     attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
 
-    display "=== #{attrs[:name]}"
-    display "Web URL:        #{attrs[:web_url]}"
-    display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
-    display "Git Repo:       #{attrs[:git_url]}"
-    display "Dynos:          #{attrs[:dynos]}"
-    display "Workers:        #{attrs[:workers]}"
-    display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
-    display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
-    display "Stack:          #{attrs[:stack]}" if attrs[:stack]
-    if attrs[:database_size]
-      data = format_bytes(attrs[:database_size])
-      if tables = attrs[:database_tables]
-        data = data.gsub('(empty)', '0K') + " in #{quantify("table", tables)}"
+    if options[:raw] then
+      attrs.keys.sort_by(&:to_s).each do |key|
+        case key
+        when :addons then
+          display "addons=#{attrs[:addons].map { |a| a["name"] }.sort.join(",")}"
+        when :collaborators then
+          display "collaborators=#{attrs[:collaborators].map { |c| c[:email] }.sort.join(",")}"
+        else
+          display "#{key}=#{attrs[key]}"
+        end
       end
-      display "Data size:      #{data}"
-    end
-
-    if attrs[:cron_next_run]
-      display "Next cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
-    end
-    if attrs[:cron_finished_at]
-      display "Last cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
-    end
-
-    unless attrs[:addons].empty?
-      display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
-    end
-
-    display "Owner:          #{attrs[:owner]}"
-    collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
-    unless collaborators.empty?
-      first = true
-      lead = "Collaborators:"
-      attrs[:collaborators].each do |collaborator|
-        display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
-        first = false
+    else
+      display "=== #{attrs[:name]}"
+      display "Web URL:        #{attrs[:web_url]}"
+      display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
+      display "Git Repo:       #{attrs[:git_url]}"
+      display "Dynos:          #{attrs[:dynos]}"
+      display "Workers:        #{attrs[:workers]}"
+      display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
+      display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
+      display "Stack:          #{attrs[:stack]}" if attrs[:stack]
+      if attrs[:database_size]
+        data = format_bytes(attrs[:database_size])
+        if tables = attrs[:database_tables]
+          data = data.gsub('(empty)', '0K') + " in #{quantify("table", tables)}"
+        end
+        display "Data size:      #{data}"
       end
-    end
 
-    if attrs[:create_status] != "complete"
-      display "Create Status:  #{attrs[:create_status]}"
+      if attrs[:cron_next_run]
+        display "Next cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
+      end
+      if attrs[:cron_finished_at]
+        display "Last cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
+      end
+
+      unless attrs[:addons].empty?
+        display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
+      end
+
+      display "Owner:          #{attrs[:owner]}"
+      collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
+      unless collaborators.empty?
+        first = true
+        lead = "Collaborators:"
+        attrs[:collaborators].each do |collaborator|
+          display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
+          first = false
+        end
+      end
+
+      if attrs[:create_status] != "complete"
+        display "Create Status:  #{attrs[:create_status]}"
+      end
     end
   end
 
@@ -151,7 +166,7 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     app = extract_app
 
     url = web_url(app)
-    puts "Opening #{url}"
+    display "Opening #{url}"
     Launchy.open url
   end
 

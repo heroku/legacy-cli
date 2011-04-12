@@ -29,6 +29,13 @@ module Heroku::Command
       @cli.info
     end
 
+    it "shows raw app info when --raw option is used" do
+      @cli.stub(:options).and_return(:app => "myapp", :raw => true)
+      @cli.heroku.should_receive(:info).with("myapp").and_return({ :foo => "bar" })
+      @cli.should_receive(:display).with("foo=bar")
+      @cli.info
+    end
+
     it "creates without a name" do
       @cli.heroku.should_receive(:create_request).with(nil, {:stack => nil}).and_return("untitled-123")
       @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
