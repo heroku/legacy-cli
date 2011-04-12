@@ -127,7 +127,7 @@ class Heroku::Auth
         delete_credentials
         raise e
       end
-      check_for_associated_ssh_key
+      check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
     end
 
     def check_for_associated_ssh_key
