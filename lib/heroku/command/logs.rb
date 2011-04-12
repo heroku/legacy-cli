@@ -74,7 +74,7 @@ module Heroku::Command
   protected
 
     def init_colors(colorizer=nil)
-      if !colorizer
+      if !colorizer && STDOUT.isatty
         require 'term/ansicolor'
         @colorizer = Term::ANSIColor
       else
