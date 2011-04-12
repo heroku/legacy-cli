@@ -20,6 +20,7 @@ module Heroku::Command
     # -d, --debug          # enable debugging output
     # -f, --filter REGEX   # only push certain tables
     # -r, --resume FILE    # resume transfer described by a .dat file
+    # -t, --tables TABLES  # only push the specified tables
     #
     def push
       load_taps
@@ -40,8 +41,9 @@ module Heroku::Command
     #
     # -c, --chunksize SIZE # specify the number of rows to send in each batch
     # -d, --debug          # enable debugging output
-    # -f, --filter REGEX   # only push certain tables
+    # -f, --filter REGEX   # only pull certain tables
     # -r, --resume FILE    # resume transfer described by a .dat file
+    # -t, --tables TABLES  # only pull the specified tables
     #
     def pull
       load_taps
