@@ -47,6 +47,19 @@ module Heroku::Command
       display_vars(release["env"])
     end
 
+    # rollback [RELEASE]
+    #
+    # roll back to an older release
+    #
+    # if RELEASE is not specified, will roll back one step
+    #
+    def rollback
+      app = extract_app
+      release = args.shift.downcase.strip rescue nil
+      rolled_back = heroku.rollback(app, release)
+      display "Rolled back to #{rolled_back}"
+    end
+
     private
 
     def pluralize(str, n)
@@ -84,23 +97,6 @@ module Heroku::Command
         display "#{first ? lead : ' ' * lead.length}      #{key}#{spaces} => #{vars[key]}"
         first = false
       end
-    end
-  end
-
-  # roll back to an older release of an app
-  class Rollback < Base
-
-    # rollback [RELEASE]
-    #
-    # roll back to an older release
-    #
-    # if RELEASE is not specified, will roll back one step
-    #
-    def index
-      app = extract_app
-      release = args.shift.downcase.strip rescue nil
-      rolled_back = heroku.rollback(app, release)
-      display "Rolled back to #{rolled_back}"
     end
   end
 end
