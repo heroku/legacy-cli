@@ -56,8 +56,8 @@ PLATFORMS
 DEPENDENCIES
   fakefs
   heroku!
-  parka
-  rake
-  rspec
-  taps
+  parka (>= 0.6.2)
+  rake (>= 0.8.7)
+  rspec (>= 2.0)
+  taps (>= 0.3.23)
   webmock
