@@ -4,7 +4,7 @@ require "heroku/command/base"
 #
 class Heroku::Command::Console < Heroku::Command::Base
 
-  # rake
+  # rake COMMAND
   #
   # remotely execute a rake command
   #
@@ -20,7 +20,7 @@ class Heroku::Command::Console < Heroku::Command::Base
     error "Couldn't run rake\n#{e.message}"
   end
 
-  # console [*COMMAND]
+  # console [COMMAND]
   #
   # open a remote console session
   #

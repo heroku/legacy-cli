@@ -51,6 +51,8 @@ module Heroku
         hash.update(name.to_sym => option[:default])
       end
 
+      invalid_options = []
+
       parser = OptionParser.new do |parser|
         parser.on("-a", "--app APP") do |value|
           opts[:app] = value
@@ -68,11 +70,16 @@ module Heroku
         end
       end
 
-      if command[:permute]
-        parser.permute!(args)
-      else
-        parser.order!(args)
+      begin
+        parser.order!(args) do |nonopt|
+          invalid_options << nonopt
+        end
+      rescue OptionParser::InvalidOption => ex
+        invalid_options << ex.args.first
+        retry
       end
+
+      args.concat(invalid_options)
 
       object = command[:klass].new(args, opts)
       object.send(command[:method])
