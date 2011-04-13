@@ -26,7 +26,7 @@ module Heroku
         begin
           check_for_deprecation(plugin)
           load_plugin(plugin)
-        rescue Exception => e
+        rescue StandardError => e
           display "Unable to load plugin: #{plugin}: #{e.message}"
         end
       end
@@ -82,7 +82,7 @@ module Heroku
       FileUtils.rm_r path if File.directory?(path)
     end
 
-    private 
+    private
       def guess_name(url)
         @name = File.basename(url)
         @name = File.basename(File.dirname(url)) if @name.empty?
