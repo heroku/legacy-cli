@@ -84,8 +84,7 @@ module Heroku
       object = command[:klass].new(args, opts)
       object.send(command[:method])
     rescue OptionParser::ParseError => ex
-      puts ex.message
-      run "help", [cmd]
+      commands[cmd] ? run("help", [cmd]) : run("help")
     rescue InvalidCommand
       error "Unknown command. Run 'heroku help' for usage information."
     rescue RestClient::Unauthorized
