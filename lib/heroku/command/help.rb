@@ -132,8 +132,8 @@ module Heroku::Command
 
       if command
         if command[:help].strip.length > 0
-          print "Usage: heroku "
-          puts command[:help]
+          puts "Usage: heroku #{command[:banner]}"
+          puts command[:help].split("\n")[1..-1].join("\n")
           puts
         else
           puts "Usage: heroku #{command[:banner]}"

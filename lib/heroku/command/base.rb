@@ -47,16 +47,21 @@ protected
     default_command = [ self.namespace, resolved_method ].compact.join(":")
     command = extract_command(help) || default_command
 
+    banner = extract_banner(help) || command
+    permute = !banner.index("*")
+    banner.gsub!("*", "")
+
     Heroku::Command.register_command(
       :klass       => self,
       :method      => method,
       :namespace   => self.namespace,
       :command     => command,
-      :banner      => extract_banner(help) || command,
+      :banner      => banner,
       :help        => help,
       :summary     => extract_summary(help),
       :description => extract_description(help),
-      :options     => extract_options(help)
+      :options     => extract_options(help),
+      :permute     => permute
     )
   end
 

@@ -42,7 +42,7 @@ module Heroku
         when FalseClass then TrueClass
         else value.class
       end
-    end
+   end
 
     def self.current_command
       @current_command
@@ -57,7 +57,7 @@ module Heroku
         hash.update(name.to_sym => option[:default])
       end
 
-      OptionParser.new do |parser|
+      parser = OptionParser.new do |parser|
         parser.on("-a", "--app APP") do |value|
           opts[:app] = value
         end
@@ -72,7 +72,14 @@ module Heroku
             opts[name.to_sym] = value
           end
         end
-      end.parse!(args)
+      end
+
+      if command[:permute]
+        parser.permute!(args)
+      else
+        parser.order!(args)
+      end
+
       object = command[:klass].new(args, opts)
       object.send(command[:method])
     rescue OptionParser::ParseError => ex

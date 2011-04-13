@@ -20,7 +20,7 @@ class Heroku::Command::Console < Heroku::Command::Base
     error "Couldn't run rake\n#{e.message}"
   end
 
-  # console [COMMAND]
+  # console [*COMMAND]
   #
   # open a remote console session
   #
