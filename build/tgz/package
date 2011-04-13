@@ -47,7 +47,7 @@ end
 
 Dir.chdir(project_root)
 
-version = package_file.match(/heroku-([0-9\.]+)\./)[1]
+version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
 
 require "tmpdir"
 package_dir = "#{Dir.mktmpdir}/heroku-#{version}"
@@ -57,6 +57,7 @@ puts "building in: #{package_dir}"
 %x{ mkdir -p #{package_gem_dir} }
 copy_gems package_gem_dir
 
+%x{ cd #{project_root} && find . -name "*.rbc" -delete }
 %x{ cp -R #{project_root}/lib #{package_dir} }
 
 File.open("#{package_dir}/heroku", "w") do |file|
@@ -77,6 +78,7 @@ args = ARGV.dup
 ARGV.clear
 command = args.shift.strip rescue 'help'
 
+Heroku::Command.load
 Heroku::Command.run(command, args)
   PREAMBLE
 end
