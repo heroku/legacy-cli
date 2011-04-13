@@ -27,7 +27,8 @@ module Heroku
           check_for_deprecation(plugin)
           load_plugin(plugin)
         rescue StandardError => e
-          display "Unable to load plugin: #{plugin}: #{e.message}"
+          display "ERROR: Unable to load plugin #{plugin}: #{e.message}"
+          display ""
         end
       end
     end
