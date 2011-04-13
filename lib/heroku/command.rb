@@ -1,7 +1,7 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
 require 'heroku/builtin_plugin'
-#require 'heroku/commands/base'
+require "optparse"
 require 'vendor/okjson'
 
 #Dir["#{File.dirname(__FILE__)}/commands/*.rb"].each { |c| require c }
@@ -36,13 +36,6 @@ module Heroku
     def self.register_namespace(namespace)
       namespaces[namespace[:name]] = namespace
     end
-
-    def self.optparse_class(value)
-      case value
-        when FalseClass then TrueClass
-        else value.class
-      end
-   end
 
     def self.current_command
       @current_command
