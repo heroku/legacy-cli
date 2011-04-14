@@ -43,7 +43,12 @@ module Heroku
     end
 
     def self.run(cmd, args=[])
-      command, args = parse(cmd, args)
+      command = parse(cmd)
+
+      unless command
+        run "help"
+        return
+      end
 
       @current_command = cmd
 
@@ -105,10 +110,8 @@ module Heroku
       error "\n[canceled]"
     end
 
-    def self.parse(cmd, args)
-      command = commands[cmd] || commands["help"]
-      args = [] unless commands[cmd]
-      [ command, args ]
+    def self.parse(cmd)
+      commands[cmd]
     end
 
     def self.extract_not_found(body)

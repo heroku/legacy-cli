@@ -36,7 +36,11 @@ describe Heroku::Command do
     class Heroku::Command::Test; end
     class Heroku::Command::Test::Multiple; end
 
-    Heroku::Command.parse("unknown").should include(:klass => Heroku::Command::Help, :method => :index)
+    require "heroku/command/help"
+    require "heroku/command/lifecycle"
+    require "heroku/command/config"
+
+    Heroku::Command.parse("unknown").should be_nil
     Heroku::Command.parse("list").should include(:klass => Heroku::Command::Lifecycle, :method => :list)
     Heroku::Command.parse("config:add").should include(:klass => Heroku::Command::Config, :method => :add)
   end
