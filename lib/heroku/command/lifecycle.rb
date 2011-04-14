@@ -163,9 +163,8 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
   # open the app in a web browser
   #
   def open
-    app = extract_app
-
-    url = web_url(app)
+    app = heroku.info(extract_app)
+    url = app[:web_url]
     display "Opening #{url}"
     Launchy.open url
   end
