@@ -86,7 +86,7 @@ module Heroku
 
       args.concat(invalid_options)
 
-      object = command[:klass].new(args, opts)
+      object = command[:klass].new(args.dup, opts.dup)
       object.send(command[:method])
     rescue OptionParser::ParseError => ex
       commands[cmd] ? run("help", [cmd]) : run("help")
