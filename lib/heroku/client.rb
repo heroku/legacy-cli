@@ -2,6 +2,7 @@ require 'rexml/document'
 require 'rest_client'
 require 'uri'
 require 'time'
+require 'heroku/auth'
 require 'heroku/version'
 require 'vendor/okjson'
 
@@ -26,12 +27,12 @@ class Heroku::Client
 
   attr_accessor :host, :user, :password
 
-  def self.auth(user, password, host='heroku.com')
+  def self.auth(user, password, host=Heroku::Auth.default_host)
     client = new(user, password, host)
     OkJson.decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
-  def initialize(user, password, host='heroku.com')
+  def initialize(user, password, host=Heroku::Auth.default_host)
     @user = user
     @password = password
     @host = host

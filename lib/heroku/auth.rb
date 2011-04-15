@@ -35,8 +35,12 @@ class Heroku::Auth
       client.list
     end
 
+    def default_host
+      "heroku.com"
+    end
+
     def host
-      ENV['HEROKU_HOST'] || 'heroku.com'
+      ENV['HEROKU_HOST'] || default_host
     end
 
     def reauthorize
