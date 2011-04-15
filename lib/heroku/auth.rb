@@ -58,7 +58,11 @@ class Heroku::Auth
     end
 
     def credentials_file
-      "#{home_directory}/.heroku/credentials"
+      if host == default_host
+        "#{home_directory}/.heroku/credentials"
+      else
+        "#{home_directory}/.heroku/credentials.#{host}"
+      end
     end
 
     def get_credentials    # :nodoc:
