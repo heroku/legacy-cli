@@ -58,6 +58,10 @@ other\tgit@other.com:other.git (fetch)
 other\tgit@other.com:other.git (push)
         REMOTES
 
+        @heroku = mock
+        @heroku.stub(:host).and_return('heroku.com')
+        @base.stub(:heroku).and_return(@heroku)
+
         # need a better way to test internal functionality
         @base.send(:git_remotes, '/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
       end

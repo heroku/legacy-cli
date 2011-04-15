@@ -39,6 +39,7 @@ module Heroku::Command
     it "creates without a name" do
       @cli.heroku.should_receive(:create_request).with(nil, {:stack => nil}).and_return("untitled-123")
       @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
+      @cli.heroku.stub!(:info).and_return({})
       @cli.should_receive(:create_git_remote).with("untitled-123", "heroku")
       @cli.create
     end
@@ -47,6 +48,7 @@ module Heroku::Command
       @cli.stub!(:args).and_return(["myapp"])
       @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
       @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
+      @cli.heroku.stub!(:info).and_return({})
       @cli.should_receive(:create_git_remote).with("myapp", "heroku")
       @cli.create
     end
@@ -58,6 +60,7 @@ module Heroku::Command
       @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
       @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
       @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
+      @cli.heroku.stub!(:info).and_return({})
       @cli.should_receive(:create_git_remote).with("addonapp", "heroku")
       @cli.create
     end
@@ -67,6 +70,7 @@ module Heroku::Command
       @cli.stub!(:args).and_return([ 'alternate-remote' ])
       @cli.heroku.should_receive(:create_request).and_return("alternate-remote")
       @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
+      @cli.heroku.stub!(:info).and_return({})
       @cli.should_receive(:create_git_remote).with("alternate-remote", "alternate")
       @cli.create
     end
@@ -74,6 +78,7 @@ module Heroku::Command
     it "renames an app" do
       @cli.stub!(:args).and_return([ 'myapp2' ])
       @cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
+      @cli.heroku.stub!(:info).and_return({})
       @cli.rename
     end
 
@@ -117,6 +122,7 @@ module Heroku::Command
         with_blank_git_repository do
           @cli.heroku.should_receive(:create_request).and_return('myapp')
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          @cli.heroku.stub!(:info).and_return({})
           @cli.create
           bash("git remote").strip.should == 'heroku'
         end
@@ -128,6 +134,7 @@ module Heroku::Command
           @cli.stub!(:options).and_return(:remote => "myremote")
           @cli.heroku.should_receive(:create_request).and_return('myapp')
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          @cli.heroku.stub!(:info).and_return({})
           @cli.create
           bash("git remote").strip.should == 'myremote'
         end
@@ -137,6 +144,7 @@ module Heroku::Command
         with_blank_git_repository do
           @cli.heroku.should_receive(:create_request).and_return('myapp')
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
+          @cli.heroku.stub!(:info).and_return({})
           bash "git remote add heroku #{@git}"
           @cli.create
         end
@@ -149,6 +157,7 @@ module Heroku::Command
           bash "git remote add staging    git@heroku.com:myapp-staging.git"
 
           @cli.heroku.stub!(:update)
+          @cli.heroku.stub!(:info).and_return({})
           @cli.stub!(:args).and_return([ 'myapp2' ])
           @cli.rename
           remotes = bash("git remote -v")

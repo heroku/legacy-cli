@@ -108,6 +108,7 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     name    = args.shift.downcase.strip rescue nil
     name    = heroku.create_request(name, {:stack => stack})
     display("Creating #{name}...", false)
+    info    = heroku.info(name)
     begin
       Timeout::timeout(timeout) do
         loop do
@@ -123,7 +124,7 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
         heroku.install_addon(name, addon)
       end
 
-      display app_urls(name)
+      display [ info[:web_url], info[:git_url] ].join(" | ")
     rescue Timeout::Error
       display "Timed Out! Check heroku info for status updates."
     end
@@ -141,7 +142,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     raise(CommandFailed, "Invalid name.") if newname == ''
 
     heroku.update(name, :name => newname)
-    display app_urls(newname)
+
+    info = heroku.info(newname)
+    display [ info[:web_url], info[:git_url] ].join(" | ")
 
     if remotes = git_remotes(Dir.pwd)
       remotes.each do |remote_name, remote_app|
