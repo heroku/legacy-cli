@@ -605,30 +605,29 @@ Console sessions require an open dyno to use for execution.
 
   private
 
-    def configure_addon(action, app_name, addon, config = {})
-      response = update_addon action,
-                              addon_path(app_name, addon),
-                              config
+  def configure_addon(action, app_name, addon, config = {})
+    response = update_addon action,
+                            addon_path(app_name, addon),
+                            config
 
-      OkJson.decode(response.to_s) unless response.to_s.empty?
-    rescue OkJson::ParserError
-    end
+    OkJson.decode(response.to_s) unless response.to_s.empty?
+  rescue OkJson::ParserError
+  end
 
-    def addon_path(app_name, addon)
-      "/apps/#{app_name}/addons/#{escape(addon)}"
-    end
+  def addon_path(app_name, addon)
+    "/apps/#{app_name}/addons/#{escape(addon)}"
+  end
 
-    def update_addon(action, path, config)
-      config  = { :config => config }
-      headers = { :accept => 'application/json' }
+  def update_addon(action, path, config)
+    config  = { :config => config }
+    headers = { :accept => 'application/json' }
 
-      case action
-      when :install
-        post path, config, headers
-      when :upgrade
-        put path, config, headers
-      when :uninstall
-        delete path, headers
-      end
+    case action
+    when :install
+      post path, config, headers
+    when :upgrade
+      put path, config, headers
+    when :uninstall
+      delete path, headers
     end
 end
