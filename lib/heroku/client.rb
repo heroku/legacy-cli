@@ -510,13 +510,13 @@ Console sessions require an open dyno to use for execution.
 
   def resource(uri)
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-    if uri =~ /^https?/
-      RestClient::Resource.new(uri, user, password)
-    elsif host =~ /^https?/
-      RestClient::Resource.new(host, user, password)[uri]
-    else
-      RestClient::Resource.new("https://api.#{host}", user, password)[uri]
-    end
+    resource = RestClient::Resource.new(realize_full_uri(uri),
+      :user => user,
+      :password => password,
+      :ssl_ca_file => local_ca_file
+    )
+    enforce_ssl_verification_on_default_host!(resource)
+    resource
   end
 
   def get(uri, extra_headers={})    # :nodoc:
@@ -630,4 +630,24 @@ Console sessions require an open dyno to use for execution.
     when :uninstall
       delete path, headers
     end
+  end
+
+  def realize_full_uri(given)
+    full_host = (host =~ /^http/) ? host : "https://api.#{host}"
+    host = URI.parse(full_host)
+    uri = URI.parse(given)
+    uri.host ||= host.host
+    uri.scheme ||= host.scheme || "https"
+    uri.path = (uri.path[0..0] == "/") ? uri.path : "/#{uri.path}"
+    uri.to_s
+  end
+
+  def enforce_ssl_verification_on_default_host!(resource)
+    return unless resource.url =~ %r|^https://api.heroku.com|
+    resource.options[:verify_ssl] = OpenSSL::SSL::VERIFY_PEER
+  end
+
+  def local_ca_file
+    File.expand_path("../../../data/cacert.pem", __FILE__)
+  end
 end

@@ -58,6 +58,7 @@ puts "building in: #{package_dir}"
 copy_gems package_gem_dir
 
 %x{ cd #{project_root} && find . -name "*.rbc" -delete }
+%x{ cp -R #{project_root}/data #{package_dir} }
 %x{ cp -R #{project_root}/lib #{package_dir} }
 
 File.open("#{package_dir}/heroku", "w") do |file|
