@@ -587,9 +587,9 @@ Console sessions require an open dyno to use for execution.
     post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
   end
 
-	def httpcache_purge(app_name)
-		delete("/apps/#{app_name}/httpcache").to_s
-	end
+  def httpcache_purge(app_name)
+    delete("/apps/#{app_name}/httpcache").to_s
+  end
 
   def releases(app)
     OkJson.decode get("/apps/#{app}/releases").to_s
