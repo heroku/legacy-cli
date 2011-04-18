@@ -68,6 +68,7 @@ other\tgit@other.com:other.git (push)
 
       it "gets the app from remotes when there's only one app" do
         @base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
+        @base.stub!(:git).with("config heroku.remote").and_return("")
         @base.app.should == 'myapp'
       end
 
