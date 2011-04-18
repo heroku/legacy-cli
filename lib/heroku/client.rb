@@ -603,6 +603,12 @@ Console sessions require an open dyno to use for execution.
     post("/apps/#{app}/releases", :rollback => release)
   end
 
+  module JSON
+    def self.parse(json)
+      OkJson.decode(json)
+    end
+  end
+
   private
 
   def configure_addon(action, app_name, addon, config = {})
