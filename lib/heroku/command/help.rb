@@ -60,10 +60,6 @@ module Heroku::Command
       commands = Heroku::Command.commands
     end
 
-    def longest(items)
-      items.map(&:to_s).map(&:length).sort.last
-    end
-
     def legacy_help_for_namespace(namespace)
       instance = Heroku::Command::Help.groups.map do |group|
         [ group.title, group.select { |c| c.first =~ /^#{namespace}/ }.length ]

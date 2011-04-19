@@ -164,6 +164,10 @@ module Heroku
       "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
     end
 
+    def longest(items)
+      items.map(&:to_s).map(&:length).sort.last
+    end
+
     def display_table(objects, columns, headers)
       column_lengths = columns.map do |column|
         longest([column].concat(objects.map { |o| o[column] }))
