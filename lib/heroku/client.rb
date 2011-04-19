@@ -647,6 +647,7 @@ Console sessions require an open dyno to use for execution.
     uri.host ||= host.host
     uri.scheme ||= host.scheme || "https"
     uri.path = (uri.path[0..0] == "/") ? uri.path : "/#{uri.path}"
+    uri.port = host.port if full_host =~ /\:\d+/
     uri.to_s
   end
 
