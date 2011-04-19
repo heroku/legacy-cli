@@ -1,4 +1,5 @@
 require "spec_helper"
+require "heroku/helpers"
 require "heroku-postgresql/client"
 
 def hk_pg_api_stub(method, path)
@@ -10,6 +11,8 @@ def hk_pg_api_request(method, path)
 end
 
 describe HerokuPostgresql::Client do
+  include Heroku::Helpers
+
   before do
     @user = "user"
     @pass = "pass"
@@ -19,7 +22,7 @@ describe HerokuPostgresql::Client do
 
   it "sends an ingress request to the client" do
     hk_pg_api_stub(:put, "databases/#{@dbname}/ingress").to_return(
-      :body => OkJson.encode({:message => "ok"}),
+      :body => json_encode({:message => "ok"}),
       :status => 200
     )
 

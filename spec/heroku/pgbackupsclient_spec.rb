@@ -1,4 +1,5 @@
 require "spec_helper"
+require "heroku/helpers"
 require "pgbackups/client"
 
 def pgbackups_api_stub(method, path)
@@ -10,6 +11,8 @@ def pgbackups_api_request(method, path)
 end
 
 describe PGBackups::Client do
+  include Heroku::Helpers
+
   before do
     @client = PGBackups::Client.new("http://id:password@pgbackups.heroku.com/api")
   end
@@ -17,7 +20,7 @@ describe PGBackups::Client do
   describe "transfers" do
     it "sends a request to the client" do
       pgbackups_api_stub(:post, "/client/transfers").to_return(
-        :body => OkJson.encode({:message => "success"}),
+        :body => json_encode({:message => "success"}),
         :status => 200
       )
 

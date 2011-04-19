@@ -1,3 +1,5 @@
+require "vendor/okjson"
+
 module Heroku
   module Helpers
     def home_directory
@@ -160,6 +162,30 @@ module Heroku
 
     def app_urls(name)
       "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
+    end
+
+    def display_table(objects, columns, headers)
+      column_lengths = columns.map do |column|
+        longest([column].concat(objects.map { |o| o[column] }))
+      end
+      format_string = column_lengths.map { |l| "%-#{l}s" }.join("  ")
+      display format_string % headers
+      display format_string % column_lengths.map { |i| "-"*i }
+      objects.each do |object|
+        display format_string % columns.map { |c| object[c] }
+      end
+    end
+
+    def json_encode(object)
+      OkJson.encode(object)
+    rescue OkJson::ParserError
+      nil
+    end
+
+    def json_decode(json)
+      OkJson.decode(json)
+    rescue OkJson::ParserError
+      nil
     end
   end
 end
