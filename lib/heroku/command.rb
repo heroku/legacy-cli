@@ -51,10 +51,7 @@ module Heroku
 
       @current_command = cmd
 
-      opts = command[:options].inject({}) do |hash, (name, option)|
-        hash.update(name.to_sym => option[:default])
-      end
-
+      opts = {}
       invalid_options = []
 
       parser = OptionParser.new do |parser|
