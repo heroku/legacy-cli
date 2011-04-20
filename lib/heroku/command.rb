@@ -41,6 +41,14 @@ module Heroku
       @current_command
     end
 
+    def self.current_args
+      @current_args
+    end
+
+    def self.current_options
+      @current_options
+    end
+
     def self.global_options
       @global_options ||= []
     end
@@ -89,6 +97,9 @@ module Heroku
       end
 
       args.concat(invalid_options)
+
+      @current_args = args
+      @current_options = opts
 
       object = command[:klass].new(args.dup, opts.dup)
       object.send(command[:method])
