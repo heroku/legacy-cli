@@ -120,8 +120,6 @@ protected
     key = name.gsub("--", "").to_sym
     return unless options[key]
     value = options[key] || default
-    # puts "NAME:#{name}"
-    # puts "VALUE:#{value}"
     block_given? ? yield(value) : value
   end
 
