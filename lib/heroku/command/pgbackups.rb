@@ -15,7 +15,7 @@ module Heroku::Command
     def index
       backups = []
       pgbackup_client.get_transfers.each { |t|
-        next unless t['to_name'] == 'BACKUP' && !t['error_at'] && !t['destroyed_at']
+        next unless backup_types.member?(t['to_name']) && !t['error_at'] && !t['destroyed_at']
         backups << [backup_name(t['to_url']), t['created_at'], t['size'], t['from_name'], ]
       }
 
@@ -299,6 +299,17 @@ module Heroku::Command
           @rows = @columns.transpose
         end
       end
+    end
+
+    private
+
+    # lists all types of backups ('to_name' attribute)
+    #
+    # Useful when one doesn't care if a backup is of a particular
+    # kind, but wants to know what backups of any kind exist.
+    #
+    def backup_types
+      return ['BACKUP', 'DAILY_SCHEDULED_BACKUP', 'HOURLY_SCHEDULED_BACKUP']
     end
   end
 end
