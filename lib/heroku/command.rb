@@ -66,7 +66,7 @@ module Heroku
         end
         command[:options].each do |name, option|
           parser.on("-#{option[:short]}", "--#{option[:long]}", option[:desc]) do |value|
-            opts[name.to_sym] = value
+            opts[name.gsub("-", "_").to_sym] = value
           end
         end
       end

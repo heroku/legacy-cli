@@ -110,7 +110,7 @@ protected
       line =~ /^-(.+)#(.+)/
     end.inject({}) do |hash, line|
       description = line.split("#", 2).last.strip
-      long  = line.match(/--([A-Za-z\- ]+)/)[1].strip.gsub("-", "_")
+      long  = line.match(/--([A-Za-z\- ]+)/)[1].strip
       short = line.match(/-([A-Za-z ])/)[1].strip
       hash.update(long.split(" ").first => { :desc => description, :short => short, :long => long })
     end
