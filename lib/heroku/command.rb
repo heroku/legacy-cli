@@ -140,7 +140,7 @@ module Heroku
     end
 
     def self.parse_error_plain(body)
-      return unless body.respond_to?(:headers) && body.headers[:content_type].include?("text/plain")
+      return unless body.respond_to?(:headers) && body.headers[:content_type].to_s.include?("text/plain")
       body.to_s
     end
   end
