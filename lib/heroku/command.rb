@@ -41,6 +41,18 @@ module Heroku
       @current_command
     end
 
+    def self.global_options
+      @global_options ||= []
+    end
+
+    def self.global_option(name, *args)
+      global_options << { :name => name, :args => args }
+    end
+
+    global_option :app,     "--app APP", "-a"
+    global_option :confirm, "--confirm APP"
+    global_option :remote,  "--remote REMOTE"
+
     def self.run(cmd, args=[])
       command = parse(cmd)
 
@@ -55,14 +67,10 @@ module Heroku
       invalid_options = []
 
       parser = OptionParser.new do |parser|
-        parser.on("-a", "--app APP") do |value|
-          opts[:app] = value
-        end
-        parser.on("--confirm APP") do |value|
-          opts[:confirm] = value
-        end
-        parser.on("-r", "--remote REMOTE") do |value|
-          opts[:remote] = value
+        global_options.each do |global_option|
+          parser.on(*global_option[:args]) do |value|
+            opts[global_option[:name]] = value
+          end
         end
         command[:options].each do |name, option|
           parser.on("-#{option[:short]}", "--#{option[:long]}", option[:desc]) do |value|
