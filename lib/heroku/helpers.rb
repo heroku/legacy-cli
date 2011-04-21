@@ -169,15 +169,24 @@ module Heroku
     end
 
     def display_table(objects, columns, headers)
-      column_lengths = columns.map do |column|
-        longest([column].concat(objects.map { |o| o[column] }))
+      lengths = []
+      columns.each_with_index do |column, index|
+        header = headers[index]
+        lengths << longest([header].concat(objects.map { |o| o[column].to_s }))
       end
-      format_string = column_lengths.map { |l| "%-#{l}s" }.join("  ")
-      display format_string % headers
-      display format_string % column_lengths.map { |i| "-"*i }
-      objects.each do |object|
-        display format_string % columns.map { |c| object[c] }
+      display_row headers, lengths
+      display_row headers.map { |header| "-" * header.length }, lengths
+      objects.each do |row|
+        display_row columns.map { |column| row[column] }, lengths
       end
+    end
+
+    def display_row(row, lengths)
+      row.zip(lengths).each do |column, length|
+        format = column.is_a?(Fixnum) ? "%#{length}s  " : "%-#{length}s  "
+        display format % column, false
+      end
+      display ""
     end
 
     def json_encode(object)
