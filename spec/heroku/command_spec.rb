@@ -15,6 +15,11 @@ describe Heroku::Command do
     Heroku::Command.extract_error(response).should == ' !   Invalid app name'
   end
 
+  it "extracts error messages from response when available in HTML" do
+    response = '<html><head><title>Heroku is in maintenance mode.</title></head><body>An error occurred.</html>'
+    Heroku::Command.extract_error(response).should == ' !   Heroku is in maintenance mode.'
+  end
+
   it "shows Internal Server Error when the response doesn't contain a XML or JSON" do
     Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == ' !   Internal server error'
   end
@@ -30,6 +35,10 @@ describe Heroku::Command do
 
   it "handles a nil body in parse_error_json" do
     lambda { Heroku::Command.parse_error_json(nil) }.should_not raise_error
+  end
+
+  it "handles a nil body in parse_error_html" do
+    lambda { Heroku::Command.parse_error_html(nil) }.should_not raise_error
   end
 
   it "correctly resolves commands" do
