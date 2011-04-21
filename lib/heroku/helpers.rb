@@ -14,7 +14,7 @@ module Heroku
       RUBY_PLATFORM =~ /-darwin\d/
     end
 
-    def display(msg, newline=true)
+    def display(msg="", newline=true)
       if newline
         puts(msg)
       else
@@ -29,7 +29,7 @@ module Heroku
 
     def deprecate(version)
       display "!!! DEPRECATION WARNING: This command will be removed in version #{version}"
-      display ""
+      display
     end
 
     def error(msg)
@@ -38,7 +38,7 @@ module Heroku
     end
 
     def confirm_billing
-      display ""
+      display
       display "This action will cause your account to be billed at the end of the month"
       display "For more information, see http://devcenter.heroku.com/articles/billing"
       display "Are you sure you want to do this? (y/n) ", false
@@ -63,11 +63,11 @@ module Heroku
         end
         return true
       else
-        display ""
+        display
         display " !    WARNING: Potentially Destructive Action"
         display " !    This command will affect the app: #{app}"
         display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
-        display ""
+        display
         display "> ", false
         if ask.downcase != app
           display " !    Input did not match #{app}. Aborted."
@@ -186,7 +186,7 @@ module Heroku
         format = column.is_a?(Fixnum) ? "%#{length}s  " : "%-#{length}s  "
         display format % column, false
       end
-      display ""
+      display
     end
 
     def json_encode(object)

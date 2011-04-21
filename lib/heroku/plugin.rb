@@ -28,7 +28,7 @@ module Heroku
           load_plugin(plugin)
         rescue ScriptError, StandardError => e
           display "ERROR: Unable to load plugin #{plugin}: #{e.message}"
-          display ""
+          display
         end
       end
     end

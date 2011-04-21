@@ -84,7 +84,7 @@ module Heroku::Command
       display "done"
 
       display "DATABASE_URL (#{name})     => #{url}"
-      display ""
+      display
     end
 
     # pg:reset

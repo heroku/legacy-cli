@@ -75,7 +75,7 @@ module Heroku
 
         it "should fail gracefully" do
           Plugin.should_receive(:display).with(/Unable to load plugin some_plugin/)
-          Plugin.should_receive(:display).with("")
+          Plugin.should_receive(:display).with()
           Plugin.load!
         end
 
