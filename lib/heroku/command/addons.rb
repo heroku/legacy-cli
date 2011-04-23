@@ -160,6 +160,9 @@ module Heroku::Command
         out
       rescue RestClient::ResourceNotFound => e
         "FAILED\n !   #{e.response.to_s}"
+      rescue RestClient::Locked => ex
+        display
+        retry if confirm_command(ex.response.headers[:x_confirmation_required])
       rescue RestClient::RequestFailed => e
         retry if e.http_code == 402 && confirm_billing
         "FAILED\n" + Heroku::Command.extract_error(e.http_body)
