@@ -87,7 +87,7 @@ module Heroku::Command
     def remove
       args.each do |name|
         display "Removing #{name} from #{app}... ", false
-        display addon_run { heroku.uninstall_addon(app, name) }
+        display addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
       end
     end
 
@@ -161,8 +161,7 @@ module Heroku::Command
       rescue RestClient::ResourceNotFound => e
         "FAILED\n !   #{e.response.to_s}"
       rescue RestClient::Locked => ex
-        display
-        retry if confirm_command(ex.response.headers[:x_confirmation_required])
+        raise
       rescue RestClient::RequestFailed => e
         retry if e.http_code == 402 && confirm_billing
         "FAILED\n" + Heroku::Command.extract_error(e.http_body)

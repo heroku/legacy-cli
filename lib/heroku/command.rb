@@ -101,26 +101,34 @@ module Heroku
       @current_args = args
       @current_options = opts
 
-      object = command[:klass].new(args.dup, opts.dup)
-      object.send(command[:method])
+      begin
+        object = command[:klass].new(args.dup, opts.dup)
+        object.send(command[:method])
+      rescue InvalidCommand
+        error "Unknown command. Run 'heroku help' for usage information."
+      rescue RestClient::Unauthorized
+        puts "Authentication failure"
+        run "login"
+        retry
+      rescue RestClient::PaymentRequired => e
+        retry if run('account:confirm_billing', args.dup)
+      rescue RestClient::ResourceNotFound => e
+        error extract_not_found(e.http_body)
+      rescue RestClient::Locked => e
+        app = e.response.headers[:x_confirmation_required]
+        if confirmation_required(app)
+          opts[:confirm] = app
+          retry
+        end
+      rescue RestClient::RequestFailed => e
+        error extract_error(e.http_body)
+      rescue RestClient::RequestTimeout
+        error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
+      rescue CommandFailed => e
+        error e.message
+      end
     rescue OptionParser::ParseError => ex
       commands[cmd] ? run("help", [cmd]) : run("help")
-    rescue InvalidCommand
-      error "Unknown command. Run 'heroku help' for usage information."
-    rescue RestClient::Unauthorized
-      puts "Authentication failure"
-      run "login"
-      retry
-    rescue RestClient::PaymentRequired => e
-      retry if run('account:confirm_billing', args.dup)
-    rescue RestClient::ResourceNotFound => e
-      error extract_not_found(e.http_body)
-    rescue RestClient::RequestFailed => e
-      error extract_error(e.http_body)
-    rescue RestClient::RequestTimeout
-      error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
-    rescue CommandFailed => e
-      error e.message
     rescue Interrupt => e
       error "\n[canceled]"
     end
@@ -153,6 +161,22 @@ module Heroku
     def self.parse_error_plain(body)
       return unless body.respond_to?(:headers) && body.headers[:content_type].to_s.include?("text/plain")
       body.to_s
+    end
+
+    def self.confirmation_required(app)
+      display
+      display
+      display " !    WARNING: Potentially Destructive Action"
+      display " !    This command will affect the app: #{app}"
+      display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
+      display
+      display "> ", false
+      if ask.downcase != app
+        display " !    Input did not match #{app}. Aborted."
+        false
+      else
+        true
+      end
     end
   end
 end

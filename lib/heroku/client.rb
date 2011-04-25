@@ -497,8 +497,8 @@ Console sessions require an open dyno to use for execution.
   end
   alias_method :downgrade_addon, :upgrade_addon
 
-  def uninstall_addon(app_name, addon)
-    configure_addon :uninstall, app_name, addon
+  def uninstall_addon(app_name, addon, options={})
+    configure_addon :uninstall, app_name, addon, options
   end
 
   def confirm_billing
@@ -636,7 +636,8 @@ Console sessions require an open dyno to use for execution.
     when :upgrade
       put path, config, headers
     when :uninstall
-      delete path, headers
+      params = config[:config].map { |k,v| "#{k}=#{URI::escape(v.to_s)}" }.join("&")
+      delete "#{path}?#{params}", headers
     end
   end
 
