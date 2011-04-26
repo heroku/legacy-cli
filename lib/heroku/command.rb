@@ -59,6 +59,7 @@ module Heroku
 
     global_option :app,     "--app APP", "-a"
     global_option :confirm, "--confirm APP"
+    global_option :help,    "--help", "-h"
     global_option :remote,  "--remote REMOTE"
 
     def self.run(cmd, args=[])
@@ -94,6 +95,11 @@ module Heroku
       rescue OptionParser::InvalidOption => ex
         invalid_options << ex.args.first
         retry
+      end
+
+      if opts[:help]
+        run "help", [cmd]
+        return
       end
 
       args.concat(invalid_options)
