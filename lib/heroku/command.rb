@@ -116,7 +116,8 @@ module Heroku
         error extract_not_found(e.http_body)
       rescue RestClient::Locked => e
         app = e.response.headers[:x_confirmation_required]
-        if confirmation_required(app)
+        message = extract_error(e.response.body)
+        if confirmation_required(app, message)
           opts[:confirm] = app
           retry
         end
@@ -163,11 +164,10 @@ module Heroku
       body.to_s
     end
 
-    def self.confirmation_required(app)
+    def self.confirmation_required(app, message)
       display
       display
-      display " !    WARNING: Potentially Destructive Action"
-      display " !    This command will affect the app: #{app}"
+      display message
       display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
       display
       display "> ", false
