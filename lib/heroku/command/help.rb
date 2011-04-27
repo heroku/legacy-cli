@@ -46,7 +46,7 @@ module Heroku::Command
 
     def commands_for_namespace(name)
       Heroku::Command.commands.values.select do |command|
-        command[:namespace] == name && command[:method] != :index
+        command[:namespace] == name && command[:command] != name
       end
     end
 
@@ -61,6 +61,7 @@ module Heroku::Command
       Heroku::Command.command_aliases.each do |new, old|
         commands[new] = commands[old].dup
         commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
+        commands[new][:command] = new
         commands[new][:namespace] = nil
       end
       commands
@@ -121,7 +122,7 @@ module Heroku::Command
 
       unless namespace_commands.empty?
         size = longest(namespace_commands.map { |c| c[:banner] })
-        namespace_commands.sort_by { |c| c[:method].to_s }.each do |command|
+        namespace_commands.sort_by { |c| c[:banner].to_s }.each do |command|
           next if command[:help] =~ /DEPRECATED/
           command[:summary] ||= legacy_help_for_command(command[:command])
           puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
