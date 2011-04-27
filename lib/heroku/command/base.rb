@@ -26,7 +26,15 @@ protected
   def self.inherited(klass)
     return if klass == Heroku::Command::BaseWithApp
 
-    help = extract_help(*(caller.first.split(":")[0..1])).strip
+    # this parse is complicated because windows filenames can have
+    # colons in them
+    parts = caller.first.split(":")
+    line = parts.pop
+    until line.to_i.to_s == line
+      line = parts.pop
+    end
+    file = parts.join(":")
+    help = extract_help(file, line)
 
     Heroku::Command.register_namespace(
       :name => klass.namespace,
