@@ -61,6 +61,7 @@ module Heroku::Command
       Heroku::Command.command_aliases.each do |new, old|
         commands[new] = commands[old].dup
         commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
+        commands[new][:namespace] = nil
       end
       commands
     end
