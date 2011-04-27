@@ -58,6 +58,11 @@ module Heroku::Command
 
     def commands
       commands = Heroku::Command.commands
+      Heroku::Command.command_aliases.each do |new, old|
+        commands[new] = commands[old].dup
+        commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
+      end
+      commands
     end
 
     def legacy_help_for_namespace(namespace)

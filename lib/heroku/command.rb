@@ -23,6 +23,10 @@ module Heroku
       @@commands ||= {}
     end
 
+    def self.command_aliases
+      @@command_aliases ||= {}
+    end
+
     def self.namespaces
       @@namespaces ||= {}
     end
@@ -139,7 +143,7 @@ module Heroku
     end
 
     def self.parse(cmd)
-      commands[cmd]
+      commands[cmd] || commands[command_aliases[cmd]]
     end
 
     def self.extract_not_found(body)
