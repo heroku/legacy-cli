@@ -1,10 +1,10 @@
 require "spec_helper"
-require "heroku/command/console"
+require "heroku/command/run"
 
 module Heroku::Command
-  describe Console do
+  describe Run do
     before(:each) do
-      @cli = prepare_command(Console)
+      @cli = prepare_command(Run)
       @cli.stub(:options).and_return(:app => "myapp")
     end
 

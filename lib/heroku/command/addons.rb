@@ -1,3 +1,4 @@
+require "launchy"
 require "heroku/command/base"
 
 module Heroku::Command

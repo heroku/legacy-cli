@@ -1,3 +1,4 @@
+require "readline"
 require "heroku/command/base"
 
 # run one-off commands (console, rake)

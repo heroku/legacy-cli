@@ -1,10 +1,10 @@
 require "spec_helper"
-require "heroku/command/lifecycle"
+require "heroku/command/apps"
 
 module Heroku::Command
-  describe Lifecycle do
+  describe Apps do
     before(:each) do
-      @cli = prepare_command(Lifecycle)
+      @cli = prepare_command(Apps)
       @cli.stub(:options).and_return(:app => "myapp")
     end
 

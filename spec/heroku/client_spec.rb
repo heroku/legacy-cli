@@ -370,10 +370,17 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name)" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1").
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?").
         to_return(:body => 'true')
 
       @client.uninstall_addon('myapp', 'addon1').should be_true
+    end
+
+    it "uninstall_addon(app_name, addon_name) with confirmation" do
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?confirm=myapp").
+        to_return(:body => 'true')
+
+      @client.uninstall_addon('myapp', 'addon1', :confirm => "myapp").should be_true
     end
 
     it "install_addon(app_name, addon_name) with response" do
@@ -401,7 +408,7 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name) with response" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1").
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?").
         to_return(:body => json_encode(:price => 'free', :message => "Don't Panic"))
 
       @client.uninstall_addon('myapp', 'addon1').

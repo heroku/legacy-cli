@@ -1,10 +1,10 @@
 require "spec_helper"
-require "heroku/command/scaling"
+require "heroku/command/ps"
 
 module Heroku::Command
-  describe Scaling do
+  describe Ps do
     before(:each) do
-      @cli = prepare_command(Scaling)
+      @cli = prepare_command(Ps)
       @cli.stub(:options).and_return(:app => "myapp")
     end
 

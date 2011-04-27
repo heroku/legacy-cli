@@ -37,11 +37,11 @@ describe Heroku::Command do
     class Heroku::Command::Test::Multiple; end
 
     require "heroku/command/help"
-    require "heroku/command/lifecycle"
-    require "heroku/command/config"
+    require "heroku/command/apps"
 
     Heroku::Command.parse("unknown").should be_nil
-    Heroku::Command.parse("list").should include(:klass => Heroku::Command::Lifecycle, :method => :list)
-    Heroku::Command.parse("config:add").should include(:klass => Heroku::Command::Config, :method => :add)
+    Heroku::Command.parse("list").should include(:klass => Heroku::Command::Apps, :method => :index)
+    Heroku::Command.parse("apps").should include(:klass => Heroku::Command::Apps, :method => :index)
+    Heroku::Command.parse("apps:create").should include(:klass => Heroku::Command::Apps, :method => :create)
   end
 end
