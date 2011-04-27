@@ -65,6 +65,15 @@ protected
     )
   end
 
+  def self.alias_command(new, old)
+    new_command = Heroku::Command.commands[old].dup
+    raise "no such command: #{old}" unless new_command
+    new_command[:namespace] = nil
+    new_command[:command] = new
+    new_command[:banner] = "#{new} #{new_command[:banner].split(" ", 2).last}"
+    Heroku::Command.register_command(new_command)
+  end
+
   def self.extract_help(file, line)
     buffer = []
     lines  = File.read(file).split("\n")
