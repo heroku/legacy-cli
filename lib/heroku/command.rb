@@ -66,7 +66,7 @@ module Heroku
       command = parse(cmd)
 
       unless command
-        run "help"
+        error " !   #{cmd} is not a heroku command. See 'heroku help'."
         return
       end
 
