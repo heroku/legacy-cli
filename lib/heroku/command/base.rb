@@ -70,7 +70,7 @@ protected
     lines  = File.read(file).split("\n")
 
     catch(:done) do
-      (line.to_i-2).downto(1) do |i|
+      (line.to_i-2).downto(0) do |i|
         case lines[i].strip[0..0]
           when "", "#" then buffer << lines[i]
           else throw(:done)
