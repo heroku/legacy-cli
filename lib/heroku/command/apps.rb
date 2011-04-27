@@ -1,14 +1,14 @@
 require "heroku/command/base"
 
-# create, destroy, manage apps
+# manage apps (create, destroy)
 #
-class Heroku::Command::Lifecycle < Heroku::Command::Base
+class Heroku::Command::Apps < Heroku::Command::Base
 
-  # list
+  # apps
   #
   # list your apps
   #
-  def list
+  def index
     list = heroku.list
     if list.size > 0
       display list.map {|name, owner|
@@ -23,7 +23,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     end
   end
 
-  # info
+  alias_command "list", "apps"
+
+  # apps:info
   #
   # show detailed app information
   #
@@ -93,7 +95,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     end
   end
 
-  # create [NAME]
+  alias_command "info", "apps:info"
+
+  # apps:create [NAME]
   #
   # create a new app
   #
@@ -132,7 +136,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     create_git_remote(name, remote || "heroku")
   end
 
-  # rename NEWNAME
+  alias_command "create", "apps:create"
+
+  # apps:rename NEWNAME
   #
   # rename the app
   #
@@ -160,8 +166,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     end
   end
 
+  alias_command "rename", "apps:rename"
 
-  # open
+  # apps:open
   #
   # open the app in a web browser
   #
@@ -172,7 +179,9 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
     Launchy.open url
   end
 
-  # destroy
+  alias_command "open", "apps:open"
+
+  # apps:destroy
   #
   # permanently destroy an app
   #
@@ -193,5 +202,7 @@ class Heroku::Command::Lifecycle < Heroku::Command::Base
       display "done"
     end
   end
+
+  alias_command "destroy", "apps:destroy"
 
 end

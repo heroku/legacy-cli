@@ -1,10 +1,10 @@
 require "heroku/command/base"
 
-# execute one-off console and rake commands
+# run one-off commands (console, rake)
 #
-class Heroku::Command::Console < Heroku::Command::Base
+class Heroku::Command::Run < Heroku::Command::Base
 
-  # rake COMMAND
+  # run:rake COMMAND
   #
   # remotely execute a rake command
   #
@@ -20,7 +20,9 @@ class Heroku::Command::Console < Heroku::Command::Base
     error "Couldn't run rake\n#{e.message}"
   end
 
-  # console [COMMAND]
+  alias_command "rake", "run:rake"
+
+  # run:console [COMMAND]
   #
   # open a remote console session
   #
@@ -39,6 +41,8 @@ class Heroku::Command::Console < Heroku::Command::Base
   rescue Heroku::Client::AppCrashed => e
     error e.message
   end
+
+  alias_command "console", "run:console"
 
 protected
 

@@ -1,10 +1,10 @@
 require "heroku/command/base"
 
-# manage dynos and workers
+# manage processes (dynos, workers)
 #
-class Heroku::Command::Scaling < Heroku::Command::Base
+class Heroku::Command::Ps < Heroku::Command::Base
 
-  # dynos [QTY]
+  # ps:dynos [QTY]
   #
   # scale to QTY web processes
   #
@@ -21,7 +21,9 @@ class Heroku::Command::Scaling < Heroku::Command::Base
     end
   end
 
-  # workers [QTY]
+  alias_command "dynos", "ps:dynos"
+
+  # ps:workers [QTY]
   #
   # scale to QTY background processes
   #
@@ -37,6 +39,8 @@ class Heroku::Command::Scaling < Heroku::Command::Base
       display "#{app} is running #{quantify("worker", info[:workers])}"
     end
   end
+
+  alias_command "workers", "ps:workers"
 
   # ps
   #
@@ -61,7 +65,7 @@ class Heroku::Command::Scaling < Heroku::Command::Base
     display output.join("\n")
   end
 
-  # restart
+  # ps:restart
   #
   # restart app processes
   #
@@ -70,6 +74,8 @@ class Heroku::Command::Scaling < Heroku::Command::Base
     heroku.restart(app_name)
     display "App processes restarted"
   end
+
+  alias_command "restart", "ps:restart"
 
 end
 

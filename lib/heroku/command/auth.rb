@@ -1,10 +1,10 @@
 require "heroku/command/base"
 
-# login, logout
+# authentication (login, logout)
 #
 class Heroku::Command::Auth < Heroku::Command::Base
 
-  # login
+  # auth:login
   #
   # log in with your heroku credentials
   #
@@ -12,7 +12,9 @@ class Heroku::Command::Auth < Heroku::Command::Base
     Heroku::Auth.login
   end
 
-  # logout
+  alias_command "login", "auth:login"
+
+  # auth:logout
   #
   # clear local authentication credentials
   #
@@ -20,6 +22,8 @@ class Heroku::Command::Auth < Heroku::Command::Base
     Heroku::Auth.logout
     display "Local credentials cleared."
   end
+
+  alias_command "logout", "auth:logout"
 
 end
 

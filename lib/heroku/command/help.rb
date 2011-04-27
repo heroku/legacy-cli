@@ -78,7 +78,7 @@ module Heroku::Command
       nil
     end
 
-    PRIMARY_NAMESPACES = %w( auth lifecycle scaling console addons config releases domains logs sharing )
+    PRIMARY_NAMESPACES = %w( auth apps ps run addons config releases domains logs sharing )
 
     def primary_namespaces
       PRIMARY_NAMESPACES.map { |name| namespaces[name] }.compact
@@ -100,11 +100,11 @@ module Heroku::Command
     def help_for_root
       puts "Usage: heroku COMMAND [--app APP] [command-specific-options]"
       puts
-      puts "Primary command groups, type \"heroku help GROUP\" for more details:"
+      puts "Primary help topics, type \"heroku help TOPIC\" for more details:"
       puts
       summary_for_namespaces(primary_namespaces)
       puts
-      puts "Additional groups:"
+      puts "Additional topics:"
       puts
       summary_for_namespaces(additional_namespaces)
       puts
