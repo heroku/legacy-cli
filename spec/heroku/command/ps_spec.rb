@@ -25,7 +25,7 @@ module Heroku::Command
       @cli.heroku.should_receive(:ps).and_return([
         { 'process' => 'ps.1', 'command' => 'rake', 'elapsed' => 3 }
       ])
-      @cli.ps
+      @cli.index
     end
   end
 end

@@ -46,7 +46,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # list processes for an app
   #
-  def ps
+  def index
     app = extract_app
     ps = heroku.ps(app)
 
