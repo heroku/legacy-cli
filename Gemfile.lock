@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     heroku (2.0.1)
-      launchy (~> 0.3.2)
+      launchy (>= 0.3.2)
       rest-client (>= 1.4.0, < 1.7.0)
       term-ansicolor (~> 1.0.5)
 
@@ -14,7 +14,7 @@ GEM
     crack (0.1.8)
     diff-lcs (1.1.2)
     fakefs (0.3.1)
-    launchy (0.3.7)
+    launchy (0.4.0)
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
     mime-types (1.16)

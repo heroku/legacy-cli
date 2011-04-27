@@ -16,5 +16,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "term-ansicolor", "~> 1.0.5"
   gem.add_dependency "rest-client",    ">= 1.4.0", "< 1.7.0"
-  gem.add_dependency "launchy",        "~> 0.3.2"
+  gem.add_dependency "launchy",        ">= 0.3.2"
 end
