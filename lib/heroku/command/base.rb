@@ -82,7 +82,7 @@ protected
   #
   def self.extract_help_from_caller(line)
     # pull out of the caller the information for the file path and line number
-    if line =~ /^(.+?):(\d+):.*$/
+    if line =~ /^(.+?):(\d+)/
       return extract_help($1, $2)
     end
     raise "unable to extract help from caller: #{line}"
