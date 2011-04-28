@@ -33,7 +33,7 @@ protected
       :description => help.split("\n").first
     )
   end
-  
+
   def self.method_added(method)
     return if self == Heroku::Command::Base
     return if self == Heroku::Command::BaseWithApp
@@ -69,11 +69,11 @@ protected
 
   #
   # Parse the caller format and identify the file and line number as identified
-  # in : http://www.ruby-doc.org/core/classes/Kernel.html#M001397.  This will 
+  # in : http://www.ruby-doc.org/core/classes/Kernel.html#M001397.  This will
   # look for a colon followed by a digit as the delimiter.  The biggest
-  # complication is windows paths, which have a color after the drive letter. 
+  # complication is windows paths, which have a color after the drive letter.
   # This regex will match paths as anything from the beginning to a colon
-  # directly followed by a number (the line number).  
+  # directly followed by a number (the line number).
   #
   # Examples of the caller format :
   # * c:/Ruby192/lib/.../lib/heroku/command/addons.rb:8:in `<module:Command>'
@@ -87,7 +87,7 @@ protected
     end
     raise "unable to extract help from caller: #{line}"
   end
-  
+
   def self.extract_help(file, line)
     buffer = []
     lines  = File.read(file).split("\n")
