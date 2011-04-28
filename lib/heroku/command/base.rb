@@ -26,30 +26,21 @@ protected
   def self.inherited(klass)
     return if klass == Heroku::Command::BaseWithApp
 
-    # this parse is complicated because windows filenames can have
-    # colons in them
-    parts = caller.first.split(":")
-    line = parts.pop
-    until line.to_i.to_s == line
-      line = parts.pop
-    end
-    file = parts.join(":")
-    help = extract_help(file, line)
+    help = extract_help_from_caller( caller )
 
     Heroku::Command.register_namespace(
       :name => klass.namespace,
       :description => help.split("\n").first
     )
   end
-
+  
   def self.method_added(method)
     return if self == Heroku::Command::Base
     return if self == Heroku::Command::BaseWithApp
     return if private_method_defined?(method)
     return if protected_method_defined?(method)
-
-    help = extract_help(*(caller.first.split(":")[0..1]))
-
+    #help = extract_help(*(caller.first.split(":")[0..1]))
+	help = extract_help_from_caller( caller )
     resolved_method = (method.to_s == "index") ? nil : method.to_s
 
     default_command = [ self.namespace, resolved_method ].compact.join(":")
@@ -78,6 +69,30 @@ protected
     Heroku::Command.command_aliases[new] = old
   end
 
+  #
+  # Parse the caller format and identify the file and line number as identified
+  # in : http://www.ruby-doc.org/core/classes/Kernel.html#M001397.  This will 
+  # look for a colon followed by a digit as the delimiter.  The biggest
+  # complication is windows paths, which have a color after the drive letter. 
+  # This regex will match paths as anything from the beginning to a colon
+  # directly followed by a number (the line number).  
+  #
+  # Examples of the caller format :
+  # * c:/Ruby192/lib/.../lib/heroku/command/addons.rb:8:in `<module:Command>'
+  # * c:/Ruby192/lib/.../heroku-2.0.1/lib/heroku/command/pg.rb:96:in `<class:Pg>'
+  # * /Users/ph7/...../xray-1.1/lib/xray/thread_dump_signal_handler.rb:9
+  #
+  def self.extract_help_from_caller( caller )
+	# pull out of the caller the information for the file path and line number
+	if /^(.+?):(\d+).*?/ =~ caller.first
+        file = Regexp.last_match[1]
+		line = Regexp.last_match[2].to_i
+		extract_help( file, line )
+	end
+	# should this be a silent error?
+	raise "unable to extract help from caller."
+  end
+  
   def self.extract_help(file, line)
     buffer = []
     lines  = File.read(file).split("\n")
