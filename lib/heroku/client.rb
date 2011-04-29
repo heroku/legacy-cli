@@ -2,8 +2,9 @@ require 'rexml/document'
 require 'rest_client'
 require 'uri'
 require 'time'
+require 'heroku/auth'
+require 'heroku/helpers'
 require 'heroku/version'
-require 'vendor/okjson'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
@@ -16,6 +17,9 @@ require 'vendor/okjson'
 #
 class Heroku::Client
 
+  include Heroku::Helpers
+  extend Heroku::Helpers
+
   def self.version
     Heroku::VERSION
   end
@@ -26,12 +30,12 @@ class Heroku::Client
 
   attr_accessor :host, :user, :password
 
-  def self.auth(user, password, host='heroku.com')
+  def self.auth(user, password, host=Heroku::Auth.default_host)
     client = new(user, password, host)
-    OkJson.decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
+    json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
-  def initialize(user, password, host='heroku.com')
+  def initialize(user, password, host=Heroku::Auth.default_host)
     @user = user
     @password = password
     @host = host
@@ -137,7 +141,7 @@ class Heroku::Client
   end
 
   def add_ssl(app_name, pem, key)
-    OkJson.decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
+    json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
   end
 
   def remove_ssl(app_name, domain)
@@ -175,7 +179,7 @@ class Heroku::Client
   def list_stacks(app_name, options={})
     include_deprecated = options.delete(:include_deprecated) || false
 
-    OkJson.decode resource("/apps/#{app_name}/stack").get(
+    json_decode resource("/apps/#{app_name}/stack").get(
       :params => { :include_deprecated => include_deprecated },
       :accept => 'application/json'
     ).to_s
@@ -325,7 +329,7 @@ Console sessions require an open dyno to use for execution.
 
   # Retreive ps list for the given app name.
   def ps(app_name)
-    OkJson.decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+    json_decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
@@ -438,7 +442,7 @@ Console sessions require an open dyno to use for execution.
   # Get a temporary URL where the bundle can be downloaded.
   # If bundle_name is nil it will use the most recently captured bundle for the app
   def bundle_url(app_name, bundle_name=nil)
-    bundle = OkJson.decode(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
+    bundle = json_decode(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
     bundle['temporary_url']
   end
 
@@ -461,11 +465,11 @@ Console sessions require an open dyno to use for execution.
   end
 
   def config_vars(app_name)
-    OkJson.decode get("/apps/#{app_name}/config_vars").to_s
+    json_decode get("/apps/#{app_name}/config_vars").to_s
   end
 
   def add_config_vars(app_name, new_vars)
-    put("/apps/#{app_name}/config_vars", OkJson.encode(new_vars)).to_s
+    put("/apps/#{app_name}/config_vars", json_encode(new_vars)).to_s
   end
 
   def remove_config_var(app_name, key)
@@ -477,11 +481,11 @@ Console sessions require an open dyno to use for execution.
   end
 
   def addons
-    OkJson.decode get("/addons", :accept => 'application/json').to_s
+    json_decode get("/addons", :accept => 'application/json').to_s
   end
 
   def installed_addons(app_name)
-    OkJson.decode get("/apps/#{app_name}/addons", :accept => 'application/json').to_s
+    json_decode get("/apps/#{app_name}/addons", :accept => 'application/json').to_s
   end
 
   def install_addon(app_name, addon, config={})
@@ -493,8 +497,8 @@ Console sessions require an open dyno to use for execution.
   end
   alias_method :downgrade_addon, :upgrade_addon
 
-  def uninstall_addon(app_name, addon)
-    configure_addon :uninstall, app_name, addon
+  def uninstall_addon(app_name, addon, options={})
+    configure_addon :uninstall, app_name, addon, options
   end
 
   def confirm_billing
@@ -509,13 +513,13 @@ Console sessions require an open dyno to use for execution.
 
   def resource(uri)
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-    if uri =~ /^https?/
-      RestClient::Resource.new(uri, user, password)
-    elsif host =~ /^https?/
-      RestClient::Resource.new(host, user, password)[uri]
-    else
-      RestClient::Resource.new("https://api.#{host}", user, password)[uri]
-    end
+    resource = RestClient::Resource.new(realize_full_uri(uri),
+      :user => user,
+      :password => password,
+      :ssl_ca_file => local_ca_file
+    )
+    enforce_ssl_verification_on_default_host!(resource)
+    resource
   end
 
   def get(uri, extra_headers={})    # :nodoc:
@@ -574,7 +578,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def database_session(app_name)
-    OkJson.decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
+    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
   end
 
   def database_reset(app_name)
@@ -586,48 +590,74 @@ Console sessions require an open dyno to use for execution.
     post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
   end
 
-	def httpcache_purge(app_name)
-		delete("/apps/#{app_name}/httpcache").to_s
-	end
+  def httpcache_purge(app_name)
+    delete("/apps/#{app_name}/httpcache").to_s
+  end
 
   def releases(app)
-    OkJson.decode get("/apps/#{app}/releases").to_s
+    json_decode get("/apps/#{app}/releases").to_s
   end
 
   def release(app, release)
-    OkJson.decode get("/apps/#{app}/releases/#{release}").to_s
+    json_decode get("/apps/#{app}/releases/#{release}").to_s
   end
 
   def rollback(app, release=nil)
     post("/apps/#{app}/releases", :rollback => release)
   end
 
+  module JSON
+    def self.parse(json)
+      json_decode(json)
+    end
+  end
+
   private
 
-    def configure_addon(action, app_name, addon, config = {})
-      response = update_addon action,
-                              addon_path(app_name, addon),
-                              config
+  def configure_addon(action, app_name, addon, config = {})
+    response = update_addon action,
+                            addon_path(app_name, addon),
+                            config
 
-      OkJson.decode(response.to_s) unless response.to_s.empty?
-    rescue OkJson::ParserError
+    json_decode(response.to_s) unless response.to_s.empty?
+  end
+
+  def addon_path(app_name, addon)
+    "/apps/#{app_name}/addons/#{escape(addon)}"
+  end
+
+  def update_addon(action, path, config)
+    config  = { :config => config }
+    headers = { :accept => 'application/json' }
+
+    case action
+    when :install
+      post path, config, headers
+    when :upgrade
+      put path, config, headers
+    when :uninstall
+      params = config[:config].map { |k,v| "#{k}=#{URI::escape(v.to_s)}" }.join("&")
+      delete "#{path}?#{params}", headers
     end
+  end
 
-    def addon_path(app_name, addon)
-      "/apps/#{app_name}/addons/#{escape(addon)}"
-    end
+  def realize_full_uri(given)
+    full_host = (host =~ /^http/) ? host : "https://api.#{host}"
+    host = URI.parse(full_host)
+    uri = URI.parse(given)
+    uri.host ||= host.host
+    uri.scheme ||= host.scheme || "https"
+    uri.path = (uri.path[0..0] == "/") ? uri.path : "/#{uri.path}"
+    uri.port = host.port if full_host =~ /\:\d+/
+    uri.to_s
+  end
 
-    def update_addon(action, path, config)
-      config  = { :config => config }
-      headers = { :accept => 'application/json' }
+  def enforce_ssl_verification_on_default_host!(resource)
+    return unless resource.url =~ %r|^https://api.heroku.com|
+    resource.options[:verify_ssl] = OpenSSL::SSL::VERIFY_PEER
+  end
 
-      case action
-      when :install
-        post path, config, headers
-      when :upgrade
-        put path, config, headers
-      when :uninstall
-        delete path, headers
-      end
-    end
+  def local_ca_file
+    File.expand_path("../../../data/cacert.pem", __FILE__)
+  end
 end

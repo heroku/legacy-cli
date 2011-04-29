@@ -10,5 +10,6 @@ args = ARGV.dup
 ARGV.clear
 command = args.shift.strip rescue 'help'
 
+Heroku::Command.load
 Heroku::Command.run(command, args)
 

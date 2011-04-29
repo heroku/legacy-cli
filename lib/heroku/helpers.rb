@@ -1,3 +1,5 @@
+require "vendor/okjson"
+
 module Heroku
   module Helpers
     def home_directory
@@ -12,7 +14,7 @@ module Heroku
       RUBY_PLATFORM =~ /-darwin\d/
     end
 
-    def display(msg, newline=true)
+    def display(msg="", newline=true)
       if newline
         puts(msg)
       else
@@ -27,12 +29,23 @@ module Heroku
 
     def deprecate(version)
       display "!!! DEPRECATION WARNING: This command will be removed in version #{version}"
-      display ""
+      display
     end
 
     def error(msg)
       STDERR.puts(msg)
       exit 1
+    end
+
+    def confirm_billing
+      display
+      display "This action will cause your account to be billed at the end of the month"
+      display "For more information, see http://devcenter.heroku.com/articles/billing"
+      display "Are you sure you want to do this? (y/n) ", false
+      if ask.downcase == 'y'
+        heroku.confirm_billing
+        return true
+      end
     end
 
     def confirm(message="Are you sure you wish to continue? (y/n)?")
@@ -41,11 +54,6 @@ module Heroku
     end
 
     def confirm_command(app = app)
-      if extract_option('--force')
-        display("Warning: The --force switch is deprecated, and will be removed in a future release. Use --confirm #{app} instead.")
-        return true
-      end
-
       raise(Heroku::Command::CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app
 
       confirmed_app = extract_option('--confirm', false)
@@ -55,11 +63,11 @@ module Heroku
         end
         return true
       else
-        display ""
+        display
         display " !    WARNING: Potentially Destructive Action"
         display " !    This command will affect the app: #{app}"
         display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
-        display ""
+        display
         display "> ", false
         if ask.downcase != app
           display " !    Input did not match #{app}. Aborted."
@@ -84,7 +92,7 @@ module Heroku
     end
 
     def run_command(command, args=[])
-      Heroku::Command.run_internal(command, args)
+      Heroku::Command.run(command, args)
     end
 
     def retry_on_exception(*exceptions)
@@ -108,6 +116,89 @@ module Heroku
       return "" unless has_git?
       flattened_args = [args].flatten.compact.join(" ")
       %x{ git #{flattened_args} 2>&1 }.strip
+    end
+
+    def time_ago(elapsed)
+      if elapsed < 60
+        "#{elapsed.floor}s ago"
+      elsif elapsed < (60 * 60)
+        "#{(elapsed / 60).floor}m ago"
+      else
+        "#{(elapsed / 60 / 60).floor}h ago"
+      end
+    end
+
+    def truncate(text, length)
+      if text.size > length
+        text[0, length - 2] + '..'
+      else
+        text
+      end
+    end
+
+    @@kb = 1024
+    @@mb = 1024 * @@kb
+    @@gb = 1024 * @@mb
+    def format_bytes(amount)
+      amount = amount.to_i
+      return '(empty)' if amount == 0
+      return amount if amount < @@kb
+      return "#{(amount / @@kb).round}k" if amount < @@mb
+      return "#{(amount / @@mb).round}M" if amount < @@gb
+      return "#{(amount / @@gb).round}G"
+    end
+
+    def quantify(string, num)
+      "%d %s" % [ num, num.to_i == 1 ? string : "#{string}s" ]
+    end
+
+    def create_git_remote(app, remote)
+      return unless has_git?
+      return if git('remote').split("\n").include?(remote)
+      return unless File.exists?(".git")
+      git "remote add #{remote} git@#{heroku.host}:#{app}.git"
+      display "Git remote #{remote} added"
+    end
+
+    def app_urls(name)
+      "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
+    end
+
+    def longest(items)
+      items.map(&:to_s).map(&:length).sort.last
+    end
+
+    def display_table(objects, columns, headers)
+      lengths = []
+      columns.each_with_index do |column, index|
+        header = headers[index]
+        lengths << longest([header].concat(objects.map { |o| o[column].to_s }))
+      end
+      display_row headers, lengths
+      display_row headers.map { |header| "-" * header.length }, lengths
+      objects.each do |row|
+        display_row columns.map { |column| row[column] }, lengths
+      end
+    end
+
+    def display_row(row, lengths)
+      row.zip(lengths).each do |column, length|
+        format = column.is_a?(Fixnum) ? "%#{length}s  " : "%-#{length}s  "
+        display format % column, false
+      end
+      display
+    end
+
+    def json_encode(object)
+      OkJson.encode(object)
+    rescue OkJson::ParserError
+      nil
+    end
+
+    def json_decode(json)
+      OkJson.decode(json)
+    rescue OkJson::ParserError
+      nil
     end
   end
 end

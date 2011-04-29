@@ -1,7 +1,9 @@
-require "vendor/okjson"
+require "heroku/helpers"
 
 module PGBackups
   class Client
+    include Heroku::Helpers
+
     def initialize(uri)
       @uri = URI.parse(uri)
     end
@@ -19,33 +21,33 @@ module PGBackups
       # opts[:expire] => true will delete the oldest backup if at the plan limit
       resource = authenticated_resource("/client/transfers")
       params = {:from_url => from_url, :from_name => from_name, :to_url => to_url, :to_name => to_name}.merge opts
-      OkJson.decode resource.post(params).body
+      json_decode resource.post(params).body
     end
 
     def get_transfers
       resource = authenticated_resource("/client/transfers")
-      OkJson.decode resource.get.body
+      json_decode resource.get.body
     end
 
     def get_transfer(id)
       resource = authenticated_resource("/client/transfers/#{id}")
-      OkJson.decode resource.get.body
+      json_decode resource.get.body
     end
 
     def get_backups(opts={})
       resource = authenticated_resource("/client/backups")
-      OkJson.decode resource.get.body
+      json_decode resource.get.body
     end
 
     def get_backup(name, opts={})
       name = URI.escape(name)
       resource = authenticated_resource("/client/backups/#{name}")
-      OkJson.decode resource.get.body
+      json_decode resource.get.body
     end
 
     def get_latest_backup
       resource = authenticated_resource("/client/latest_backup")
-      OkJson.decode resource.get.body
+      json_decode resource.get.body
     end
 
     def delete_backup(name)
