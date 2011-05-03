@@ -13,7 +13,7 @@ module Heroku::Command
     # -s, --shell  # output config vars in shell format
     #
     def index
-      shell = args.delete('--shell')
+      shell = options[:shell]
       vars  = heroku.config_vars(app)
       display_vars(vars, :long => true, :shell => shell)
     end

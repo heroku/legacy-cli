@@ -21,7 +21,7 @@ module Heroku::Command
     end
 
     it "shows configs in a shell compatible format" do
-      @config.stub!(:args).and_return(['--shell'])
+      @config.stub!(:options).and_return({:shell => true})
       @config.heroku.should_receive(:config_vars).and_return({ 'A' => 'one', 'B' => 'two' })
       @config.should_receive(:display).with('A=one')
       @config.should_receive(:display).with('B=two')
