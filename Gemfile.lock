@@ -3,7 +3,7 @@ PATH
   specs:
     heroku (2.0.4)
       launchy (>= 0.3.2)
-      rest-client (>= 1.4.0, < 1.7.0)
+      rest-client (~> 1.6.1)
       term-ansicolor (~> 1.0.5)
 
 GEM
