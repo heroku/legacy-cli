@@ -68,7 +68,7 @@ describe Heroku::Client do
   it "create_complete?(name) -> checks if a create request is complete" do
     @response = mock('response')
     @response.should_receive(:code).and_return(202)
-    @client.should_receive(:resource).with('/apps/myapp/status').and_return(@resource)
+    @client.should_receive(:resource).and_return(@resource)
     @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
     @client.create_complete?('myapp').should be_false
   end
@@ -446,7 +446,7 @@ describe Heroku::Client do
 
     it "runs a callback when the API sets a warning header" do
       response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
-      @client.should_receive(:resource).with('test').and_return(@resource)
+      @client.should_receive(:resource).and_return(@resource)
       @resource.should_receive(:get).and_return(response)
       @client.on_warning { |msg| @callback = msg }
       @client.get('test')

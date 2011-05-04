@@ -511,14 +511,9 @@ Console sessions require an open dyno to use for execution.
 
   ##################
 
-  def resource(uri)
+  def resource(uri, options={})
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-    resource = RestClient::Resource.new(realize_full_uri(uri),
-      :user => user,
-      :password => password,
-      :ssl_ca_file => local_ca_file
-    )
-    enforce_ssl_verification_on_default_host!(resource)
+    resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
     resource
   end
 
@@ -541,7 +536,15 @@ Console sessions require an open dyno to use for execution.
   def process(method, uri, extra_headers={}, payload=nil)
     headers  = heroku_headers.merge(extra_headers)
     args     = [method, payload, headers].compact
-    response = resource(uri).send(*args)
+
+    resource_options = default_resource_options_for_uri(uri)
+
+    begin
+      response = resource(uri, resource_options).send(*args)
+    rescue RestClient::SSLCertificateNotVerified => ex
+      host = URI.parse(realize_full_uri(uri)).host
+      error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
+    end
 
     extract_warning(response)
     response
@@ -652,9 +655,14 @@ Console sessions require an open dyno to use for execution.
     uri.to_s
   end
 
-  def enforce_ssl_verification_on_default_host!(resource)
-    return unless resource.url =~ %r|^https://api.heroku.com|
-    resource.options[:verify_ssl] = OpenSSL::SSL::VERIFY_PEER
+  def default_resource_options_for_uri(uri)
+    if ENV["HEROKU_SSL_VERIFY"] == "disable"
+      {}
+    elsif realize_full_uri(uri) =~ %r|^https://api.heroku.com|
+      { :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => local_ca_file }
+    else
+      {}
+    end
   end
 
   def local_ca_file
