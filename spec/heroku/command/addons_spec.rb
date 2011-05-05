@@ -5,6 +5,7 @@ module Heroku::Command
   describe Addons do
     before do
       @addons = prepare_command(Addons)
+      @addons.heroku.stub!(:releases).and_raise(RestClient::RequestFailed.new) # stub as if Releases not enabled
     end
 
     describe "index" do
@@ -60,6 +61,17 @@ module Heroku::Command
 
         lambda { @addons.add }.
           should display_message(@addons, "done (free)\n  Don't Panic")
+      end
+
+      it "adds an addon with a price and message" do
+        @addons.heroku.should_receive(:install_addon).
+          with('myapp', 'my_addon', {}).
+          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
+
+        @addons.heroku.stub!(:releases).and_return([{"name" => "v1"}])
+
+        lambda { @addons.add }.
+          should display_message(@addons, "done, v1 (free)\n  Don't Panic")
       end
     end
 
