@@ -469,15 +469,15 @@ Console sessions require an open dyno to use for execution.
   end
 
   def add_config_vars(app_name, new_vars)
-    json_decode put("/apps/#{app_name}/config_vars", json_encode(new_vars)).to_s
+    put("/apps/#{app_name}/config_vars", json_encode(new_vars)).to_s
   end
 
   def remove_config_var(app_name, key)
-    json_decode delete("/apps/#{app_name}/config_vars/#{escape(key)}").to_s
+    delete("/apps/#{app_name}/config_vars/#{escape(key)}").to_s
   end
 
   def clear_config_vars(app_name)
-    json_decode delete("/apps/#{app_name}/config_vars").to_s
+    delete("/apps/#{app_name}/config_vars").to_s
   end
 
   def addons

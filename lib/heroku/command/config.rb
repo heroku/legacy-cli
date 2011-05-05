@@ -37,10 +37,8 @@ module Heroku::Command
       display_vars(vars, :indent => 2)
 
       display "Restarting app...", false
-      r = heroku.add_config_vars(app, vars)
-      display " done", false
-      display(", v#{r["release_seq"]}", false) if r["release_seq"]
-      display "."
+      heroku.add_config_vars(app, vars)
+      display "done."
     end
 
     # config:remove KEY
@@ -49,10 +47,8 @@ module Heroku::Command
     #
     def remove
       display "Removing #{args.first} and restarting app...", false
-      r = heroku.remove_config_var(app, args.first)
-      display " done", false
-      display(", v#{r["release_seq"]}", false) if r["release_seq"]
-      display "."
+      heroku.remove_config_var(app, args.first)
+      display "done."
     end
 
     protected
