@@ -121,7 +121,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
           sleep 1
         end
       end
-      display " done"
+      display " done, stack is #{info[:stack]}"
 
       addons.each do |addon|
         display "Adding #{addon} to #{name}... "
