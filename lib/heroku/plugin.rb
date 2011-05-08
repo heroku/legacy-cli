@@ -2,10 +2,8 @@
 
 module Heroku
   class Plugin
-    class << self
-      include Heroku::Helpers
-    end
     include Heroku::Helpers
+    extend Heroku::Helpers
 
     DEPRECATED_PLUGINS = %w(
       heroku-cedar
