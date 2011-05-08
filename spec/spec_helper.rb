@@ -7,6 +7,7 @@ SimpleCov.start do
 end
 
 require "rspec"
+require "rr"
 require "fakefs/safe"
 require "webmock/rspec"
 
@@ -23,6 +24,28 @@ def prepare_command(klass)
   command.stub!(:display)
   command.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
   command
+end
+
+def execute(command_line)
+  extend RR::Adapters::RRMethods
+
+  args = command_line.split(" ")
+  command = args.shift
+
+  Heroku::Command.load
+  object, method = Heroku::Command.prepare_run(command, args)
+
+  $command_output = []
+
+  def object.puts(line=nil)
+    $command_output << line
+  end
+
+  object.send(method)
+end
+
+def output
+  ($command_output || []).join("\n")
 end
 
 def with_blank_git_repository(&block)

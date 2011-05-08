@@ -1,0 +1,51 @@
+require "spec_helper"
+require "heroku/command/apps"
+require "heroku/command/help"
+
+describe Heroku::Command::Help do
+
+  describe "help" do
+    it "should show root help with no args" do
+      execute "help"
+      output.should include "Usage: heroku COMMAND [--app APP] [command-specific-options]"
+      output.should include "apps"
+      output.should include "help"
+    end
+
+    it "should show command help and namespace help when ambigious" do
+      execute "help apps"
+      output.should include "heroku apps"
+      output.should include "list your apps"
+      output.should include "Additional commands"
+      output.should include "apps:create"
+    end
+
+    it "should show only command help when not ambiguous" do
+      execute "help apps:create"
+      output.should include "heroku apps:create"
+      output.should include "create a new app"
+      output.should_not include "Additional commands"
+    end
+
+    describe "with legacy help" do
+      require "helper/legacy_help"
+
+      it "displays the legacy group in the namespace list" do
+        execute "help"
+        output.should include "Foo Group"
+      end
+
+      it "displays group help" do
+        execute "help foo"
+        output.should include "do a bar to foo"
+        output.should include "do a baz to foo"
+      end
+
+      it "displays legacy command-specific help" do
+        execute "help foo:bar"
+        output.should include "do a bar to foo"
+      end
+    end
+  end
+end
+

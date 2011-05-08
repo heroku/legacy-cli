@@ -26,6 +26,7 @@ GEM
     rake (0.8.7)
     rest-client (1.6.1)
       mime-types (>= 1.16)
+    rr (1.0.2)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
       rspec-expectations (~> 2.5.0)
@@ -63,6 +64,7 @@ DEPENDENCIES
   heroku!
   parka (>= 0.6.2)
   rake (>= 0.8.7)
+  rr (~> 1.0.2)
   rspec (>= 2.0)
   simplecov (~> 0.4.2)
   taps (>= 0.3.23)
