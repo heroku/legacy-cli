@@ -179,13 +179,6 @@ describe Heroku::Client do
     lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
   end
 
-  describe "bundles" do
-    it "gives a temporary URL where the bundle can be downloaded" do
-      stub_api_request(:get, "/apps/myapp/bundles/latest").to_return(:body => "{\"name\":\"bundle1\",\"temporary_url\":\"https:\\/\\/s3.amazonaws.com\\/herokubundles\\/123.tar.gz\"}")
-      @client.bundle_url('myapp').should == 'https://s3.amazonaws.com/herokubundles/123.tar.gz'
-    end
-  end
-
   describe "collaborators" do
     it "list(app_name) -> list app collaborators" do
       stub_api_request(:get, "/apps/myapp/collaborators").to_return(:body => <<-EOXML)

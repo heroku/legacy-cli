@@ -430,40 +430,6 @@ Console sessions require an open dyno to use for execution.
     put("/apps/#{app_name}/workers", :workers => qty).to_s
   end
 
-  # Capture a bundle from the given app, as a backup or for download.
-  def bundle_capture(app_name, bundle_name=nil)
-    xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name }).to_s).elements["//bundle/name"].text
-  end
-
-  def bundle_destroy(app_name, bundle_name)
-    delete("/apps/#{app_name}/bundles/#{bundle_name}").to_s
-  end
-
-  # Get a temporary URL where the bundle can be downloaded.
-  # If bundle_name is nil it will use the most recently captured bundle for the app
-  def bundle_url(app_name, bundle_name=nil)
-    bundle = json_decode(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
-    bundle['temporary_url']
-  end
-
-  def bundle_download(app_name, fname, bundle_name=nil)
-    warn "[DEPRECATION] `bundle_download` is deprecated. Please use `bundle_url` instead"
-    data = RestClient.get(bundle_url(app_name, bundle_name)).to_s
-    File.open(fname, "wb") { |f| f.write data }
-  end
-
-  # Get a list of bundles of the app.
-  def bundles(app_name)
-    doc = xml(get("/apps/#{app_name}/bundles").to_s)
-    doc.elements.to_a("//bundles/bundle").map do |a|
-      {
-        :name => a.elements['name'].text,
-        :state => a.elements['state'].text,
-        :created_at => Time.parse(a.elements['created-at'].text),
-      }
-    end
-  end
-
   def config_vars(app_name)
     json_decode get("/apps/#{app_name}/config_vars").to_s
   end
