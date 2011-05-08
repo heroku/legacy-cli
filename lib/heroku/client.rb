@@ -467,6 +467,35 @@ Console sessions require an open dyno to use for execution.
     configure_addon :uninstall, app_name, addon, options
   end
 
+  def database_session(app_name)
+    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
+  end
+
+  def database_reset(app_name)
+    post("/apps/#{app_name}/database/reset", '').to_s
+  end
+
+  def maintenance(app_name, mode)
+    mode = mode == :on ? '1' : '0'
+    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
+  end
+
+  def httpcache_purge(app_name)
+    delete("/apps/#{app_name}/httpcache").to_s
+  end
+
+  def releases(app)
+    json_decode get("/apps/#{app}/releases").to_s
+  end
+
+  def release(app, release)
+    json_decode get("/apps/#{app}/releases/#{release}").to_s
+  end
+
+  def rollback(app, release=nil)
+    post("/apps/#{app}/releases", :rollback => release)
+  end
+
   def confirm_billing
     post("/user/#{escape(@user)}/confirm_billing").to_s
   end
@@ -544,35 +573,6 @@ Console sessions require an open dyno to use for execution.
   def escape(value)  # :nodoc:
     escaped = URI.escape(value.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
     escaped.gsub('.', '%2E') # not covered by the previous URI.escape
-  end
-
-  def database_session(app_name)
-    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
-  end
-
-  def database_reset(app_name)
-    post("/apps/#{app_name}/database/reset", '').to_s
-  end
-
-  def maintenance(app_name, mode)
-    mode = mode == :on ? '1' : '0'
-    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
-  end
-
-  def httpcache_purge(app_name)
-    delete("/apps/#{app_name}/httpcache").to_s
-  end
-
-  def releases(app)
-    json_decode get("/apps/#{app}/releases").to_s
-  end
-
-  def release(app, release)
-    json_decode get("/apps/#{app}/releases/#{release}").to_s
-  end
-
-  def rollback(app, release=nil)
-    post("/apps/#{app}/releases", :rollback => release)
   end
 
   module JSON
