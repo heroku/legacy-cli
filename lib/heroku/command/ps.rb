@@ -65,17 +65,65 @@ class Heroku::Command::Ps < Heroku::Command::Base
     display output.join("\n")
   end
 
-  # ps:restart
+  # ps:restart [PROCESS]
   #
-  # restart app processes
+  # restart an app process
+  #
+  # if PROCESS is not specified, restarts all processes on the app
   #
   def restart
-    app_name = extract_app
-    heroku.restart(app_name)
-    display "App processes restarted"
+    app = extract_app
+
+    opts = case args.first
+    when NilClass then
+      display "Restarting processes... ", false
+      {}
+    when /.+\..+/
+      ps = args.first
+      display "Restarting #{ps} process... ", false
+      { :ps => ps }
+    else
+      type = args.first
+      display "Restarting #{type} processes... ", false
+      { :type => type }
+    end
+    heroku.ps_restart(app, opts)
+    display "done"
   end
 
   alias_command "restart", "ps:restart"
+
+  # ps:scale PROCESS1=AMOUNT1 ...
+  #
+  # scale processes by the given amount
+  #
+  # Example: heroku scale web=3 worker+1
+  #
+  def scale
+    app = extract_app
+    current_process = nil
+    args.inject({}) do |hash, process_amount|
+      case process_amount
+      when /^([a-z]+)([=+-]\d+)$/
+        hash[$1] = $2
+      when /^([a-z]+)$/
+        current_process = $1
+      when /^(\d+)$/
+        if current_process
+          hash[current_process] = $1
+          current_process = nil
+        end
+      end
+      hash
+    end.each do |process, amount|
+      display "Scaling #{process} processes... ", false
+      amount.gsub!("=", "")
+      new_qty = heroku.ps_scale(app, :type => process, :qty => amount)
+      display "done, now running #{new_qty}"
+    end
+  end
+
+  alias_command "scale", "ps:scale"
 
 end
 

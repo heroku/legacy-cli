@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     it "asks to restart servers" do
-      @cli.heroku.should_receive(:restart).with('myapp')
+      @cli.heroku.should_receive(:ps_restart).with('myapp', {})
       @cli.restart
     end
 

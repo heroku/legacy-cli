@@ -496,6 +496,18 @@ Console sessions require an open dyno to use for execution.
     post("/apps/#{app}/releases", :rollback => release)
   end
 
+  def ps_run(app, opts={})
+    json_decode post("/apps/#{app}/ps", opts).to_s
+  end
+
+  def ps_scale(app, opts={})
+    post("/apps/#{app}/ps/scale", opts).to_s.to_i
+  end
+
+  def ps_restart(app, opts={})
+    post("/apps/#{app}/ps/restart", opts)
+  end
+
   def confirm_billing
     post("/user/#{escape(@user)}/confirm_billing").to_s
   end

@@ -8,6 +8,7 @@ module Heroku
     include Heroku::Helpers
 
     DEPRECATED_PLUGINS = %w(
+      heroku-cedar
       heroku-releases
       heroku-postgresql
       heroku-pgdumps

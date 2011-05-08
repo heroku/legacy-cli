@@ -200,6 +200,22 @@ module Heroku
     rescue OkJson::ParserError
       nil
     end
+
+    def set_buffer(enable)
+      if enable
+        `stty icanon echo`
+      else
+        `stty -icanon -echo`
+      end
+    end
+
+    def get_terminal_environment
+      { "TERM" => ENV["TERM"], "COLUMNS" => `tput cols`, "LINES" => `tput lines` }
+    end
+
+    def fail(message)
+      raise Heroku::Command::CommandFailed, message
+    end
   end
 end
 
