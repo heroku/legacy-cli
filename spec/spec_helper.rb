@@ -37,6 +37,12 @@ def execute(command_line)
 
   $command_output = []
 
+  def object.print(line=nil)
+    last_line = $command_output.pop || ""
+    last_line.concat(line)
+    $command_output.push last_line
+  end
+
   def object.puts(line=nil)
     $command_output << line
   end
