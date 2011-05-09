@@ -2,12 +2,16 @@
 
 module Heroku
   class Plugin
-    class << self
-      include Heroku::Helpers
-    end
     include Heroku::Helpers
+    extend Heroku::Helpers
 
-    DEPRECATED_PLUGINS = %w( heroku-releases heroku-postgresql heroku-pgdumps heroku-logging )
+    DEPRECATED_PLUGINS = %w(
+      heroku-cedar
+      heroku-releases
+      heroku-postgresql
+      heroku-pgdumps
+      heroku-logging
+    )
 
     attr_reader :name, :uri
 

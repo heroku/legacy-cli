@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    heroku (2.0.4)
+    heroku (2.1.0)
       launchy (>= 0.3.2)
-      rest-client (>= 1.4.0, < 1.7.0)
+      rest-client (~> 1.6.1)
       term-ansicolor (~> 1.0.5)
 
 GEM
@@ -26,6 +26,7 @@ GEM
     rake (0.8.7)
     rest-client (1.6.1)
       mime-types (>= 1.16)
+    rr (1.0.2)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
       rspec-expectations (~> 2.5.0)
@@ -35,6 +36,9 @@ GEM
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
     sequel (3.20.0)
+    simplecov (0.4.2)
+      simplecov-html (~> 0.4.4)
+    simplecov-html (0.4.4)
     sinatra (1.0)
       rack (>= 1.0)
     sqlite3 (1.3.3)
@@ -60,6 +64,8 @@ DEPENDENCIES
   heroku!
   parka (>= 0.6.2)
   rake (>= 0.8.7)
+  rr (~> 1.0.2)
   rspec (>= 2.0)
+  simplecov (~> 0.4.2)
   taps (>= 0.3.23)
   webmock

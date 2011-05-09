@@ -21,7 +21,7 @@ module Heroku::Command
     end
 
     it "shows configs in a shell compatible format" do
-      @config.stub!(:args).and_return(['--shell'])
+      @config.stub!(:options).and_return({:shell => true})
       @config.heroku.should_receive(:config_vars).and_return({ 'A' => 'one', 'B' => 'two' })
       @config.should_receive(:display).with('A=one')
       @config.should_receive(:display).with('B=two')
@@ -31,18 +31,21 @@ module Heroku::Command
     it "sets config vars" do
       @config.stub!(:args).and_return(['a=1', 'b=2'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'1','b'=>'2'})
+      @config.heroku.should_receive(:releases).and_return([])
       @config.add
     end
 
     it "allows config vars with = in the value" do
       @config.stub!(:args).and_return(['a=b=c'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'b=c'})
+      @config.heroku.should_receive(:releases).and_return([])
       @config.add
     end
 
     it "unsets config vars" do
       @config.stub!(:args).and_return(['a'])
       @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
+      @config.heroku.should_receive(:releases).and_return([])
       @config.remove
     end
   end

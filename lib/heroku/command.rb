@@ -64,7 +64,7 @@ module Heroku
     global_option :help,    "--help", "-h"
     global_option :remote,  "--remote REMOTE"
 
-    def self.run(cmd, args=[])
+    def self.prepare_run(cmd, args=[])
       command = parse(cmd)
 
       unless command
@@ -109,33 +109,35 @@ module Heroku
       @current_args = args
       @current_options = opts
 
-      begin
-        object = command[:klass].new(args.dup, opts.dup)
-        object.send(command[:method])
-      rescue InvalidCommand
-        error "Unknown command. Run 'heroku help' for usage information."
-      rescue RestClient::Unauthorized
-        puts "Authentication failure"
-        run "login"
+      [ command[:klass].new(args.dup, opts.dup), command[:method] ]
+    end
+
+    def self.run(cmd, arguments=[])
+      object, method = prepare_run(cmd, arguments)
+      object.send(method)
+    rescue InvalidCommand
+      error "Unknown command. Run 'heroku help' for usage information."
+    rescue RestClient::Unauthorized
+      puts "Authentication failure"
+      run "login"
+      retry
+    rescue RestClient::PaymentRequired => e
+      retry if run('account:confirm_billing', args.dup)
+    rescue RestClient::ResourceNotFound => e
+      error extract_not_found(e.http_body)
+    rescue RestClient::Locked => e
+      app = e.response.headers[:x_confirmation_required]
+      message = extract_error(e.response.body)
+      if confirmation_required(app, message)
+        opts[:confirm] = app
         retry
-      rescue RestClient::PaymentRequired => e
-        retry if run('account:confirm_billing', args.dup)
-      rescue RestClient::ResourceNotFound => e
-        error extract_not_found(e.http_body)
-      rescue RestClient::Locked => e
-        app = e.response.headers[:x_confirmation_required]
-        message = extract_error(e.response.body)
-        if confirmation_required(app, message)
-          opts[:confirm] = app
-          retry
-        end
-      rescue RestClient::RequestFailed => e
-        error extract_error(e.http_body)
-      rescue RestClient::RequestTimeout
-        error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
-      rescue CommandFailed => e
-        error e.message
       end
+    rescue RestClient::RequestFailed => e
+      error extract_error(e.http_body)
+    rescue RestClient::RequestTimeout
+      error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
+    rescue CommandFailed => e
+      error e.message
     rescue OptionParser::ParseError => ex
       commands[cmd] ? run("help", [cmd]) : run("help")
     rescue Interrupt => e

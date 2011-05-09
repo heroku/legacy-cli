@@ -147,11 +147,26 @@ module Heroku::Command
         response = yield
 
         if response
+          done = "done"
           price = "(#{ response['price'] })" if response['price']
-          message = response['message']
+
+          if response['message'] =~ /Attached as ([A-Z0-9_]+)\n(.*)/
+            attachment = $1
+            message = $2
+          else
+            attachment = nil
+            message = response['message']
+          end
+
+          begin
+            release = heroku.releases(app).last['name']
+            done = "done,"
+          rescue RestClient::RequestFailed => e
+            release = nil
+          end
         end
 
-        out = [ 'done', price ].compact.join(' ')
+        out = [ done, attachment, release, price ].compact.join(' ')
         if message
           out += "\n"
           out += message.split("\n").map do |line|

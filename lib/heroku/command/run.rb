@@ -5,6 +5,21 @@ require "heroku/command/base"
 #
 class Heroku::Command::Run < Heroku::Command::Base
 
+  # run COMMAND
+  #
+  # run an attached process
+  #
+  def index
+    app = extract_app
+    command = args.join(" ")
+    fail "Usage: heroku run COMMAND" if command.empty?
+    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
+    display "Running #{command} attached to terminal... ", false
+    ps = heroku.ps_run(app, opts)
+    rendezvous.on_connect { display "up, #{ps["process"]}" }
+    rendezvous.connect(ps["rendezvous_url"])
+  end
+
   # run:rake COMMAND
   #
   # remotely execute a rake command
@@ -13,7 +28,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     app = extract_app
     cmd = args.join(' ')
     if cmd.length == 0
-      display "Usage: heroku rake <command>"
+      raise Heroku::Command::CommandFailed, "Usage: heroku run:rake COMMAND"
     else
       heroku.start(app, "rake #{cmd}", :attached).each { |chunk| display(chunk, false) }
     end

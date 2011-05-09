@@ -1,6 +1,4 @@
 .bundle
+coverage
 pkg
 rdoc
-.DS_Store
-*.swp
-*.rbc

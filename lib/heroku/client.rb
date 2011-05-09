@@ -430,40 +430,6 @@ Console sessions require an open dyno to use for execution.
     put("/apps/#{app_name}/workers", :workers => qty).to_s
   end
 
-  # Capture a bundle from the given app, as a backup or for download.
-  def bundle_capture(app_name, bundle_name=nil)
-    xml(post("/apps/#{app_name}/bundles", :bundle => { :name => bundle_name }).to_s).elements["//bundle/name"].text
-  end
-
-  def bundle_destroy(app_name, bundle_name)
-    delete("/apps/#{app_name}/bundles/#{bundle_name}").to_s
-  end
-
-  # Get a temporary URL where the bundle can be downloaded.
-  # If bundle_name is nil it will use the most recently captured bundle for the app
-  def bundle_url(app_name, bundle_name=nil)
-    bundle = json_decode(get("/apps/#{app_name}/bundles/#{bundle_name || 'latest'}", { :accept => 'application/json' }).to_s)
-    bundle['temporary_url']
-  end
-
-  def bundle_download(app_name, fname, bundle_name=nil)
-    warn "[DEPRECATION] `bundle_download` is deprecated. Please use `bundle_url` instead"
-    data = RestClient.get(bundle_url(app_name, bundle_name)).to_s
-    File.open(fname, "wb") { |f| f.write data }
-  end
-
-  # Get a list of bundles of the app.
-  def bundles(app_name)
-    doc = xml(get("/apps/#{app_name}/bundles").to_s)
-    doc.elements.to_a("//bundles/bundle").map do |a|
-      {
-        :name => a.elements['name'].text,
-        :state => a.elements['state'].text,
-        :created_at => Time.parse(a.elements['created-at'].text),
-      }
-    end
-  end
-
   def config_vars(app_name)
     json_decode get("/apps/#{app_name}/config_vars").to_s
   end
@@ -501,6 +467,47 @@ Console sessions require an open dyno to use for execution.
     configure_addon :uninstall, app_name, addon, options
   end
 
+  def database_session(app_name)
+    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
+  end
+
+  def database_reset(app_name)
+    post("/apps/#{app_name}/database/reset", '').to_s
+  end
+
+  def maintenance(app_name, mode)
+    mode = mode == :on ? '1' : '0'
+    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
+  end
+
+  def httpcache_purge(app_name)
+    delete("/apps/#{app_name}/httpcache").to_s
+  end
+
+  def releases(app)
+    json_decode get("/apps/#{app}/releases").to_s
+  end
+
+  def release(app, release)
+    json_decode get("/apps/#{app}/releases/#{release}").to_s
+  end
+
+  def rollback(app, release=nil)
+    post("/apps/#{app}/releases", :rollback => release)
+  end
+
+  def ps_run(app, opts={})
+    json_decode post("/apps/#{app}/ps", opts).to_s
+  end
+
+  def ps_scale(app, opts={})
+    post("/apps/#{app}/ps/scale", opts).to_s.to_i
+  end
+
+  def ps_restart(app, opts={})
+    post("/apps/#{app}/ps/restart", opts)
+  end
+
   def confirm_billing
     post("/user/#{escape(@user)}/confirm_billing").to_s
   end
@@ -511,14 +518,9 @@ Console sessions require an open dyno to use for execution.
 
   ##################
 
-  def resource(uri)
+  def resource(uri, options={})
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-    resource = RestClient::Resource.new(realize_full_uri(uri),
-      :user => user,
-      :password => password,
-      :ssl_ca_file => local_ca_file
-    )
-    enforce_ssl_verification_on_default_host!(resource)
+    resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
     resource
   end
 
@@ -541,7 +543,15 @@ Console sessions require an open dyno to use for execution.
   def process(method, uri, extra_headers={}, payload=nil)
     headers  = heroku_headers.merge(extra_headers)
     args     = [method, payload, headers].compact
-    response = resource(uri).send(*args)
+
+    resource_options = default_resource_options_for_uri(uri)
+
+    begin
+      response = resource(uri, resource_options).send(*args)
+    rescue RestClient::SSLCertificateNotVerified => ex
+      host = URI.parse(realize_full_uri(uri)).host
+      error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
+    end
 
     extract_warning(response)
     response
@@ -575,35 +585,6 @@ Console sessions require an open dyno to use for execution.
   def escape(value)  # :nodoc:
     escaped = URI.escape(value.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
     escaped.gsub('.', '%2E') # not covered by the previous URI.escape
-  end
-
-  def database_session(app_name)
-    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
-  end
-
-  def database_reset(app_name)
-    post("/apps/#{app_name}/database/reset", '').to_s
-  end
-
-  def maintenance(app_name, mode)
-    mode = mode == :on ? '1' : '0'
-    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
-  end
-
-  def httpcache_purge(app_name)
-    delete("/apps/#{app_name}/httpcache").to_s
-  end
-
-  def releases(app)
-    json_decode get("/apps/#{app}/releases").to_s
-  end
-
-  def release(app, release)
-    json_decode get("/apps/#{app}/releases/#{release}").to_s
-  end
-
-  def rollback(app, release=nil)
-    post("/apps/#{app}/releases", :rollback => release)
   end
 
   module JSON
@@ -652,9 +633,14 @@ Console sessions require an open dyno to use for execution.
     uri.to_s
   end
 
-  def enforce_ssl_verification_on_default_host!(resource)
-    return unless resource.url =~ %r|^https://api.heroku.com|
-    resource.options[:verify_ssl] = OpenSSL::SSL::VERIFY_PEER
+  def default_resource_options_for_uri(uri)
+    if ENV["HEROKU_SSL_VERIFY"] == "disable"
+      {}
+    elsif realize_full_uri(uri) =~ %r|^https://api.heroku.com|
+      { :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => local_ca_file }
+    else
+      {}
+    end
   end
 
   def local_ca_file

@@ -13,7 +13,7 @@ module Heroku::Command
     # -s, --shell  # output config vars in shell format
     #
     def index
-      shell = args.delete('--shell')
+      shell = options[:shell]
       vars  = heroku.config_vars(app)
       display_vars(vars, :long => true, :shell => shell)
     end
@@ -38,7 +38,15 @@ module Heroku::Command
 
       display "Restarting app...", false
       heroku.add_config_vars(app, vars)
-      display "done."
+
+      display " done", false
+
+      begin
+        release = heroku.releases(app).last
+        display(", #{release["name"]}", false) if release
+      rescue RestClient::RequestFailed => e
+      end
+      display "."
     end
 
     # config:remove KEY
@@ -48,7 +56,15 @@ module Heroku::Command
     def remove
       display "Removing #{args.first} and restarting app...", false
       heroku.remove_config_var(app, args.first)
-      display "done."
+
+      display " done", false
+
+      begin
+        release = heroku.releases(app).last
+        display(", #{release["name"]}", false) if release
+      rescue RestClient::RequestFailed => e
+      end
+      display "."
     end
 
     protected
