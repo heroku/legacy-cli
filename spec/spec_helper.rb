@@ -61,6 +61,14 @@ def fail_command(message)
   raise_error(Heroku::Command::CommandFailed, message)
 end
 
+def stub_core
+  stubbed_core = nil
+  any_instance_of(Heroku::Client) do |core|
+    stubbed_core = stub(core)
+  end
+  stubbed_core
+end
+
 def with_blank_git_repository(&block)
   sandbox = File.join(Dir.tmpdir, "heroku", Process.pid.to_s)
   FileUtils.mkdir_p(sandbox)
