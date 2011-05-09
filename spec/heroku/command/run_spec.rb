@@ -1,34 +1,46 @@
 require "spec_helper"
 require "heroku/command/run"
 
-module Heroku::Command
-  describe Run do
-    before(:each) do
-      @cli = prepare_command(Run)
-      @cli.stub(:options).and_return(:app => "myapp")
+describe Heroku::Command::Run do
+  describe "run" do
+    it "runs a command" do
+      stub_core.ps_run("myapp", hash_including(:attach => true, :command => "bash")).returns({
+        "rendezvous_url" => "http://rendezvo.us"
+      })
+      stub_rendezvous.connect("http://rendezvo.us")
+      execute "run bash"
+    end
+  end
+
+  describe "run:rake" do
+    it "runs a rake command" do
+      stub_core.start("myapp", "rake foo", :attached).returns(["rake_output"])
+      execute "run:rake foo"
+      output.should =~ /rake_output/
     end
 
-    it "runs a rake command on the app" do
-      @cli.stub!(:args).and_return(([ 'db:migrate' ]))
-      @cli.heroku.should_receive(:start).
-        with('myapp', 'rake db:migrate', :attached).
-        and_return(['foo', 'bar', 'baz'])
-      @cli.rake
+    it "requires a command" do
+      lambda { execute "run:rake" }.should fail_command("Usage: heroku run:rake COMMAND")
     end
 
-    it "runs a single console command on the app" do
-      @cli.stub!(:args).and_return([ '2+2' ])
-      @cli.heroku.should_receive(:console).with('myapp', '2+2')
-      @cli.console
+    it "gets an http APP_CRASHED" do
+      stub_core.start("myapp", "rake foo", :attached) { raise(Heroku::Client::AppCrashed, "error_page") }
+      execute "run:rake foo"
+      output.should =~ /Couldn't run rake\nerror_page/
+    end
+  end
+
+  describe "run:console" do
+    it "runs a console session" do
+      console = stub(Heroku::Client::ConsoleSession)
+      stub_core.console.returns(console)
+      execute "run:console"
     end
 
-    it "offers a console, opening and closing the session with the client" do
-      @console = mock('heroku console')
-      @cli.stub!(:console_history_read)
-      @cli.stub!(:console_history_add)
-      @cli.heroku.should_receive(:console).with('myapp').and_yield(@console)
-      Readline.should_receive(:readline).and_return('exit')
-      @cli.console
+    it "runs a console command" do
+      stub_core.console("myapp", "bash foo").returns("foo_output")
+      execute "run:console bash foo"
+      output.should =~ /foo_output/
     end
   end
 end

@@ -2,7 +2,7 @@ require "timeout"
 require "socket"
 require "uri"
 require "heroku/client"
-require "cedar/heroku/helpers"
+require "heroku/helpers"
 
 class Heroku::Client::Rendezvous
   include Heroku::Helpers

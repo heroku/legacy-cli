@@ -47,6 +47,10 @@ def execute(command_line)
     $command_output << line
   end
 
+  def object.error(line=nil)
+    $command_output << line
+  end
+
   any_instance_of(Heroku::Command::Base) do |base|
     stub(base).extract_app.returns("myapp")
   end
@@ -73,6 +77,14 @@ def stub_core
     stubbed_core = stub(core)
   end
   stubbed_core
+end
+
+def stub_rendezvous
+  stubbed_rendezvous = nil
+  any_instance_of(Heroku::Client::Rendezvous) do |rendezvous|
+    stubbed_rendezvous = stub(rendezvous)
+  end
+  stubbed_rendezvous
 end
 
 def with_blank_git_repository(&block)

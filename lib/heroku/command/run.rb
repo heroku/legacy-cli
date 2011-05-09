@@ -28,7 +28,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     app = extract_app
     cmd = args.join(' ')
     if cmd.length == 0
-      display "Usage: heroku rake <command>"
+      raise Heroku::Command::CommandFailed, "Usage: heroku run:rake COMMAND"
     else
       heroku.start(app, "rake #{cmd}", :attached).each { |chunk| display(chunk, false) }
     end

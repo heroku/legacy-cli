@@ -1,5 +1,6 @@
 require "fileutils"
 require "heroku/auth"
+require "heroku/client/rendezvous"
 require "heroku/command"
 
 class Heroku::Command::Base
