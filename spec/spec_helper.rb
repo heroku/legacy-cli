@@ -41,11 +41,24 @@ def execute(command_line)
     $command_output << line
   end
 
+  any_instance_of(Heroku::Command::Base) do |base|
+    stub(base).extract_app.returns("myapp")
+  end
+
   object.send(method)
 end
 
 def output
   ($command_output || []).join("\n")
+end
+
+def any_instance_of(klass, &block)
+  extend RR::Adapters::RRMethods
+  any_instance_of(klass, &block)
+end
+
+def fail_command(message)
+  raise_error(Heroku::Command::CommandFailed, message)
 end
 
 def with_blank_git_repository(&block)
