@@ -179,6 +179,13 @@ describe Heroku::Client do
     lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
   end
 
+  describe "ps_scale" do
+    it "scales a process and returns the new count" do
+      stub_api_request(:post, "/apps/myapp/ps/scale").with(:body => "type=web&qty=5").to_return(:body => "5")
+      @client.ps_scale("myapp", :type => "web", :qty => "5").should == 5
+    end
+  end
+
   describe "collaborators" do
     it "list(app_name) -> list app collaborators" do
       stub_api_request(:get, "/apps/myapp/collaborators").to_return(:body => <<-EOXML)

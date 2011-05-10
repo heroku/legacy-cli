@@ -501,7 +501,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def ps_scale(app, opts={})
-    post("/apps/#{app}/ps/scale", opts).to_s.to_i
+    Integer(post("/apps/#{app}/ps/scale", opts).to_s)
   end
 
   def ps_restart(app, opts={})
