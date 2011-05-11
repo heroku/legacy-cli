@@ -309,7 +309,7 @@ module Heroku::Command
     # kind, but wants to know what backups of any kind exist.
     #
     def backup_types
-      return ['BACKUP', 'DAILY_SCHEDULED_BACKUP', 'HOURLY_SCHEDULED_BACKUP']
+      %w[BACKUP DAILY_SCHEDULED_BACKUP HOURLY_SCHEDULED_BACKUP AUTO_SCHEDULED_BACKUP]
     end
   end
 end
