@@ -13,7 +13,8 @@ module PGBackups
       host += ":#{@uri.port}" if @uri.port
       RestClient::Resource.new("#{host}#{path}",
         :user     => @uri.user,
-        :password => @uri.password
+        :password => @uri.password,
+        :headers  => {:x_heroku_gem_version => Heroku::Client.version}
       )
     end
 
