@@ -14,7 +14,8 @@ module Heroku::Command
     #
     # push local data up to your app
     #
-    # if DATABASE_URL is not specified it will be guessed from config/database.yml
+    # DATABASE_URL should reference your local database. if not specified, it
+    # will be guessed from config/database.yml
     #
     # -c, --chunksize SIZE # specify the number of rows to send in each batch
     # -d, --debug          # enable debugging output
@@ -36,9 +37,10 @@ module Heroku::Command
 
     # db:pull [DATABASE_URL]
     #
-    # pull local data up to your app
+    # pull heroku data down into your local database
     #
-    # if DATABASE_URL is not specified it will be guessed from config/database.yml
+    # DATABASE_URL should reference your local database. if not specified, it
+    # will be guessed from config/database.yml
     #
     # -c, --chunksize SIZE # specify the number of rows to send in each batch
     # -d, --debug          # enable debugging output
