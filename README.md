@@ -71,7 +71,6 @@ Patches contributed by:
 * Matt Buck <techpeace@gmail.com>
 * Morten Bagai <morten@thefury.local>
 * Nick Quaranto <nick@quaran.to>
-* Noah Zoschke <noah@Hero-Sr.local>
 * Noah Zoschke <noah@heroku.com>
 * Pedro Belo <pedro@heroku.com>
 * Peter Theill <peter@theill.com>
