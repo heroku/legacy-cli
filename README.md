@@ -49,24 +49,42 @@ Maintained by David Dollar
 
 Patches contributed by:
 
-* Chris O'Sullivan
-* Blake Mizerany
-* Ricardo Chimal
-* Les Hill
-* Ryan Tomayko
-* Sarah Mei
-* Nick Quaranto
-* Matt Buck
-* Terence Lee
-* Caio Chassot
-* Charles Roper
-* James Lindenbaum
-* Joshua Peek
-* Julien Kirch
-* Morten Bagai
-* Noah Zoschke
-* Pedro Belo
-* Peter Thiell
+Adam McCrea <adam@edgecase.com>
+Adam Wiggins <adam@heroku.com>
+Ben <bwillis@teldio.com>
+Blake Mizerany <blake.mizerany@gmail.com>
+Caio Chassot <dev@caiochassot.com>
+Charles Roper <charles.roper@gmail.com>
+Chris O'Sullivan <thechrisoshow@gmail.com>
+Daniel Farina <daniel@heroku.com>
+David Dollar <ddollar@gmail.com>
+Denis Barushev <barushev@gmail.com>
+Eric Anderson <eric@pixelwareinc.com>
+Glenn Gillen <me@glenngillen.com>
+James Lindenbaum <james@heroku.com>
+Joshua Peek <josh@joshpeek.com>
+Julien Kirch <code@archiloque.net>
+Larry Marburger <larry@marburger.cc>
+Les Hill <leshill@gmail.com>
+Les Hill and Veez (Matt Remsik) <dev+leshill+veez@hashrocket.com>
+Mark McGranaghan <mmcgrana@gmail.com>
+Matt Buck <techpeace@gmail.com>
+Morten Bagai <morten@thefury.local>
+Nick Quaranto <nick@quaran.to>
+Noah Zoschke <noah@Hero-Sr.local>
+Noah Zoschke <noah@heroku.com>
+Pedro Belo <pedro@heroku.com>
+Peter Theill <peter@theill.com>
+Peter van Hardenberg <pvh@heroku.com>
+Ricardo Chimal, Jr <ricardo@heroku.com>
+Ryan R. Smith <ryan@heroku.com>
+Ryan Tomayko <rtomayko@gmail.com>
+Sarah Mei <sarah.mei@gmail.com>
+SixArm <sixarm@sixarm.com>
+Terence Lee <hone02@gmail.com>
+Trevor Turk <trevorturk@gmail.com>
+Will Leinweber <will@bitfission.com>
+pipa <tekmon@gmail.com>
 
 
 Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
