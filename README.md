@@ -87,4 +87,3 @@ Patches contributed by:
 
 
 Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
-<http://github.com/heroku/heroku>
