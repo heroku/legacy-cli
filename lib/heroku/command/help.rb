@@ -1,12 +1,18 @@
 require "heroku/command/base"
 require "heroku/deprecated/help"
 
+# list commands and display help
+#
 class Heroku::Command::Help < Heroku::Command::Base
 
   PRIMARY_NAMESPACES = %w( auth apps ps run addons config releases domains logs sharing )
 
   include Heroku::Deprecated::Help
 
+  # help [COMMAND]
+  #
+  # list available commands or display help for a specific command
+  #
   def index
     if command = args.shift
       help_for_command(command)
