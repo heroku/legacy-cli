@@ -43,7 +43,7 @@ private
   def legacy_help_for_namespace(namespace)
     instance = Heroku::Command::Help.groups.map do |group|
       [ group.title, group.select { |c| c.first =~ /^#{namespace}/ }.length ]
-    end.sort_by(&:last).last
+    end.sort_by { |l| l.last }.last
     return nil unless instance
     return nil if instance.last.zero?
     instance.first

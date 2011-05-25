@@ -127,7 +127,7 @@ protected
   end
 
   def self.extract_description(help)
-    lines = help.split("\n").map(&:strip)
+    lines = help.split("\n").map { |l| l.strip }
     lines.shift
     lines.reject do |line|
       line =~ /^-(.+)#(.+)/
@@ -135,7 +135,7 @@ protected
   end
 
   def self.extract_options(help)
-    help.split("\n").map(&:strip).select do |line|
+    help.split("\n").map { |l| l.strip }.select do |line|
       line =~ /^-(.+)#(.+)/
     end.inject({}) do |hash, line|
       description = line.split("#", 2).last.strip

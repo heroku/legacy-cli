@@ -39,7 +39,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
 
     if options[:raw] then
-      attrs.keys.sort_by(&:to_s).each do |key|
+      attrs.keys.sort_by { |a| a.to_s }.each do |key|
         case key
         when :addons then
           display "addons=#{attrs[:addons].map { |a| a["name"] }.sort.join(",")}"

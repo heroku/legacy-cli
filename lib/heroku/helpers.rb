@@ -165,7 +165,7 @@ module Heroku
     end
 
     def longest(items)
-      items.map(&:to_s).map(&:length).sort.last
+      items.map { |i| i.to_s.length }.sort.last
     end
 
     def display_table(objects, columns, headers)
