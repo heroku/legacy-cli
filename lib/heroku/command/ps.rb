@@ -102,20 +102,16 @@ class Heroku::Command::Ps < Heroku::Command::Base
   def scale
     app = extract_app
     current_process = nil
-    args.inject({}) do |hash, process_amount|
-      case process_amount
-      when /^([a-z]+)([=+-]\d+)$/
+    changes = args.inject({}) do |hash, process_amount|
+      if process_amount =~ /^([a-z]+)([=+-]\d+)$/
         hash[$1] = $2
-      when /^([a-z]+)$/
-        current_process = $1
-      when /^(\d+)$/
-        if current_process
-          hash[current_process] = $1
-          current_process = nil
-        end
       end
       hash
-    end.each do |process, amount|
+    end
+
+    error "Usage: heroku ps:scale web=2 worker+1" if changes.empty?
+
+    changes.each do |process, amount|
       display "Scaling #{process} processes... ", false
       amount.gsub!("=", "")
       new_qty = heroku.ps_scale(app, :type => process, :qty => amount)
