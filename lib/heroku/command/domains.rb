@@ -13,9 +13,9 @@ module Heroku::Command
     def index
       domains = heroku.list_domains(app)
       if domains.empty?
-        display "No domain names for #{app}.#{heroku.host}"
+        display "No domain names for #{app_url}"
       else
-        display "Domain names for #{app}.#{heroku.host}:"
+        display "Domain names for #{app_url}:"
         display domains.map { |d| d[:domain] }.join("\n")
       end
     end
@@ -48,5 +48,11 @@ module Heroku::Command
       heroku.remove_domains(app)
       display "Removed all domain names for #{app}.#{heroku.host}"
     end
+
+    protected
+      def app_url
+        url = heroku.info(app)[:web_url]
+        url.to_s.gsub('http://', '').gsub(/\/$/, '')
+      end
   end
 end

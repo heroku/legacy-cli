@@ -5,6 +5,7 @@ module Heroku::Command
   describe Domains do
     before do
       @domains = prepare_command(Domains)
+      @domains.heroku.stub!(:info).and_return({})
     end
 
     it "lists domains" do
