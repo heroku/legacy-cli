@@ -392,7 +392,7 @@ Console sessions require an open dyno to use for execution.
 
       begin
         http.start do
-          http.request_get(uri.path) do |request|
+          http.request_get(uri.path + (uri.query ? "?" + uri.query : "")) do |request|
             request.read_body do |chunk|
               yield chunk
             end
