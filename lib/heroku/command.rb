@@ -122,7 +122,7 @@ module Heroku
       run "login"
       retry
     rescue RestClient::PaymentRequired => e
-      retry if run('account:confirm_billing', args.dup)
+      retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e
       error extract_not_found(e.http_body)
     rescue RestClient::Locked => e
