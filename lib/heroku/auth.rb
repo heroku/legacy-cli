@@ -144,7 +144,7 @@ class Heroku::Auth
 
     def check_for_associated_ssh_key
       return unless client.keys.length.zero?
-      public_keys = available_ssh_public_keys
+      public_keys = available_ssh_public_keys.sort
 
       case public_keys.length
       when 0 then
@@ -161,7 +161,7 @@ class Heroku::Auth
         associate_key(public_keys.first) unless ask.strip.downcase == "n"
       else
         display "Found the following SSH public keys:"
-        public_keys.sort.each_with_index do |key, index|
+        public_keys.each_with_index do |key, index|
           display "#{index+1}) #{File.basename(key)}"
         end
         display "Which would you like to use with your Heroku account? ", false
