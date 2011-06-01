@@ -22,8 +22,12 @@ AWS::S3::Base.establish_connection!(
   :secret_access_key => ENV["HEROKU_RELEASE_SECRET"]
 )
 
+def store_package(package_file, filename)
+  AWS::S3::S3Object.store(filename, File.open(package_file), "assets.heroku.com", :access => :public_read)
+end
+
 version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
 
-AWS::S3::S3Object.store("heroku-client/heroku-client-#{version}.tgz", File.open(package_file), "assets.heroku.com")
-AWS::S3::S3Object.store("heroku-client/heroku-client-current.tgz", File.open(package_file), "assets.heroku.com")
+store_package package_file, "heroku-client/heroku-client-#{version}.tgz"
+store_package package_file, "heroku-client/heroku-client-latest.tgz"
 
