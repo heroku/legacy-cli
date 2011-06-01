@@ -3,6 +3,7 @@ source "http://rubygems.org"
 gemspec
 
 group :development do
+  gem "aws-s3"
   gem "fakefs"
   gem "parka", ">= 0.6.2"
   gem "rake",  ">= 0.8.7"
