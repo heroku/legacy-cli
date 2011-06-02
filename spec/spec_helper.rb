@@ -67,6 +67,22 @@ def any_instance_of(klass, &block)
   any_instance_of(klass, &block)
 end
 
+def run(command_line)
+  cmd, *args = command_line.split(" ")
+  capture_stdout { Heroku::Command.run(cmd, args) }
+end
+
+def capture_stdout(&block)
+  original_stdout = $stdout
+  $stdout = fake = StringIO.new
+  begin
+    yield
+  ensure
+    $stdout = original_stdout
+  end
+  fake.string
+end
+
 def fail_command(message)
   raise_error(Heroku::Command::CommandFailed, message)
 end

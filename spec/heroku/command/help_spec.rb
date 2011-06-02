@@ -27,6 +27,13 @@ describe Heroku::Command::Help do
       output.should_not include "Additional commands"
     end
 
+    it "should show command help with --help" do
+      output = run "apps:create --help"
+      output.should include "heroku apps:create"
+      output.should include "create a new app"
+      output.should_not include "Additional commands"
+    end
+
     describe "with legacy help" do
       require "helper/legacy_help"
 
