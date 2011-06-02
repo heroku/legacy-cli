@@ -32,7 +32,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --raw  # output info as raw key/value pairs
   #
   def info
-    name = (args.first && !args.first =~ /^\-\-/) ? args.first : extract_app
+    name = extract_app
     attrs = heroku.info(name)
 
     attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
