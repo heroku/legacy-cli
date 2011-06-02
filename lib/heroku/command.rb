@@ -99,10 +99,7 @@ module Heroku
         retry
       end
 
-      if opts[:help]
-        run "help", [cmd]
-        return
-      end
+      raise OptionParser::ParseError if opts[:help]
 
       args.concat(invalid_options)
 
