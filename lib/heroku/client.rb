@@ -427,7 +427,7 @@ Console sessions require an open dyno to use for execution.
 
   def workers(app_name)
     doc = xml(get("/apps/#{app_name}").to_s)
-    doc.elements["//app/workers"].text
+    doc.elements["//app/workers"].text.to_i
   end
 
   # Scales the web processes.

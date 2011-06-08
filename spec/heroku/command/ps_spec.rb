@@ -4,7 +4,7 @@ require "heroku/command/ps"
 describe Heroku::Command::Ps do
   describe "ps:dynos" do
     it "displays the current number of dynos" do
-      stub_core.info("myapp").returns(:dynos => "5")
+      stub_core.dynos("myapp").returns(5)
       execute "ps:dynos"
       output.should =~ /myapp is running 5 dynos/
     end
@@ -18,7 +18,7 @@ describe Heroku::Command::Ps do
 
   describe "ps:workers" do
     it "displays the current number of workers" do
-      stub_core.info("myapp").returns(:workers => "5")
+      stub_core.workers("myapp").returns(5)
       execute "ps:workers"
       output.should =~ /myapp is running 5 workers/
     end

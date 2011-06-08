@@ -158,6 +158,26 @@ describe Heroku::Client do
     @client.cron_logs('myapp').should == 'cron log'
   end
 
+  it "can get the number of dynos" do
+    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+      <?xml version='1.0' encoding='UTF-8'?>
+      <app>
+        <dynos type='integer'>5</dynos>
+      </app>
+    EOXML
+    @client.dynos('myapp').should == 5
+  end
+
+  it "can get the number of workers" do
+    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+      <?xml version='1.0' encoding='UTF-8'?>
+      <app>
+        <workers type='integer'>5</workers>
+      </app>
+    EOXML
+    @client.workers('myapp').should == 5
+  end
+
   it "set_dynos(app_name, qty) -> scales the app" do
     stub_api_request(:put, "/apps/myapp/dynos").with(:body => "dynos=3")
     @client.set_dynos('myapp', 3)
