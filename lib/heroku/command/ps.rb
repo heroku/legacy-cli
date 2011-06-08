@@ -16,8 +16,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
       current = heroku.set_dynos(app, dynos)
       display "#{app} now running #{quantify("dyno", current)}"
     else
-      info = heroku.info(app)
-      display "#{app} is running #{quantify("dyno", info[:dynos])}"
+      dynos = heroku.dynos(app)
+      display "#{app} is running #{quantify("dyno", dynos)}"
     end
   end
 
@@ -35,8 +35,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
       current = heroku.set_workers(app, workers)
       display "#{app} now running #{quantify("worker", current)}"
     else
-      info = heroku.info(app)
-      display "#{app} is running #{quantify("worker", info[:workers])}"
+      workers = heroku.workers(app)
+      display "#{app} is running #{quantify("worker", workers)}"
     end
   end
 

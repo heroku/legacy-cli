@@ -420,6 +420,16 @@ Console sessions require an open dyno to use for execution.
     delete("/apps/#{app_name}/logs/drains", {}).to_s
   end
 
+  def dynos(app_name)
+    doc = xml(get("/apps/#{app_name}").to_s)
+    doc.elements["//app/dynos"].text.to_i
+  end
+
+  def workers(app_name)
+    doc = xml(get("/apps/#{app_name}").to_s)
+    doc.elements["//app/workers"].text
+  end
+
   # Scales the web processes.
   def set_dynos(app_name, qty)
     put("/apps/#{app_name}/dynos", :dynos => qty).to_s
