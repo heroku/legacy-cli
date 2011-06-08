@@ -226,13 +226,6 @@ describe Heroku::Client do
       @client.add_collaborator('myapp', 'joe@example.com')
     end
 
-    it "add_collaborator returns the response body of a failed request" do
-      stub_request(:post, %r{.*/apps/myapp/collaborators}).to_return({
-        :body => "ERRMSG", :status => 422
-      })
-      @client.add_collaborator('myapp', 'joe@example.com').to_s.should == "ERRMSG"
-    end
-
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
       stub_api_request(:delete, "/apps/myapp/collaborators/joe%40example%2Ecom")
       @client.remove_collaborator('myapp', 'joe@example.com')
