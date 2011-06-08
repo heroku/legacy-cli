@@ -224,7 +224,7 @@ Console sessions require an open dyno to use for execution.
 
   # internal method to run console commands formatting the output
   def run_console_command(url, command, prefix=nil)
-    output = post(url, command).to_s
+    output = post(url, { :command => command }).to_s
     return output unless prefix
     if output.include?("\n")
       lines  = output.split("\n")

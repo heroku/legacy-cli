@@ -90,13 +90,13 @@ describe Heroku::Client do
   end
 
   it "console(app_name, cmd) -> run a console command on the app" do
-    stub_api_request(:post, "/apps/myapp/console").with(:body => "2+2")
+    stub_api_request(:post, "/apps/myapp/console").with(:body => "command=2%2B2")
     @client.console('myapp', '2+2')
   end
 
   it "console(app_name) { |c| } -> opens a console session, yields one accessor and closes it after the block" do
     stub_api_request(:post,   "/apps/myapp/consoles").to_return(:body => "consolename")
-    stub_api_request(:post,   "/apps/myapp/consoles/consolename/command").with(:body => "1+1").to_return(:body => "2")
+    stub_api_request(:post,   "/apps/myapp/consoles/consolename/command").with(:body => "command=1%2B1").to_return(:body => "2")
     stub_api_request(:delete, "/apps/myapp/consoles/consolename")
 
     @client.console('myapp') do |c|
@@ -105,7 +105,7 @@ describe Heroku::Client do
   end
 
   it "console displays xml-formatted errors properly" do
-    stub_api_request(:post, "/apps/myapp/console").with(:body => 'test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
+    stub_api_request(:post, "/apps/myapp/console").with(:body => 'command=test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
     @client.console('myapp', 'test').should == ' !   Test Error'
   end
 
