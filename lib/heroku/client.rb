@@ -656,6 +656,7 @@ Console sessions require an open dyno to use for execution.
     elements.inject({}) do |hash, e|
       next(hash) unless e.respond_to?(:children)
       hash.update(e.name.gsub("-","_").to_sym => case e.children.length
+        when 0 then nil
         when 1 then e.text
         else hash_from_xml_doc(e.children)
       end)
