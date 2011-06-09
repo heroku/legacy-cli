@@ -139,7 +139,7 @@ private
       return if "SHARED_DATABASE" == db[:name]
 
       ticking do |ticks|
-        wait_status = heroku_postgresql_client(db[:url]).get_availability
+        wait_status = heroku_postgresql_client(db[:url]).get_wait_status
         break if !wait_status[:waiting?] && ticks == 0
         redisplay("Waiting for database %s... %s%s" % [
                     db[:pretty_name],
