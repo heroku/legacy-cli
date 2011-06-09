@@ -3,6 +3,17 @@ require "heroku/command/apps"
 require "heroku/command/help"
 
 describe Heroku::Command::Help do
+  describe "Help.usage_for_command" do
+    it "returns the usage if the command exists" do
+      usage = Heroku::Command::Help.usage_for_command("help")
+      usage.should == "Usage: heroku help [COMMAND]"
+    end
+
+    it "returns nil if command does not exist" do
+      usage = Heroku::Command::Help.usage_for_command("bleahhaelihef")
+      usage.should_not be
+    end
+  end
 
   describe "help" do
     it "should show root help with no args" do

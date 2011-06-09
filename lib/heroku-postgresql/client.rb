@@ -1,60 +1,42 @@
 require "heroku/helpers"
+require 'digest/sha2'
 
 module HerokuPostgresql
   class Client
-    Version = 9
+    Version = 10
 
     include Heroku::Helpers
 
-    def initialize(database_user, database_password, database_name)
+    def initialize(url)
       @heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"
-      @database_user = database_user
-      @database_password = database_password
-      @database_name = database_name
+      @database_sha = sha(url)
       @heroku_postgresql_resource = RestClient::Resource.new(
-        "#{@heroku_postgresql_host}/client/databases",
-        :user => @database_user,
-        :password => @database_password,
-        :headers => {:heroku_client_version => Version})
+        "#{@heroku_postgresql_host}/client/v10/databases",
+        :headers =>  { :x_heroku_gem_version  => Heroku::Client.version }
+        )
     end
 
     def ingress
-      http_put("#{@database_name}/ingress")
+      http_put "#{@database_sha}/ingress"
     end
 
     def reset
-      http_put("#{@database_name}/reset")
+      http_put "#{@database_sha}/reset"
     end
 
     def get_database
-      http_get(@database_name)
+      http_get @database_sha
     end
 
-    def create_backup(backup_name, from_database_url=nil)
-      http_post("#{@database_name}/backups", {:name => backup_name, :from_database_url => from_database_url})
-    end
-
-    def get_backup_recent
-      http_get("#{@database_name}/backups/recent")
-    end
-
-    def get_backup(backup_name)
-      http_get("#{@database_name}/backups/#{backup_name}")
-    end
-
-    def get_backups
-      http_get("#{@database_name}/backups")
-    end
-
-    def create_restore(restore_param)
-      http_post("#{@database_name}/restores", restore_param)
-    end
-
-    def get_restore(restore_id)
-      http_get("#{@database_name}/restores/#{restore_id}")
+    def unfollow
+      http_put "#{@database_sha}/unfollow"
     end
 
     protected
+
+    def sha(url)
+      Digest::SHA2.hexdigest url
+    end
 
     def sym_keys(c)
       if c.is_a?(Array)
@@ -78,23 +60,35 @@ module HerokuPostgresql
       end
     end
 
+    def display_heroku_warning(response)
+      warning = response.headers[:x_heroku_warning]
+      display warning if warning
+      response
+    end
+
     def http_get(path)
       checking_client_version do
         retry_on_exception(RestClient::Exception) do
-          sym_keys(json_decode(@heroku_postgresql_resource[path].get.to_s))
+          response = @heroku_postgresql_resource[path].get
+          display_heroku_warning response
+          sym_keys(json_decode(response.to_s))
         end
       end
     end
 
     def http_post(path, payload = {})
       checking_client_version do
-        sym_keys(json_decode(@heroku_postgresql_resource[path].post(json_encode(payload)).to_s))
+        response = @heroku_postgresql_resource[path].post(json_encode(payload))
+        display_heroku_warning response
+        sym_keys(json_decode(response.to_s))
       end
     end
 
     def http_put(path, payload = {})
       checking_client_version do
-        sym_keys(json_decode(@heroku_postgresql_resource[path].put(json_encode(payload)).to_s))
+        response = @heroku_postgresql_resource[path].put(json_encode(payload))
+        display_heroku_warning response
+        sym_keys(json_decode(response.to_s))
       end
     end
   end
