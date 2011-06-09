@@ -120,7 +120,6 @@ module Heroku::Command
     # defaults to all databases if no DATABASE is specified
     #
     def wait
-      display "Checking availablity of all databases" unless specified_db?
       specified_db_or_all { |db| wait_for db }
     end
 
@@ -138,33 +137,16 @@ private
 
     def wait_for(db)
       return if "SHARED_DATABASE" == db[:name]
-      name = "database #{db[:pretty_name]}"
+
       ticking do |ticks|
-        database = heroku_postgresql_client(db[:url]).get_database
-        state = database[:state]
-        if state == "available"
-          redisplay("The #{name} is available", true)
-          break
-        elsif state == "deprovisioned"
-          redisplay("The #{name} has been destroyed", true)
-          break
-        elsif state == "failed"
-          redisplay("The #{name} encountered an error", true)
-          break
-        else
-          if state == "downloading"
-            msg = "(#{database[:database_dir_size].to_i} bytes)"
-          elsif state == "standby"
-              msg = "(#{database[:current_transaction]}/#{database[:target_transaction]})"
-              if database[:following]
-                redisplay("The #{name} is now following", true)
-                break
-              end
-          else
-            msg = ''
-          end
-          redisplay("#{state.capitalize} #{name} #{spinner(ticks)} #{msg}", false)
-        end
+        wait_status = heroku_postgresql_client(db[:url]).get_availability
+        break if !wait_status[:waiting?] && ticks == 0
+        redisplay("Waiting for database %s... %s%s" % [
+                    db[:pretty_name],
+                    wait_status[:waiting?] ? "#{spinner(ticks)} " : "",
+                    wait_status[:message]],
+                  !wait_status[:waiting?]) # only display a newline on the last tick
+        break unless wait_status[:waiting?]
       end
     end
 
