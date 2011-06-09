@@ -139,7 +139,7 @@ private
       return if "SHARED_DATABASE" == db[:name]
 
       ticking do |ticks|
-        wait_status = heroku_postgresql_client(db[:url]).get_availability
+        wait_status = heroku_postgresql_client(db[:url]).get_wait_status
         break if !wait_status[:waiting?] && ticks == 0
         redisplay("Waiting for database %s... %s%s" % [
                     db[:pretty_name],
@@ -186,7 +186,7 @@ private
       abort " !  Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
       hpc = heroku_postgresql_client(db[:url])
       state = hpc.get_database[:state]
-      abort " !  The database is not available" unless ["available", "standby"].member?(state)
+      abort " !  The database is not available" unless ["available", "following"].member?(state)
       working_display("#{action} to #{db[:name]}") { hpc.ingress }
       return URI.parse(db[:url])
     end
