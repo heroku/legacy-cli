@@ -14,6 +14,7 @@ module Heroku::Command
     it "requests a pgbackups transfer list for the index command" do
       fake_client = mock("pgbackups_client")
       fake_client.should_receive(:get_transfers).and_return([])
+      @pgbackups.stub!(:no_backups_error!)
       @pgbackups.should_receive(:pgbackup_client).with.and_return(fake_client)
 
       @pgbackups.index
@@ -25,7 +26,7 @@ module Heroku::Command
         fake_client = mock("pgbackups_client")
         fake_client.should_receive(:get_latest_backup).and_return({'public_url' => latest_backup_url })
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
-        @pgbackups.should_receive(:display).with(latest_backup_url)
+        @pgbackups.should_receive(:display).with('"'+latest_backup_url+'"')
 
         @pgbackups.url
       end
@@ -39,7 +40,7 @@ module Heroku::Command
         fake_client.should_receive(:get_backup).with(backup_name).and_return({'public_url' => named_url })
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
 
-        @pgbackups.should_receive(:display).with(named_url)
+        @pgbackups.should_receive(:display).with('"'+named_url+'"')
 
         @pgbackups.url
       end
@@ -49,11 +50,11 @@ module Heroku::Command
         from_name = "FROM_NAME"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
-        @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
+        @pgbackups.stub!(:resolve_db).and_return( {:url => from_url, :name => from_name} )
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
 
         fake_client = mock("pgbackups_client")
-        fake_client.should_receive(:create_transfer).with(from_url, from_name, nil, "BACKUP", {}).and_return(backup_obj)
+        fake_client.should_receive(:create_transfer).with(from_url, from_name, nil, "BACKUP", {:expire => nil}).and_return(backup_obj)
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
 
         @pgbackups.capture
@@ -64,7 +65,7 @@ module Heroku::Command
         from_name = "FROM_NAME"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
-        @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
+        @pgbackups.stub!(:resolve_db).and_return( {:url => from_url, :name => from_name} )
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
         @pgbackups.stub!(:options).and_return(:expire => true)
 
@@ -100,8 +101,7 @@ module Heroku::Command
       end
 
       it "aborts if no database addon is present" do
-        @pgbackups.stub!(:resolve_db_id).and_return(["DATABASE_URL", nil])
-        @pgbackups.should_receive(:abort).with(" !   No database addon detected.").and_raise(SystemExit)
+        @pgbackups.should_receive(:abort).and_raise(SystemExit)
         lambda { @pgbackups.capture }.should raise_error SystemExit
       end
 
@@ -117,7 +117,7 @@ module Heroku::Command
         end
 
         before(:each) do
-          @pgbackups.stub!(:resolve_db_id).and_return(["postgres://from/bar","postgres://from/bar"])
+          @pgbackups.stub!(:resolve_db).and_return({})
         end
 
         it 'aborts on a generic error' do
@@ -149,7 +149,7 @@ module Heroku::Command
       before do
         from_url = "postgres://fromhost/database"
         from_name = "FROM_NAME"
-        @pgbackups.stub!(:resolve_db_id).and_return([from_name, from_url])
+        @pgbackups.stub!(:resolve_db).and_return({:name => from_name, :url => from_url})
 
         @pgbackups_client = mock("pgbackups_client")
         @pgbackups.stub!(:pgbackup_client).and_return(@pgbackups_client)
@@ -165,9 +165,8 @@ module Heroku::Command
       end
 
       it "aborts if no database addon is present" do
-        @pgbackups.stub!(:resolve_db_id).and_return(["DATABASE_URL", nil])
-        @pgbackups.should_receive(:abort).with(" !   No database addon detected.").and_raise(SystemExit)
-        lambda { @pgbackups.restore }.should raise_error SystemExit
+        @pgbackups.should_receive(:resolve_db).and_raise(SystemExit)
+        lambda { @pgbackups.restore }.should raise_error(SystemExit)
       end
 
       context "for commands which perform restores" do
@@ -192,13 +191,17 @@ module Heroku::Command
 
         it "should restore the named backup" do
           name = "backupname"
-          @pgbackups.stub(:args).and_return([name])
+          args = ['db_name_gets_shifted_out_in_resove_db', name]
+          @pgbackups.stub(:args).and_return(args)
+          @pgbackups.stub(:resolve_db) { args.shift; {:name => 'name', :url => 'url'} }
           @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
           @pgbackups.restore
         end
 
         it "should handle external restores" do
-          @pgbackups.stub(:args).and_return(["http://external/file.dump"])
+          args = ['db_name_gets_shifted_out_in_resove_db', "http://external/file.dump"]
+          @pgbackups.stub(:args).and_return(args)
+          @pgbackups.stub(:resolve_db) { args.shift; {:name => 'name', :url => 'url'} }
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
           @pgbackups.restore

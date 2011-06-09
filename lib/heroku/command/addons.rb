@@ -1,11 +1,13 @@
 require "launchy"
 require "heroku/command/base"
+require "heroku/pgutils"
 
 module Heroku::Command
 
   # manage addon resources
   #
   class Addons < BaseWithApp
+    include PgUtils
 
     # addons
     #
@@ -86,6 +88,7 @@ module Heroku::Command
     # uninstall an addon
     #
     def remove
+      return unless confirm_command
       args.each do |name|
         display "Removing #{name} from #{app}... ", false
         display addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
@@ -185,7 +188,8 @@ module Heroku::Command
 
       def configure_addon(label, &install_or_upgrade)
         addon = args.shift
-        raise CommandFailed.new("Missing add-on name") unless addon
+        raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
+        munge_fork_and_follow(addon) if addon =~ /^heroku-postgresql/
 
         config = {}
         args.each do |arg|
@@ -200,5 +204,6 @@ module Heroku::Command
         display "#{label} #{addon} to #{app}... ", false
         display addon_run { install_or_upgrade.call(addon, config) }
       end
+
   end
 end

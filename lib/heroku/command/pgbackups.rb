@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/pg_resolver"
 require "heroku/pgutils"
 require "pgbackups/client"
 
@@ -6,6 +7,7 @@ module Heroku::Command
 
   # manage backups of heroku postgresql databases
   class Pgbackups < BaseWithApp
+    include PGResolver
     include PgUtils
 
     # pgbackups
@@ -20,7 +22,7 @@ module Heroku::Command
       }
 
       if backups.empty?
-        display("No backups. Capture one with `heroku pgbackups:capture`.")
+        no_backups_error!
       else
         display Display.new.render([["ID", "Backup Time", "Size", "Database"]], backups)
       end
@@ -37,7 +39,7 @@ module Heroku::Command
         b = pgbackup_client.get_latest_backup
       end
       abort("No backup found.") unless b['public_url']
-      display b['public_url']
+      display '"'+b['public_url']+'"'
     end
 
     # pgbackups:capture [DATABASE]
@@ -49,22 +51,21 @@ module Heroku::Command
     # -e, --expire  # if no slots are available to capture, delete the oldest backup to make room
     #
     def capture
-      expire = extract_option("--expire")
-      db_id = args.shift
-      from_name, from_url = resolve_db_id(db_id, :default => "DATABASE_URL")
-      db_id ||= "DATABASE_URL"
+      deprecate_dash_dash_db("pgbackups:capture")
 
-      abort(" !   No database addon detected.") unless from_url
+      db = resolve_db(:allow_default => true)
 
-      to_name = "BACKUP"
-      to_url = nil # server will assign
+      from_url  = db[:url]
+      from_name = db[:name]
+      to_url    = nil # server will assign
+      to_name   = "BACKUP"
+      opts      = {:expire => extract_option("--expire")}
 
-      opts = {}
-      opts[:expire] = true if expire
       backup = transfer!(from_url, from_name, to_url, to_name, opts)
+
       to_uri = URI.parse backup["to_url"]
       backup_id = to_uri.path.empty? ? "error" : File.basename(to_uri.path, '.*')
-      display "\n#{db_id}  ----backup--->  #{backup_id}"
+      display "\n#{db[:pretty_name]}  ----backup--->  #{backup_id}"
 
       backup = poll_transfer!(backup)
 
@@ -76,55 +77,60 @@ module Heroku::Command
       end
     end
 
-    # pgbackups:restore [BACKUP_ID]
+    # pgbackups:restore [<DATABASE> [BACKUP_ID|BACKUP_URL]]
     #
-    # restore a backup to a database id
+    # restore a backup to a database
     #
-    # if no BACKUP_ID is specified, uses the most recent backup
-    #
-    # -d, --db DATABASE  # the database id to target for the restore
+    # if no DATABASE is specified, defaults to DATABASE_URL and latest backup
+    # if DATABASE is specified, but no BACKUP_ID, defaults to latest backup
     #
     def restore
-      db_id = extract_option("--db")
-      confirm = extract_option("--confirm")
-      to_name, to_url = resolve_db_id(db_id, :default => "DATABASE_URL")
-      db_id = to_name
+      deprecate_dash_dash_db("pgbackups:restore")
 
-      abort(" !   No database addon detected.") unless to_url
+      if 0 == args.size
+        db = resolve_db(:allow_default => true)
+        backup_id = :latest
+      elsif 1 == args.size
+        db = resolve_db
+        backup_id = :latest
+      else
+        db = resolve_db
+        backup_id = args.shift
+      end
 
-      backup_id = args.shift
+      to_name = db[:name]
+      to_url  = db[:url]
 
-      if backup_id =~ /^http(s?):\/\//
+      if :latest == backup_id
+        backup = pgbackup_client.get_latest_backup
+        no_backups_error! if {} == backup
+        to_uri = URI.parse backup["to_url"]
+        backup_id = File.basename(to_uri.path, '.*')
+        backup_id = "#{backup_id} (most recent)"
+        from_url  = backup["to_url"]
+        from_name = "BACKUP"
+      elsif backup_id =~ /^http(s?):\/\//
         from_url  = backup_id
         from_name = "EXTERNAL_BACKUP"
         from_uri  = URI.parse backup_id
         backup_id = from_uri.path.empty? ? from_uri : File.basename(from_uri.path)
       else
-        if backup_id
-          backup = pgbackup_client.get_backup(backup_id)
-          abort("Backup #{backup_id} already deleted.") if backup["destroyed_at"]
-        else
-          backup = pgbackup_client.get_latest_backup
-          to_uri = URI.parse backup["to_url"]
-          backup_id = File.basename(to_uri.path, '.*')
-          backup_id = "#{backup_id} (most recent)"
-        end
+        backup = pgbackup_client.get_backup(backup_id)
+        abort("Backup #{backup_id} already deleted.") if backup["destroyed_at"]
 
         from_url  = backup["to_url"]
         from_name = "BACKUP"
       end
 
-      db_display = db_id
-      db_display += " (DATABASE_URL)" if db_id != "DATABASE_URL" && config_vars[db_id] == config_vars["DATABASE_URL"]
-      padding = " " * "#{db_display}  <---restore---  ".length
-      display "\n#{db_display}  <---restore---  #{backup_id}"
+      message = "#{db[:pretty_name]}  <---restore---  "
+      padding = " " * message.length
+      display "\n#{message}#{backup_id}"
       if backup
         display padding + "#{backup['from_name']}"
         display padding + "#{backup['created_at']}"
         display padding + "#{backup['size']}"
       end
 
-      @args += ['--confirm', confirm]
       if confirm_command
         restore = transfer!(from_url, from_name, to_url, to_name)
         restore = poll_transfer!(restore)
@@ -302,6 +308,10 @@ module Heroku::Command
     end
 
     private
+
+    def no_backups_error!
+      error(" !   No backups. Capture one with `heroku pgbackups:capture`.")
+    end
 
     # lists all types of backups ('to_name' attribute)
     #
