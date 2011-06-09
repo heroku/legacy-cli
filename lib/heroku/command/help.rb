@@ -21,6 +21,11 @@ class Heroku::Command::Help < Heroku::Command::Base
     end
   end
 
+  def self.usage_for_command(command)
+    command = new.send(:commands)[command]
+    "Usage: heroku #{command[:banner]}" if command
+  end
+
 private
 
   def commands_for_namespace(name)

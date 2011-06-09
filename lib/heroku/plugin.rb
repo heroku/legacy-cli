@@ -12,6 +12,7 @@ module Heroku
       heroku-pgdumps
       heroku-logging
       pgbackups-automate
+      pgcmd
     )
 
     attr_reader :name, :uri
