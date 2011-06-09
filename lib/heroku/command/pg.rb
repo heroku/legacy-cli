@@ -185,8 +185,7 @@ private
       db = resolve_db(:allow_default => true)
       abort " !  Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
       hpc = heroku_postgresql_client(db[:url])
-      state = hpc.get_database[:state]
-      abort " !  The database is not available" unless ["available", "standby"].member?(state)
+      abort " !  The database is not available for ingress" unless hpc.get_database[:available_for_ingress]
       working_display("#{action} to #{db[:name]}") { hpc.ingress }
       return URI.parse(db[:url])
     end
