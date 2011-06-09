@@ -55,9 +55,7 @@ class Heroku::Client
   def info(name_or_domain)
     name_or_domain = name_or_domain.gsub(/^(http:\/\/)?(www\.)?/, '')
     doc = xml(get("/apps/#{name_or_domain}").to_s)
-    attrs = doc.elements.to_a('//app/*').inject({}) do |hash, element|
-      hash[element.name.gsub(/-/, '_').to_sym] = element.text; hash
-    end
+    attrs = hash_from_xml_doc(doc)[:app]
     attrs.merge!(:collaborators => list_collaborators(attrs[:name]))
     attrs.merge!(:addons        => installed_addons(attrs[:name]))
   end
@@ -652,5 +650,15 @@ Console sessions require an open dyno to use for execution.
 
   def local_ca_file
     File.expand_path("../../../data/cacert.pem", __FILE__)
+  end
+
+  def hash_from_xml_doc(elements)
+    elements.inject({}) do |hash, e|
+      next(hash) unless e.respond_to?(:children)
+      hash.update(e.name.gsub("-","_").to_sym => case e.children.length
+        when 1 then e.text
+        else hash_from_xml_doc(e.children)
+      end)
+    end
   end
 end

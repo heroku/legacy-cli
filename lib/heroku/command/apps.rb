@@ -59,6 +59,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
       display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
       display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
       display "Stack:          #{attrs[:stack]}" if attrs[:stack]
+
+      if attrs[:dyno_hours].is_a?(Hash)
+        formatted_hours = attrs[:dyno_hours].keys.map do |type|
+          "%s - %0.2f dyno-hours" % [ type.capitalize, attrs[:dyno_hours][type] ]
+        end
+        display "Dyno usage:     %s" % formatted_hours.join("\n                ")
+      end
+
       if attrs[:database_size]
         data = format_bytes(attrs[:database_size])
         if tables = attrs[:database_tables]
