@@ -152,7 +152,7 @@ module Heroku::Command
           done = "done"
           price = "(#{ response['price'] })" if response['price']
 
-          if response['message'] =~ /Attached as ([A-Z0-9_]+)\n(.*)/
+          if response['message'] =~ /Attached as ([A-Z0-9_]+)\n(.*)/m
             attachment = $1
             message = $2
           else
