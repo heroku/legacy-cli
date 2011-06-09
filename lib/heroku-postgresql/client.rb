@@ -28,6 +28,10 @@ module HerokuPostgresql
       http_get @database_sha
     end
 
+    def get_wait_status
+      http_get "#{@database_sha}/wait_status"
+    end
+
     def unfollow
       http_put "#{@database_sha}/unfollow"
     end
