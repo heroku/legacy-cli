@@ -88,7 +88,6 @@ module Heroku::Command
     # uninstall an addon
     #
     def remove
-      return unless confirm_command
       args.each do |name|
         display "Removing #{name} from #{app}... ", false
         display addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
