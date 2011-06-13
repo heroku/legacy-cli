@@ -149,10 +149,9 @@ module Heroku::Command
         response = yield
 
         if response
-          done = "done"
           price = "(#{ response['price'] })" if response['price']
 
-          if response['message'] =~ /Attached as ([A-Z0-9_]+)\n(.*)/m
+          if response['message'] =~ /(Attached as [A-Z0-9_]+)\n(.*)/m
             attachment = $1
             message = $2
           else
@@ -162,27 +161,20 @@ module Heroku::Command
 
           begin
             release = heroku.releases(app).last['name']
-            done = "done,"
           rescue RestClient::RequestFailed => e
             release = nil
           end
         end
 
-        out = [ done, attachment, release, price ].compact.join(' ')
-        if message
-          out += "\n"
-          out += message.split("\n").map do |line|
-            "  #{line}"
-          end.join("\n")
-        end
-        out
+        status [ release, price ].compact.join(' ')
+        { :attachment => attachment, :message => message }
       rescue RestClient::ResourceNotFound => e
-        "FAILED\n !   #{e.response.to_s}"
+        error e.response.to_s
       rescue RestClient::Locked => ex
         raise
       rescue RestClient::RequestFailed => e
         retry if e.http_code == 402 && confirm_billing
-        "FAILED\n" + Heroku::Command.extract_error(e.http_body)
+        error Heroku::Command.extract_error(e.http_body)
       end
 
       def configure_addon(label, &install_or_upgrade)
@@ -200,8 +192,12 @@ module Heroku::Command
           end
         end
 
-        display "#{label} #{addon} to #{app}... ", false
-        display addon_run { install_or_upgrade.call(addon, config) }
+        messages = nil
+        action("#{label} #{addon} to #{app}") do
+          messages = addon_run { install_or_upgrade.call(addon, config) }
+        end
+        output messages[:attachment] if messages[:attachment]
+        output_with_arrow messages[:message]
       end
 
   end

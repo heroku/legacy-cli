@@ -216,6 +216,81 @@ module Heroku
     def fail(message)
       raise Heroku::Command::CommandFailed, message
     end
+
+    ## DISPLAY HELPERS
+
+    def arrow(message)
+      "-----> #{message}"
+    end
+
+    def action(message)
+      print "#{arrow(message)}... "
+      Heroku::Helpers.enable_error_capture
+      yield
+      Heroku::Helpers.disable_error_capture
+      print "done"
+      print ", #{@status}" if @status
+      puts
+    end
+
+    def status(message)
+      @status = message
+    end
+
+    def output(message="")
+      puts "       " + message.split("\n").join("\n       ")
+    end
+
+    def output_with_arrow(message="")
+      puts "-----> " + message.split("\n").join("\n       ")
+    end
+
+    def error_with_failure(message)
+      puts "failed"
+      message.gsub!(/^ +! */, '')
+      puts message.split("\n").map { |line| " !     #{line}" }.join("\n")
+      exit 1
+    end
+
+    def self.included_into
+      @@included_into ||= []
+    end
+
+    def self.extended_into
+      @@extended_into ||= []
+    end
+
+    def self.included(base)
+      included_into << base
+    end
+
+    def self.extended(base)
+      extended_into << base
+    end
+
+    def self.enable_error_capture
+      included_into.each do |base|
+        base.send(:alias_method, :error_without_failure, :error)
+        base.send(:alias_method, :error, :error_with_failure)
+      end
+      extended_into.each do |base|
+        class << base
+          alias_method :error_without_failure, :error
+          alias_method :error, :error_with_failure
+        end
+      end
+    end
+
+    def self.disable_error_capture
+      included_into.each do |base|
+        base.send(:alias_method, :error, :error_without_failure)
+      end
+      extended_into.each do |base|
+        class << base
+          alias_method :error, :error_without_failure
+        end
+      end
+    end
   end
 end
 
