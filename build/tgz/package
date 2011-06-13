@@ -50,7 +50,7 @@ Dir.chdir(project_root)
 version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
 
 require "tmpdir"
-package_dir = "#{Dir.mktmpdir}/heroku-#{version}"
+package_dir = "#{Dir.mktmpdir}/heroku-client"
 package_gem_dir = "#{package_dir}/vendor/gems"
 
 puts "building in: #{package_dir}"
