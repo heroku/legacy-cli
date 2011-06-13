@@ -23,7 +23,7 @@ AWS::S3::Base.establish_connection!(
 )
 
 def store_package(package_file, filename)
-  puts "storing as #{package_file}"
+  puts "storing: #{filename}"
   AWS::S3::S3Object.store(filename, File.open(package_file), "assets.heroku.com", :access => :public_read)
 end
 
