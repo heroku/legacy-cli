@@ -130,6 +130,13 @@ module Heroku::Helpers
   end
 end
 
+require "heroku/plugin"
+class Heroku::Plugin
+  def self.home_directory
+    "/tmp/nonexistant/we/hope"
+  end
+end
+
 require "support/display_message_matcher"
 
 Rspec.configure do |config|
