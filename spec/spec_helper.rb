@@ -35,20 +35,18 @@ def execute(command_line)
   Heroku::Command.load
   object, method = Heroku::Command.prepare_run(command, args)
 
-  $command_output = []
+  $command_output = ""
 
   def object.print(line=nil)
-    last_line = $command_output.pop || ""
-    last_line.concat(line)
-    $command_output.push last_line
+    $command_output << "#{line}"
   end
 
   def object.puts(line=nil)
-    $command_output << line
+    print("#{line}\n")
   end
 
   def object.error(line=nil)
-    $command_output << line
+    puts(line)
   end
 
   any_instance_of(Heroku::Command::Base) do |base|
@@ -59,7 +57,7 @@ def execute(command_line)
 end
 
 def output
-  ($command_output || []).join("\n")
+  $command_output.gsub(/\n$/, '')
 end
 
 def any_instance_of(klass, &block)
