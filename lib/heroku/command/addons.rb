@@ -94,7 +94,7 @@ module Heroku::Command
           messages = addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
         end
         output messages[:attachment] if messages[:attachment]
-        messages[:message]
+        output messages[:message]
       end
     end
 
