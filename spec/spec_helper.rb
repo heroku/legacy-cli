@@ -90,6 +90,9 @@ def stub_core
   any_instance_of(Heroku::Client) do |core|
     stubbed_core = stub(core)
   end
+  stub(Heroku::Auth).user.returns("user")
+  stub(Heroku::Auth).password.returns("pass")
+  stub(Heroku::Client).auth.returns("apikey01")
   stubbed_core
 end
 
