@@ -60,7 +60,7 @@ module Heroku::Command
         execute "addons:add my_addon"
         output.should == <<-OUTPUT.undent
           -----> Adding my_addon to myapp... done, v99 (free)
-          -----> foo
+                 foo
         OUTPUT
       end
 
@@ -69,7 +69,7 @@ module Heroku::Command
         execute "addons:add my_addon"
         output.should == <<-OUTPUT.undent
           -----> Adding my_addon to myapp... done, v99 ($200/mo)
-          -----> foo
+                 foo
                  bar
         OUTPUT
       end
@@ -108,7 +108,7 @@ module Heroku::Command
         execute "addons:upgrade my_addon"
         output.should == <<-OUTPUT.undent
           -----> Upgrading my_addon to myapp... done, v99 (free)
-          -----> Don't Panic
+                 Don't Panic
         OUTPUT
       end
     end
@@ -146,7 +146,7 @@ module Heroku::Command
         execute "addons:downgrade my_addon"
         output.should == <<-OUTPUT.undent
           -----> Upgrading my_addon to myapp... done, v99 (free)
-          -----> Don't Panic
+                 Don't Panic
         OUTPUT
       end
     end

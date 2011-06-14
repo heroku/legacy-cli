@@ -94,7 +94,7 @@ module Heroku::Command
           messages = addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
         end
         output messages[:attachment] if messages[:attachment]
-        output_with_arrow messages[:message]
+        messages[:message]
       end
     end
 
@@ -201,7 +201,7 @@ module Heroku::Command
           messages = addon_run { install_or_upgrade.call(addon, config) }
         end
         output messages[:attachment] unless messages[:attachment].to_s.strip == ""
-        output_with_arrow messages[:message]
+        output messages[:message]
       end
 
   end

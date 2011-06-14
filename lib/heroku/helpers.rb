@@ -238,6 +238,7 @@ module Heroku
     end
 
     def output(message="")
+      return if message.to_s.strip == ""
       display "       " + message.split("\n").join("\n       ")
     end
 
