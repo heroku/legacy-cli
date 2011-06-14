@@ -8,6 +8,10 @@ module Heroku::Command
       @addons.heroku.stub!(:releases).and_raise(RestClient::RequestFailed.new) # stub as if Releases not enabled
     end
 
+    before do
+      stub_core.releases("myapp").returns([ "name" => "v99" ])
+    end
+
     describe "index" do
       context "when working with addons" do
         it "lists installed addons" do
@@ -46,32 +50,28 @@ module Heroku::Command
       end
 
       it "adds an addon with a price" do
-        @addons.heroku.should_receive(:install_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free' })
-
-        lambda { @addons.add }.
-          should display_message(@addons, "done (free)")
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        execute "addons:add my_addon"
+        output.should =~ /\(free\)/
       end
 
       it "adds an addon with a price and message" do
-        @addons.heroku.should_receive(:install_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
-
-        lambda { @addons.add }.
-          should display_message(@addons, "done (free)\n  Don't Panic")
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "foo" })
+        execute "addons:add my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Adding my_addon to myapp... done, v99 (free)
+          -----> foo
+        OUTPUT
       end
 
-      it "adds an addon with a price and message" do
-        @addons.heroku.should_receive(:install_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
-
-        @addons.heroku.stub!(:releases).and_return([{"name" => "v1"}])
-
-        lambda { @addons.add }.
-          should display_message(@addons, "done, v1 (free)\n  Don't Panic")
+      it "adds an addon with a price and multiline message" do
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
+        execute "addons:add my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Adding my_addon to myapp... done, v99 ($200/mo)
+          -----> foo
+                 bar
+        OUTPUT
       end
     end
 
@@ -96,21 +96,20 @@ module Heroku::Command
       end
 
       it "adds an addon with a price" do
-        @addons.heroku.should_receive(:upgrade_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free' })
-
-        lambda { @addons.upgrade }.
-          should display_message(@addons, "done (free)")
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        execute "addons:upgrade my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Upgrading my_addon to myapp... done, v99 (free)
+        OUTPUT
       end
 
       it "adds an addon with a price and message" do
-        @addons.heroku.should_receive(:upgrade_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
-
-        lambda { @addons.upgrade }.
-          should display_message(@addons, "done (free)\n  Don't Panic")
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
+        execute "addons:upgrade my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Upgrading my_addon to myapp... done, v99 (free)
+          -----> Don't Panic
+        OUTPUT
       end
     end
 
@@ -135,21 +134,20 @@ module Heroku::Command
       end
 
       it "downgrades an addon with a price" do
-        @addons.heroku.should_receive(:upgrade_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free' })
-
-        lambda { @addons.downgrade }.
-          should display_message(@addons, "done (free)")
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        execute "addons:downgrade my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Upgrading my_addon to myapp... done, v99 (free)
+        OUTPUT
       end
 
       it "downgrades an addon with a price and message" do
-        @addons.heroku.should_receive(:upgrade_addon).
-          with('myapp', 'my_addon', {}).
-          and_return({ 'price' => 'free', 'message' => "Don't Panic" })
-
-        lambda { @addons.downgrade }.
-          should display_message(@addons, "done (free)\n  Don't Panic")
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
+        execute "addons:downgrade my_addon"
+        output.should == <<-OUTPUT.undent
+          -----> Upgrading my_addon to myapp... done, v99 (free)
+          -----> Don't Panic
+        OUTPUT
       end
     end
 
@@ -160,7 +158,7 @@ module Heroku::Command
       e.stub!(:http_body).and_return('{error:"test"}')
       @addons.heroku.should_receive(:install_addon).and_raise(e)
       @addons.should_receive(:confirm_billing).and_return(false)
-      @addons.add
+      lambda { @addons.add }.should raise_error(SystemExit)
     end
 
     it "removes addons" do

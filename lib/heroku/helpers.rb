@@ -224,13 +224,13 @@ module Heroku
     end
 
     def action(message)
-      print "#{arrow(message)}... "
+      display "#{arrow(message)}... ", false
       Heroku::Helpers.enable_error_capture
       yield
       Heroku::Helpers.disable_error_capture
-      print "done"
-      print ", #{@status}" if @status
-      puts
+      display "done", false
+      display(", #{@status}", false) if @status
+      display
     end
 
     def status(message)
@@ -238,17 +238,18 @@ module Heroku
     end
 
     def output(message="")
-      puts "       " + message.split("\n").join("\n       ")
+      display "       " + message.split("\n").join("\n       ")
     end
 
     def output_with_arrow(message="")
-      puts "-----> " + message.split("\n").join("\n       ")
+      return if message.to_s.strip == ""
+      display "-----> " + message.split("\n").join("\n       ")
     end
 
     def error_with_failure(message)
-      puts "failed"
+      display "failed"
       message.gsub!(/^ +! */, '')
-      puts message.split("\n").map { |line| " !     #{line}" }.join("\n")
+      display message.split("\n").map { |line| " !     #{line}" }.join("\n")
       exit 1
     end
 

@@ -130,6 +130,13 @@ module Heroku::Helpers
   end
 end
 
+class String
+  def undent
+    indent = self.match(/^( *)/)[1].length
+    self.split("\n").map { |l| l[indent..-1] }.join("\n")
+  end
+end
+
 require "heroku/plugin"
 class Heroku::Plugin
   def self.home_directory
