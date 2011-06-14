@@ -62,7 +62,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       if attrs[:dyno_hours].is_a?(Hash)
         formatted_hours = attrs[:dyno_hours].keys.map do |type|
-          "%s - %0.2f dyno-hours" % [ type.capitalize, attrs[:dyno_hours][type] ]
+          "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, attrs[:dyno_hours][type] ]
         end
         display "Dyno usage:     %s" % formatted_hours.join("\n                ")
       end
