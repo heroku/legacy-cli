@@ -132,5 +132,6 @@ require "support/display_message_matcher"
 Rspec.configure do |config|
   config.color_enabled = true
   config.include DisplayMessageMatcher
+  config.after { RR.reset }
 end
 
