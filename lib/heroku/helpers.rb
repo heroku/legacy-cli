@@ -211,6 +211,8 @@ module Heroku
 
     def get_terminal_environment
       { "TERM" => ENV["TERM"], "COLUMNS" => `tput cols`, "LINES" => `tput lines` }
+    rescue
+      { "TERM" => ENV["TERM"] }
     end
 
     def fail(message)
