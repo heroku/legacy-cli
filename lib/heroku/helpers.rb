@@ -207,6 +207,8 @@ module Heroku
       else
         `stty -icanon -echo`
       end
+    rescue
+      # fails on windows
     end
 
     def get_terminal_environment
