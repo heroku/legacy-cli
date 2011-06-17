@@ -27,6 +27,7 @@ module Heroku::Command
       @line_start = true
       @token = nil
 
+      $stdout.sync = true
       heroku.read_logs(app, opts) do |chk|
         next unless output = format_with_colors(chk)
         puts output
