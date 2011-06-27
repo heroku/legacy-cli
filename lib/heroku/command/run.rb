@@ -13,7 +13,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     app = extract_app
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
+    opts = { :attach => true, :ssl => true, :command => command, :ps_env => get_terminal_environment }
     display "Running #{command} attached to terminal... ", false
     ps = heroku.ps_run(app, opts)
     rendezvous.on_connect { display "up, #{ps["process"]}" }
