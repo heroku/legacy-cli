@@ -33,8 +33,8 @@ describe Heroku::Command::Ps do
   describe "ps" do
     before(:each) do
       stub_core.ps("myapp").returns([
-        { "process" => "ps.1", "state" => "running", "elapsed" => 600, "command" => "bin/bash ps1" }, 
-        { "process" => "ps.2", "state" => "running", "elapsed" => 600, "command" => "bin/bash ps2" } 
+        { "process" => "ps.1", "state" => "running", "elapsed" => 600, "command" => "bin/bash ps1" },
+        { "process" => "ps.2", "state" => "running", "elapsed" => 600, "command" => "bin/bash ps2" }
       ])
     end
 
@@ -80,6 +80,11 @@ describe Heroku::Command::Ps do
       stub_core.ps_scale("myapp", :type => "sp", :qty => "-2")
       stub_core.ps_scale("myapp", :type => "ot", :qty => "7")
       execute "ps:scale ps+2 sp-2 ot=7"
+    end
+
+    it "can scale a process with a number in its name" do
+      stub_core.ps_scale("myapp", :type => "ps2web", :qty => "5")
+      execute "ps:scale ps2web=5"
     end
   end
 end
