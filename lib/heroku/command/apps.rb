@@ -109,14 +109,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # create a new app
   #
-  # -r, --remote REMOTE # the git remote to create, default "heroku"
-  # -s, --stack  STACK  # the stack on which to create the app
+  #     --addons ADDONS  # a list of addons to install
+  # -r, --remote REMOTE  # the git remote to create, default "heroku"
+  # -s, --stack  STACK   # the stack on which to create the app
   #
   def create
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
-    addons  = (extract_option('--addons', '') || '').split(',')
     name    = args.shift.downcase.strip rescue nil
     name    = heroku.create_request(name, {:stack => stack})
     display("Creating #{name}...", false)
@@ -131,9 +131,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
       display " done, stack is #{info[:stack]}"
 
-      addons.each do |addon|
-        display "Adding #{addon} to #{name}... "
+      (options[:addons] || "").split(",").each do |addon|
+        addon.strip!
+        display "Adding #{addon} to #{name}... ", false
         heroku.install_addon(name, addon)
+        display "done"
       end
 
       display [ info[:web_url], info[:git_url] ].join(" | ")
