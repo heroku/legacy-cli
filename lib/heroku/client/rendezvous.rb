@@ -26,6 +26,9 @@ class Heroku::Client::Rendezvous
     if (scheme == "tcp+ssl")
       tcp_socket, ssl_socket = Timeout.timeout(30) do
         ssl_context = OpenSSL::SSL::SSLContext.new
+        if ((host =~ /heroku\.com$/) && !(ENV["HEROKU_SSL_VERIFY"] == "disable"))
+          ssl_context.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        end
         tcp_socket = TCPSocket.open(host, port)
         ssl_socket = OpenSSL::SSL::SSLSocket.new(tcp_socket, ssl_context)
         ssl_socket.connect
