@@ -24,6 +24,10 @@ describe Heroku::Command do
     Heroku::Command.extract_error(response).should == ' !   Internal server error'
   end
 
+  it "allows a block to redefine the default error" do
+    Heroku::Command.extract_error("Foobar") { "Ok!" }.should == ' !   Ok!'
+  end
+
   it "handles a nil body in parse_error_xml" do
     lambda { Heroku::Command.parse_error_xml(nil) }.should_not raise_error
   end

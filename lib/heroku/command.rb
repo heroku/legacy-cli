@@ -121,7 +121,9 @@ module Heroku
     rescue RestClient::PaymentRequired => e
       retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e
-      error extract_not_found(e.http_body)
+      error extract_error(e.http_body) {
+        e.http_body =~ /^[\w\s]+ not found$/ ? e.http_body : "Resource not found"
+      }
     rescue RestClient::Locked => e
       app = e.response.headers[:x_confirmation_required]
       message = extract_error(e.response.body)
@@ -145,12 +147,9 @@ module Heroku
       commands[cmd] || commands[command_aliases[cmd]]
     end
 
-    def self.extract_not_found(body)
-      body =~ /^[\w\s]+ not found$/ ? body : "Resource not found"
-    end
-
     def self.extract_error(body)
-      msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || 'Internal server error'
+      default_error = block_given? ? yield : "Internal server error"
+      msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
       msg.split("\n").map { |line| ' !   ' + line }.join("\n")
     end
 
