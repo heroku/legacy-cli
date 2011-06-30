@@ -31,6 +31,7 @@ module Heroku
       list.each do |plugin|
         begin
           check_for_deprecation(plugin)
+          next if skip_plugins.include?(plugin)
           load_plugin(plugin)
         rescue ScriptError, StandardError => e
           display "ERROR: Unable to load plugin #{plugin}: #{e.message}"
@@ -57,6 +58,10 @@ module Heroku
           remove_plugin(plugin)
         end
       end
+    end
+
+    def self.skip_plugins
+      @skip_plugins ||= ENV["SKIP_PLUGINS"].to_s.split(/ ,/)
     end
 
     def initialize(uri)
