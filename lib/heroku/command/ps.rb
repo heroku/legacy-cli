@@ -122,5 +122,23 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "scale", "ps:scale"
 
+  # ps:stop PROCESS
+  #
+  # stop an app process
+  def restart
+    app = extract_app
+
+    ps = args.first
+    unless ps =~ /.+\..+/
+      error "Usage: heroku ps:stop ps.1"
+    end
+
+    display "Stopping #{ps} process... ", false
+    heroku.ps_destroy(app, ps)
+    display "done"
+  end
+
+  alias_command "restart", "ps:restart"
+
 end
 

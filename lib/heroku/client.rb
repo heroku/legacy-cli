@@ -513,6 +513,10 @@ Console sessions require an open dyno to use for execution.
     post("/apps/#{app}/ps/restart", opts)
   end
 
+  def ps_destroy(app, ps)
+    delete("/apps/#{app}/ps?ps=#{ps}")
+  end
+
   def confirm_billing
     post("/user/#{escape(@user)}/confirm_billing").to_s
   end
