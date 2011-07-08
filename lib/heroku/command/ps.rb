@@ -46,9 +46,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # list processes for an app
   #
+  # -a, --all           # include detached and recent one-shot processes
   def index
     app = extract_app
-    ps = heroku.ps(app)
+    ps = heroku.ps(app, options)
 
     output = []
     output << "Process       State               Command"

@@ -323,8 +323,8 @@ Console sessions require an open dyno to use for execution.
   end
 
   # Retreive ps list for the given app name.
-  def ps(app_name)
-    json_decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+  def ps(app_name, options={})
+    json_decode resource("/apps/#{app_name}/ps").get(:params => options, :accept => 'application/json').to_s
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
