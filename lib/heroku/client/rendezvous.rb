@@ -23,7 +23,7 @@ class Heroku::Client::Rendezvous
     uri = URI.parse(rendezvous_url)
     scheme, host, port, secret = uri.scheme, uri.host, uri.port, uri.path[1..-1]
 
-    if (scheme == "tcp+ssl")
+    if (scheme == "rendezvous")
       tcp_socket, ssl_socket = Timeout.timeout(30) do
         ssl_context = OpenSSL::SSL::SSLContext.new
         if ((host =~ /heroku\.com$/) && !(ENV["HEROKU_SSL_VERIFY"] == "disable"))
