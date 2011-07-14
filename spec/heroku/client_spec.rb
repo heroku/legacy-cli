@@ -6,17 +6,25 @@ describe Heroku::Client do
   include Heroku::Helpers
 
   before do
-    @auth = 'sue@example.com:pass123'
-    @client = Heroku::Client.new("sue@example.com", "pass123")
+    @api_key = 'dummyapikey'
+    @auth = ':dummyapikey'
+    @client = Heroku::Client.new({:api_key => @api_key})
     @resource = mock('heroku rest resource')
     @client.stub!(:extract_warning)
   end
 
   it "Client.auth -> get user details" do
     user_info = { "api_key" => "abc" }
-    stub_api_request(:post, "/login", "foo:bar").with(
+    stub_api_request(:post, "/login").with(
       :body => "username=foo&password=bar").to_return(:body => json_encode(user_info))
     Heroku::Client.auth("foo", "bar").should == user_info
+  end
+  
+  it "obtains api_key when initialized with user/pass" do
+    user_info = { "api_key" => "abc" }
+    Heroku::Client.stub!(:auth).and_return(user_info)
+    client = Heroku::Client.new('joe@example.com', 'secret')
+    client.api_key.should == user_info["api_key"]
   end
 
   it "list -> get a list of this user's apps" do
@@ -433,18 +441,16 @@ describe Heroku::Client do
 
   describe "internal" do
     before do
-      @client = Heroku::Client.new(nil, nil)
+      @client = Heroku::Client.new({:api_key => nil})
     end
 
     it "creates a RestClient resource for making calls" do
       @client.stub!(:host).and_return('heroku.com')
-      @client.stub!(:user).and_return('joe@example.com')
-      @client.stub!(:password).and_return('secret')
+      @client.stub!(:api_key).and_return('secret')
 
       res = @client.resource('/xyz')
 
       res.url.should == 'https://api.heroku.com/xyz'
-      res.user.should == 'joe@example.com'
       res.password.should == 'secret'
     end
 
@@ -492,7 +498,9 @@ describe Heroku::Client do
   end
   
   it "confirm_billing() -> confirms billing" do
-    stub_api_request(:post, "/user/sue%40example.com/confirm_billing", @auth).with(:body => "")
+    stub_api_request(:post, "/login", @auth).with(
+      :body => "password=#{@api_key}").to_return(:body => json_encode({ "email" => "joe@example.com" }))      
+    stub_api_request(:post, "/user/joe%40example.com/confirm_billing", @auth).with(:body => "")
     @client.confirm_billing
   end
 end

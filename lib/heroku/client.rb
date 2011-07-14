@@ -12,7 +12,7 @@ require 'heroku/version'
 # Example:
 #
 #   require 'heroku'
-#   heroku = Heroku::Client.new('me@example.com', 'mypass')
+#   heroku = Heroku::Client.new(:api_key => '8765e8778dea876347528ba5fc5543bc5881d3c')
 #   heroku.create('myapp')
 #
 class Heroku::Client
@@ -28,17 +28,26 @@ class Heroku::Client
     "heroku-gem/#{version}"
   end
 
-  attr_accessor :host, :user, :password
+  attr_accessor :host, :api_key
 
   def self.auth(user, password, host=Heroku::Auth.default_host)
-    client = new(user, password, host)
+    client = new({:api_key => nil, :host => host})
     json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
-  def initialize(user, password, host=Heroku::Auth.default_host)
-    @user = user
-    @password = password
-    @host = host
+  def initialize(options, *args)     
+    unless options.is_a?(Hash)
+      (user, password, host) = [options, *args]
+      credentials = Heroku::Client.auth(user, password, host)
+      options = {:api_key => credentials["api_key"], :host => host}
+    end
+    @api_key = options[:api_key]
+    @host = options[:host] || Heroku::Auth.default_host
+  end
+  
+  # <b>Deprecated:</b> Only the api_key should be used for access control
+  def user
+    (json_decode post('/login', { :password => api_key }, :accept => 'json').to_s)['email']
   end
 
   # Show a list of apps which you are a collaborator on.
@@ -514,7 +523,7 @@ Console sessions require an open dyno to use for execution.
   end
 
   def confirm_billing
-    post("/user/#{escape(@user)}/confirm_billing").to_s
+    post("/user/#{escape(user)}/confirm_billing").to_s
   end
 
   def on_warning(&blk)
@@ -525,7 +534,7 @@ Console sessions require an open dyno to use for execution.
 
   def resource(uri, options={})
     RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-    resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
+    resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => '', :password => api_key))
     resource
   end
 
