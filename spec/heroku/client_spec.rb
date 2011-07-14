@@ -489,4 +489,10 @@ describe Heroku::Client do
       @client.list_stacks("myapp", :include_deprecated => true).should == { 'stack' => 'one' }
     end
   end
+  
+  it "confirm_billing() -> confirms billing" do
+    @client.user = 'joe@example.com'
+    stub_api_request(:post, "/user/joe%40example.com/confirm_billing", 'joe@example.com:').with(:body => "")
+    @client.confirm_billing
+  end
 end
