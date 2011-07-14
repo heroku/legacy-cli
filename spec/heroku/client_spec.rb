@@ -6,11 +6,23 @@ describe Heroku::Client do
   include Heroku::Helpers
 
   before do
-    @api_key = 'dummyapikey'
-    @auth = ':dummyapikey'
+    @env = ENV['HEROKU_API_KEY']
+    @api_key = 'apikey123'
+    @auth = ':apikey123'
     @client = Heroku::Client.new({:api_key => @api_key})
     @resource = mock('heroku rest resource')
     @client.stub!(:extract_warning)
+  end
+  
+  after do
+    ENV['HEROKU_API_KEY'] = @env
+  end
+  
+  it "Client.new -> default api_key from environment" do
+    api_key = 'envapikey123'
+    ENV['HEROKU_API_KEY'] = api_key
+    @client = Heroku::Client.new()
+    @client.api_key.should == api_key
   end
 
   it "Client.auth -> get user details" do

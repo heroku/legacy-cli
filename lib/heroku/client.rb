@@ -35,7 +35,8 @@ class Heroku::Client
     json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
-  def initialize(options, *args)     
+  def initialize(options = nil, *args)
+    options ||= { :api_key => ENV['HEROKU_API_KEY'] }   
     unless options.is_a?(Hash)
       (user, password, host) = [options, *args]
       credentials = Heroku::Client.auth(user, password, host)
