@@ -22,11 +22,6 @@ class Heroku::Command::Base
     Heroku::Auth.client
   end
 
-  def rendezvous
-    $stdout.sync = true
-    @rendezvous ||= Heroku::Client::Rendezvous.new($stdin, $stdout)
-  end
-
 protected
 
   def self.inherited(klass)

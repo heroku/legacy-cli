@@ -96,14 +96,6 @@ def stub_core
   stubbed_core
 end
 
-def stub_rendezvous
-  stubbed_rendezvous = nil
-  any_instance_of(Heroku::Client::Rendezvous) do |rendezvous|
-    stubbed_rendezvous = stub(rendezvous)
-  end
-  stubbed_rendezvous
-end
-
 def with_blank_git_repository(&block)
   sandbox = File.join(Dir.tmpdir, "heroku", Process.pid.to_s)
   FileUtils.mkdir_p(sandbox)

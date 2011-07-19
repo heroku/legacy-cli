@@ -2,16 +2,6 @@ require "spec_helper"
 require "heroku/command/run"
 
 describe Heroku::Command::Run do
-  describe "run" do
-    it "runs a command" do
-      stub_core.ps_run("myapp", hash_including(:attach => true, :command => "bash")).returns({
-        "rendezvous_url" => "http://rendezvo.us"
-      })
-      stub_rendezvous.connect("http://rendezvo.us")
-      execute "run bash"
-    end
-  end
-
   describe "run:rake" do
     it "runs a rake command" do
       stub_core.start("myapp", "rake foo", :attached).returns(["rake_output"])

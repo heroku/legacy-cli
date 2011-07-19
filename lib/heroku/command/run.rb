@@ -16,6 +16,8 @@ class Heroku::Command::Run < Heroku::Command::Base
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
     display "Running #{command} attached to terminal... ", false
     ps = heroku.ps_run(app, opts)
+    $stdout.sync = true
+    @rendezvous ||= Heroku::Client::Rendezvous.new($stdin, $stdout)
     rendezvous.on_connect { display "up, #{ps["process"]}" }
     rendezvous.connect(ps["rendezvous_url"])
   end
