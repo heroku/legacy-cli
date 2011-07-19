@@ -16,10 +16,25 @@ class Heroku::Command::Run < Heroku::Command::Base
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
     display "Running #{command} attached to terminal... ", false
     ps = heroku.ps_run(app, opts)
-    $stdout.sync = true
-    @rendezvous ||= Heroku::Client::Rendezvous.new($stdin, $stdout)
-    rendezvous.on_connect { display "up, #{ps["process"]}" }
-    rendezvous.connect(ps["rendezvous_url"])
+    begin
+      set_buffer(false)
+      $stdin.sync = $stdout.sync = true
+      rendezvous = Heroku::Client::Rendezvous.new(
+        :rendezvous_url => ps["rendezvous_url"],
+        :connect_timeout => 30,
+        :activity_timeout => nil,
+        :input => $stdin,
+        :output => $stdout)
+      rendezvous.on_connect { display "up, #{ps["process"]}" }
+      rendezvous.start
+    rescue Timeout::Error
+      error "\nTimeout awaiting process"
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError
+      error "\nError connecting to process"
+    rescue Interrupt
+    ensure
+      set_buffer(true)
+    end
   end
 
   # run:rake COMMAND

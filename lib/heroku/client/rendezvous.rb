@@ -5,13 +5,14 @@ require "heroku/client"
 require "heroku/helpers"
 
 class Heroku::Client::Rendezvous
-  include Heroku::Helpers
+  attr_reader :rendezvous_url, :connect_timeout, :activity_timeout, :input, :output, :on_connect
 
-  attr_reader :input, :output
-
-  def initialize(input, output)
-    @input = input
-    @output = output
+  def initialize(opts)
+    @rendezvous_url = opts[:rendezvous_url]
+    @connect_timeout = opts[:connect_timeout]
+    @activity_timeout = opts[:activity_timeout]
+    @input = opts[:input]
+    @output = opts[:output]
   end
 
   def on_connect(&blk)
@@ -19,11 +20,11 @@ class Heroku::Client::Rendezvous
     @on_connect
   end
 
-  def connect(rendezvous_url)
+  def start
     uri = URI.parse(rendezvous_url)
     scheme, host, port, secret = uri.scheme, uri.host, uri.port, uri.path[1..-1]
 
-    tcp_socket, ssl_socket = Timeout.timeout(30) do
+    tcp_socket, ssl_socket = Timeout.timeout(connect_timeout) do
       ssl_context = OpenSSL::SSL::SSLContext.new
       if ((host =~ /heroku\.com$/) && !(ENV["HEROKU_SSL_VERIFY"] == "disable"))
         ssl_context.ca_file = File.expand_path("../../../../data/cacert.pem", __FILE__)
@@ -37,28 +38,24 @@ class Heroku::Client::Rendezvous
       [tcp_socket, ssl_socket]
     end
 
-    set_buffer(false)
-    output.sync = true
     on_connect.call if on_connect
 
-    loop do
-      if o = IO.select([input, tcp_socket], nil, nil, nil)
-        if o.first.first == input
-          data = input.readpartial(1000)
-          ssl_socket.write(data)
-          ssl_socket.flush
-        elsif o.first.first == tcp_socket
-          data = ssl_socket.readpartial(1000)
-          output.write(data)
+    begin
+      loop do
+        if o = IO.select([input, tcp_socket].compact, nil, nil, activity_timeout)
+          if (input && (o.first.first == input))
+            data = input.readpartial(1000)
+            ssl_socket.write(data)
+            ssl_socket.flush
+          elsif (o.first.first == tcp_socket)
+            data = ssl_socket.readpartial(1000)
+            output.write(data)
+          end
+        else
+          raise(Timeout::Error.new)
         end
       end
+    rescue EOFError, Errno::EIO
     end
-  rescue Timeout::Error
-    error "\nTimeout awaiting process"
-  rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError
-    error "\nError connecting to process"
-  rescue Interrupt, EOFError, Errno::EIO
-  ensure
-    set_buffer(true)
   end
 end
