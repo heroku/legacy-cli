@@ -17,7 +17,7 @@ task :default => :spec
 def builder(action, ext)
   package_file = "pkg/heroku-#{Heroku::VERSION}.#{ext}"
   puts "#{action}: #{package_file}"
-  system "build/#{ext}/#{action} #{PROJECT_ROOT} #{package_file}"
+  system %{ build/#{ext}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
 end
 
 namespace :package do

@@ -27,7 +27,7 @@ def copy_gems(package_gem_dir)
       next if GEM_BLACKLIST.include?($1)
       puts "vendoring: #{$1}-#{$2}"
       gem_dir = %x{ bundle show #{$1} }.strip
-      %x{ cp -R #{gem_dir} #{package_gem_dir}/ }
+      %x{ cp -R "#{gem_dir}" "#{package_gem_dir}/" }
     end
   end.compact
 end
@@ -57,9 +57,9 @@ puts "building in: #{package_dir}"
 %x{ mkdir -p #{package_gem_dir} }
 copy_gems package_gem_dir
 
-%x{ cd #{project_root} && find . -name "*.rbc" -delete }
-%x{ cp -R #{project_root}/data #{package_dir} }
-%x{ cp -R #{project_root}/lib #{package_dir} }
+%x{ cd "#{project_root}" && find . -name "*.rbc" -delete }
+%x{ cp -R "#{project_root}/data" "#{package_dir}" }
+%x{ cp -R "#{project_root}/lib"  "#{package_dir}" }
 
 File.open("#{package_dir}/heroku", "w") do |file|
   file.puts <<-PREAMBLE
@@ -84,16 +84,16 @@ Heroku::Command.run(command, args)
   PREAMBLE
 end
 
-%x{ chmod +x #{package_dir}/heroku }
+%x{ chmod +x "#{package_dir}/heroku" }
 
 if plugins = (ENV["PLUGINS"] || "").split(" ")
   plugins.each do |plugin|
     puts "plugin: #{plugin}"
-    %x{ mkdir -p #{package_dir}/plugins }
-    %x{ cd #{package_dir}/plugins && git clone #{plugin} 2>&1 }
-    %x{ rm -rf $(find #{package_dir}/plugins -name .git) }
+    %x{ mkdir -p "#{package_dir}/plugins" }
+    %x{ cd "#{package_dir}/plugins" && git clone #{plugin} 2>&1 }
+    %x{ rm -rf $(find "#{package_dir}/plugins" -name .git) }
   end
 end
 
-%x{ mkdir -p #{project_root}/pkg }
-%x{ cd #{package_dir}/.. && tar czvpf #{project_root}/#{package_file} * 2>&1 }
+%x{ mkdir -p "#{project_root}/pkg" }
+%x{ cd "#{package_dir}/.." && tar czvpf "#{project_root}/#{package_file}" * 2>&1 }
