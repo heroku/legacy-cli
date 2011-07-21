@@ -44,11 +44,11 @@ class Heroku::Client::Rendezvous
       loop do
         if o = IO.select([input, ssl_socket].compact, nil, nil, activity_timeout)
           if (input && (o.first.first == input))
-            data = input.readpartial(1000)
+            data = input.readpartial(10000)
             ssl_socket.write(data)
             ssl_socket.flush
           elsif (o.first.first == ssl_socket)
-            data = ssl_socket.readpartial(1000)
+            data = ssl_socket.readpartial(10000)
             output.write(data)
           end
         else
