@@ -24,7 +24,7 @@ class Heroku::Client::Rendezvous
     uri = URI.parse(rendezvous_url)
     host, port, secret = uri.host, uri.port, uri.path[1..-1]
 
-    tcp_socket, ssl_socket = Timeout.timeout(connect_timeout) do
+    ssl_socket = Timeout.timeout(connect_timeout) do
       ssl_context = OpenSSL::SSL::SSLContext.new
       if ((host =~ /heroku\.com$/) && !(ENV["HEROKU_SSL_VERIFY"] == "disable"))
         ssl_context.ca_file = File.expand_path("../../../../data/cacert.pem", __FILE__)
@@ -35,19 +35,19 @@ class Heroku::Client::Rendezvous
       ssl_socket.connect
       ssl_socket.puts(secret)
       ssl_socket.readline
-      [tcp_socket, ssl_socket]
+      ssl_socket
     end
 
     on_connect.call if on_connect
 
     begin
       loop do
-        if o = IO.select([input, tcp_socket].compact, nil, nil, activity_timeout)
+        if o = IO.select([input, ssl_socket].compact, nil, nil, activity_timeout)
           if (input && (o.first.first == input))
             data = input.readpartial(1000)
             ssl_socket.write(data)
             ssl_socket.flush
-          elsif (o.first.first == tcp_socket)
+          elsif (o.first.first == ssl_socket)
             data = ssl_socket.readpartial(1000)
             output.write(data)
           end
