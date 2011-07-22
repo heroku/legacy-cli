@@ -4,6 +4,14 @@ require 'heroku/pg_resolver'
 include PGResolver
 
 describe Resolver do
+  context 'passed in a postgres:// url' do
+    let(:url) {  "postgres://user:pass@ec2-whatever.com/database" }
+    let(:r) { Resolver.new url, "HEROKU_POSTGRESQL_SOME_URL" => 'not_that_db'}
+
+    it { r[:url].should == url }
+    it { r[:name].should == 'Database on ec2-whatever.com' }
+  end
+
   context "pass in *_URL" do
     let(:r) { Resolver.new "HEROKU_POSTGRESQL_SOME_URL", "HEROKU_POSTGRESQL_SOME_URL" => 'something'}
 
