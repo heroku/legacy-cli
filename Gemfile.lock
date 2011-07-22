@@ -15,13 +15,10 @@ GEM
       mime-types
       xml-simple
     builder (3.0.0)
-    configuration (1.2.0)
     crack (0.1.8)
     diff-lcs (1.1.2)
     fakefs (0.3.1)
-    launchy (0.4.0)
-      configuration (>= 0.0.5)
-      rake (>= 0.8.1)
+    launchy (2.0.3)
     mime-types (1.16)
     parka (0.6.2)
       crack
@@ -55,7 +52,7 @@ GEM
       sequel (~> 3.20.0)
       sinatra (~> 1.0.0)
       sqlite3-ruby (~> 1.2)
-    term-ansicolor (1.0.5)
+    term-ansicolor (1.0.6)
     thor (0.14.6)
     webmock (1.5.0)
       addressable (>= 2.2.2)
