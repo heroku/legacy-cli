@@ -54,6 +54,8 @@ module Heroku::Command
     # remove a config var
     #
     def remove
+      raise CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]" if args.empty?
+      
       display "Removing #{args.first} and restarting app...", false
       heroku.remove_config_var(app, args.first)
 
