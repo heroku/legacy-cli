@@ -54,12 +54,23 @@ module Heroku::Command
           lambda { @config.remove }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
         end
       end
-
+      
       context "when one key is provided" do
         let(:args) { ['a'] }
 
         it "removes one key" do
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
+          @config.heroku.should_receive(:releases).and_return([])
+          @config.remove
+        end
+      end
+      
+      context "when more than one key is provided" do
+        let(:args) { ['a', 'b'] }
+
+        it "removes all given keys" do
+          @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
+          @config.heroku.should_receive(:remove_config_var).with('myapp', 'b')
           @config.heroku.should_receive(:releases).and_return([])
           @config.remove
         end

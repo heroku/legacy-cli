@@ -49,24 +49,25 @@ module Heroku::Command
       display "."
     end
 
-    # config:remove KEY
+    # config:remove KEY1 [KEY2 ...]
     #
     # remove a config var
     #
     def remove
       raise CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]" if args.empty?
-      
-      display "Removing #{args.first} and restarting app...", false
-      heroku.remove_config_var(app, args.first)
 
-      display " done", false
+      args.each do |key|
+        display "Removing #{key} and restarting app...", false
+        heroku.remove_config_var(app, key)
 
-      begin
-        release = heroku.releases(app).last
-        display(", #{release["name"]}", false) if release
-      rescue RestClient::RequestFailed => e
+        display " done", false
+        begin
+          release = heroku.releases(app).last
+          display(", #{release["name"]}", false) if release
+        rescue RestClient::RequestFailed => e
+        end
+        display ".\n"
       end
-      display "."
     end
 
     protected
