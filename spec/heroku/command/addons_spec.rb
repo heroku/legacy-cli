@@ -29,6 +29,79 @@ module Heroku::Command
       end
     end
 
+    describe 'v1-style command line params' do
+      it "understands foo=baz" do
+        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
+      end
+    end
+
+    describe 'unix-style command line params' do
+      it "understands --foo=baz" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
+      end
+
+      it "understands --foo baz" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
+      end
+
+      it "treats lone switches as true" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => true })
+        @addons.add
+      end
+
+      it "converts 'true' to boolean" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo=true))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => true })
+        @addons.add
+      end
+
+      it "works with many config vars" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => true, 'bob' => true })
+        @addons.add
+      end
+
+      it "raises an error for spurious arguments" do
+        @addons.stub!(:args).and_return(%w(my_addon spurious))
+        lambda { @addons.add }.should raise_error(CommandFailed)
+      end
+    end
+
+    describe "mixed options" do
+      it "understands foo=bar and --baz=bar on the same line" do
+        @addons.stub!(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz', 'baz' => 'bar', 'bar' => true, 'bob' => true })
+        @addons.add
+      end
+    end
+
+    describe "fork and follow switches" do
+      it "should only resolve for heroku-postgresql addon" do
+        %w{fork follow}.each do |switch|
+          @addons.stub!(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.heroku.should_receive(:install_addon).
+            with('myapp', 'addon', {switch => 'HEROKU_POSTGRESQL_RED'})
+          @addons.add
+        end
+      end
+
+      it "should translate --fork and --follow" do
+        %w{fork follow}.each do |switch|
+          @addons.heroku.stub!(:config_vars => { 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
+          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'foo'})
+          @addons.add
+        end
+      end
+    end
+
     describe 'adding' do
       before { @addons.stub!(:args).and_return(%w(my_addon)) }
 
@@ -40,12 +113,6 @@ module Heroku::Command
       it "adds an addon" do
         @addons.stub!(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', {})
-        @addons.add
-      end
-
-      it "adds an addon with config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
-        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
 
@@ -90,7 +157,7 @@ module Heroku::Command
       end
 
       it "upgrade an addon with config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
         @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
         @addons.upgrade
       end
@@ -128,7 +195,7 @@ module Heroku::Command
       end
 
       it "downgrade an addon with config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
         @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
         @addons.downgrade
       end

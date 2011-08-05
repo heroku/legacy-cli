@@ -27,22 +27,14 @@ module PgUtils
     display(format("%-12s %s", label, info))
   end
 
-  def munge_fork_and_follow(addon)
+  def translate_fork_and_follow(addon, config)
     %w[fork follow].each do |opt|
-      if index = args.index("--#{opt}")
-        val = args.delete_at index+1
-        args.delete_at index
-
+      if val = config[opt]
         resolved = Resolver.new(val, config_vars)
         display resolved.message if resolved.message
         abort_with_database_list(val) unless resolved[:url]
-
-        url = resolved[:url]
-
-        args << "#{opt}=#{url}"
+        config[opt] = resolved[:url]
       end
     end
-    return args
   end
-
 end
