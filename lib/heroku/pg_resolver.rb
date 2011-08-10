@@ -69,6 +69,7 @@ module PGResolver
   end
 
   class Resolver
+    include PGResolver
     attr_reader :url, :db_id
 
     def initialize(db_id, config_vars)
@@ -139,10 +140,17 @@ module PGResolver
     end
 
     def resolve
+      postgres_url_check
       url_deprecation_check
       default_database_check
       color_only_check
-      @url = @dbs[@db_id]
+      @url = @dbs[@db_id] unless @url
+    end
+
+    def postgres_url_check
+      return unless @db_id.downcase =~ /^postgres:\/\//
+      @url = @db_id.downcase
+      @db_id = name_from_url(@url)
     end
 
     def url_deprecation_check
