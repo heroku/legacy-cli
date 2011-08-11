@@ -1,6 +1,7 @@
 require "spec_helper"
 require "heroku/client"
 require "heroku/helpers"
+require 'heroku/command'
 
 describe Heroku::Client do
   include Heroku::Helpers
@@ -106,6 +107,11 @@ describe Heroku::Client do
 
   it "console displays xml-formatted errors properly" do
     stub_api_request(:post, "/apps/myapp/console").with(:body => 'command=test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
+    @client.console('myapp', 'test').should == ' !   Test Error'
+  end
+
+  it "console displays json-formatted errors properly" do
+    stub_api_request(:post, "/apps/myapp/console").with(:body => 'command=test').to_return(:status => 422, :body => %|{"error": "Test Error"}|)
     @client.console('myapp', 'test').should == ' !   Test Error'
   end
 
