@@ -231,10 +231,8 @@ Console sessions require an open dyno to use for execution.
       prefix + output
     end
   rescue RestClient::RequestFailed => e
-    if Heroku::Command.parse_error_xml(e.http_body)
+    if e.http_code == 422
       Heroku::Command.extract_error(e.http_body)
-    elsif e.http_code == 422
-      e.http_body
     else
       raise e
     end

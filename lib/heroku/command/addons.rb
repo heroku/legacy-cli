@@ -184,17 +184,11 @@ module Heroku::Command
       def configure_addon(label, &install_or_upgrade)
         addon = args.shift
         raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
-        munge_fork_and_follow(addon) if addon =~ /^heroku-postgresql/
 
-        config = {}
-        args.each do |arg|
-          key, value = arg.strip.split('=', 2)
-          if value.nil?
-            error("Non-config value \"#{arg}\".\nEverything after the addon name should be a key=value pair")
-          else
-            config[key] = value
-          end
-        end
+        config = parse_options(args)
+        raise CommandFailed.new("Non-config values after addon name #{args} use unix --switch syntax") unless args.empty?
+
+        translate_fork_and_follow(addon, config) if addon =~ /^heroku-postgresql/
 
         messages = nil
         action("#{label} #{addon} to #{app}") do
@@ -204,5 +198,26 @@ module Heroku::Command
         output messages[:message]
       end
 
+      def parse_options(args)
+        {}.tap do |config|
+          flag = /^--/
+          args.size.times do 
+            peek = args.first
+            next unless peek && (peek.match(flag) || peek.match(/=/))
+            arg  = args.shift
+            peek = args.first 
+            key  = arg.sub(flag,'') 
+            if key.match(/=/)
+              key, value = key.split('=', 2)
+            elsif peek.nil? || peek.match(flag)
+              value = true
+            else
+              value = args.shift
+            end
+            value = true if value == 'true'
+            config[key] = value
+          end
+        end
+      end
   end
 end
