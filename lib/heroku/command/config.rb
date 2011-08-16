@@ -33,16 +33,19 @@ module Heroku::Command
         vars
       end
 
+      # try to get the app to fail fast
+      detected_app = app
+
       display "Adding config vars:"
       display_vars(vars, :indent => 2)
 
       display "Restarting app...", false
-      heroku.add_config_vars(app, vars)
+      heroku.add_config_vars(detected_app, vars)
 
       display " done", false
 
       begin
-        release = heroku.releases(app).last
+        release = heroku.releases(detected_app).last
         display(", #{release["name"]}", false) if release
       rescue RestClient::RequestFailed => e
       end
