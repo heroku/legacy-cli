@@ -10,19 +10,15 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.2)
-    archive-tar-minitar (0.5.2)
     aws-s3 (0.6.2)
       builder
       mime-types
       xml-simple
     builder (3.0.0)
-    columnize (0.3.4)
     crack (0.1.8)
     diff-lcs (1.1.2)
     fakefs (0.3.1)
     launchy (2.0.3)
-    linecache19 (0.5.12)
-      ruby_core_source (>= 0.1.4)
     mime-types (1.16)
     parka (0.6.2)
       crack
@@ -41,16 +37,6 @@ GEM
     rspec-expectations (2.5.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
-    ruby-debug-base19 (0.11.25)
-      columnize (>= 0.3.1)
-      linecache19 (>= 0.5.11)
-      ruby_core_source (>= 0.1.4)
-    ruby-debug19 (0.11.6)
-      columnize (>= 0.3.1)
-      linecache19 (>= 0.5.11)
-      ruby-debug-base19 (>= 0.11.19)
-    ruby_core_source (0.1.5)
-      archive-tar-minitar (>= 0.5.2)
     sequel (3.20.0)
     simplecov (0.4.2)
       simplecov-html (~> 0.4.4)
@@ -86,7 +72,6 @@ DEPENDENCIES
   rake (>= 0.8.7)
   rr (~> 1.0.2)
   rspec (>= 2.0)
-  ruby-debug19
   simplecov (~> 0.4.2)
   taps (>= 0.3.23)
   webmock
