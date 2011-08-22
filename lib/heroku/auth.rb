@@ -139,11 +139,15 @@ class Heroku::Auth
         delete_credentials
         raise e
       end
-      check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
+      # check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
     end
 
     def check_for_associated_ssh_key
       return unless client.keys.length.zero?
+      associate_or_generate_ssh_key
+    end
+
+    def associate_or_generate_ssh_key
       public_keys = available_ssh_public_keys.sort
 
       case public_keys.length
@@ -171,16 +175,26 @@ class Heroku::Auth
     end
 
     def generate_ssh_key(keyfile)
-      `ssh-keygen -t rsa -f #{home_directory}/.ssh/#{keyfile} 2>&1`
+      ssh_dir = File.join(home_directory, ".ssh")
+      unless File.exists?(ssh_dir)
+        FileUtils.mkdir_p ssh_dir
+        File.chmod(0700, ssh_dir)
+      end
+      `ssh-keygen -t rsa -N "" -f #{home_directory}/.ssh/#{keyfile} 2>&1`
     end
 
     def associate_key(key)
-      return unless key
-      run_command('keys:add', [key])
+      display "Uploading ssh public key #{key}"
+      client.add_key(File.read(key))
     end
 
     def available_ssh_public_keys
-      Dir["#{home_directory}/.ssh/*.pub"]
+      keys = [
+        "#{home_directory}/.ssh/id_rsa.pub",
+        "#{home_directory}/.ssh/id_dsa.pub"
+      ]
+      keys.concat(Dir["#{home_directory}/.ssh/*.pub"])
+      keys.select { |d| File.exists?(d) }.uniq
     end
 
     def retry_login?

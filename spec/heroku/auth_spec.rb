@@ -35,7 +35,6 @@ module Heroku
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
-      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.user.should == 'u'
       @cli.password.should == 'p'
     end
@@ -57,7 +56,6 @@ module Heroku
       @cli.stub!(:check)
       @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       @cli.should_receive(:write_credentials)
-      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.ask_for_and_save_credentials
     end
 
@@ -74,7 +72,6 @@ module Heroku
       @cli.stub!(:read_credentials)
       @cli.stub!(:write_credentials)
       @cli.stub!(:delete_credentials)
-      @cli.stub!(:check_for_associated_ssh_key)
       @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       @cli.stub!(:check) { raise RestClient::Unauthorized }
       @cli.should_receive(:ask_for_credentials).exactly(3).times
@@ -89,7 +86,6 @@ module Heroku
     it "writes the login information to the credentials file for the 'heroku login' command" do
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
-      @cli.stub!(:check_for_associated_ssh_key)
       @cli.should_receive(:set_credentials_permissions)
       @cli.reauthorize
       File.read(@cli.credentials_file).should == "one\ntwo\n"
@@ -143,7 +139,7 @@ module Heroku
 
         describe "with many public keys" do
           before(:each) do
-            FileUtils.touch("~/.ssh/id_rsa.pub")
+            FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub")
             FileUtils.touch("~/.ssh/id_rsa2.pub")
           end
 
@@ -153,6 +149,7 @@ module Heroku
           end
 
           it "should ask which key to upload" do
+            File.open("#{@cli.home_directory}/.ssh/id_rsa.pub", "w") { |f| f.puts }
             @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa2.pub"))
             @cli.should_receive(:ask).and_return("2")
             @cli.check_for_associated_ssh_key

@@ -32,11 +32,14 @@ module Heroku::Command
     # if no KEY is specified, will try to find ~/.ssh/id_[rd]sa.pub
     #
     def add
-      keyfile = args.first || find_key
-      key = File.read(keyfile)
-
-      display "Uploading ssh public key #{keyfile}"
-      heroku.add_key(key)
+      if keyfile = args.first
+        display "Uploading ssh public key #{keyfile}"
+        heroku.add_key(File.read(keyfile))
+      else
+        # make sure we have credentials
+        Heroku::Auth.get_credentials
+        Heroku::Auth.associate_or_generate_ssh_key
+      end
     end
 
     # keys:remove KEY
@@ -58,14 +61,6 @@ module Heroku::Command
     end
 
     protected
-      def find_key
-        %w(rsa dsa).each do |key_type|
-          keyfile = "#{home_directory}/.ssh/id_#{key_type}.pub"
-          return keyfile if File.exists? keyfile
-        end
-        raise CommandFailed, "No ssh public key found in #{home_directory}/.ssh/id_[rd]sa.pub.  You may want to specify the full path to the keyfile."
-      end
-
       def format_key_for_display(key)
         type, hex, local = key.strip.split(/\s/)
         [type, hex[0,10] + '...' + hex[-10,10], local].join(' ')
