@@ -12,5 +12,6 @@ group :development do
   gem "simplecov", "~> 0.4.2"
   gem "taps",  ">= 0.3.23"
   gem "webmock"
+  gem "fpm"
 end
 

@@ -18,6 +18,9 @@ GEM
     crack (0.1.8)
     diff-lcs (1.1.2)
     fakefs (0.3.1)
+    fpm (0.3.7)
+      json
+    json (1.5.3)
     launchy (2.0.3)
     mime-types (1.16)
     parka (0.6.2)
@@ -67,6 +70,7 @@ PLATFORMS
 DEPENDENCIES
   aws-s3
   fakefs
+  fpm
   heroku!
   parka (>= 0.6.2)
   rake (>= 0.8.7)

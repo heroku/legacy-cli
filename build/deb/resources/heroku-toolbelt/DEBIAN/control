@@ -1,0 +1,8 @@
+Package: heroku-toolbelt
+Version: <%= version %>
+Section: main
+Priority: standard
+Architecture: all
+Depends: ruby1.8, rubygems1.8, rubygem-heroku, git-core
+Maintainer: Heroku
+Description: Heroku Toolbelt

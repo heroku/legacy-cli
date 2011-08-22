@@ -14,13 +14,20 @@ end
 
 task :default => :spec
 
-def builder(action, ext)
+def builder(action, type, ext=type)
   package_file = "pkg/heroku-#{Heroku::VERSION}.#{ext}"
   puts "#{action}: #{package_file}"
-  system %{ ruby build/#{ext}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
+  system %{ rvm 1.9.2 exec build/#{type}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
 end
 
 namespace :package do
+  desc "package the deb version"
+  task :deb do
+    if RUBY_PLATFORM =~ /linux/
+      builder :package, :deb, "apt.tgz"
+    end
+  end
+
   desc "package the exe version"
   task :exe do
     if RUBY_PLATFORM =~ /mingw32/
@@ -43,6 +50,13 @@ desc "package all"
 task :package => %w( package:gem package:tgz )
 
 namespace :release do
+  desc "release the deb version"
+  task :deb => "package:deb" do
+    if RUBY_PLATFORM =~ /linux/
+      builder :release, :deb, "apt.tgz"
+    end
+  end
+
   desc "release the exe version"
   task :exe => "package:exe" do
     if RUBY_PLATFORM =~ /mingw32/

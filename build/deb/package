@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+project_root = ARGV.shift
+package_file = ARGV.shift
+
+unless project_root && package_file
+  puts "usage: deb/package PROJECT_ROOT PACKAGE_FILE"
+  exit 1
+end
+
+require "erb"
+require "fileutils"
+require "tmpdir"
+
+resources = File.expand_path("../resources", __FILE__)
+version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
+
+Dir.mktmpdir do |dir|
+  Dir.chdir(dir) do
+    FileUtils.mkdir_p "gems"
+    Process.spawn %{ env GEM_HOME=gems GEM_PATH=gems gem install --no-ri --no-rdoc heroku }, :unsetenv_others => true, 1=>2
+    Process.wait
+    system %{ find gems/cache -name "*.gem" | xargs -rn1 fpm -s gem -t deb }
+
+    system %{ cp -R #{resources}/heroku-toolbelt . }
+    control = File.read("heroku-toolbelt/DEBIAN/control")
+    control = ERB.new(control).result(binding)
+    File.open("heroku-toolbelt/DEBIAN/control", "w") { |f| f.puts control }
+    system %{ dpkg-deb -b heroku-toolbelt }
+
+    FileUtils.mkdir_p "debs"
+    system %{ mv heroku-toolbelt.deb debs/heroku-toolbelt_#{version}_all.deb }
+    system %{ mv *.deb debs/ }
+
+    system %{ cp -R #{resources}/heroku-release-key.txt debs/ }
+
+    Dir.chdir("debs") do
+      system %{ touch Sources }
+      system %{ apt-ftparchive packages . > Packages }
+      system %{ gzip -c Packages > Packages.gz }
+      system %{ apt-ftparchive release .  > Release }
+      system %{ gpg -abs -u 0F1B0520 -o Release.gpg Release }
+    end
+
+    apt_tgz = File.join(project_root, package_file)
+    FileUtils.mkdir_p File.dirname(apt_tgz)
+    system %{ tar czvf #{apt_tgz} debs }
+  end
+end

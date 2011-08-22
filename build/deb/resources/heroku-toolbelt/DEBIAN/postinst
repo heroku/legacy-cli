@@ -1,0 +1,3 @@
+#!/bin/sh
+set -e
+ln -sf /var/lib/gems/1.8/bin/heroku /usr/bin/heroku
