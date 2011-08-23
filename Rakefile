@@ -28,6 +28,13 @@ namespace :package do
     end
   end
 
+  desc "package the pkg version"
+  task :pkg do
+    if RUBY_PLATFORM =~ /darwin/
+      builder :package, :pkg
+    end
+  end
+
   desc "package the exe version"
   task :exe do
     if RUBY_PLATFORM =~ /mingw32/
@@ -54,6 +61,13 @@ namespace :release do
   task :deb => "package:deb" do
     if RUBY_PLATFORM =~ /linux/
       builder :release, :deb, "apt.tgz"
+    end
+  end
+
+  desc "release the deb version"
+  task :pkg => "package:pkg" do
+    if RUBY_PLATFORM =~ /darwin/
+      builder :release, :pkg
     end
   end
 
