@@ -59,23 +59,17 @@ task :package => %w( package:gem package:tgz )
 namespace :release do
   desc "release the deb version"
   task :deb => "package:deb" do
-    if RUBY_PLATFORM =~ /linux/
-      builder :release, :deb, "apt.tgz"
-    end
+    builder :release, :deb, "apt.tgz"
   end
 
   desc "release the deb version"
   task :pkg => "package:pkg" do
-    if RUBY_PLATFORM =~ /darwin/
-      builder :release, :pkg
-    end
+    builder :release, :pkg
   end
 
   desc "release the exe version"
   task :exe => "package:exe" do
-    if RUBY_PLATFORM =~ /mingw32/
-      builder :release, :exe
-    end
+    builder :release, :exe
   end
 
   desc "release the gem version"
