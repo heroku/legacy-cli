@@ -85,3 +85,14 @@ end
 
 desc "release all"
 task :release => %w( release:gem release:tgz )
+
+namespace :build do
+  desc "run osx release tasks"
+  task :osx => %w( release:gem release:tgz release:pkg )
+
+  desc "run windows release tasks"
+  task :windows => "release:exe"
+
+  desc "run debian release tasks"
+  task :debian => "release:deb"
+end
