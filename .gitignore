@@ -1,6 +1,6 @@
-.bundle
-coverage
-pkg
-rdoc
-.rvmrc
-tags
+/.bundle
+/.rvmrc
+/coverage
+/pkg
+/rdoc
+/tags
