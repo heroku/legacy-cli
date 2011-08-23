@@ -44,8 +44,8 @@ GOTO :EOF
   iss.write(ERB.new(File.read("#{resources}/heroku.iss")).result(binding))
   iss.close
 
-  system "curl http://assets.heroku.com/heroku-client-resources/rubyinstaller.exe -o #{project_root}\\data\\rubyinstaller.exe"
-  system "curl http://assets.heroku.com/heroku-client-resources/git.exe -o #{project_root}\\data\\git.exe"
+  system "curl http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe -o #{project_root}\\data\\rubyinstaller.exe"
+  system "curl http://heroku-toolbelt.s3.amazonaws.com/git.exe -o #{project_root}\\data\\git.exe"
 
   system "\"#{INNO_DIR}\\Compil32.exe\" /cc \"#{iss.path}\""
 end

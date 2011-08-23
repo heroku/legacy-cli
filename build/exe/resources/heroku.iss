@@ -5,7 +5,7 @@ DefaultDirName={pf}\Heroku
 DefaultGroupName=Heroku
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=heroku-setup-<%= version %>
+OutputBaseFilename=heroku-<%= version %>
 OutputDir=<%= original_project_root %>\pkg
 
 ; For Ruby expansion ~ 32MB (installed) - 12MB (installer)
