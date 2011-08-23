@@ -17,7 +17,7 @@ task :default => :spec
 def builder(action, type, ext=type)
   package_file = "pkg/heroku-#{Heroku::VERSION}.#{ext}"
   puts "#{action}: #{package_file}"
-  system %{ rvm 1.9.2 exec build/#{type}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
+  system %{ ruby build/#{type}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
 end
 
 namespace :package do
