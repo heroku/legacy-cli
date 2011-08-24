@@ -58,7 +58,7 @@ Heroku::Command.run(command, args)
 
     Dir.chdir("heroku-client") do
       Zip::ZipFile.open("#{project_root}/#{package_file}", Zip::ZipFile::CREATE) do |zip|
-        Dir["{bin,data,lib}/**/*"].each do |file|
+        Dir["{bin,data,lib,vendor}/**/*"].each do |file|
           zip.add(file, file) { true }
         end
       end
