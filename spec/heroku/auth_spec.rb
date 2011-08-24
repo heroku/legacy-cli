@@ -35,6 +35,7 @@ module Heroku
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
+      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.user.should == 'u'
       @cli.password.should == 'p'
     end
@@ -56,6 +57,7 @@ module Heroku
       @cli.stub!(:check)
       @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       @cli.should_receive(:write_credentials)
+      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.ask_for_and_save_credentials
     end
 
@@ -87,6 +89,7 @@ module Heroku
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
       @cli.should_receive(:set_credentials_permissions)
+      @cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
       File.read(@cli.credentials_file).should == "one\ntwo\n"
     end

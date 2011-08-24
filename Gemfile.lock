@@ -4,7 +4,6 @@ PATH
     heroku (2.6.0.pre2)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
-      rubyzip
       term-ansicolor (~> 1.0.5)
 
 GEM
