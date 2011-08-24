@@ -53,8 +53,6 @@ namespace :package do
   end
 end
 
-desc "package all"
-task :package => %w( package:gem package:tgz )
 
 namespace :release do
   desc "release the deb version"
@@ -83,8 +81,6 @@ namespace :release do
   end
 end
 
-desc "release all"
-task :release => %w( release:gem release:tgz )
 
 namespace :build do
   desc "run osx release tasks"
