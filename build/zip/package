@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+project_root = ARGV.shift
+package_file = ARGV.shift
+
+unless project_root && package_file
+  puts "usage: deb/package PROJECT_ROOT PACKAGE_FILE"
+  exit 1
+end
+
+require "erb"
+require "fileutils"
+require "tmpdir"
+
+resources = File.expand_path("../resources", __FILE__)
+version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
+
+unless File.exists?("pkg/heroku-#{version}.tgz")
+  puts "must package tgz first"
+  exit 1
+end
+
+require "zip/zip"
+
+Dir.mktmpdir do |dir|
+  Dir.chdir(dir) do
+    system %{ tar -xzvf #{project_root}/pkg/heroku-#{version}.tgz }
+
+    system %{ rm heroku-client/heroku }
+
+    Dir.chdir("heroku-client") do
+      Zip::ZipFile.open("#{project_root}/#{package_file}", Zip::ZipFile::CREATE) do |zip|
+        Dir["{data,lib,vendor}/**/*"].each do |file|
+          zip.add(file, file) { true }
+        end
+      end
+    end
+  end
+end
