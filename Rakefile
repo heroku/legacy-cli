@@ -51,8 +51,12 @@ namespace :package do
   task :tgz do
     builder :package, :tgz
   end
-end
 
+  desc "package the zip version"
+  task :zip do
+    builder :package, :zip
+  end
+end
 
 namespace :release do
   desc "release the deb version"
@@ -79,12 +83,16 @@ namespace :release do
   task :tgz => "package:tgz" do
     builder :release, :tgz
   end
-end
 
+  desc "release the zip version"
+  task :zip => "package:zip" do
+    builder :release, :zip
+  end
+end
 
 namespace :build do
   desc "run osx release tasks"
-  task :osx => %w( release:gem release:tgz release:pkg )
+  task :osx => %w( release:gem release:tgz release:pkg release:zip )
 
   desc "run windows release tasks"
   task :windows => "release:exe"
