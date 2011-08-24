@@ -3,58 +3,10 @@ module Heroku
   def self.distribution_files
     Dir[File.expand_path("../../{bin,data,lib}/**/*", __FILE__)]
   end
-
-  module Updater
-    def self.home_directory
-      running_on_windows? ? ENV['USERPROFILE'] : ENV['HOME']
-    end
-
-    def self.running_on_windows?
-      RUBY_PLATFORM =~ /mswin32|mingw32/
-    end
-
-    def self.updated_client_path
-      File.join(home_directory, ".heroku", "client")
-    end
-
-    def self.update(beta=false)
-      require "fileutils"
-      require "tmpdir"
-      require "zip/zip"
-
-      FileUtils.mkdir_p updated_client_path
-
-      client_path = nil
-
-      zip_url = beta ?
-        "http://assets.heroku.com/heroku-client/heroku-client-beta.zip" :
-        "http://assets.heroku.com/heroku-client/heroku-client.zip"
-
-      Dir.mktmpdir do |dir|
-        Dir.chdir(dir) do
-          File.open("heroku.zip", "wb") do |file|
-            file.print RestClient.get zip_url
-          end
-
-          Zip::ZipFile.open("heroku.zip") do |zip|
-            zip.each do |entry|
-              target = File.join(updated_client_path, entry.to_s)
-              FileUtils.mkdir_p File.dirname(target)
-              zip.extract(entry, target) { true }
-            end
-          end
-        end
-      end
-    end
-
-    def self.inject_libpath
-      $:.unshift updated_client_path
-    end
-  end
-
 end
 
 
+require "heroku/updater"
 Heroku::Updater.inject_libpath
 
 require 'heroku/client'
