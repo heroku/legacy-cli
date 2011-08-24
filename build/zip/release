@@ -31,4 +31,4 @@ version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
 
 store_package package_file, "heroku-client/heroku-client-#{version}.zip"
 store_package package_file, "heroku-client/heroku-client.zip" unless version =~ /pre/
-
+store_package package_file, "heroku-client/heroku-client-beta.zip"

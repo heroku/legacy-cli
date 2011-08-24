@@ -17,7 +17,7 @@ module Heroku
       File.join(home_directory, ".heroku", "client")
     end
 
-    def self.update
+    def self.update(beta=false)
       require "fileutils"
       require "tmpdir"
       require "zip/zip"
@@ -26,18 +26,22 @@ module Heroku
 
       client_path = nil
 
+      zip_url = beta ?
+        "http://assets.heroku.com/heroku-client/heroku-client-beta.zip" :
+        "http://assets.heroku.com/heroku-client/heroku-client.zip"
+
       Dir.mktmpdir do |dir|
-        File.open("heroku.zip", "wb") do |file|
-          file.print RestClient.get "http://assets.heroku.com/heroku-client/heroku-client.zip"
-        end
+        Dir.chdir(dir) do
+          File.open("heroku.zip", "wb") do |file|
+            file.print RestClient.get zip_url
+          end
 
-        #system %{ mv heroku.zip /tmp }
-
-        Zip::ZipFile.open("heroku.zip") do |zip|
-          zip.each do |entry|
-            target = File.join(updated_client_path, entry.to_s)
-            FileUtils.mkdir_p File.dirname(target)
-            zip.extract(entry, target) { true }
+          Zip::ZipFile.open("heroku.zip") do |zip|
+            zip.each do |entry|
+              target = File.join(updated_client_path, entry.to_s)
+              FileUtils.mkdir_p File.dirname(target)
+              zip.extract(entry, target) { true }
+            end
           end
         end
       end
