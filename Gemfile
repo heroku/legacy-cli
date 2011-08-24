@@ -13,5 +13,6 @@ group :development do
   gem "taps",  ">= 0.3.23"
   gem "webmock"
   gem "fpm"
+  gem "rubyzip"
 end
 

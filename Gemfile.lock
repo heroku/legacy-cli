@@ -40,6 +40,7 @@ GEM
     rspec-expectations (2.5.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
+    rubyzip (0.9.4)
     sequel (3.20.0)
     simplecov (0.4.2)
       simplecov-html (~> 0.4.4)
@@ -76,6 +77,7 @@ DEPENDENCIES
   rake (>= 0.8.7)
   rr (~> 1.0.2)
   rspec (>= 2.0)
+  rubyzip
   simplecov (~> 0.4.2)
   taps (>= 0.3.23)
   webmock
