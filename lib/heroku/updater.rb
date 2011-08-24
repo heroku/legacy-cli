@@ -43,7 +43,7 @@ module Heroku
     end
 
     def self.inject_libpath
-      $:.unshift updated_client_path
+      $:.unshift File.join(updated_client_path, "lib")
     end
   end
 end
