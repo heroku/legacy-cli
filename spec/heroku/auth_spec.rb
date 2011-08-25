@@ -133,9 +133,8 @@ module Heroku
           before(:each) { FileUtils.touch("~/.ssh/id_rsa.pub") }
           after(:each)  { FileUtils.rm("~/.ssh/id_rsa.pub") }
 
-          it "should prompt to upload the key" do
+          it "should upload the key" do
             @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
-            @cli.should_receive(:ask).and_return("y")
             @cli.check_for_associated_ssh_key
           end
         end

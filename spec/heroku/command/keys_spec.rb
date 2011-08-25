@@ -9,6 +9,7 @@ module Heroku::Command
     end
 
     it "tries to find a key if no key filename is supplied" do
+      Heroku::Auth.should_receive(:get_credentials)
       Heroku::Auth.should_receive(:associate_or_generate_ssh_key)
       @keys.add
     end
