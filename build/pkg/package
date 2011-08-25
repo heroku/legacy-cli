@@ -41,12 +41,6 @@ end
 
 $:.unshift File.expand_path("../../lib", bin_file)
 
-require "heroku/updater"
-gem_dir = File.join(Heroku::Updater.updated_client_path, "vendor", "gems")
-Dir["\#{gem_dir}/**/lib"].each do |libdir|
-  $:.unshift libdir
-end
-
 require 'heroku'
 require 'heroku/command'
 
