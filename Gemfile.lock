@@ -1,9 +1,10 @@
 PATH
   remote: .
   specs:
-    heroku (2.6.0.pre2)
+    heroku (2.6.0.pre3)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
+      rubyzip
       term-ansicolor (~> 1.0.5)
 
 GEM
@@ -77,6 +78,7 @@ DEPENDENCIES
   rake (>= 0.8.7)
   rr (~> 1.0.2)
   rspec (>= 2.0)
+  rubyzip
   simplecov (~> 0.4.2)
   taps (>= 0.3.23)
   webmock
