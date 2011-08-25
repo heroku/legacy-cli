@@ -29,6 +29,8 @@ end
 
 version = package_file.match(/heroku-([a-z0-9\.]+)\./)[1]
 
-store_package package_file, "heroku-toolbelt/heroku-toolbelt-#{version}.exe"
-store_package package_file, "heroku-toolbelt/heroku-toolbelt.exe" unless version =~ /pre/
-
+if version =~ /pre/
+  store_package package_file, "heroku-toolbelt/heroku-toolbelt-beta.exe"
+else
+  store_package package_file, "heroku-toolbelt/heroku-toolbelt.exe"
+end
