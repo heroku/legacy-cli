@@ -20,7 +20,7 @@ Dir.mktmpdir do |dir|
     FileUtils.mkdir_p "gems"
     Process.spawn %{ env GEM_HOME=gems GEM_PATH=gems gem install --no-ri --no-rdoc heroku }, :unsetenv_others => true, 1=>2
     Process.wait
-    system %{ find gems/cache -name "*.gem" | xargs -rn1 fpm -s gem -t deb }
+    system %{ find gems/cache -name "*.gem" | xargs -rn1 rvm system exec fpm -s gem -t deb }
 
     system %{ cp -R #{resources}/heroku-toolbelt . }
     control = File.read("heroku-toolbelt/DEBIAN/control")
