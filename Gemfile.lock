@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (2.5.1)
+    heroku (2.5.2)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
       term-ansicolor (~> 1.0.5)
