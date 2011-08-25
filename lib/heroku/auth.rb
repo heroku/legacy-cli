@@ -161,8 +161,7 @@ class Heroku::Auth
         end
       when 1 then
         display "Found existing public key: #{public_keys.first}"
-        display "Would you like to associate it with your Heroku account? [Yn] ", false
-        associate_key(public_keys.first) unless ask.strip.downcase == "n"
+        associate_key(public_keys.first)
       else
         display "Found the following SSH public keys:"
         public_keys.each_with_index do |key, index|
