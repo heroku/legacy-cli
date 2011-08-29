@@ -5,7 +5,7 @@ DefaultDirName={pf}\Heroku
 DefaultGroupName=Heroku
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=<%= File.basename(t.name) %>
+OutputBaseFilename=<%= File.basename(t.name, ".exe") %>
 OutputDir=<%= File.dirname(t.name) %>
 
 ; For Ruby expansion ~ 32MB (installed) - 12MB (installer)
