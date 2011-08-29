@@ -74,10 +74,20 @@ module Heroku::Command
 
   protected
 
+    class NullColorizer
+      def self.method_missing(name, *args)
+        ""
+      end
+    end
+
     def init_colors(colorizer=nil)
       if !colorizer && STDOUT.isatty
-        require 'term/ansicolor'
-        @colorizer = Term::ANSIColor
+        if ENV.has_key?("TERM")
+          require 'term/ansicolor'
+          @colorizer = Term::ANSIColor
+        else
+          @colorizer = NullColorizer
+        end
       else
         @colorizer = colorizer
       end
