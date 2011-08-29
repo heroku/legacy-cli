@@ -45,6 +45,16 @@ describe Heroku::Command::Help do
       output.should_not include "Additional commands"
     end
 
+    it "should show help with naked -h" do
+      output = run("-h")
+      output.should include "Usage: heroku COMMAND"
+    end
+
+    it "should show help with naked --help" do
+      output = run("--help")
+      output.should include "Usage: heroku COMMAND"
+    end
+
     describe "with legacy help" do
       require "helper/legacy_help"
 
