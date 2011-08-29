@@ -9,7 +9,7 @@ file pkg("heroku-toolbelt-#{version}.deb") => distribution_files do |t|
     assemble resource("deb/control"), "control"
     assemble resource("deb/postinst"), "postinst"
 
-    sh "tar czvf data.tar.gz usr/local/heroku"
+    sh "tar czvf data.tar.gz usr/local/heroku --owner=root --group=root"
     sh "tar czvf control.tar.gz control postinst"
 
     File.open("debian-binary", "w") do |f|
