@@ -5,16 +5,16 @@ DefaultDirName={pf}\Heroku
 DefaultGroupName=Heroku
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=heroku-<%= version %>
-OutputDir=<%= original_project_root %>\pkg
+OutputBaseFilename=<%= File.basename(t.name) %>
+OutputDir=<%= File.dirname(t.name) %>
 
 ; For Ruby expansion ~ 32MB (installed) - 12MB (installer)
 ExtraDiskSpaceRequired=20971520
 
 [Files]
-Source: "<%= project_root %>\data\git.exe"; DestDir: "{tmp}";
-Source: "<%= project_root %>\data\rubyinstaller.exe"; DestDir: "{tmp}";
-Source: "<%= project_root %>\*.*"; DestDir: "{app}"; Flags: recursesubdirs;
+Source: "installers\git.exe"; DestDir: "{tmp}";
+Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}";
+Source: "heroku-toolbelt\*.*"; DestDir: "{app}"; Flags: recursesubdirs;
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ruby"

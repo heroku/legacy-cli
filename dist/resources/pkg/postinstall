@@ -1,0 +1,2 @@
+#!/bin/sh
+ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
