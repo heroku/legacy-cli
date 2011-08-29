@@ -35,6 +35,13 @@ describe Heroku::Command::Logs do
         output.should == "2011-01-01T00:00:00+00:00 app[web.1]: test"
         stub(STDOUT).isatty.returns(true)
       end
+
+      it "does not use ansi if TERM is not set" do
+        term = ENV.delete("TERM")
+        execute "logs"
+        output.should == "2011-01-01T00:00:00+00:00 app[web.1]: test"
+        ENV["TERM"] = term
+      end
     end
   end
 
