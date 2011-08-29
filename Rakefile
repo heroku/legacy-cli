@@ -14,36 +14,17 @@ end
 
 task :default => :spec
 
-def builder(action, type, ext=type)
-  package_file = "pkg/heroku-#{Heroku::VERSION}.#{ext}"
-  puts "#{action}: #{package_file}"
-  system %{ ruby build/#{type}/#{action} "#{PROJECT_ROOT}" "#{package_file}" }
-end
-
-namespace :package do
-  desc "package the deb version"
-  task :deb do
-    if RUBY_PLATFORM =~ /linux/
-      builder :package, :deb, "apt.tgz"
-    end
-  end
-end
-
-namespace :release do
-  desc "release the deb version"
-  task :deb => "package:deb" do
-    builder :release, :deb, "apt.tgz"
-  end
-end
-
 ## dist
 
+require "erb"
 require "fileutils"
 require "tmpdir"
 
 def assemble(source, target, perms=0644)
   FileUtils.mkdir_p(File.dirname(target))
-  FileUtils.cp(source, target)
+  File.open(target, "w") do |f|
+    f.puts ERB.new(File.read(source)).result(binding)
+  end
   File.chmod(perms, target)
 end
 
@@ -122,10 +103,10 @@ def s3_connect
   @s3_connected = true
 end
 
-def store(package_file, filename)
+def store(package_file, filename, bucket="assets.heroku.com")
   s3_connect
   puts "storing: #{filename}"
-  AWS::S3::S3Object.store(filename, File.open(package_file), "assets.heroku.com", :access => :public_read)
+  AWS::S3::S3Object.store(filename, File.open(package_file), bucket, :access => :public_read)
 end
 
 def tempdir
