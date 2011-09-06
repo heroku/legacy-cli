@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.author      = "Heroku"
   gem.email       = "support@heroku.com"
   gem.homepage    = "http://heroku.com/"
-  gem.summary     = "Client library and CLI to deploy Rails apps on Heroku."
-  gem.description = "Client library and command-line tool to manage and deploy Rails apps on Heroku."
+  gem.summary     = "Client library and CLI to deploy apps on Heroku."
+  gem.description = "Client library and command-line tool to deploy and manage apps on Heroku."
   gem.executables = "heroku"
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
