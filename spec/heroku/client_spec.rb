@@ -119,7 +119,7 @@ describe Heroku::Client do
     stub_request(:post, %r{.*/apps/myapp/console}).to_return({
       :body => "ERRMSG", :status => 502
     })
-    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, "Your application is too busy to open a console session.\nConsole sessions require an open dyno to use for execution.\n")
+    lambda { @client.console('myapp') }.should raise_error(Heroku::Client::AppCrashed, /Your application may have crashed/)
   end
 
   it "restart(app_name) -> restarts the app servers" do
