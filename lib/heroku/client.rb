@@ -215,8 +215,9 @@ class Heroku::Client
     end
   rescue RestClient::BadGateway => e
     raise(AppCrashed, <<-ERROR)
-Your application is too busy to open a console session.
-Console sessions require an open dyno to use for execution.
+Unable to attach to a dyno to open a console session.
+Your application may have crashed.
+Check the output of "heroku ps" and "heroku logs" for more information.
     ERROR
   end
 
