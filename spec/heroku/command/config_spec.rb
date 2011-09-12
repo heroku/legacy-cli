@@ -44,7 +44,7 @@ module Heroku::Command
 
     describe "config:remove" do
       before { @config.stub!(:args).and_return(args) }
-                                             
+
       context "when no key provided" do
         let(:args) { [] }
 
@@ -54,7 +54,7 @@ module Heroku::Command
           lambda { @config.remove }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
         end
       end
-      
+
       context "when one key is provided" do
         let(:args) { ['a'] }
 
@@ -64,7 +64,7 @@ module Heroku::Command
           @config.remove
         end
       end
-      
+
       context "when more than one key is provided" do
         let(:args) { ['a', 'b'] }
 
