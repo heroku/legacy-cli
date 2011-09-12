@@ -1,4 +1,4 @@
-file pkg("heroku-#{version}.exe") => distribution_files do |t|
+file pkg("heroku-#{version}.exe") => distribution_files("exe") do |t|
   tempdir do |dir|
     mkchdir("heroku-toolbelt") do
       assemble_distribution

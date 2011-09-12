@@ -61,9 +61,13 @@ def clean(file)
   rm file if File.exists?(file)
 end
 
-def distribution_files
+def distribution_files(type=nil)
   require "heroku/distribution"
-  Heroku::Distribution.files
+  base_files = Heroku::Distribution.files
+  type_files = type ?
+    Dir[File.expand_path("../dist/resources/#{type}/**/*", __FILE__)] :
+    []
+  base_files.concat(type_files)
 end
 
 def mkchdir(dir)

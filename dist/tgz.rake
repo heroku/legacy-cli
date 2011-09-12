@@ -1,4 +1,4 @@
-file pkg("heroku-#{version}.tgz") => distribution_files do |t|
+file pkg("heroku-#{version}.tgz") => distribution_files("tgz") do |t|
   tempdir do |dir|
     mkchdir("heroku-client") do
       assemble_distribution

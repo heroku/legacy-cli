@@ -1,6 +1,6 @@
 require "erb"
 
-file pkg("heroku-#{version}.pkg") => distribution_files do |t|
+file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
   tempdir do |dir|
     mkchdir("heroku-toolbelt") do
       assemble_distribution

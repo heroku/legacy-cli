@@ -1,4 +1,4 @@
-file pkg("heroku-#{version}.gem") => distribution_files do |t|
+file pkg("heroku-#{version}.gem") => distribution_files("gem") do |t|
   sh "gem build heroku.gemspec"
   sh "mv heroku-#{version}.gem #{t.name}"
 end

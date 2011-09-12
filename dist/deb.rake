@@ -1,4 +1,4 @@
-file pkg("heroku-toolbelt-#{version}.deb") => distribution_files do |t|
+file pkg("heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
   tempdir do |dir|
     mkchdir("usr/local/heroku") do
       assemble_distribution

@@ -1,6 +1,6 @@
 require "zip/zip"
 
-file pkg("heroku-#{version}.zip") => distribution_files do |t|
+file pkg("heroku-#{version}.zip") => distribution_files("zip") do |t|
   tempdir do |dir|
     mkchdir("heroku-client") do
       assemble_distribution
