@@ -39,8 +39,8 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
 
     sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/git.pkg -o git-full.pkg }
     sh %{ pkgutil --expand git-full.pkg git-full }
-    sh %{ mv git-full/etc.pkg pkg/git-etc.pkg }
-    sh %{ mv git-full/git.pkg pkg/git-git.pkg }
+    mv "git-full/etc.pkg", "pkg/git-etc.pkg"
+    mv "git-full/git.pkg", "pkg/git-git.pkg"
 
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
 
