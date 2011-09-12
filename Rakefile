@@ -67,7 +67,8 @@ def distribution_files(type=nil)
   type_files = type ?
     Dir[File.expand_path("../dist/resources/#{type}/**/*", __FILE__)] :
     []
-  base_files.concat(type_files)
+  #base_files.concat(type_files)
+  base_files
 end
 
 def mkchdir(dir)
