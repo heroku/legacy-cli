@@ -7,19 +7,41 @@ describe Heroku::Client do
   include Heroku::Helpers
 
   before do
-    @client = Heroku::Client.new(nil, nil)
+    @env = ENV['HEROKU_API_KEY']
+    @api_key = 'apikey123'
+    @auth = ':apikey123'
+    @client = Heroku::Client.new({:api_key => @api_key})
     @resource = mock('heroku rest resource')
     @client.stub!(:extract_warning)
+  end
+  
+  after do
+    ENV['HEROKU_API_KEY'] = @env
+  end
+  
+  it "Client.new -> default api_key from environment" do
+    api_key = 'envapikey123'
+    ENV['HEROKU_API_KEY'] = api_key
+    @client = Heroku::Client.new()
+    @client.api_key.should == api_key
   end
 
   it "Client.auth -> get user details" do
     user_info = { "api_key" => "abc" }
-    stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => json_encode(user_info))
+    stub_api_request(:post, "/login").with(
+      :body => "username=foo&password=bar").to_return(:body => json_encode(user_info))
     Heroku::Client.auth("foo", "bar").should == user_info
+  end
+  
+  it "obtains api_key when initialized with user/pass" do
+    user_info = { "api_key" => "abc" }
+    Heroku::Client.stub!(:auth).and_return(user_info)
+    client = Heroku::Client.new('joe@example.com', 'secret')
+    client.api_key.should == user_info["api_key"]
   end
 
   it "list -> get a list of this user's apps" do
-    stub_api_request(:get, "/apps").to_return(:body => <<-EOXML)
+    stub_api_request(:get, "/apps", @auth).to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
       <apps type="array">
         <app><name>myapp1</name><owner>test@heroku.com</owner></app>
@@ -33,7 +55,7 @@ describe Heroku::Client do
   end
 
   it "info -> get app attributes" do
-    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+    stub_api_request(:get, "/apps/myapp", @auth).to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
       <app>
         <blessed type='boolean'>true</blessed>
@@ -51,7 +73,7 @@ describe Heroku::Client do
   end
 
   it "create_request -> create a new blank app" do
-    stub_api_request(:post, "/apps").with(:body => "").to_return(:body => <<-EOXML)
+    stub_api_request(:post, "/apps", @auth).with(:body => "").to_return(:body => <<-EOXML)
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>untitled-123</name></app>
     EOXML
@@ -59,7 +81,7 @@ describe Heroku::Client do
   end
 
   it "create_request(name) -> create a new blank app with a specified name" do
-    stub_api_request(:post, "/apps").with(:body => "app[name]=newapp").to_return(:body => <<-EOXML)
+    stub_api_request(:post, "/apps", @auth).with(:body => "app[name]=newapp").to_return(:body => <<-EOXML)
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>newapp</name></app>
     EOXML
@@ -75,30 +97,30 @@ describe Heroku::Client do
   end
 
   it "update(name, attributes) -> updates existing apps" do
-    stub_api_request(:put, "/apps/myapp").with(:body => "app[mode]=production")
+    stub_api_request(:put, "/apps/myapp", @auth).with(:body => "app[mode]=production")
     @client.update("myapp", :mode => 'production')
   end
 
   it "destroy(name) -> destroy the named app" do
-    stub_api_request(:delete, "/apps/destroyme")
+    stub_api_request(:delete, "/apps/destroyme", @auth)
     @client.destroy("destroyme")
   end
 
   it "rake(app_name, cmd) -> run a rake command on the app" do
-    stub_api_request(:post, "/apps/myapp/services").with(:body => "rake db:migrate").to_return(:body => "foo")
-    stub_api_request(:get,  "/foo").to_return(:body => "output")
+    stub_api_request(:post, "/apps/myapp/services", @auth).with(:body => "rake db:migrate").to_return(:body => "foo")
+    stub_api_request(:get,  "/foo", @auth).to_return(:body => "output")
     @client.rake('myapp', 'db:migrate')
   end
 
   it "console(app_name, cmd) -> run a console command on the app" do
-    stub_api_request(:post, "/apps/myapp/console").with(:body => "command=2%2B2")
+    stub_api_request(:post, "/apps/myapp/console", @auth).with(:body => "command=2%2B2")
     @client.console('myapp', '2+2')
   end
 
   it "console(app_name) { |c| } -> opens a console session, yields one accessor and closes it after the block" do
-    stub_api_request(:post,   "/apps/myapp/consoles").to_return(:body => "consolename")
-    stub_api_request(:post,   "/apps/myapp/consoles/consolename/command").with(:body => "command=1%2B1").to_return(:body => "2")
-    stub_api_request(:delete, "/apps/myapp/consoles/consolename")
+    stub_api_request(:post,   "/apps/myapp/consoles", @auth).to_return(:body => "consolename")
+    stub_api_request(:post,   "/apps/myapp/consoles/consolename/command", @auth).with(:body => "command=1%2B1").to_return(:body => "2")
+    stub_api_request(:delete, "/apps/myapp/consoles/consolename", @auth)
 
     @client.console('myapp') do |c|
       c.run("1+1").should == '=> 2'
@@ -106,7 +128,7 @@ describe Heroku::Client do
   end
 
   it "console displays xml-formatted errors properly" do
-    stub_api_request(:post, "/apps/myapp/console").with(:body => 'command=test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
+    stub_api_request(:post, "/apps/myapp/console", @auth).with(:body => 'command=test').to_return(:status => 422, :body => '<?xml version="1.0"?><errors><error>Test Error</error></errors>')
     @client.console('myapp', 'test').should == ' !   Test Error'
   end
 
@@ -123,15 +145,15 @@ describe Heroku::Client do
   end
 
   it "restart(app_name) -> restarts the app servers" do
-    stub_api_request(:delete, "/apps/myapp/server")
+    stub_api_request(:delete, "/apps/myapp/server", @auth)
     @client.restart('myapp')
   end
 
   describe "read_logs" do
     describe "old style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "Use old logs")
-        stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "oldlogs")
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true", @auth).to_return(:body => "Use old logs")
+        stub_api_request(:get, "/apps/myapp/logs", @auth).to_return(:body => "oldlogs")
       end
 
       it "can read old style logs" do
@@ -142,7 +164,7 @@ describe Heroku::Client do
 
     describe "new style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url")
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true", @auth).to_return(:body => "https://api.heroku.com/logplex_url")
         stub_api_request(:get, "/logplex_url").to_return(:body => "newlogs")
       end
 
@@ -155,17 +177,17 @@ describe Heroku::Client do
   end
 
   it "logs(app_name) -> returns recent output of the app logs" do
-    stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "log")
+    stub_api_request(:get, "/apps/myapp/logs", @auth).to_return(:body => "log")
     @client.logs('myapp').should == 'log'
   end
 
   it "cron_logs(app_name) -> returns recent output of the app logs" do
-    stub_api_request(:get, "/apps/myapp/cron_logs").to_return(:body => "cron log")
+    stub_api_request(:get, "/apps/myapp/cron_logs", @auth).to_return(:body => "cron log")
     @client.cron_logs('myapp').should == 'cron log'
   end
 
   it "can get the number of dynos" do
-    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+    stub_api_request(:get, "/apps/myapp", @auth).to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
       <app>
         <dynos type='integer'>5</dynos>
@@ -175,7 +197,7 @@ describe Heroku::Client do
   end
 
   it "can get the number of workers" do
-    stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
+    stub_api_request(:get, "/apps/myapp", @auth).to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
       <app>
         <workers type='integer'>5</workers>
@@ -185,7 +207,7 @@ describe Heroku::Client do
   end
 
   it "set_dynos(app_name, qty) -> scales the app" do
-    stub_api_request(:put, "/apps/myapp/dynos").with(:body => "dynos=3")
+    stub_api_request(:put, "/apps/myapp/dynos", @auth).with(:body => "dynos=3")
     @client.set_dynos('myapp', 3)
   end
 
@@ -207,14 +229,14 @@ describe Heroku::Client do
 
   describe "ps_scale" do
     it "scales a process and returns the new count" do
-      stub_api_request(:post, "/apps/myapp/ps/scale").with(:body => "type=web&qty=5").to_return(:body => "5")
+      stub_api_request(:post, "/apps/myapp/ps/scale", @auth).with(:body => "type=web&qty=5").to_return(:body => "5")
       @client.ps_scale("myapp", :type => "web", :qty => "5").should == 5
     end
   end
 
   describe "collaborators" do
     it "list(app_name) -> list app collaborators" do
-      stub_api_request(:get, "/apps/myapp/collaborators").to_return(:body => <<-EOXML)
+      stub_api_request(:get, "/apps/myapp/collaborators", @auth).to_return(:body => <<-EOXML)
         <?xml version="1.0" encoding="UTF-8"?>
         <collaborators type="array">
           <collaborator><email>joe@example.com</email></collaborator>
@@ -228,19 +250,19 @@ describe Heroku::Client do
     end
 
     it "add_collaborator(app_name, email) -> adds collaborator to app" do
-      stub_api_request(:post, "/apps/myapp/collaborators").with(:body => "collaborator%5Bemail%5D=joe%40example.com")
+      stub_api_request(:post, "/apps/myapp/collaborators", @auth).with(:body => "collaborator%5Bemail%5D=joe%40example.com")
       @client.add_collaborator('myapp', 'joe@example.com')
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
-      stub_api_request(:delete, "/apps/myapp/collaborators/joe%40example%2Ecom")
+      stub_api_request(:delete, "/apps/myapp/collaborators/joe%40example%2Ecom", @auth)
       @client.remove_collaborator('myapp', 'joe@example.com')
     end
   end
 
   describe "domain names" do
     it "list(app_name) -> list app domain names" do
-      stub_api_request(:get, "/apps/myapp/domains").to_return(:body => <<-EOXML)
+      stub_api_request(:get, "/apps/myapp/domains", @auth).to_return(:body => <<-EOXML)
         <?xml version="1.0" encoding="UTF-8"?>
         <domain-names type="array">
           <domain-name><domain>example1.com</domain></domain-name>
@@ -251,22 +273,22 @@ describe Heroku::Client do
     end
 
     it "add_domain(app_name, domain) -> adds domain name to app" do
-      stub_api_request(:post, "/apps/myapp/domains").with(:body => "example.com")
+      stub_api_request(:post, "/apps/myapp/domains", @auth).with(:body => "example.com")
       @client.add_domain('myapp', 'example.com')
     end
 
     it "remove_domain(app_name, domain) -> removes domain name from app" do
-      stub_api_request(:delete, "/apps/myapp/domains/example.com")
+      stub_api_request(:delete, "/apps/myapp/domains/example.com", @auth)
       @client.remove_domain('myapp', 'example.com')
     end
 
     it "remove_domains(app_name) -> removes all domain names from app" do
-      stub_api_request(:delete, "/apps/myapp/domains")
+      stub_api_request(:delete, "/apps/myapp/domains", @auth)
       @client.remove_domains('myapp')
     end
 
     it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do
-      stub_api_request(:post, "/apps/myapp/ssl").with do |request|
+      stub_api_request(:post, "/apps/myapp/ssl", @auth).with do |request|
         body = CGI::parse(request.body)
         body["key"].first.should == "thekey"
         body["pem"].first.should == "thepem"
@@ -275,14 +297,14 @@ describe Heroku::Client do
     end
 
     it "remove_ssl(app_name, domain) -> removes the ssl cert for the domain" do
-      stub_api_request(:delete, "/apps/myapp/domains/example.com/ssl")
+      stub_api_request(:delete, "/apps/myapp/domains/example.com/ssl", @auth)
       @client.remove_ssl('myapp', 'example.com')
     end
   end
 
   describe "ssh keys" do
     it "fetches a list of the user's current keys" do
-      stub_api_request(:get, "/user/keys").to_return(:body => <<-EOXML)
+      stub_api_request(:get, "/user/keys", @auth).to_return(:body => <<-EOXML)
         <?xml version="1.0" encoding="UTF-8"?>
         <keys type="array">
           <key>
@@ -294,17 +316,17 @@ describe Heroku::Client do
     end
 
     it "add_key(key) -> add an ssh key (e.g., the contents of id_rsa.pub) to the user" do
-      stub_api_request(:post, "/user/keys").with(:body => "a key")
+      stub_api_request(:post, "/user/keys", @auth).with(:body => "a key")
       @client.add_key('a key')
     end
 
     it "remove_key(key) -> remove an ssh key by name (user@box)" do
-      stub_api_request(:delete, "/user/keys/joe%40workstation")
+      stub_api_request(:delete, "/user/keys/joe%40workstation", @auth)
       @client.remove_key('joe@workstation')
     end
 
     it "remove_all_keys -> removes all ssh keys for the user" do
-      stub_api_request(:delete, "/user/keys")
+      stub_api_request(:delete, "/user/keys", @auth)
       @client.remove_all_keys
     end
 
@@ -315,95 +337,95 @@ describe Heroku::Client do
         end
       end
 
-      stub_api_request(:post, "/apps/myapp/database/session2").to_return(:body => "{\"session_id\":\"x234\"}")
+      stub_api_request(:post, "/apps/myapp/database/session2", @auth).to_return(:body => "{\"session_id\":\"x234\"}")
       @client.database_session('myapp')
     end
 
     it "database_reset(app_name) -> reset an app's database" do
-      stub_api_request(:post, "/apps/myapp/database/reset")
+      stub_api_request(:post, "/apps/myapp/database/reset", @auth)
       @client.database_reset('myapp')
     end
 
     it "maintenance(app_name, :on) -> sets maintenance mode for an app" do
-      stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=1")
+      stub_api_request(:post, "/apps/myapp/server/maintenance", @auth).with(:body => "maintenance_mode=1")
       @client.maintenance('myapp', :on)
     end
 
     it "maintenance(app_name, :off) -> turns off maintenance mode for an app" do
-      stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=0")
+      stub_api_request(:post, "/apps/myapp/server/maintenance", @auth).with(:body => "maintenance_mode=0")
       @client.maintenance('myapp', :off)
     end
   end
 
   describe "config vars" do
     it "config_vars(app_name) -> json hash of config vars for the app" do
-      stub_api_request(:get, "/apps/myapp/config_vars").to_return(:body => '{"A":"one", "B":"two"}')
+      stub_api_request(:get, "/apps/myapp/config_vars", @auth).to_return(:body => '{"A":"one", "B":"two"}')
       @client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
     end
 
     it "add_config_vars(app_name, vars)" do
-      stub_api_request(:put, "/apps/myapp/config_vars").with(:body => '{"x":"y"}')
+      stub_api_request(:put, "/apps/myapp/config_vars", @auth).with(:body => '{"x":"y"}')
       @client.add_config_vars('myapp', {:x => 'y'})
     end
 
     it "remove_config_var(app_name, key)" do
-      stub_api_request(:delete, "/apps/myapp/config_vars/mykey")
+      stub_api_request(:delete, "/apps/myapp/config_vars/mykey", @auth)
       @client.remove_config_var('myapp', 'mykey')
     end
 
     it "clear_config_vars(app_name) -> resets all config vars for this app" do
-      stub_api_request(:delete, "/apps/myapp/config_vars")
+      stub_api_request(:delete, "/apps/myapp/config_vars", @auth)
       @client.clear_config_vars('myapp')
     end
 
     it "can handle config vars with special characters" do
-      stub_api_request(:delete, "/apps/myapp/config_vars/foo%5Bbar%5D")
+      stub_api_request(:delete, "/apps/myapp/config_vars/foo%5Bbar%5D", @auth)
       lambda { @client.remove_config_var('myapp', 'foo[bar]') }.should_not raise_error
     end
   end
 
   describe "addons" do
     it "addons -> array with addons available for installation" do
-      stub_api_request(:get, "/addons").to_return(:body => '[{"name":"addon1"}, {"name":"addon2"}]')
+      stub_api_request(:get, "/addons", @auth).to_return(:body => '[{"name":"addon1"}, {"name":"addon2"}]')
       @client.addons.should == [{'name' => 'addon1'}, {'name' => 'addon2'}]
     end
 
     it "installed_addons(app_name) -> array of installed addons" do
-      stub_api_request(:get, "/apps/myapp/addons").to_return(:body => '[{"name":"addon1"}]')
+      stub_api_request(:get, "/apps/myapp/addons", @auth).to_return(:body => '[{"name":"addon1"}]')
       @client.installed_addons('myapp').should == [{'name' => 'addon1'}]
     end
 
     it "install_addon(app_name, addon_name)" do
-      stub_api_request(:post, "/apps/myapp/addons/addon1")
+      stub_api_request(:post, "/apps/myapp/addons/addon1", @auth)
       @client.install_addon('myapp', 'addon1').should be_nil
     end
 
     it "upgrade_addon(app_name, addon_name)" do
-      stub_api_request(:put, "/apps/myapp/addons/addon1")
+      stub_api_request(:put, "/apps/myapp/addons/addon1", @auth)
       @client.upgrade_addon('myapp', 'addon1').should be_nil
     end
 
     it "downgrade_addon(app_name, addon_name)" do
-      stub_api_request(:put, "/apps/myapp/addons/addon1")
+      stub_api_request(:put, "/apps/myapp/addons/addon1", @auth)
       @client.downgrade_addon('myapp', 'addon1').should be_nil
     end
 
     it "uninstall_addon(app_name, addon_name)" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1?").
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?", @auth).
         to_return(:body => 'true')
 
       @client.uninstall_addon('myapp', 'addon1').should be_true
     end
 
     it "uninstall_addon(app_name, addon_name) with confirmation" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1?confirm=myapp").
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?confirm=myapp", @auth).
         to_return(:body => 'true')
 
       @client.uninstall_addon('myapp', 'addon1', :confirm => "myapp").should be_true
     end
 
     it "install_addon(app_name, addon_name) with response" do
-      stub_request(:post, "https://api.heroku.com/apps/myapp/addons/addon1").
+      stub_api_request(:post, "/apps/myapp/addons/addon1", @auth).
         to_return(:body => json_encode({:price => 'free', :message => "Don't Panic"}))
 
       @client.install_addon('myapp', 'addon1').
@@ -411,7 +433,7 @@ describe Heroku::Client do
     end
 
     it "upgrade_addon(app_name, addon_name) with response" do
-      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+      stub_api_request(:put, "/apps/myapp/addons/addon1", @auth).
         to_return(:body => json_encode(:price => 'free', :message => "Don't Panic"))
 
       @client.upgrade_addon('myapp', 'addon1').
@@ -419,7 +441,7 @@ describe Heroku::Client do
     end
 
     it "downgrade_addon(app_name, addon_name) with response" do
-      stub_request(:put, "https://api.heroku.com/apps/myapp/addons/addon1").
+      stub_api_request(:put, "/apps/myapp/addons/addon1", @auth).
         to_return(:body => json_encode(:price => 'free', :message => "Don't Panic"))
 
       @client.downgrade_addon('myapp', 'addon1').
@@ -427,7 +449,7 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name) with response" do
-      stub_api_request(:delete, "/apps/myapp/addons/addon1?").
+      stub_api_request(:delete, "/apps/myapp/addons/addon1?", @auth).
         to_return(:body => json_encode(:price => 'free', :message => "Don't Panic"))
 
       @client.uninstall_addon('myapp', 'addon1').
@@ -437,18 +459,16 @@ describe Heroku::Client do
 
   describe "internal" do
     before do
-      @client = Heroku::Client.new(nil, nil)
+      @client = Heroku::Client.new({:api_key => nil})
     end
 
     it "creates a RestClient resource for making calls" do
       @client.stub!(:host).and_return('heroku.com')
-      @client.stub!(:user).and_return('joe@example.com')
-      @client.stub!(:password).and_return('secret')
+      @client.stub!(:api_key).and_return('secret')
 
       res = @client.resource('/xyz')
 
       res.url.should == 'https://api.heroku.com/xyz'
-      res.user.should == 'joe@example.com'
       res.password.should == 'secret'
     end
 
@@ -485,13 +505,20 @@ describe Heroku::Client do
 
   describe "stacks" do
     it "list_stacks(app_name) -> json hash of available stacks" do
-      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=false").to_return(:body => '{"stack":"one"}')
+      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=false", @auth).to_return(:body => '{"stack":"one"}')
       @client.list_stacks("myapp").should == { 'stack' => 'one' }
     end
 
     it "list_stacks(app_name, include_deprecated=true) passes the deprecated option" do
-      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=true").to_return(:body => '{"stack":"one"}')
+      stub_api_request(:get, "/apps/myapp/stack?include_deprecated=true", @auth).to_return(:body => '{"stack":"one"}')
       @client.list_stacks("myapp", :include_deprecated => true).should == { 'stack' => 'one' }
     end
+  end
+  
+  it "confirm_billing() -> confirms billing" do
+    stub_api_request(:post, "/login", @auth).with(
+      :body => "password=#{@api_key}").to_return(:body => json_encode({ "email" => "joe@example.com" }))      
+    stub_api_request(:post, "/user/joe%40example.com/confirm_billing", @auth).with(:body => "")
+    @client.confirm_billing
   end
 end

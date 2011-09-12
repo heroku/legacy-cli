@@ -1,5 +1,6 @@
 require "rubygems"
 require "bundler/setup"
+require "uri"
 
 require "simplecov"
 SimpleCov.start do
@@ -13,8 +14,9 @@ require "webmock/rspec"
 
 include WebMock::API
 
-def stub_api_request(method, path)
-  stub_request(method, "https://api.heroku.com#{path}")
+def stub_api_request(method, path, auth=nil)
+  auth = auth.nil? ? "" : URI.escape(auth)+"@"
+  stub_request(method, "https://#{auth}api.heroku.com#{path}")
 end
 
 def prepare_command(klass)
