@@ -71,7 +71,7 @@ module Heroku::Command
         it "removes all given keys" do
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'b')
-          @config.heroku.should_receive(:releases).and_return([])
+          @config.heroku.should_receive(:releases).at_least(:once).and_return([])
           @config.remove
         end
       end
