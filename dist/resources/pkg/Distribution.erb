@@ -1,29 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-script minSpecVersion="1.000000" authoringTool="org.ruby-lang.rake" authoringToolVersion="0.8.7">
   <title>Heroku Toolbelt</title>
-  <options customize="never" allow-external-scripts="no"/>
+  <options customize="allow" allow-external-scripts="no"/>
   <domains enable_localSystem="true"/>
-  <script><![CDATA[
-    function needs_git() {
-      return (system.version.ProductVersion < '10.7.0');
-    }
-  ]]></script>
   <choices-outline>
-    <line choice="git"/>
     <line choice="foreman"/>
+    <line choice="git"/>
     <line choice="heroku-<%= version %>"/>
   </choices-outline>
-  <choice id="git" title="git" start_selected="false" start_enabled="false" selected="needs_git()" enabled="needs_git()">
-    <pkg-ref id="git.pkg" />
-  </choice>
-  <choice id="foreman" title="foreman" start_selected="true" start_enabled="true" enabled="true">
+  <choice id="foreman" title="Foreman" start_selected="true" start_enabled="true" enabled="true">
     <pkg-ref id="io.foreman.installer" />
   </choice>
-  <choice id="heroku-<%= version %>" title="heroku">
+  <choice id="git" title="Git" start_selected="true" start_enabled="true" enabled="true">
+    <pkg-ref id="git-etc.pkg" />
+    <pkg-ref id="git-git.pkg" />
+  </choice>
+  <choice id="heroku-<%= version %>" title="Heroku Client">
     <pkg-ref id="com.heroku.toolbelt"/>
   </choice>
-  <pkg-ref id="git.pkg" installKBytes="16900" archiveKBytes="5700" hash-sha256="b73699f3e7929d2725c155c0c9e109a1252ffc632d3426ce4ed6f03196d98d68" auth="Root">http://heroku-toolbelt.s3.amazonaws.com/git.pkg</pkg-ref>
   <pkg-ref id="io.foreman.installer" installKBytes="651" auth="Root">#foreman.pkg</pkg-ref>
+  <pkg-ref id="git-etc.pkg" installKBytes="1" auth="Root">#git-etc.pkg</pkg-ref>
+  <pkg-ref id="git-git.pkg" installKBytes="16900" auth="Root">#git-git.pkg</pkg-ref>
   <pkg-ref id="com.heroku.toolbelt" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-<%= version %>.pkg</pkg-ref>
 </installer-script>
-

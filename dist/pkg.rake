@@ -37,6 +37,11 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
     sh %{ pkgutil --expand foreman-full.pkg foreman-full }
     sh %{ mv foreman-full/foreman-*.pkg pkg/foreman.pkg }
 
+    sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/git.pkg -o git-full.pkg }
+    sh %{ pkgutil --expand git-full.pkg git-full }
+    sh %{ mv git-full/etc.pkg pkg/git-etc.pkg }
+    sh %{ mv git-full/git.pkg pkg/git-git.pkg }
+
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
 
     cp_r "heroku-#{version}.pkg", t.name
