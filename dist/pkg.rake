@@ -33,6 +33,10 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
       sh %{ pax -wz -x cpio . > ../pkg/heroku-#{version}.pkg/Payload }
     end
 
+    sh %{ curl http://assets.foreman.io.s3.amazonaws.com/foreman/foreman.pkg -o foreman-full.pkg }
+    sh %{ pkgutil --expand foreman-full.pkg foreman-full }
+    sh %{ mv foreman-full/foreman-*.pkg pkg/foreman.pkg }
+
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
 
     cp_r "heroku-#{version}.pkg", t.name
