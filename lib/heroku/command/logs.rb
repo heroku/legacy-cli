@@ -74,20 +74,10 @@ module Heroku::Command
 
   protected
 
-    class NullColorizer
-      def self.method_missing(name, *args)
-        ""
-      end
-    end
-
     def init_colors(colorizer=nil)
-      if !colorizer && STDOUT.isatty
-        if ENV.has_key?("TERM")
-          require 'term/ansicolor'
-          @colorizer = Term::ANSIColor
-        else
-          @colorizer = NullColorizer
-        end
+      if !colorizer && STDOUT.isatty && ENV.has_key?("TERM")
+        require 'term/ansicolor'
+        @colorizer = Term::ANSIColor
       else
         @colorizer = colorizer
       end
@@ -95,7 +85,7 @@ module Heroku::Command
       @assigned_colors = {}
 
       trap("INT") do
-        puts @colorizer.reset
+        puts @colorizer.reset if @colorizer
         exit
       end
     rescue LoadError
