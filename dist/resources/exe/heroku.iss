@@ -28,8 +28,8 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 [Run]
 Filename: "{tmp}\git.exe"; Parameters: "/silent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git";
-Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/silent /nocancel /noicons /dir=""{app}/ruby"""; \
-  Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby";
+Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby"""; \
+  Flags: shellexec waituntilterminated; StatusMsg: "Installing Components";
 
 [Code]
 

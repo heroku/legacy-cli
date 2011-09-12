@@ -3,8 +3,11 @@ file pkg("heroku-#{version}.exe") => distribution_files("exe") do |t|
     mkchdir("heroku-toolbelt") do
       assemble_distribution
       assemble_gems
+      assemble resource("exe/heroku"), "heroku"
       assemble resource("exe/heroku.bat"), "heroku.bat"
     end
+
+    FileUtils.rm_rf ("bin")
 
     File.open("heroku.iss", "w") do |iss|
       iss.write(ERB.new(File.read(resource("exe/heroku.iss"))).result(binding))
