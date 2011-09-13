@@ -46,9 +46,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # list processes for an app
   #
+  # -a, --all           # include detached and recent one-shot processes
   def index
     app = extract_app
-    ps = heroku.ps(app)
+    ps = heroku.ps(app, options)
 
     output = []
     output << "Process       State               Command"
@@ -120,6 +121,24 @@ class Heroku::Command::Ps < Heroku::Command::Base
   end
 
   alias_command "scale", "ps:scale"
+
+  # ps:stop PROCESS
+  #
+  # stop an app process
+  def restart
+    app = extract_app
+
+    ps = args.first
+    unless ps =~ /.+\..+/
+      error "Usage: heroku ps:stop ps.1"
+    end
+
+    display "Stopping #{ps} process... ", false
+    heroku.ps_destroy(app, ps)
+    display "done"
+  end
+
+  alias_command "restart", "ps:restart"
 
 end
 

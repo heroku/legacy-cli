@@ -322,8 +322,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   # Retreive ps list for the given app name.
-  def ps(app_name)
-    json_decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+  def ps(app_name, options={})
+    json_decode resource("/apps/#{app_name}/ps").get(:params => options, :accept => 'application/json').to_s
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
@@ -510,6 +510,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   def ps_restart(app, opts={})
     post("/apps/#{app}/ps/restart", opts)
+  end
+
+  def ps_destroy(app, ps)
+    delete("/apps/#{app}/ps?ps=#{ps}")
   end
 
   def confirm_billing
