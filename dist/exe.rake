@@ -16,6 +16,7 @@ file pkg("heroku-#{version}.exe") => distribution_files("exe") do |t|
     mkchdir("installers") do
       system "curl http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe -o rubyinstaller.exe"
       system "curl http://heroku-toolbelt.s3.amazonaws.com/git.exe -o git.exe"
+      system "curl http://assets.foreman.io/foreman/foreman-setup.exe -o foreman-setup.exe"
     end
 
     inno_dir = ENV["INNO_DIR"] || 'C:\\Program Files (x86)\\Inno Setup 5\\'

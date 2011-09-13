@@ -13,6 +13,7 @@ ExtraDiskSpaceRequired=20971520
 
 [Files]
 Source: "installers\git.exe"; DestDir: "{tmp}";
+Source: "installers\foreman-setup.exe"; DestDir: "{tmp}";
 Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}";
 Source: "heroku-toolbelt\*.*"; DestDir: "{app}"; Flags: recursesubdirs;
 
@@ -28,6 +29,8 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 [Run]
 Filename: "{tmp}\git.exe"; Parameters: "/silent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git";
+Filename: "{tmp}\foreman-setup.exe"; Parameters: "/silent /nocancel /noicons"; \
+  Flags: shellexec waituntilterminated; StatusMsg: "Installing Foreman";
 Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Components";
 
