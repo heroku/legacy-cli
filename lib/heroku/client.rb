@@ -223,7 +223,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   # internal method to run console commands formatting the output
   def run_console_command(url, command, prefix=nil)
-    output = post(url, { :command => command }).to_s
+    output = post(url, { :command => command }, :accept => "text/plain").to_s
     return output unless prefix
     if output.include?("\n")
       lines  = output.split("\n")
