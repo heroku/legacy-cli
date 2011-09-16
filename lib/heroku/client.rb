@@ -233,7 +233,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     end
   rescue RestClient::RequestFailed => e
     if e.http_code == 422
-      Heroku::Command.extract_error(e.http_body)
+      Heroku::Command.extract_error(e.http_body, :raw => true)
     else
       raise e
     end

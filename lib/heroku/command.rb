@@ -147,9 +147,11 @@ module Heroku
       commands[cmd] || commands[command_aliases[cmd]]
     end
 
-    def self.extract_error(body)
+    def self.extract_error(body, options={})
       default_error = block_given? ? yield : "Internal server error"
       msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
+
+      return msg if options[:raw]
       msg.split("\n").map { |line| ' !   ' + line }.join("\n")
     end
 
