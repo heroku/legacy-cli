@@ -21,7 +21,7 @@ class Heroku::Command::Run < Heroku::Command::Base
       $stdin.sync = $stdout.sync = true
       rendezvous = Heroku::Client::Rendezvous.new(
         :rendezvous_url => ps["rendezvous_url"],
-        :connect_timeout => 30,
+        :connect_timeout => (ENV['HEROKU_CONNECT_TIMEOUT'] || 120).to_i,
         :activity_timeout => nil,
         :input => $stdin,
         :output => $stdout)
@@ -123,5 +123,3 @@ protected
     File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
   end
 end
-
-
