@@ -110,7 +110,7 @@ module Heroku
     end
 
     def self.run(cmd, arguments=[])
-      object, method = prepare_run(cmd, arguments)
+      object, method = prepare_run(cmd, arguments.dup)
       object.send(method)
     rescue InvalidCommand
       error "Unknown command. Run 'heroku help' for usage information."
@@ -128,7 +128,7 @@ module Heroku
       app = e.response.headers[:x_confirmation_required]
       message = extract_error(e.response.body)
       if confirmation_required(app, message)
-        opts[:confirm] = app
+        arguments << '--confirm' << app
         retry
       end
     rescue RestClient::RequestFailed => e

@@ -140,6 +140,15 @@ module Heroku::Command
                  bar
         OUTPUT
       end
+
+      it "asks the user to confirm additional terms of service" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).to_return({
+          :body => "terms of service required", :status => 423, 
+          :headers => { :x_confirmation_required => 'my_addon' }
+        }).then.to_return({:status => 200}) 
+
+        execute "addons:add my_addon"
+      end
     end
 
     describe 'upgrading' do

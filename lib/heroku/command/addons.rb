@@ -185,7 +185,7 @@ module Heroku::Command
         addon = args.shift
         raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
 
-        config = parse_options(args)
+        config = options.merge(parse_options(args))
         raise CommandFailed.new("Non-config values after addon name #{args} use unix --switch syntax") unless args.empty?
 
         translate_fork_and_follow(addon, config) if addon =~ /^heroku-postgresql/
