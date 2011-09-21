@@ -179,7 +179,7 @@ class Heroku::Auth
         FileUtils.mkdir_p ssh_dir
         File.chmod(0700, ssh_dir)
       end
-      `ssh-keygen -t rsa -N "" -f #{home_directory}/.ssh/#{keyfile} 2>&1`
+      `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
     end
 
     def associate_key(key)
