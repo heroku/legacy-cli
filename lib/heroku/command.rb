@@ -163,7 +163,7 @@ module Heroku
     end
 
     def self.parse_error_json(body)
-      json = json_decode(body.to_s)
+      json = json_decode(body.to_s) rescue false
       json ? json['error'] : nil
     end
 
