@@ -1,15 +1,11 @@
 require "spec_helper"
 require "heroku/command"
+require 'json' #FOR WEBMOCK
 
 describe Heroku::Command do
   before { Heroku::Command.load }
 
   describe "when the command requires confirmation" do
-    before do
-      any_instance_of(Heroku::Command::Base) do |base|
-        stub(base).extract_app.returns("myapp")
-      end
-    end
 
     let(:response_that_requires_confirmation) do
       {:status => 423, 
@@ -17,31 +13,59 @@ describe Heroku::Command do
        :body => 'terms of service required'}
     end
 
-    context "and the user includes --confirm APP" do
-      it "should set --app to APP and not ask for confirmation" 
-    end  
+    ## scheduled to be done by addons team story 18664983
+    context "when the app is unknown" do
+      context "and the user includes --confirm APP" do
+        it "should set --app to APP and not ask for confirmation"
+      end  
 
-    context "and the user includes --confirm APP --app APP2" do
-      it "should warn that the app and confirm do not match and not continue"
+      context "and the user includes --confirm APP --app APP2" do
+        it "should warn that the app and confirm do not match and not continue"
+      end
     end
 
-    context "and the user didn't include a confirm flag" do
-      it "should ask the user for confirmation" do
-        stub(Heroku::Command).confirmation_required.returns(true)
-        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
-          to_return(response_that_requires_confirmation).then.
-          to_return({:status => 200}) 
-
-        run "addons:add my_addon"
+    context "and the app is known" do
+      before do
+        any_instance_of(Heroku::Command::Base) do |base|
+          stub(base).extract_app.returns("myapp")
+        end
       end
 
-      it "should not continue if the user doesn't confirm" do
-        stub(Heroku::Command).confirmation_required.returns(false)
-        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
-          to_return(response_that_requires_confirmation).then.
-          to_raise(StandardError)
+      context "and the user includes --confirm WRONGAPP" do
+        it "should not allow include the option" do
+          stub_request(:post, %r{apps/myapp/addons/my_addon$})
+            .with(:body => "")
+          run "addons:add my_addon --confirm XXX"
+        end 
+      end
 
-        run "addons:add my_addon"
+      context "and the user includes --confirm APP" do
+        it "should set --app to APP and not ask for confirmation" do
+          stub_request(:post, %r{apps/myapp/addons/my_addon$})
+            .with(:body => {:confirm => 'true'})
+
+          run "addons:add my_addon --confirm myapp"
+        end 
+      end  
+
+      context "and the user didn't include a confirm flag" do
+        it "should ask the user for confirmation" do
+          stub(Heroku::Command).confirmation_required.returns(true)
+          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+            to_return(response_that_requires_confirmation).then.
+            to_return({:status => 200}) 
+
+          run "addons:add my_addon"
+        end
+
+        it "should not continue if the user doesn't confirm" do
+          stub(Heroku::Command).confirmation_required.returns(false)
+          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+            to_return(response_that_requires_confirmation).then.
+            to_raise(StandardError)
+
+          run "addons:add my_addon"
+        end
       end
     end
   end

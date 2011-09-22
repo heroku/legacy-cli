@@ -612,16 +612,17 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def update_addon(action, path, config)
-    config  = { :config => config }
-    headers = { :accept => 'application/json' }
+    params     = { :config => config }
+    params.merge! :confirm => 'true'   if params[:config].delete(:confirm)
+    headers    = { :accept => 'application/json' }
 
     case action
     when :install
-      post path, config, headers
+      post path, params, headers
     when :upgrade
-      put path, config, headers
+      put path, params, headers
     when :uninstall
-      params = config[:config].map { |k,v| "#{k}=#{URI::escape(v.to_s)}" }.join("&")
+      params = params[:config].map { |k,v| "#{k}=#{URI::escape(v.to_s)}" }.join("&")
       delete "#{path}?#{params}", headers
     end
   end
