@@ -2,11 +2,19 @@ require "spec_helper"
 require "heroku/command"
 
 describe Heroku::Command do
+  before { Heroku::Command.load }
+
   describe "when the command requires confirmation" do
     before do
       any_instance_of(Heroku::Command::Base) do |base|
         stub(base).extract_app.returns("myapp")
       end
+    end
+
+    let(:response_that_requires_confirmation) do
+      {:status => 423, 
+       :headers => { :x_confirmation_required => 'my_addon' },
+       :body => 'terms of service required'}
     end
 
     context "and the user includes --confirm APP" do
@@ -20,18 +28,20 @@ describe Heroku::Command do
     context "and the user didn't include a confirm flag" do
       it "should ask the user for confirmation" do
         stub(Heroku::Command).confirmation_required.returns(true)
-
-        stub_request(:post, %r{apps/myapp/addons/my_addon$}).to_return({
-          :status => 423, 
-          :headers => { :x_confirmation_required => 'my_addon' },
-          :body => 'terms of service required'
-        }).then.to_return({:status => 200}) 
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          to_return(response_that_requires_confirmation).then.
+          to_return({:status => 200}) 
 
         run "addons:add my_addon"
       end
 
       it "should not continue if the user doesn't confirm" do
-        stub(Heroku::Command).confirmation_required.returns(true)
+        stub(Heroku::Command).confirmation_required.returns(false)
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          to_return(response_that_requires_confirmation).then.
+          to_raise(StandardError)
+
+        run "addons:add my_addon"
       end
     end
   end
