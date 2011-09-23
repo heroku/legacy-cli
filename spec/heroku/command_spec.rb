@@ -13,14 +13,26 @@ describe Heroku::Command do
        :body => 'terms of service required'}
     end
 
-    ## scheduled to be done by addons team story 18664983
     context "when the app is unknown" do
       context "and the user includes --confirm APP" do
-        it "should set --app to APP and not ask for confirmation"
+        it "should set --app to APP and not ask for confirmation" do
+          stub_request(:post, %r{apps/XXX/addons/my_addon$})
+            .with(:body => {:confirm => "XXX"})
+          run "addons:add my_addon --confirm XXX"
+        end
       end  
 
       context "and the user includes --confirm APP --app APP2" do
-        it "should warn that the app and confirm do not match and not continue"
+        before do
+          # mock(Heroku::Command).error doesn't work
+          klass = Heroku::Command
+          def klass.error(msg)
+            raise StandardError unless msg = "Mismatch between --app and --confirm"
+          end
+        end
+        it "should warn that the app and confirm do not match and not continue" do
+          run "addons:add my_addon --confirm APP --app APP2"
+        end
       end
     end
 

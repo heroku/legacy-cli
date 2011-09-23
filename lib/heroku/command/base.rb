@@ -147,9 +147,18 @@ protected
     block_given? ? yield(value) : value
   end
 
+  def confirm_mismatch?
+    options[:confirm] && (options[:confirm] != options[:app])
+  end
+
   def extract_app
     if options[:app].is_a?(String)
+      if confirm_mismatch?
+        raise Heroku::Command::CommandFailed, "Mismtach between --app and --confirm"
+      end
       options[:app]
+    elsif options[:confirm].is_a?(String)
+      options[:confirm]
     elsif app_from_dir = extract_app_in_dir(Dir.pwd)
       app_from_dir
     else
