@@ -55,6 +55,7 @@ Patches contributed by:
 * Blake Mizerany <blake.mizerany@gmail.com>
 * Caio Chassot <dev@caiochassot.com>
 * Charles Roper <charles.roper@gmail.com>
+* Chris Continanza <christopher.continanza@gmail.com>
 * Chris O'Sullivan <thechrisoshow@gmail.com>
 * Daniel Farina <daniel@heroku.com>
 * David Dollar <ddollar@gmail.com>
