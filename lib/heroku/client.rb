@@ -612,9 +612,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def update_addon(action, path, config)
-    params     = { :config => config }
-    params.merge! :confirm => 'true'   if params[:config].delete(:confirm)
-    headers    = { :accept => 'application/json' }
+    params  = { :config => config }
+    app     = params[:config].delete(:confirm)
+    headers = { :accept => 'application/json' }
+    params.merge!(:confirm => app) if app
 
     case action
     when :install
@@ -622,8 +623,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     when :upgrade
       put path, params, headers
     when :uninstall
-      params = params[:config].map { |k,v| "#{k}=#{URI::escape(v.to_s)}" }.join("&")
-      delete "#{path}?#{params}", headers
+      confirm = app ? "confirm=#{app}" : ''
+      delete "#{path}?#{confirm}", headers
     end
   end
 

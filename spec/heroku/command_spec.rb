@@ -42,7 +42,7 @@ describe Heroku::Command do
       context "and the user includes --confirm APP" do
         it "should set --app to APP and not ask for confirmation" do
           stub_request(:post, %r{apps/myapp/addons/my_addon$})
-            .with(:body => {:confirm => 'true'})
+            .with(:body => {:confirm => 'myapp'})
 
           run "addons:add my_addon --confirm myapp"
         end 
