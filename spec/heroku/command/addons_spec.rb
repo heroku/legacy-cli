@@ -140,6 +140,7 @@ module Heroku::Command
                  bar
         OUTPUT
       end
+
     end
 
     describe 'upgrading' do
