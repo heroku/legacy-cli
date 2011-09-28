@@ -55,6 +55,12 @@ module Heroku::Command
     # defaults to DATABASE_URL databases if no DATABASE is specified
     #
     def psql
+      `which psql`
+      unless $?.success?
+        display " !   The local psql command could not be located"
+        display " !   For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
+        abort
+      end
       deprecate_dash_dash_db("pg:psql")
       uri = generate_ingress_uri("Connecting")
       ENV["PGPASSWORD"] = uri.password
