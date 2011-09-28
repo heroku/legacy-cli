@@ -128,16 +128,15 @@ private
     command = commands[name]
 
     if command
+      puts "Usage: heroku #{command[:banner]}"
+
       if command[:help].strip.length > 0
-        puts "Usage: heroku #{command[:banner]}"
         puts command[:help].split("\n")[1..-1].join("\n")
-        puts
       else
-        puts "Usage: heroku #{command[:banner]}"
         puts
         puts " " + legacy_help_for_command(name).to_s
-        puts
       end
+      puts
 
       if command[:alias_for]
         puts " #{command[:command]} is an alias for #{command[:alias_for]}"
@@ -146,7 +145,7 @@ private
 
       unless (aliases = aliases_for(command)).empty?
         if aliases.size > 1
-          puts " #{command[:command]} has aliases: #{aliases.join(', ')}"
+          puts " #{command[:command]} has aliases: " + aliases.join(', ')
         else
           puts " #{command[:command]} is aliased to #{aliases.first}"
         end
