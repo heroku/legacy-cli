@@ -55,6 +55,12 @@ describe Heroku::Command::Help do
       output.should include "apps:create is aliased to create"
     end
 
+    it "should show if the command does not exist" do
+      execute "help sudo:sandwich"
+      output.strip.should_not be_empty
+      output.should include "sudo:sandwich is not a heroku command. See 'heroku help'."
+    end
+
     it "should show help with naked -h" do
       output = run("-h")
       output.should include "Usage: heroku COMMAND"

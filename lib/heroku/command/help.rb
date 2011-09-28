@@ -154,11 +154,13 @@ private
       end
     end
 
-    unless commands_for_namespace(name).empty?
+    if commands_for_namespace(name).size > 0
       puts "Additional commands, type \"heroku help COMMAND\" for more details:"
       puts
       help_for_namespace(name)
       puts
+    elsif command.nil?
+      error " !   #{name} is not a heroku command. See 'heroku help'."
     end
   end
 end
