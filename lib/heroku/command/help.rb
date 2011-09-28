@@ -50,6 +50,7 @@ private
       commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
       commands[new][:command] = new
       commands[new][:namespace] = nil
+      commands[new][:alias_for] = old
     end
     commands
   end
@@ -127,6 +128,11 @@ private
         puts "Usage: heroku #{command[:banner]}"
         puts
         puts " " + legacy_help_for_command(name).to_s
+        puts
+      end
+
+      if command[:alias_for]
+        puts " #{command[:command]} is an alias for #{command[:alias_for]}"
         puts
       end
     end

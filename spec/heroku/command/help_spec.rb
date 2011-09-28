@@ -45,6 +45,11 @@ describe Heroku::Command::Help do
       output.should_not include "Additional commands"
     end
 
+    it "should show that the command is an alias" do
+      execute "help create"
+      output.should include "create is an alias for apps:create"
+    end
+
     it "should show help with naked -h" do
       output = run("-h")
       output.should include "Usage: heroku COMMAND"
@@ -76,4 +81,3 @@ describe Heroku::Command::Help do
     end
   end
 end
-
