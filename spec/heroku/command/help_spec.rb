@@ -50,6 +50,11 @@ describe Heroku::Command::Help do
       output.should include "create is an alias for apps:create"
     end
 
+    it "should show that the command has aliases" do
+      execute "help apps:create"
+      output.should include "apps:create is aliased to create"
+    end
+
     it "should show help with naked -h" do
       output = run("-h")
       output.should include "Usage: heroku COMMAND"
