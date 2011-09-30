@@ -26,7 +26,11 @@ def prepare_command(klass)
   command
 end
 
-def execute(command_line)
+def execute_expecting_error(command_line, expected_message = nil)
+  execute command_line, true
+end
+
+def execute(command_line, expecting_error = false)
   extend RR::Adapters::RRMethods
 
   args = command_line.split(" ")
@@ -45,12 +49,26 @@ def execute(command_line)
     print("#{line}\n")
   end
 
-  def object.error(line=nil)
-    puts(line)
-  end
-
   any_instance_of(Heroku::Command::Base) do |base|
     stub(base).extract_app.returns("myapp")
+
+    # Commands usually shouldn't produce errors.
+    dont_allow(base).error unless expecting_error
+  end
+
+  # This is kind of weak.  Ideally, I would like to do this:
+  #
+  #   mock(object).error if expecting_error
+  #
+  # but this doesn't seem to work when the call to #error is
+  # omitted.   The spec still passes.  So until this gets figured
+  # out, the way to check for errors is to check the output,
+  # which I feel is inferior to mocking.
+  #
+  if expecting_error
+    def object.error(line=nil)
+      puts(line)
+    end
   end
 
   object.send(method)

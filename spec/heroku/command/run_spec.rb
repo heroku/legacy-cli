@@ -15,7 +15,7 @@ describe Heroku::Command::Run do
 
     it "gets an http APP_CRASHED" do
       stub_core.start("myapp", "rake foo", :attached) { raise(Heroku::Client::AppCrashed, "error_page") }
-      execute "run:rake foo"
+      execute_expecting_error  "run:rake foo"
       output.should =~ /Couldn't run rake\nerror_page/
     end
   end
