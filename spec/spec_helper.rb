@@ -27,6 +27,12 @@ def prepare_command(klass)
 end
 
 def execute_expecting_error(command_line, expected_message = nil)
+  if expected_message
+    described_class.any_instance.should_receive(:error).with(expected_message)
+  else
+    described_class.any_instance.should_receive(:error)
+  end
+
   execute command_line, true
 end
 
@@ -54,21 +60,6 @@ def execute(command_line, expecting_error = false)
 
     # Commands usually shouldn't produce errors.
     dont_allow(base).error unless expecting_error
-  end
-
-  # This is kind of weak.  Ideally, I would like to do this:
-  #
-  #   mock(object).error if expecting_error
-  #
-  # but this doesn't seem to work when the call to #error is
-  # omitted.   The spec still passes.  So until this gets figured
-  # out, the way to check for errors is to check the output,
-  # which I feel is inferior to mocking.
-  #
-  if expecting_error
-    def object.error(line=nil)
-      puts(line)
-    end
   end
 
   object.send(method)
@@ -156,7 +147,7 @@ end
 
 require "support/display_message_matcher"
 
-Rspec.configure do |config|
+RSpec.configure do |config|
   config.color_enabled = true
   config.include DisplayMessageMatcher
   config.after { RR.reset }
