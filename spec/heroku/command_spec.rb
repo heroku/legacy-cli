@@ -27,7 +27,7 @@ describe Heroku::Command do
           # mock(Heroku::Command).error doesn't work
           klass = Heroku::Command
           def klass.error(msg)
-            raise StandardError unless msg = "Mismatch between --app and --confirm"
+            raise StandardError unless msg == "Mismatch between --app and --confirm"
           end
         end
         it "should warn that the app and confirm do not match and not continue" do
