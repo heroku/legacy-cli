@@ -65,11 +65,6 @@ describe Heroku::Command::Ps do
   end
 
   describe "ps:scale" do
-    it "can scale one process" do
-      stub_core.ps_scale("myapp", :type => "ps", :qty => "5")
-      execute "ps:scale ps 5"
-    end
-
     it "can scale using key/value format" do
       stub_core.ps_scale("myapp", :type => "ps", :qty => "5")
       execute "ps:scale ps=5"
