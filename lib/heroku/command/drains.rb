@@ -8,28 +8,37 @@ module Heroku::Command
 
     # drains
     #
-    # manage syslog drains
+    # list all syslog drains
     #
-    # drains add URL     # add a syslog drain
-    # drains remove URL  # remove a syslog drain
-    #
-    def drains
-      if args.empty?
-        puts heroku.list_drains(app)
-        return
-      end
+    def index
+      puts heroku.list_drains(app)
+      return
+    end
 
-      case args.shift
-        when "add"
-          url = args.shift
-          puts heroku.add_drain(app, url)
-          return
-        when "remove"
-          url = args.shift
-          puts heroku.remove_drain(app, url)
-          return
+    # drains:add URL
+    #
+    # add a syslog drain
+    #
+    def add
+      if url = args.shift
+        puts heroku.add_drain(app, url)
+        return
+      else
+        raise(CommandFailed, "usage: heroku drains:add URL")
       end
-      raise(CommandFailed, "usage: heroku drains <add | remove>")
+    end
+
+    # drains:remove URL
+    #
+    # remove a syslog drain
+    #
+    def remove
+      if url = args.shift
+        puts heroku.remove_drain(app, url)
+        return
+      else
+        raise(CommandFailed, "usage: heroku drains remove URL")
+      end
     end
 
   end

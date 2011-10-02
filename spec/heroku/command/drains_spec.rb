@@ -12,18 +12,14 @@ describe Heroku::Command::Drains do
 
     it "can add drains" do
       stub_core.add_drain("myapp", "syslog://localhost/add").returns("added")
-      execute "drains add syslog://localhost/add"
+      execute "drains:add syslog://localhost/add"
       output.should == "added"
     end
 
     it "can remove drains" do
       stub_core.remove_drain("myapp", "syslog://localhost/remove").returns("removed")
-      execute "drains remove syslog://localhost/remove"
+      execute "drains:remove syslog://localhost/remove"
       output.should == "removed"
-    end
-
-    it "errors on unknown subcommand" do
-      lambda { execute "drains foo" }.should fail_command("usage: heroku drains <add | remove>")
     end
   end
 end
