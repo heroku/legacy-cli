@@ -19,10 +19,30 @@ module Heroku::Command
       @domains.add
     end
 
+    it "shows usage if no domain specified for add" do
+      @domains.stub!(:args).and_return([])
+      lambda { @domains.add }.should raise_error(CommandFailed, /Usage:/)
+    end
+
+    it "shows usage if blank domain specified for add" do
+      @domains.stub!(:args).and_return(['  '])
+      lambda { @domains.add }.should raise_error(CommandFailed, /Usage:/)
+    end
+
     it "removes domain names" do
       @domains.stub!(:args).and_return(['example.com'])
       @domains.heroku.should_receive(:remove_domain).with('myapp', 'example.com')
       @domains.remove
+    end
+
+    it "shows usage if no domain specified for remove" do
+      @domains.stub!(:args).and_return([])
+      lambda { @domains.remove }.should raise_error(CommandFailed, /Usage:/)
+    end
+
+    it "shows usage if blank domain specified for remove" do
+      @domains.stub!(:args).and_return(['  '])
+      lambda { @domains.remove }.should raise_error(CommandFailed, /Usage:/)
     end
 
     it "removes all domain names" do

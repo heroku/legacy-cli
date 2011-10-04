@@ -26,6 +26,7 @@ module Heroku::Command
     #
     def add
       domain = args.shift.downcase rescue nil
+      fail("Usage: heroku domains:add DOMAIN") if domain.to_s.strip.empty?
       heroku.add_domain(app, domain)
       display "Added #{domain} as a custom domain name to #{app}.#{heroku.host}"
     end
@@ -36,6 +37,7 @@ module Heroku::Command
     #
     def remove
       domain = args.shift.downcase rescue nil
+      fail("Usage: heroku domains:remove DOMAIN") if domain.to_s.strip.empty?
       heroku.remove_domain(app, domain)
       display "Removed #{domain} as a custom domain name to #{app}.#{heroku.host}"
     end
