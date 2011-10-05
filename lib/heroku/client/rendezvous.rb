@@ -55,6 +55,10 @@ class Heroku::Client::Rendezvous
           raise(Timeout::Error.new)
         end
       end
+    rescue Interrupt => e
+      ssl_socket.write("\003")
+      ssl_socket.flush
+      retry
     rescue EOFError, Errno::EIO
     end
   end
