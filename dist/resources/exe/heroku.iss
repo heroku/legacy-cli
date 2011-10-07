@@ -29,6 +29,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
   ValueData: "{olddata};{pf}\git\bin"; Check: NeedsAddPath(ExpandConstant('{pf}\git\bin'))
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "Path"; \
   ValueData: "{olddata};{pf}\git\cmd"; Check: NeedsAddPath(ExpandConstant('{pf}\git\cmd'))
+Root: HKCU; Subkey: "Environment"; ValueType: "expandsz"; ValueName: "HOME"; ValueData: "%USERPROFILE%"; Flags: createvalueifdoesntexist
 
 [Run]
 Filename: "{tmp}\git.exe"; Parameters: "/silent /nocancel /noicons"; \
