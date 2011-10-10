@@ -121,5 +121,30 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "scale", "ps:scale"
 
-end
+  # ps:stop PROCESS
+  #
+  # stop an app process
+  #
+  # Example: heroku stop run.3
+  #
+  def stop
+    app = extract_app
+    opt =
+      if (args.first =~ /.+\..+/)
+        ps = args.first
+        display "Stopping #{ps} process... ", false
+        {:ps => ps}
+      elsif args.first
+        type = args.first
+        display "Stopping #{type} processes... ", false
+        {:type => type}
+      else
+        error "Usage: heroku ps:stop PROCESS"
+      end
 
+    heroku.ps_stop(app, opt)
+    display "done"
+  end
+
+  alias_command "stop", "ps:stop"
+end
