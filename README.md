@@ -43,48 +43,57 @@ keys or specify a key in a non-standard location.
 Meta
 ----
 
+Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+
 Created by Adam Wiggins
 
 Maintained by David Dollar
 
 Patches contributed by:
 
-* Adam McCrea <adam@edgecase.com>
-* Adam Wiggins <adam@heroku.com>
-* Ben <bwillis@teldio.com>
-* Blake Mizerany <blake.mizerany@gmail.com>
-* Caio Chassot <dev@caiochassot.com>
-* Charles Roper <charles.roper@gmail.com>
-* Chris Continanza <christopher.continanza@gmail.com>
-* Chris O'Sullivan <thechrisoshow@gmail.com>
-* Daniel Farina <daniel@heroku.com>
-* David Dollar <ddollar@gmail.com>
-* Denis Barushev <barushev@gmail.com>
-* Eric Anderson <eric@pixelwareinc.com>
-* Glenn Gillen <me@glenngillen.com>
-* James Lindenbaum <james@heroku.com>
-* Joshua Peek <josh@joshpeek.com>
-* Julien Kirch <code@archiloque.net>
-* Larry Marburger <larry@marburger.cc>
-* Les Hill <leshill@gmail.com>
-* Les Hill and Veez (Matt Remsik) <dev+leshill+veez@hashrocket.com>
-* Mark McGranaghan <mmcgrana@gmail.com>
-* Matt Buck <techpeace@gmail.com>
-* Morten Bagai <morten@thefury.local>
-* Nick Quaranto <nick@quaran.to>
-* Noah Zoschke <noah@heroku.com>
-* Pedro Belo <pedro@heroku.com>
-* Peter Theill <peter@theill.com>
-* Peter van Hardenberg <pvh@heroku.com>
-* Ricardo Chimal, Jr <ricardo@heroku.com>
-* Ryan R. Smith <ryan@heroku.com>
-* Ryan Tomayko <rtomayko@gmail.com>
-* Sarah Mei <sarah.mei@gmail.com>
-* SixArm <sixarm@sixarm.com>
-* Terence Lee <hone02@gmail.com>
-* Trevor Turk <trevorturk@gmail.com>
-* Will Leinweber <will@bitfission.com>
-* pipa <tekmon@gmail.com>
-
-
-Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+* Adam
+* Adam Dusk
+* Adam McCrea
+* Adam Wiggins
+* Alex Dowad
+* Ben
+* Blake Mizerany
+* Caio Chassot
+* Charles Roper
+* Chris Continanza
+* Chris O'Sullivan
+* Daniel Farina
+* Daniel Vartanov
+* David Dollar
+* Denis Barushev
+* Eric Anderson
+* Gabriel Horner
+* Glenn Gillen
+* Jacob Vorreuter
+* James Lindenbaum
+* Jonathan Dance
+* Joshua Peek
+* Julien Kirch
+* Larry Marburger
+* Les Hill
+* Les Hill and Veez (Matt Remsik)
+* Mark McGranaghan
+* Matt Buck
+* Matt Manning
+* Matthew M. Boedicker
+* Morten Bagai
+* Nick Quaranto
+* Noah Zoschke
+* Pedro Belo
+* Peter Theill
+* Peter van Hardenberg
+* Ricardo Chimal, Jr
+* Ryan R. Smith
+* Ryan Tomayko
+* Sarah Mei
+* SixArm
+* Terence Lee
+* Trevor Turk
+* Will Leinweber
+* bmizerany
+* pipa
