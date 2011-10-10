@@ -71,7 +71,7 @@ module Heroku::Command
       hours = (mins/60).round
       days  = (hours/24).round
       if days > 0
-        start.to_s
+        start.strftime("%Y-%m-%d %H:%M:%S %z")
       elsif hours > 0
         "#{hours} #{pluralize("hour", hours)} ago"
       elsif mins > 0

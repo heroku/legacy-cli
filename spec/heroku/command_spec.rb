@@ -8,7 +8,7 @@ describe Heroku::Command do
   describe "when the command requires confirmation" do
 
     let(:response_that_requires_confirmation) do
-      {:status => 423, 
+      {:status => 423,
        :headers => { :x_confirmation_required => 'my_addon' },
        :body => 'terms of service required'}
     end
@@ -16,11 +16,11 @@ describe Heroku::Command do
     context "when the app is unknown" do
       context "and the user includes --confirm APP" do
         it "should set --app to APP and not ask for confirmation" do
-          stub_request(:post, %r{apps/XXX/addons/my_addon$})
-            .with(:body => {:confirm => "XXX"})
+          stub_request(:post, %r{apps/XXX/addons/my_addon$}).
+            with(:body => {:confirm => "XXX"})
           run "addons:add my_addon --confirm XXX"
         end
-      end  
+      end
 
       context "and the user includes --confirm APP --app APP2" do
         before do
@@ -45,27 +45,27 @@ describe Heroku::Command do
 
       context "and the user includes --confirm WRONGAPP" do
         it "should not allow include the option" do
-          stub_request(:post, %r{apps/myapp/addons/my_addon$})
-            .with(:body => "")
+          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+            with(:body => "")
           run "addons:add my_addon --confirm XXX"
-        end 
+        end
       end
 
       context "and the user includes --confirm APP" do
         it "should set --app to APP and not ask for confirmation" do
-          stub_request(:post, %r{apps/myapp/addons/my_addon$})
-            .with(:body => {:confirm => 'myapp'})
+          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+            with(:body => {:confirm => 'myapp'})
 
           run "addons:add my_addon --confirm myapp"
-        end 
-      end  
+        end
+      end
 
       context "and the user didn't include a confirm flag" do
         it "should ask the user for confirmation" do
           stub(Heroku::Command).confirmation_required.returns(true)
           stub_request(:post, %r{apps/myapp/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
-            to_return({:status => 200}) 
+            to_return({:status => 200})
 
           run "addons:add my_addon"
         end
