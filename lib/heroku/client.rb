@@ -512,6 +512,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     post("/apps/#{app}/ps/restart", opts)
   end
 
+  def ps_stop(app, opts={})
+    post("/apps/#{app}/ps/stop", opts)
+  end
+
   def confirm_billing
     post("/user/#{escape(@user)}/confirm_billing").to_s
   end
