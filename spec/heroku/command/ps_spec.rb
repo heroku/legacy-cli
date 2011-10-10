@@ -65,11 +65,6 @@ describe Heroku::Command::Ps do
   end
 
   describe "ps:scale" do
-    it "can scale one process" do
-      stub_core.ps_scale("myapp", :type => "ps", :qty => "5")
-      execute "ps:scale ps 5"
-    end
-
     it "can scale using key/value format" do
       stub_core.ps_scale("myapp", :type => "ps", :qty => "5")
       execute "ps:scale ps=5"
@@ -85,6 +80,16 @@ describe Heroku::Command::Ps do
     it "can scale a process with a number in its name" do
       stub_core.ps_scale("myapp", :type => "ps2web", :qty => "5")
       execute "ps:scale ps2web=5"
+    end
+
+    it "can scale a process with an underscore in its name" do
+      stub_core.ps_scale("myapp", :type => "my_process", :qty => "5")
+      execute "ps:scale my_process=5"
+    end
+
+    it "can scale a process with a dash in its name" do
+      stub_core.ps_scale("myapp", :type => "my-awesome-process", :qty => "5")
+      execute "ps:scale my-awesome-process=5"
     end
   end
 end

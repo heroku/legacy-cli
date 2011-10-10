@@ -154,7 +154,7 @@ protected
   def extract_app
     if options[:app].is_a?(String)
       if confirm_mismatch?
-        raise Heroku::Command::CommandFailed, "Mismtach between --app and --confirm"
+        raise Heroku::Command::CommandFailed, "Mismatch between --app and --confirm"
       end
       options[:app]
     elsif options[:confirm].is_a?(String)
