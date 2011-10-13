@@ -23,14 +23,8 @@ describe Heroku::Command do
       end
 
       context "and the user includes --confirm APP --app APP2" do
-        before do
-          # mock(Heroku::Command).error doesn't work
-          klass = Heroku::Command
-          def klass.error(msg)
-            raise StandardError unless msg = "Mismatch between --app and --confirm"
-          end
-        end
         it "should warn that the app and confirm do not match and not continue" do
+          Heroku::Command.should_receive(:error).with("Mismatch between --app and --confirm")
           run "addons:add my_addon --confirm APP --app APP2"
         end
       end
