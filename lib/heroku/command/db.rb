@@ -112,11 +112,13 @@ module Heroku::Command
     end
 
     def uri_hash_to_url(uri)
+      host = uri['host']
+      host ||= '127.0.0.1' unless uri['scheme'] == 'postgres'
       uri_parts = {
         :scheme   => uri['scheme'],
         :userinfo => userinfo_from_uri(uri),
         :password => uri['password'],
-        :host     => uri['host'] || '127.0.0.1',
+        :host     => host,
         :port     => uri['port'],
         :path     => "/%s" % uri['path'],
         :query    => uri['query'],
