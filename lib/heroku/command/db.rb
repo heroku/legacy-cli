@@ -68,7 +68,7 @@ module Heroku::Command
       environment = ENV['RAILS_ENV'] || ENV['MERB_ENV'] || ENV['RACK_ENV']
       environment = 'development' if environment.nil? or environment.empty?
 
-      conf = YAML.load(File.read(Dir.pwd + '/config/database.yml'))[environment]
+      conf = YAML.load(ERB.new(File.read(Dir.pwd + '/config/database.yml')).result)[environment]
       case conf['adapter']
         when 'sqlite3'
           return "sqlite://#{conf['database']}"
