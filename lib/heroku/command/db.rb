@@ -1,5 +1,6 @@
 require "heroku/command/base"
 
+require 'erb'
 require 'yaml'
 require 'logger'
 require 'uri'
