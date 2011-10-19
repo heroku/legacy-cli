@@ -250,6 +250,12 @@ describe Heroku::Client do
       @client.remove_domain('myapp', 'example.com')
     end
 
+    it "remove_domain(app_name, domain) -> makes sure a domain is set" do
+      lambda do
+        @client.remove_domain('myapp', '')
+      end.should raise_error(ArgumentError)
+    end
+
     it "remove_domains(app_name) -> removes all domain names from app" do
       stub_api_request(:delete, "/apps/myapp/domains")
       @client.remove_domains('myapp')
