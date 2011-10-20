@@ -411,10 +411,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     delete("/apps/#{app_name}/logs/drains?url=#{URI.escape(url)}").to_s
   end
 
-  def clear_drains(app_name)
-    delete("/apps/#{app_name}/logs/drains", {}).to_s
-  end
-
   def dynos(app_name)
     doc = xml(get("/apps/#{app_name}").to_s)
     doc.elements["//app/dynos"].text.to_i

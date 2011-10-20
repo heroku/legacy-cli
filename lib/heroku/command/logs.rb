@@ -42,34 +42,10 @@ module Heroku::Command
       display heroku.cron_logs(app)
     end
 
-    # logs:drains
-    #
-    # manage syslog drains
-    #
-    # logs:drains add URL     # add a syslog drain
-    # logs:drains remove URL  # remove a syslog drain
-    # logs:drains clear       # remove all syslog drains
-    #
     def drains
-      if args.empty?
-        puts heroku.list_drains(app)
-        return
-      end
-
-      case args.shift
-        when "add"
-          url = args.shift
-          puts heroku.add_drain(app, url)
-          return
-        when "remove"
-          url = args.shift
-          puts heroku.remove_drain(app, url)
-          return
-        when "clear"
-          puts heroku.clear_drains(app)
-          return
-      end
-      raise(CommandFailed, "usage: heroku logs:drains <add | remove | clear>")
+      puts " !   The logs:drain command has been deprecated. Please use drains"
+      usage = Heroku::Command::Help.usage_for_command("drains")
+      puts usage
     end
 
   protected

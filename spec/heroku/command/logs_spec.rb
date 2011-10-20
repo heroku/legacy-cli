@@ -53,33 +53,4 @@ describe Heroku::Command::Logs do
     end
   end
 
-  describe "drains" do
-    it "can list drains" do
-      stub_core.list_drains("myapp").returns("drains")
-      execute "logs:drains"
-      output.should == "drains"
-    end
-
-    it "can add drains" do
-      stub_core.add_drain("myapp", "syslog://localhost/add").returns("added")
-      execute "logs:drains add syslog://localhost/add"
-      output.should == "added"
-    end
-
-    it "can remove drains" do
-      stub_core.remove_drain("myapp", "syslog://localhost/remove").returns("removed")
-      execute "logs:drains remove syslog://localhost/remove"
-      output.should == "removed"
-    end
-
-    it "can clear drains" do
-      stub_core.clear_drains("myapp").returns("cleared")
-      execute "logs:drains clear"
-      output.should == "cleared"
-    end
-
-    it "errors on unknown subcommand" do
-      lambda { execute "logs:drains foo" }.should fail_command("usage: heroku logs:drains <add | remove | clear>")
-    end
-  end
 end
