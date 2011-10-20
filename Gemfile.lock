@@ -10,13 +10,13 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.2.2)
+    addressable (2.2.6)
     aws-s3 (0.6.2)
       builder
       mime-types
       xml-simple
     builder (3.0.0)
-    crack (0.1.8)
+    crack (0.3.1)
     diff-lcs (1.1.2)
     fakefs (0.3.1)
     fpm (0.3.7)
@@ -60,8 +60,8 @@ GEM
       sqlite3-ruby (~> 1.2)
     term-ansicolor (1.0.6)
     thor (0.14.6)
-    webmock (1.5.0)
-      addressable (>= 2.2.2)
+    webmock (1.7.7)
+      addressable (~> 2.2, > 2.2.5)
       crack (>= 0.1.7)
     xml-simple (1.0.15)
 
