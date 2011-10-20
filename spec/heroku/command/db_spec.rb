@@ -67,16 +67,27 @@ module Heroku::Command
       @db.pull
     end
 
-    it "handles ERB code in YAML" do
-      yaml_erb = """
-      development:
-        adapter: db
-        host: localhost
-        database: <%= 'db'+'1' %>
-      """
-      ::File.stub(:exists?).and_return(true)
-      ::File.stub(:read).and_return(yaml_erb)
-      @db.send(:parse_database_yml).should == 'db://localhost/db1?encoding=utf8'
+    describe "with erb in the database.yml" do
+      before do
+        FakeFS.activate!
+        FileUtils.mkdir_p "config"
+        File.open("config/database.yml", "w") do |file|
+          file.puts <<-YAML
+            development:
+              adapter: db
+              host: localhost
+              database: <%= 'db'+'1' %>
+          YAML
+        end
+      end
+
+      after do
+        FakeFS.deactivate!
+      end
+
+      it "handles ERB code in YAML" do
+        @db.send(:parse_database_yml).should == 'db://localhost/db1?encoding=utf8'
+      end
     end
   end
 end
