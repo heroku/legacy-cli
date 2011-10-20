@@ -66,5 +66,17 @@ module Heroku::Command
       @db.should_receive(:taps_client).with(:pull, hash_including(:database_url => url))
       @db.pull
     end
+
+    it "handles ERB code in YAML" do
+      yaml_erb = """
+      development:
+        adapter: db
+        host: localhost
+        database: <%= 'db'+'1' %>
+      """
+      ::File.stub(:exists?).and_return(true)
+      ::File.stub(:read).and_return(yaml_erb)
+      @db.send(:parse_database_yml).should == 'db://localhost/db1?encoding=utf8'
+    end
   end
 end
