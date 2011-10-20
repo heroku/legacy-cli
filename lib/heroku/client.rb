@@ -128,6 +128,7 @@ class Heroku::Client
   end
 
   def remove_domain(app_name, domain)
+    raise ArgumentError.new("invalid domain: #{domain.inspect}") if domain.to_s.strip == ""
     delete("/apps/#{app_name}/domains/#{domain}").to_s
   end
 
