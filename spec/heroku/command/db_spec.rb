@@ -69,6 +69,9 @@ module Heroku::Command
 
     describe "with erb in the database.yml" do
       before do
+        @rails_env = ENV["RAILS_ENV"]
+        ENV["RAILS_ENV"] = "development"
+
         FakeFS.activate!
         FileUtils.mkdir_p "config"
         File.open("config/database.yml", "w") do |file|
@@ -83,6 +86,7 @@ module Heroku::Command
 
       after do
         FakeFS.deactivate!
+        ENV["RAILS_ENV"] = @rails_env
       end
 
       it "handles ERB code in YAML" do
