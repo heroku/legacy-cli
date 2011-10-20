@@ -47,7 +47,7 @@ describe Heroku::Command::Help do
 
     it "should show that the command is an alias" do
       execute "help create"
-      output.should include "create is an alias for apps:create"
+      output.should include "heroku apps:create"
     end
 
     it "should show that the command has aliases" do

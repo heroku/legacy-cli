@@ -47,7 +47,6 @@ private
     commands = Heroku::Command.commands
     Heroku::Command.command_aliases.each do |new, old|
       commands[new] = commands[old].dup
-      commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
       commands[new][:command] = new
       commands[new][:namespace] = nil
       commands[new][:alias_for] = old
@@ -137,11 +136,6 @@ private
         puts " " + legacy_help_for_command(name).to_s
       end
       puts
-
-      if command[:alias_for]
-        puts " #{command[:command]} is an alias for #{command[:alias_for]}"
-        puts
-      end
 
       unless (aliases = aliases_for(command)).empty?
         if aliases.size > 1
