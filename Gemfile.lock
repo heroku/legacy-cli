@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (2.10.0)
+    heroku (2.11.0)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
       rubyzip
@@ -22,7 +22,8 @@ GEM
     fpm (0.3.7)
       json
     json (1.5.3)
-    launchy (2.0.3)
+    launchy (2.0.5)
+      addressable (~> 2.2.6)
     mime-types (1.16)
     parka (0.6.2)
       crack
