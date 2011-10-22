@@ -65,6 +65,17 @@ module Heroku::Command
       @cli.create
     end
 
+    it "creates with a buildpack" do
+      @cli.stub!(:args).and_return(["buildpackapp"])
+      @cli.stub!(:options).and_return(:buildpack => "http://example.org/buildpack.git")
+      @cli.heroku.should_receive(:create_request).with('buildpackapp', {:stack => nil}).and_return("buildpackapp")
+      @cli.heroku.should_receive(:create_complete?).with("buildpackapp").and_return(true)
+      @cli.heroku.should_receive(:add_config_vars).with("buildpackapp", "BUILDPACK_URL" => "http://example.org/buildpack.git")
+      @cli.heroku.stub!(:info).and_return({})
+      @cli.should_receive(:create_git_remote).with("buildpackapp", "heroku")
+      @cli.create
+    end
+
     it "creates with an alternate remote name" do
       @cli.stub!(:options).and_return(:remote => "alternate")
       @cli.stub!(:args).and_return([ 'alternate-remote' ])

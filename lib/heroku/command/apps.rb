@@ -109,9 +109,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # create a new app
   #
-  #     --addons ADDONS  # a list of addons to install
-  # -r, --remote REMOTE  # the git remote to create, default "heroku"
-  # -s, --stack  STACK   # the stack on which to create the app
+  #     --addons ADDONS        # a list of addons to install
+  # -b, --buildpack BUILDPACK  # a buildpack url to use for this app
+  # -r, --remote REMOTE        # the git remote to create, default "heroku"
+  # -s, --stack STACK          # the stack on which to create the app
   #
   def create
     remote  = extract_option('--remote', 'heroku')
@@ -136,6 +137,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
         display "Adding #{addon} to #{name}... ", false
         heroku.install_addon(name, addon)
         display "done"
+      end
+
+      if buildpack = options[:buildpack]
+        heroku.add_config_vars(name, "BUILDPACK_URL" => buildpack)
       end
 
       display [ info[:web_url], info[:git_url] ].join(" | ")
