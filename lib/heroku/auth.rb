@@ -61,7 +61,7 @@ class Heroku::Auth
       if host == default_host
         "#{home_directory}/.heroku/credentials"
       else
-        "#{home_directory}/.heroku/credentials.#{host}"
+        "#{home_directory}/.heroku/credentials.#{CGI.escape(host)}"
       end
     end
 
