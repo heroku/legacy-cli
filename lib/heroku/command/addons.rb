@@ -155,7 +155,7 @@ module Heroku::Command
             end.compact.join(', ')
             row << '...' if stop
           end
-          display row.ljust(34) + (addons.first['url'] || '')
+          display row.ljust(34)
         end
       end
 
