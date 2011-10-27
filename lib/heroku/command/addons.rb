@@ -48,11 +48,13 @@ module Heroku::Command
       if addons.empty?
         display "No addons available currently"
       else
-        available, beta = addons.partition { |a| !a['beta'] }
-        display_addons(available)
-        if !beta.empty?
-          display "\n--- beta ---"
-          display_addons(beta)
+        partitioned_addons = partition_addons(addons)
+        [:disabled, :alpha, :beta, :public].each do |state|
+          if state_addons = partitioned_addons[state.to_s]
+            header = state == :public ? "Available" : state.to_s.capitalize
+            display "\n--- #{header} ---"
+            display_addons(state_addons)
+          end
         end
       end
     end
@@ -120,6 +122,10 @@ module Heroku::Command
     end
 
     private
+      def partition_addons(addons)
+        addons.group_by{ |a| a["state"] }
+      end
+
       def display_addons(addons)
         grouped = addons.inject({}) do |base, addon|
           group, short = addon['name'].split(':')
@@ -202,12 +208,12 @@ module Heroku::Command
       def parse_options(args)
         {}.tap do |config|
           flag = /^--/
-          args.size.times do 
+          args.size.times do
             peek = args.first
             next unless peek && (peek.match(flag) || peek.match(/=/))
             arg  = args.shift
-            peek = args.first 
-            key  = arg.sub(flag,'') 
+            peek = args.first
+            key  = arg.sub(flag,'')
             if key.match(/=/)
               key, value = key.split('=', 2)
             elsif peek.nil? || peek.match(flag)
