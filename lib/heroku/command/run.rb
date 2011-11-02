@@ -15,7 +15,14 @@ class Heroku::Command::Run < Heroku::Command::Base
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
     display "Running #{command} attached to terminal... ", false
-    ps = heroku.ps_run(app, opts)
+
+    begin
+      ps = heroku.ps_run(app, opts)
+    rescue
+      puts "failed"
+      raise
+    end
+
     begin
       set_buffer(false)
       $stdin.sync = $stdout.sync = true
