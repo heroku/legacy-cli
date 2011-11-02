@@ -160,7 +160,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def rename
     name    = extract_app
     newname = args.shift.downcase.strip rescue ''
-    raise(CommandFailed, "Invalid name.") if newname == ''
+    raise(Heroku::Command::CommandFailed, " !    Must specify a new name.") if newname == ''
 
     heroku.update(name, :name => newname)
 

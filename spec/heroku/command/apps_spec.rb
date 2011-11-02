@@ -93,6 +93,11 @@ module Heroku::Command
       @cli.rename
     end
 
+    it "displays an error if no name is specified on rename" do
+      Heroku::Command.should_receive(:error).with(/Must specify a new name/)
+      run "rename --app bar"
+    end
+
     it "destroys the app specified with --app if user confirms" do
       @cli.stub!(:options).and_return(:app => "myapp")
       @cli.should_receive(:confirm_command).with("myapp").and_return(true)
