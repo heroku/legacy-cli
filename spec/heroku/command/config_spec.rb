@@ -35,6 +35,16 @@ module Heroku::Command
       @config.add
     end
 
+    it "doesnt show config vars when an error occurs during add" do
+      Heroku::Command.should_receive(:error).with("command failed")
+      any_instance_of(Heroku::Client) do |client|
+        stub(client).add_config_vars do
+          raise CommandFailed, "command failed"
+        end
+      end
+      run("config:add A=newvalue").should_not =~ /newvalue/
+    end
+
     it "allows config vars with = in the value" do
       @config.stub!(:args).and_return(['a=b=c'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'b=c'})

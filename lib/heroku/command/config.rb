@@ -36,12 +36,8 @@ module Heroku::Command
       # try to get the app to fail fast
       detected_app = app
 
-      display "Adding config vars:"
-      display_vars(vars, :indent => 2)
-
-      display "Restarting app...", false
+      display "Adding config vars and restarting app...", false
       heroku.add_config_vars(detected_app, vars)
-
       display " done", false
 
       begin
@@ -49,7 +45,9 @@ module Heroku::Command
         display(", #{release["name"]}", false) if release
       rescue RestClient::RequestFailed => e
       end
-      display "."
+
+      display
+      display_vars(vars, :indent => 2)
     end
 
     # config:remove KEY1 [KEY2 ...]
