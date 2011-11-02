@@ -141,6 +141,10 @@ module Heroku::Command
         OUTPUT
       end
 
+      it "displays an error with unexpected options" do
+        Heroku::Command.should_receive(:error).with("Unexpected arguments: bar")
+        run "addons:add redistogo -a foo bar"
+      end
     end
 
     describe 'upgrading' do

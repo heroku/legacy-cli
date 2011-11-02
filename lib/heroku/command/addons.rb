@@ -187,7 +187,7 @@ module Heroku::Command
 
         config = parse_options(args)
         config.merge!(:confirm => app) if app == options[:confirm]
-        raise CommandFailed.new("Non-config values after addon name #{args} use unix --switch syntax") unless args.empty?
+        raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
 
         translate_fork_and_follow(addon, config) if addon =~ /^heroku-postgresql/
 
