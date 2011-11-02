@@ -24,7 +24,7 @@ GEM
     json (1.5.3)
     launchy (2.0.5)
       addressable (~> 2.2.6)
-    mime-types (1.16)
+    mime-types (1.17.2)
     parka (0.6.2)
       crack
       rest-client
