@@ -52,7 +52,7 @@ module Heroku::Command
     #
     # if no DATABASE is specified, defaults to DATABASE_URL
     #
-    # -e, --expire  # if no slots are available to capture, delete the oldest backup to make room
+    # -e, --expire  # if no slots are available to capture, destroy the oldest backup to make room
     #
     def capture
       deprecate_dash_dash_db("pgbackups:capture")
@@ -120,7 +120,7 @@ module Heroku::Command
         backup_id = from_uri.path.empty? ? from_uri : File.basename(from_uri.path)
       else
         backup = pgbackup_client.get_backup(backup_id)
-        abort("Backup #{backup_id} already deleted.") if backup["destroyed_at"]
+        abort("Backup #{backup_id} already destroyed.") if backup["destroyed_at"]
 
         from_url  = backup["to_url"]
         from_name = "BACKUP"
@@ -155,11 +155,11 @@ module Heroku::Command
       name = args.shift
       abort("Backup name required") unless name
       backup = pgbackup_client.get_backup(name)
-      abort("Backup #{name} already deleted.") if backup["destroyed_at"]
+      abort("Backup #{name} already destroyed.") if backup["destroyed_at"]
 
       result = pgbackup_client.delete_backup(name)
       if result
-        display("Backup #{name} deleted.")
+        display("Backup #{name} destroyed.")
       else
         abort("Error deleting backup #{name}.")
       end
