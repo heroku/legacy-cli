@@ -393,7 +393,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
             end
           end
         end
-      rescue Errno::ECONNREFUSED, SocketError
+      rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError
         abort(" !    Could not connect to logging service")
       rescue Timeout::Error, EOFError
         abort("\n !    Request timed out")
