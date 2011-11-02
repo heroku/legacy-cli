@@ -36,7 +36,7 @@ module Heroku::Command
     end
 
     it "doesnt show config vars when an error occurs during add" do
-      Heroku::Command.should_receive(:error).with("command failed")
+      Heroku::Command.should_receive(:error)
       any_instance_of(Heroku::Client) do |client|
         stub(client).add_config_vars do
           raise CommandFailed, "command failed"
