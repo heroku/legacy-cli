@@ -103,7 +103,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     app = extract_app
     current_process = nil
     changes = args.inject({}) do |hash, process_amount|
-      if process_amount =~ /^([a-zA-Z0-9]+)([=+-]\d+)$/
+      if process_amount =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
         hash[$1] = $2
       end
       hash
