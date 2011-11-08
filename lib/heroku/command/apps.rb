@@ -54,8 +54,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
       display "Web URL:        #{attrs[:web_url]}"
       display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
       display "Git Repo:       #{attrs[:git_url]}"
-      display "Dynos:          #{attrs[:dynos]}"
-      display "Workers:        #{attrs[:workers]}"
+      display "Dynos:          #{attrs[:dynos]}" unless attrs[:stack] == "cedar"
+      display "Workers:        #{attrs[:workers]}" unless attrs[:stack] == "cedar"
       display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
       display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
       display "Stack:          #{attrs[:stack]}" if attrs[:stack]
