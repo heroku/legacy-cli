@@ -40,15 +40,26 @@ class Heroku::Client::Rendezvous
 
     on_connect.call if on_connect
 
+    readables = [input, ssl_socket].compact
+
     begin
       loop do
-        if o = IO.select([input, ssl_socket].compact, nil, nil, activity_timeout)
+        if o = IO.select(readables, nil, nil, activity_timeout)
           if (input && (o.first.first == input))
-            data = input.readpartial(10000)
+            begin
+              data = input.readpartial(10000)
+            rescue EOFError
+              readables.delete(input)
+              next
+            end
             ssl_socket.write(data)
             ssl_socket.flush
           elsif (o.first.first == ssl_socket)
-            data = ssl_socket.readpartial(10000)
+            begin
+              data = ssl_socket.readpartial(10000)
+            rescue EOFError
+              break
+            end
             output.write(data)
           end
         else
@@ -59,7 +70,7 @@ class Heroku::Client::Rendezvous
       ssl_socket.write("\003")
       ssl_socket.flush
       retry
-    rescue EOFError, Errno::EIO
+    rescue Errno::EIO
     end
   end
 end
