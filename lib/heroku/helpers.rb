@@ -202,6 +202,8 @@ module Heroku
     end
 
     def set_buffer(enable)
+      return unless $stdin.tty?
+
       if enable
         `stty icanon echo`
       else
