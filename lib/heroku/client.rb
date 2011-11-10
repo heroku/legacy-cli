@@ -488,11 +488,11 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def releases(app)
-    json_decode get("/apps/#{app}/releases").to_s
+    json_decode get("/apps/#{app}/releases", :accept => :json).to_s
   end
 
   def release(app, release)
-    json_decode get("/apps/#{app}/releases/#{release}").to_s
+    json_decode get("/apps/#{app}/releases/#{release}", :accept => :json).to_s
   end
 
   def rollback(app, release=nil)
