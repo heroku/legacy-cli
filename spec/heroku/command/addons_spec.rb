@@ -65,6 +65,14 @@ module Heroku::Command
         @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
+      
+      it "gives a deprecation notice with an example" do
+        execute "addons:add my_addon --foo=bar extra=XXX"
+        output.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
+
+        execute "addons:add my_addon --foo=bar extra=XXX"
+        output.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
+      end
     end
 
     describe 'unix-style command line params' do
