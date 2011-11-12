@@ -6,5 +6,8 @@ rvm:
   - 1.9.3
 
 notifications:
-  email:
-    - david@heroku.com
+  webhooks:
+    on_success: always
+    on_failure: always
+    urls:
+      - https://dx-helper.herokuapp.com/travis
