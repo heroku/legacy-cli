@@ -1,44 +1,58 @@
-Heroku API - deploy apps to Heroku from the command line
+Heroku CLI - deploy apps to Heroku from the command line
 ========================================================
 
-This library wraps the REST API for managing and deploying Rails apps to the
-Heroku platform.  It can be called as a Ruby library, or invoked from the
+This library wraps the REST API for managing and deploying apps to the
+Heroku platform.  It can be called as a Ruby library or invoked from the
 command line.  Code push and pull is done through Git.
 
 For more about Heroku see <http://heroku.com>.
 
-For full documentation see <http://heroku.com/docs>.
-
-
-Sample Workflow
----------------
-
-Create a new Rails app and deploy it:
-
-    rails myapp && cd myapp   # Create an app
-    git init                  # Init git repository
-    git add .                 # Add everything
-    git commit -m Initial     # Commit everything
-    heroku create             # Create your app on Heroku
-    git push heroku master    # Deploy your app on Heroku
-
+To get started see <http://devcenter.heroku.com/articles/quickstart>
 
 Setup
 -----
 
-    gem install heroku
+<table>
+  <tr>
+    <th>If you have...</th>
+    <th>Install with...</th>
+  </tr>
+  <tr>
+    <td>Mac OS X</td>
+    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/osx/download">Download OS X package</a></td>
+  </tr>
+  <tr>
+    <td>Windows</td>
+    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/windows/download">Download Windows .exe installer</a></td>
+  </tr>
+  <tr>
+    <td>Ubuntu Linux</td>
+    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/linux/readme"><code>apt-get</code> repository</a></td>
+  </tr>
+  <tr>
+    <td>Other</td>
+    <td style="text-align: left"><a href="http://assets.heroku.com/heroku-client/heroku-client.tgz">Tarball</a> (add contents to your <code>$PATH</code>)</td>
+  </tr>
+</table>
 
-If you wish to push or pull code, you must also have a working install of Git
-("apt-get install git-core" on Ubuntu or "port install git-core" on OS X), and
-an ssh public key ("ssh-keygen -t rsa").
+Once installed, you'll have access to the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
-The first time you run a command, such as "heroku list," you will be prompted
-for your Heroku username and password. Your API key will be fetched and stored
-locally to authenticate future requests.
+    :::term
+    $ heroku login
+    Enter your Heroku credentials.
+    Email: adam@example.com
+    Password:
+    Could not find an existing public key.
+    Would you like to generate one? [Yn]
+    Generating new SSH public key.
+    Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
 
-Your public key (~/.ssh/id_[rd]sa.pub) will be uploaded to Heroku after you
-enter your credentials. Use heroku keys:add if you wish to upload additional
-keys or specify a key in a non-standard location.
+Press enter at the prompt to upload your existing `ssh` key or create a new one, used for pushing code later on.
+
+API
+---
+
+Heroku API documentation can be found at <https://api-docs.heroku.com>
 
 Meta
 ----
