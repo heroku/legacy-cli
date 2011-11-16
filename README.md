@@ -1,9 +1,7 @@
-Heroku CLI - deploy apps to Heroku from the command line
-========================================================
+Heroku CLI
+==========
 
-This library wraps the REST API for managing and deploying apps to the
-Heroku platform.  It can be called as a Ruby library or invoked from the
-command line.  Code push and pull is done through Git.
+The Heroku CLI is used to manage Heroku apps from the command line.
 
 For more about Heroku see <http://heroku.com>.
 
@@ -37,7 +35,6 @@ Setup
 
 Once installed, you'll have access to the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
-    :::term
     $ heroku login
     Enter your Heroku credentials.
     Email: adam@example.com
