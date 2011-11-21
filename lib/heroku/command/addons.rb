@@ -206,12 +206,12 @@ module Heroku::Command
       def parse_options(args)
         {}.tap do |config|
           flag = /^--/
-          args.size.times do 
+          args.size.times do
             peek = args.first
             next unless peek && (peek.match(flag) || peek.match(/=/))
             arg  = args.shift
-            peek = args.first 
-            key  = arg.sub(flag,'') 
+            peek = args.first
+            key  = arg.sub(flag,'')
             if key.match(/=/)
               key, value = key.split('=', 2)
             elsif peek.nil? || peek.match(flag)
