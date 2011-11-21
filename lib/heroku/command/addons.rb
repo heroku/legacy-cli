@@ -109,7 +109,11 @@ module Heroku::Command
 
       case matches.length
       when 0 then
-        error "Unknown addon: #{addon}"
+        if heroku.addons.any? {|a| a['name'] =~ /^#{addon}/ }
+          error "No addon matching #{addon} is installed for #{app}"
+        else
+          error "Unknown addon: #{addon}"
+        end
       when 1 then
         addon_to_open = matches.first
         display "Opening #{addon_to_open} for #{app}..."

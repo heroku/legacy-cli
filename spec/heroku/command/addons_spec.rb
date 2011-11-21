@@ -266,11 +266,19 @@ module Heroku::Command
         @addons.open
       end
 
-      it "complains if nothing matches" do
-        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
-          { "name" => "newrelic:bronze" }
-        ])
+      it "complains if no such addon exists" do
+        @addons.heroku.should_receive(:addons).and_return([])
+        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([])
         @addons.should_receive(:error).with("Unknown addon: red")
+        @addons.open
+      end
+
+      it "complains if addon is not installed" do
+        @addons.heroku.should_receive(:addons).and_return([
+          { 'name' => 'redistogo:basic' }
+        ])
+        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([])
+        @addons.should_receive(:error).with("No addon matching red is installed for myapp")
         @addons.open
       end
     end
