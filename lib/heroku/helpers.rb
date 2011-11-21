@@ -84,7 +84,7 @@ module Heroku
     end
 
     def ask
-      gets.strip
+      STDIN.gets.strip
     end
 
     def shell(cmd)
