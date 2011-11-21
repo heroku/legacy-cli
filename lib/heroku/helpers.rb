@@ -301,11 +301,3 @@ module Heroku
     end
   end
 end
-
-unless String.method_defined?(:shellescape)
-  class String
-    def shellescape
-      empty? ? "''" : gsub(/([^A-Za-z0-9_\-.,:\/@\n])/n, '\\\\\\1').gsub(/\n/, "'\n'")
-    end
-  end
-end
