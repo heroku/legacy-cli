@@ -278,7 +278,7 @@ module Heroku::Command
           { 'name' => 'redistogo:basic' }
         ])
         @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([])
-        @addons.should_receive(:error).with("No addon matching red is installed for myapp")
+        @addons.should_receive(:error).with("Addon not installed: red")
         @addons.open
       end
     end

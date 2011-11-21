@@ -110,7 +110,7 @@ module Heroku::Command
       case matches.length
       when 0 then
         if heroku.addons.any? {|a| a['name'] =~ /^#{addon}/ }
-          error "No addon matching #{addon} is installed for #{app}"
+          error "Addon not installed: #{addon}"
         else
           error "Unknown addon: #{addon}"
         end
