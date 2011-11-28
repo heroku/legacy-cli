@@ -32,6 +32,7 @@ module Heroku::Command
         next unless output = format_with_colors(chk)
         puts output
       end
+    rescue Errno::EPIPE
     end
 
     # logs:cron
