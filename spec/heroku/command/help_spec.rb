@@ -50,16 +50,6 @@ describe Heroku::Command::Help do
       output.should include "heroku apps:create"
     end
 
-    it "should show that the command has aliases" do
-      execute "help apps:create"
-      output.should include "apps:create is aliased to create"
-    end
-
-    it "should show that the command has multiple aliases" do
-      execute "help help"
-      output.should include "help has aliases: -h, --help"
-    end
-
     it "should show if the command does not exist" do
       execute "help sudo:sandwich"
       output.strip.should_not be_empty

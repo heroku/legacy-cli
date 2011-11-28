@@ -54,14 +54,6 @@ private
     commands
   end
 
-  def aliases_for(command)
-    aliases = []
-    Heroku::Command.command_aliases.each do |new, old|
-      aliases << new if old == command[:command]
-    end
-    aliases
-  end
-
   def legacy_help_for_namespace(namespace)
     instance = Heroku::Command::Help.groups.map do |group|
       [ group.title, group.select { |c| c.first =~ /^#{namespace}/ }.length ]
@@ -136,15 +128,6 @@ private
         puts " " + legacy_help_for_command(name).to_s
       end
       puts
-
-      unless (aliases = aliases_for(command)).empty?
-        if aliases.size > 1
-          puts " #{command[:command]} has aliases: " + aliases.join(', ')
-        else
-          puts " #{command[:command]} is aliased to #{aliases.first}"
-        end
-        puts
-      end
     end
 
     if commands_for_namespace(name).size > 0
