@@ -47,9 +47,9 @@ private
     commands = Heroku::Command.commands
     Heroku::Command.command_aliases.each do |new, old|
       commands[new] = commands[old].dup
-      commands[new][:banner] = "#{new} #{commands[new][:banner].split(" ", 2)[1]}"
       commands[new][:command] = new
       commands[new][:namespace] = nil
+      commands[new][:alias_for] = old
     end
     commands
   end
@@ -119,23 +119,24 @@ private
     command = commands[name]
 
     if command
+      puts "Usage: heroku #{command[:banner]}"
+
       if command[:help].strip.length > 0
-        puts "Usage: heroku #{command[:banner]}"
         puts command[:help].split("\n")[1..-1].join("\n")
-        puts
       else
-        puts "Usage: heroku #{command[:banner]}"
         puts
         puts " " + legacy_help_for_command(name).to_s
-        puts
       end
+      puts
     end
 
-    unless commands_for_namespace(name).empty?
+    if commands_for_namespace(name).size > 0
       puts "Additional commands, type \"heroku help COMMAND\" for more details:"
       puts
       help_for_namespace(name)
       puts
+    elsif command.nil?
+      error " !   #{name} is not a heroku command. See 'heroku help'."
     end
   end
 end
