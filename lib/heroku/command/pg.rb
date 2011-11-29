@@ -40,7 +40,7 @@ module Heroku::Command
     def promote
       deprecate_dash_dash_db("pg:promote")
       follower_db = resolve_db(:required => 'pg:promote')
-      abort( " !   DATABASE_URL is already set to #{follower_db[:name]}") if follower_db[:default]
+      error("DATABASE_URL is already set to #{follower_db[:name]}") if follower_db[:default]
 
       working_display "-----> Promoting #{follower_db[:name]} to DATABASE_URL" do
         heroku.add_config_vars(app, {"DATABASE_URL" => follower_db[:url]})
@@ -62,8 +62,8 @@ module Heroku::Command
       begin
         exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}"
       rescue Errno::ENOENT
-        display " !   The local psql command could not be located"
-        display " !   For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
+        output_with_bang "The local psql command could not be located"
+        output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
         abort
       end
     end
@@ -95,7 +95,7 @@ module Heroku::Command
       follower_db = resolve_db(:required => 'pg:unfollow')
 
       if follower_db[:name].include? "SHARED_DATABASE"
-        display " !    SHARED_DATABASE is not following another database"
+        output_with_bang "SHARED_DATABASE is not following another database"
         return
       end
 
@@ -104,14 +104,14 @@ module Heroku::Command
       origin_db_url = follower_db_info[:following]
 
       unless origin_db_url
-        display " !    #{follower_name} is not following another database"
+        output_with_bang "#{follower_name} is not following another database"
         return
       end
 
       origin_name = name_from_url(origin_db_url)
 
-      display " !    #{follower_name} will become writable and no longer"
-      display " !    follow #{origin_name}. This cannot be undone."
+      output_with_bang "#{follower_name} will become writable and no longer"
+      output_with_bang "follow #{origin_name}. This cannot be undone."
       return unless confirm_command
 
       working_display "Unfollowing" do
@@ -189,9 +189,9 @@ private
 
     def generate_ingress_uri(action)
       db = resolve_db(:allow_default => true)
-      abort " !  Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
+      error "Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
       hpc = heroku_postgresql_client(db[:url])
-      abort " !  The database is not available for ingress" unless hpc.get_database[:available_for_ingress]
+      error "The database is not available for ingress" unless hpc.get_database[:available_for_ingress]
       working_display("#{action} to #{db[:name]}") { hpc.ingress }
       return URI.parse(db[:url])
     end

@@ -253,6 +253,11 @@ module Heroku
       display "-----> " + message.split("\n").join("\n       ")
     end
 
+    def output_with_bang(message="")
+      return if message.to_s.strip == ""
+      display " !     " + message.split("\n").join("\n !     ")
+    end
+
     def error_with_failure(message)
       display "failed"
       message.gsub!(/^ +! */, '')
