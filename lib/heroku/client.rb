@@ -500,7 +500,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def ps_run(app, opts={})
-    json_decode post("/apps/#{app}/ps", opts).to_s
+    json_decode post("/apps/#{app}/ps", opts, :accept => :json).to_s
   end
 
   def ps_scale(app, opts={})
