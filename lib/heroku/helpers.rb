@@ -255,7 +255,6 @@ module Heroku
 
     def output_with_bang(message="")
       return if message.to_s.strip == ""
-      message.gsub!(/^ +! */, '')
       display " !     " + message.split("\n").join("\n !     ")
     end
 
