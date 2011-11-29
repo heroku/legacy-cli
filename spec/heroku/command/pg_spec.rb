@@ -58,7 +58,7 @@ module Heroku::Command
         @pg.stub!(:confirm_command).and_return(true)
 
         @pg.heroku.should_not_receive(:add_config_vars)
-        @pg.should_receive(:abort).with(" !  Usage: heroku pg:promote <DATABASE>").and_raise(SystemExit)
+        @pg.should_receive(:error).with("Usage: heroku pg:promote <DATABASE>").and_raise(SystemExit)
 
         lambda { @pg.promote }.should raise_error SystemExit
       end

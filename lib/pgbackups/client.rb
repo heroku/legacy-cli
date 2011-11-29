@@ -91,7 +91,7 @@ module PGBackups
     def check_errors
       yield
     rescue RestClient::Unauthorized
-      error " !   Invalid PGBACKUPS_URL"
+      error "Invalid PGBACKUPS_URL"
     end
 
     def display_heroku_warning(response)

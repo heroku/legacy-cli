@@ -136,7 +136,7 @@ private
       help_for_namespace(name)
       puts
     elsif command.nil?
-      error " !   #{name} is not a heroku command. See 'heroku help'."
+      error "#{name} is not a heroku command. See 'heroku help'."
     end
   end
 end

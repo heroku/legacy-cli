@@ -394,9 +394,9 @@ Check the output of "heroku ps" and "heroku logs" for more information.
           end
         end
       rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError
-        abort(" !    Could not connect to logging service")
+        error("Could not connect to logging service")
       rescue Timeout::Error, EOFError
-        abort("\n !    Request timed out")
+        error("\nRequest timed out")
       end
     end
   end
@@ -557,7 +557,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
       response = resource(uri, resource_options).send(*args)
     rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError
       host = URI.parse(realize_full_uri(uri)).host
-      error " !   Unable to connect to #{host}"
+      error "Unable to connect to #{host}"
     rescue RestClient::SSLCertificateNotVerified => ex
       host = URI.parse(realize_full_uri(uri)).host
       #error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"

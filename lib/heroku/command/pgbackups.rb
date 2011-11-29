@@ -74,10 +74,10 @@ module Heroku::Command
       backup = poll_transfer!(backup)
 
       if backup["error_at"]
-        message  =   " !    An error occurred and your backup did not finish."
-        message += "\n !    The database is not yet online. Please try again." if backup['log'] =~ /Name or service not known/
-        message += "\n !    The database credentials are incorrect."           if backup['log'] =~ /psql: FATAL:/
-        abort(message)
+        message  =   "An error occurred and your backup did not finish."
+        message += "\nThe database is not yet online. Please try again." if backup['log'] =~ /Name or service not known/
+        message += "\nThe database credentials are incorrect."           if backup['log'] =~ /psql: FATAL:/
+        error(message)
       end
     end
 
@@ -140,9 +140,9 @@ module Heroku::Command
         restore = poll_transfer!(restore)
 
         if restore["error_at"]
-          message  =   " !    An error occurred and your restore did not finish."
-          message += "\n !    The backup url is invalid. Use `pgbackups:url` to generate a new temporary URL." if restore['log'] =~ /Invalid dump format: .*: XML  document text/
-          abort(message)
+          message  =   "An error occurred and your restore did not finish."
+          message += "\nThe backup url is invalid. Use `pgbackups:url` to generate a new temporary URL." if restore['log'] =~ /Invalid dump format: .*: XML  document text/
+          error(message)
         end
       end
     end
@@ -173,7 +173,7 @@ module Heroku::Command
 
     def pgbackup_client
       pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
-      abort(" !   Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
+      error("Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
       @pgbackup_client ||= PGBackups::Client.new(pgbackups_url)
     end
 
@@ -192,7 +192,7 @@ module Heroku::Command
 
       if transfer["errors"]
         transfer["errors"].values.flatten.each { |e|
-          display " !    #{e}"
+          output_with_bang "#{e}"
         }
         abort
       end
@@ -314,7 +314,7 @@ module Heroku::Command
     private
 
     def no_backups_error!
-      error(" !   No backups. Capture one with `heroku pgbackups:capture`.")
+      error("No backups. Capture one with `heroku pgbackups:capture`.")
     end
 
     # lists all types of backups ('to_name' attribute)

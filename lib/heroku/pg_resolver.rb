@@ -27,7 +27,7 @@ module PGResolver
       if options[:allow_default]
         db_id = "DATABASE"
       else
-        abort(" !  Usage: heroku #{options[:required]} <DATABASE>") if options[:required]
+        error("Usage: heroku #{options[:required]} <DATABASE>") if options[:required]
       end
     end
 
@@ -39,11 +39,10 @@ module PGResolver
   end
 
   def abort_with_database_list(failed_id)
-    display " !  Could not resolve database #{failed_id}"
-    display " !"
-    display " !  Available databases: "
+    output_with_bang "Could not resolve database #{failed_id}"
+    output_with_bang "\nAvailable databases: "
     Resolver.all(config_vars).each do |db|
-      display " !   #{db[:pretty_name]}"
+      output_with_bang "#{db[:pretty_name]}"
     end
     abort
   end

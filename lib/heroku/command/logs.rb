@@ -44,7 +44,7 @@ module Heroku::Command
     end
 
     def drains
-      puts " !   The logs:drain command has been deprecated. Please use drains"
+      output_with_bang "The logs:drain command has been deprecated. Please use drains"
       usage = Heroku::Command::Help.usage_for_command("drains")
       puts usage
     end

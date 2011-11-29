@@ -68,7 +68,7 @@ module Heroku
       command = parse(cmd)
 
       unless command
-        error " !   #{cmd} is not a heroku command. See 'heroku help'."
+        error "#{cmd} is not a heroku command. See 'heroku help'."
         return
       end
 
@@ -176,11 +176,11 @@ module Heroku
       display
       display
       display message
-      display " !    To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
+      output_with_bang "To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
       display
       display "> ", false
       if ask.downcase != app
-        display " !    Input did not match #{app}. Aborted."
+        output_with_bang "Input did not match #{app}. Aborted."
         false
       else
         true

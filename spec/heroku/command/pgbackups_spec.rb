@@ -122,13 +122,13 @@ module Heroku::Command
 
         it 'aborts on a generic error' do
           stub_failed_capture "something generic"
-          @pgbackups.should_receive(:abort).with(" !    An error occurred and your backup did not finish.")
+          @pgbackups.should_receive(:error).with("An error occurred and your backup did not finish.")
           @pgbackups.capture
         end
 
         it 'aborts and informs when the database isnt up yet' do
           stub_failed_capture 'could not translate host name "ec2-42-42-42-42.compute-1.amazonaws.com" to address: Name or service not known'
-          @pgbackups.should_receive(:abort) do |message|
+          @pgbackups.should_receive(:error) do |message|
             message.should =~ /The database is not yet online/
             message.should =~ /Please try again/
           end
@@ -137,7 +137,7 @@ module Heroku::Command
 
         it 'aborts and informs when the credentials are incorrect' do
           stub_failed_capture 'psql: FATAL:  database "randomname" does not exist'
-          @pgbackups.should_receive(:abort) do |message|
+          @pgbackups.should_receive(:error) do |message|
             message.should =~ /The database credentials are incorrect/
           end
           @pgbackups.capture
@@ -226,13 +226,13 @@ module Heroku::Command
 
         it 'aborts for a generic error' do
           stub_error_backup_with_log 'something generic'
-          @pgbackups.should_receive(:abort).with(" !    An error occurred and your restore did not finish.")
+          @pgbackups.should_receive(:error).with("An error occurred and your restore did not finish.")
           @pgbackups.restore
         end
 
         it 'aborts and informs for expired s3 urls' do
           stub_error_backup_with_log 'Invalid dump format: /tmp/aDMyoXPrAX/b031.dump: XML  document text'
-          @pgbackups.should_receive(:abort).with { |message| message.should =~ /backup url is invalid/ }
+          @pgbackups.should_receive(:error).with { |message| message.should =~ /backup url is invalid/ }
           @pgbackups.restore
         end
       end
