@@ -175,7 +175,7 @@ module Heroku
         lengths << longest([header].concat(objects.map { |o| o[column].to_s }))
       end
       display_row headers, lengths
-      display_row headers.map { |header| "-" * header.length }, lengths
+      display_row lengths.map { |length| "-" * length }, lengths
       objects.each do |row|
         display_row columns.map { |column| row[column] }, lengths
       end

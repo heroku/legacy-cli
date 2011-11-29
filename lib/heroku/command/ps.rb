@@ -50,19 +50,19 @@ class Heroku::Command::Ps < Heroku::Command::Base
     app = extract_app
     ps = heroku.ps(app)
 
-    output = []
-    output << "Process       State               Command"
-    output << "------------  ------------------  ------------------------------"
-
-    ps.sort_by do |p|
-      t,n = p['process'].split(".")
+    objects = ps.sort_by do |p|
+      t,n = p['process'].split('.')
       [t, n.to_i]
     end.each do |p|
-      output << "%-12s  %-18s  %s" %
-        [ p['process'], "#{p['state']} for #{time_ago(p['elapsed']).gsub(/ ago/, '')}", truncate(p['command'], 36) ]
+      p['state'] << ' for ' << time_ago(p['elapsed']).gsub(/ ago/, '')
+      p['command'] = truncate(p['command'], 36)
     end
 
-    display output.join("\n")
+    display_table(
+      objects,
+      ['process', 'state', 'command'],
+      ['Process', 'State', 'Command']
+    )
   end
 
   # ps:restart [PROCESS]
