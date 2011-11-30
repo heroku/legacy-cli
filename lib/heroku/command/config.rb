@@ -50,6 +50,8 @@ module Heroku::Command
       display_vars(vars, :indent => 2)
     end
 
+    alias_command "config:set", "config:add"
+
     # config:remove KEY1 [KEY2 ...]
     #
     # remove a config var
