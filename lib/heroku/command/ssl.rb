@@ -25,8 +25,11 @@ module Heroku::Command
     # add an ssl certificate to an app
     #
     def add
-      raise CommandFailed, "Missing pem file." unless pem_file = args.shift
-      raise CommandFailed, "Missing key file." unless key_file = args.shift
+      pem_file = args.shift
+      key_file = args.shift
+      fail "Usage: heroku ssl:add PEM KEY" unless pem_file && key_file
+      raise CommandFailed, "Missing pem file." unless pem_file
+      raise CommandFailed, "Missing key file." unless key_file
       raise CommandFailed, "Could not find pem in #{pem_file}"  unless File.exists?(pem_file)
       raise CommandFailed, "Could not find key in #{key_file}"  unless File.exists?(key_file)
 
