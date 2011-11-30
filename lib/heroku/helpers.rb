@@ -225,12 +225,8 @@ module Heroku
 
     ## DISPLAY HELPERS
 
-    def arrow(message)
-      "-----> #{message}"
-    end
-
     def action(message)
-      display "#{arrow(message)}... ", false
+      output_with_arrow("#{message}... ", false)
       Heroku::Helpers.enable_error_capture
       yield
       Heroku::Helpers.disable_error_capture
