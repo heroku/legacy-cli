@@ -14,8 +14,8 @@ module Heroku
       RUBY_PLATFORM =~ /-darwin\d/
     end
 
-    def display(msg="", newline=true)
-      if newline
+    def display(msg="", new_line=true)
+      if new_line
         puts(msg)
       else
         print(msg)
@@ -243,19 +243,19 @@ module Heroku
       @status = message
     end
 
-    def output(message="")
+    def output(message="", new_line=true)
       return if message.to_s.strip == ""
-      display "       " + message.split("\n").join("\n       ")
+      display("       " + message.split("\n").join("\n       "), new_line)
     end
 
-    def output_with_arrow(message="")
+    def output_with_arrow(message="", new_line=true)
       return if message.to_s.strip == ""
-      display "-----> " + message.split("\n").join("\n       ")
+      display("-----> " + message.split("\n").join("\n       "), new_line)
     end
 
-    def output_with_bang(message="")
+    def output_with_bang(message="", new_line=true)
       return if message.to_s.strip == ""
-      display " !     " + message.split("\n").join("\n !     ")
+      display(" !     " + message.split("\n").join("\n !     "), new_line)
     end
 
     def error_with_failure(message)
