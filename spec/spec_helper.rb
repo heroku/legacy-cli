@@ -1,8 +1,6 @@
 require "rubygems"
 require "bundler/setup"
 
-$stdin = File.new("/dev/null")
-
 require "simplecov"
 SimpleCov.start do
   add_filter "/spec/"
