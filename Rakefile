@@ -89,29 +89,31 @@ end
 def resource(name)
   File.expand_path("../dist/resources/#{name}", __FILE__)
 end
-
-def s3_connect
-  return if @s3_connected
-
-  require "aws/s3"
+def storage
+  return @storage if @storage
 
   unless ENV["HEROKU_RELEASE_ACCESS"] && ENV["HEROKU_RELEASE_SECRET"]
     puts "please set HEROKU_RELEASE_ACCESS and HEROKU_RELEASE_SECRET in your environment"
     exit 1
   end
 
-  AWS::S3::Base.establish_connection!(
-    :access_key_id => ENV["HEROKU_RELEASE_ACCESS"],
-    :secret_access_key => ENV["HEROKU_RELEASE_SECRET"]
-  )
+  require 'fog/aws/storage'
 
-  @s3_connected = true
+  @storage = Fog::Storage.new(
+    :aws_access_key_id      => ENV["HEROKU_RELEASE_ACCESS"],
+    :aws_secret_access_key  => ENV["HEROKU_RELEASE_SECRET"],
+    :provider               => 'AWS'
+  )
 end
 
 def store(package_file, filename, bucket="assets.heroku.com")
-  s3_connect
   puts "storing: #{filename}"
-  AWS::S3::S3Object.store(filename, File.open(package_file), bucket, :access => :public_read)
+  directory = storage.directory.new(:key => bucket)
+  directory.files.create(
+    :body   => File.open(package_file),
+    :key    => filename,
+    :public => true
+  )
 end
 
 def tempdir
