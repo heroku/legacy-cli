@@ -1,4 +1,4 @@
-script: bundle exec rspec -bfs
+script: bundle exec rspec -bfs spec
 
 rvm:
   - 1.8.7
