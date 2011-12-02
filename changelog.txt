@@ -1,4 +1,4 @@
-2.15.0 12/02/2011 8b010215c8613bdf09e1dc1845ec6076d288b8e2
+2.15.1 12/02/2011 a9b5ecd79b58434155bd3d403388c38f301e6382
 ==========================================================
 
 remove windows locks
@@ -9,6 +9,10 @@ modify output format for travis to aide in debugging
 correction for travis config
 remove test which timeouts on travis (and isn't very useful)
 create 'pkg' directory during build
-
-
-2.14.0 12/01/2011 7d4702934aebeaec43413155f02123e491f8f269
+Add raketask to generate changelog
+[release] deb:build now more consistent with other builds
+[release] DRY deb rake task by not hard-coding repeated dir
+remove spec helper which gets overwritten anyway
+require heroku/helpers because Heroku::Plugin relies on it
+use @cli.home_directory consistently in auth_spec
+set home_directory to a tmpdir in tests
