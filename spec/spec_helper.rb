@@ -9,6 +9,7 @@ end
 require "rspec"
 require "rr"
 require "fakefs/safe"
+require 'tmpdir'
 require "webmock/rspec"
 
 include WebMock::API
@@ -125,10 +126,11 @@ class String
 end
 
 require "heroku/helpers"
-require "heroku/plugin"
-class Heroku::Plugin
-  def self.home_directory
-    "/tmp/nonexistant/we/hope"
+module Heroku::Helpers
+  @home_directory = Dir.mktmpdir
+  undef_method :home_directory
+  def home_directory
+    @home_directory
   end
 end
 
