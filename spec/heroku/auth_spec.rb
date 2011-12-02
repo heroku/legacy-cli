@@ -96,7 +96,7 @@ module Heroku
 
     describe "automatic key uploading" do
       before(:each) do
-        FileUtils.mkdir_p("~/.ssh")
+        FileUtils.mkdir_p("#{@cli.home_directory}/.ssh")
         @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
       end
 
@@ -124,17 +124,17 @@ module Heroku
           it "should ask to generate a key" do
             @cli.should_receive(:ask).and_return("y")
             @cli.should_receive(:generate_ssh_key).with("id_rsa")
-            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
+            @cli.should_receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa.pub")
             @cli.check_for_associated_ssh_key
           end
         end
 
         describe "with one public key" do
-          before(:each) { FileUtils.touch("~/.ssh/id_rsa.pub") }
-          after(:each)  { FileUtils.rm("~/.ssh/id_rsa.pub") }
+          before(:each) { FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub") }
+          after(:each)  { FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa.pub") }
 
           it "should upload the key" do
-            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa.pub"))
+            @cli.should_receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa.pub")
             @cli.check_for_associated_ssh_key
           end
         end
@@ -142,17 +142,17 @@ module Heroku
         describe "with many public keys" do
           before(:each) do
             FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub")
-            FileUtils.touch("~/.ssh/id_rsa2.pub")
+            FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa2.pub")
           end
 
           after(:each) do
-            FileUtils.rm("~/.ssh/id_rsa.pub")
-            FileUtils.rm("~/.ssh/id_rsa2.pub")
+            FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa.pub")
+            FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa2.pub")
           end
 
           it "should ask which key to upload" do
             File.open("#{@cli.home_directory}/.ssh/id_rsa.pub", "w") { |f| f.puts }
-            @cli.should_receive(:associate_key).with(File.expand_path("~/.ssh/id_rsa2.pub"))
+            @cli.should_receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa2.pub")
             @cli.should_receive(:ask).and_return("2")
             @cli.check_for_associated_ssh_key
           end
