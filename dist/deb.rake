@@ -1,5 +1,5 @@
-file pkg("heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
-  tempdir do |dir|
+file pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
+  mkchdir("pkg/apt-#{version}") do
     mkchdir("usr/local/heroku") do
       assemble_distribution
       assemble_gems
@@ -19,26 +19,24 @@ file pkg("heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
     deb = File.basename(t.name)
 
     sh "ar -r #{t.name} debian-binary control.tar.gz data.tar.gz"
-  end
-end
 
-task "deb:build" => pkg("heroku-toolbelt-#{version}.deb")
-
-task "deb:clean" do
-  clean pkg("heroku-toolbelt-#{version}.deb")
-end
-
-task "deb:release" => "deb:build" do |t|
-  tempdir do |dir|
-    cp pkg("heroku-toolbelt-#{version}.deb"), "#{dir}/heroku-toolbelt-#{version}.deb"
     touch "Sources"
     sh "apt-ftparchive packages . > Packages"
     sh "gzip -c Packages > Packages.gz"
     sh "apt-ftparchive release . > Release"
     sh "gpg -abs -u 0F1B0520 -o Release.gpg Release"
+  end
+end
 
-    Dir["*"].each do |file|
-      store file, "apt/#{File.basename(file)}", "heroku-toolbelt"
-    end
+task "deb:build" => pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb")
+
+task "deb:clean" do
+  clean pkg("heroku-toolbelt-#{version}.deb")
+  FileUtils.rm_rf("pkg/apt-#{version}") if Dir.exists?("pkg/apt-#{version}")
+end
+
+task "deb:release" => "deb:build" do |t|
+  Dir["pkg/apt-#{version}/*"].each do |file|
+    store file, "apt/#{File.basename(file)}", "heroku-toolbelt"
   end
 end
