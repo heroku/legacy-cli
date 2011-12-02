@@ -1,5 +1,5 @@
 file pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
-  mkchdir("pkg/apt-#{version}") do
+  mkchdir(File.dirname(t.name)) do
     mkchdir("usr/local/heroku") do
       assemble_distribution
       assemble_gems
