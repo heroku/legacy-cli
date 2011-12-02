@@ -124,6 +124,7 @@ class String
   end
 end
 
+require "heroku/helpers"
 require "heroku/plugin"
 class Heroku::Plugin
   def self.home_directory
