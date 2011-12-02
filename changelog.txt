@@ -1,0 +1,14 @@
+2.15.0 12/02/2011 8b010215c8613bdf09e1dc1845ec6076d288b8e2
+==========================================================
+
+remove windows locks
+try using dev/null for stdin during tests
+Revert "try using dev/null for stdin during tests"
+Revert "replace aws/s3 with fog"
+modify output format for travis to aide in debugging
+correction for travis config
+remove test which timeouts on travis (and isn't very useful)
+create 'pkg' directory during build
+
+
+2.14.0 12/01/2011 7d4702934aebeaec43413155f02123e491f8f269
