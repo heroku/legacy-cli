@@ -79,6 +79,7 @@ def mkchdir(dir)
 end
 
 def pkg(filename)
+  FileUtils.mkdir_p("pkg")
   File.expand_path("../pkg/#{filename}", __FILE__)
 end
 
