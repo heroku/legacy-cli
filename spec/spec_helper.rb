@@ -117,11 +117,6 @@ module SandboxHelper
   end
 end
 
-module Heroku::Helpers
-  def display(msg, newline=true)
-  end
-end
-
 class String
   def undent
     indent = self.match(/^( *)/)[1].length
