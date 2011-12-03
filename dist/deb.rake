@@ -37,6 +37,8 @@ end
 
 task "deb:release" => "deb:build" do |t|
   Dir["pkg/apt-#{version}/*"].each do |file|
-    store file, "apt/#{File.basename(file)}", "heroku-toolbelt"
+    unless File.directory?(file)
+      store file, "apt/#{File.basename(file)}", "heroku-toolbelt"
+    end
   end
 end
