@@ -48,11 +48,13 @@ module Heroku::Command
       if addons.empty?
         display "No addons available currently"
       else
-        available, beta = addons.partition { |a| !a['beta'] }
-        display_addons(available)
-        if !beta.empty?
-          display "\n--- beta ---"
-          display_addons(beta)
+        partitioned_addons = partition_addons(addons)
+        [:disabled, :alpha, :beta, :public].each do |state|
+          if state_addons = partitioned_addons[state.to_s]
+            header = state == :public ? "Available" : state.to_s.capitalize
+            display "\n--- #{header} ---"
+            display_addons(state_addons)
+          end
         end
       end
     end
@@ -124,6 +126,10 @@ module Heroku::Command
     end
 
     private
+      def partition_addons(addons)
+        addons.group_by{ |a| a["state"] }
+      end
+
       def display_addons(addons)
         grouped = addons.inject({}) do |base, addon|
           group, short = addon['name'].split(':')
@@ -149,7 +155,7 @@ module Heroku::Command
             end.compact.join(', ')
             row << '...' if stop
           end
-          display row.ljust(34) + (addons.first['url'] || '')
+          display row.ljust(34)
         end
       end
 
