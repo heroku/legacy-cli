@@ -33,7 +33,7 @@ module Heroku
     end
 
     def error(msg)
-      STDERR.puts(msg)
+      STDERR.puts(format_with_bang(msg))
       exit 1
     end
 
@@ -249,9 +249,14 @@ module Heroku
       display("-----> " + message.split("\n").join("\n       "), new_line)
     end
 
+    def format_with_bang(message)
+      return '' if message.to_s.strip == ""
+      " !    " + message.split("\n").join("\n !    ")
+    end
+
     def output_with_bang(message="", new_line=true)
       return if message.to_s.strip == ""
-      display(" !     " + message.split("\n").join("\n !     "), new_line)
+      display(format_with_bang(message), new_line)
     end
 
     def error_with_failure(message)
