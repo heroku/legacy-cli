@@ -77,12 +77,12 @@ private
   end
 
   def additional_namespaces
-    (namespaces.values - primary_namespaces).sort_by { |n| n[:name] }
+    (namespaces.values - primary_namespaces)
   end
 
   def summary_for_namespaces(namespaces)
     size = longest(namespaces.map { |n| n[:name] })
-    namespaces.each do |namespace|
+    namespaces.sort_by {|namespace| namespace[:name]}.each do |namespace|
       name = namespace[:name]
       namespace[:description] ||= legacy_help_for_namespace(name)
       puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
