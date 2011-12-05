@@ -3,8 +3,6 @@ require 'heroku/plugin'
 require 'heroku/builtin_plugin'
 require "optparse"
 
-#Dir["#{File.dirname(__FILE__)}/commands/*.rb"].each { |c| require c }
-
 module Heroku
   module Command
     class CommandFailed  < RuntimeError; end
