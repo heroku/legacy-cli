@@ -7,7 +7,6 @@ require "optparse"
 
 module Heroku
   module Command
-    class InvalidCommand < RuntimeError; end
     class CommandFailed  < RuntimeError; end
 
     extend Heroku::Helpers
@@ -112,8 +111,6 @@ module Heroku
     def self.run(cmd, arguments=[])
       object, method = prepare_run(cmd, arguments.dup)
       object.send(method)
-    rescue InvalidCommand
-      error "Unknown command. Run 'heroku help' for usage information."
     rescue RestClient::Unauthorized
       puts "Authentication failure"
       run "login"
