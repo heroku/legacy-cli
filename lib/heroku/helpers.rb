@@ -321,7 +321,7 @@ module Heroku
       when Hash
         # if all values are arrays, it is a list with headers
         # otherwise it is a single header with pairs of data
-        if object.values.all? {|object| object.is_a?(Array)}
+        if object.values.all? {|value| value.is_a?(Array)}
           object.each do |key, value|
             display_header(key)
             display_object(value)
