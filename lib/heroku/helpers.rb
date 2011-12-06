@@ -304,5 +304,33 @@ module Heroku
         end
       end
     end
+
+
+    def display_header(message="", new_line=true)
+      return if message.to_s.strip == ""
+      display("=== " + message.to_s.split("\n").join("\n=== "), new_line)
+    end
+
+    def display_object(object)
+      case object
+      when Array
+        # list of objects
+        object.each do |item|
+          display_object(item)
+        end
+      when Hash
+        # if all values are arrays, it is a list with headers
+        # otherwise it is a single header with pairs of data
+        if object.values.all? {|object| object.is_a?(Array)}
+          object.each do |key, value|
+            display_header(key)
+            display_object(value)
+            display
+          end
+        end
+      else
+        display(object.to_s)
+      end
+    end
   end
 end
