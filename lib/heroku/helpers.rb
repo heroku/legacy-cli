@@ -202,15 +202,22 @@ module Heroku
     end
 
     def set_buffer(enable)
-      return unless $stdin.tty?
-
-      if enable
-        `stty icanon echo`
-      else
-        `stty -icanon -echo`
+      with_tty do
+        if enable
+          `stty icanon echo`
+        else
+          `stty -icanon -echo`
+        end
       end
-    rescue
-      # fails on windows
+    end
+
+    def with_tty(&block)
+      return unless $stdin.tty?
+      begin
+        yield
+      rescue
+        # fails on windows
+      end
     end
 
     def get_terminal_environment

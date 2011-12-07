@@ -78,11 +78,15 @@ class Heroku::Auth
     end
 
     def echo_off
-      system "stty -echo"
+      with_tty do
+        system "stty -echo"
+      end
     end
 
     def echo_on
-      system "stty echo"
+      with_tty do
+        system "stty echo"
+      end
     end
 
     def ask_for_credentials
