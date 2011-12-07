@@ -1,3 +1,20 @@
+2.15.3 12/07/2011 72cb70f16d44657f072ba440d31e064ead43dff9
+==========================================================
+
+use http for travis webhook for now
+2.15.1
+skip subfolders for dist/deb.rake
+[helpers] fix format for error
+[help] display all namespaces in alpha order
+reduce duplication when responding to invalid commands
+remove commented out require
+[helpers] work toward consolidated display by type
+[helpers] fix reused object name
+[helpers] alphasort list with headers in display_object
+[apps:destroy] explain info, remove unused line
+wrap stty in with_tty to catch errors
+
+
 2.15.1 12/02/2011 a9b5ecd79b58434155bd3d403388c38f301e6382
 ==========================================================
 
