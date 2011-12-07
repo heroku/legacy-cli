@@ -322,9 +322,9 @@ module Heroku
         # if all values are arrays, it is a list with headers
         # otherwise it is a single header with pairs of data
         if object.values.all? {|value| value.is_a?(Array)}
-          object.each do |key, value|
+          object.keys.sort_by {|key| key.to_s}.each do |key|
             display_header(key)
-            display_object(value)
+            display_object(object[key])
             display
           end
         end

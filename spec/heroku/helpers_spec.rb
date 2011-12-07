@@ -19,12 +19,17 @@ OUT
 
       it "should display { :header => [] } list correctly" do
         capture_stdout do
-          display_object({:header => [1,2,3]})
+          display_object({:first_header => [1,2,3], :last_header => [7,8,9]})
         end.should == <<-OUT
-=== header
+=== first_header
 1
 2
 3
+
+=== last_header
+7
+8
+9
 
 OUT
       end
