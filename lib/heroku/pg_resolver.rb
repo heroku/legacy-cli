@@ -106,7 +106,7 @@ module PGResolver
       parsed.reject{|k,v| k == 'DATABASE'}.each do |name, url|
         dbs << {:name => name, :url => url, :default => url==default, :pretty_name => "#{name}#{' (DATABASE_URL)' if url==default}"}
       end
-      dbs.sort {|a,b| a[:default]? -1 : a[:name] <=> b[:name] }
+      dbs.sort {|a,b| a[:default] ? -1 : a[:name] <=> b[:name] }
     end
 
     private
