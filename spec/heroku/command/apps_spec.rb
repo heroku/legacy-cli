@@ -12,8 +12,8 @@ module Heroku::Command
       @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024, :web_url => 'http://myapp.heroku.com/' })
       @cli.should_receive(:display).with('=== myapp')
       @cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
-      @cli.should_receive(:display).with('Repo size:      2k')
-      @cli.should_receive(:display).with('Data size:      5M')
+      @cli.should_receive(:display).with('Repo Size:      2k')
+      @cli.should_receive(:display).with('Data Size:      5M')
       @cli.info
     end
 

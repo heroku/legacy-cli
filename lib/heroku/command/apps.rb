@@ -49,19 +49,19 @@ class Heroku::Command::Apps < Heroku::Command::Base
     else
       display "=== #{attrs[:name]}"
       display "Web URL:        #{attrs[:web_url]}"
-      display "Domain name:    http://#{attrs[:domain_name]}/" if attrs[:domain_name]
+      display "Domain Name:    #{attrs[:domain_name]}" if attrs[:domain_name]
       display "Git Repo:       #{attrs[:git_url]}"
       display "Dynos:          #{attrs[:dynos]}" unless attrs[:stack] == "cedar"
       display "Workers:        #{attrs[:workers]}" unless attrs[:stack] == "cedar"
-      display "Repo size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
-      display "Slug size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
+      display "Repo Size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
+      display "Slug Size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
       display "Stack:          #{attrs[:stack]}" if attrs[:stack]
 
       if attrs[:dyno_hours].is_a?(Hash)
         formatted_hours = attrs[:dyno_hours].keys.map do |type|
           "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, attrs[:dyno_hours][type] ]
         end
-        display "Dyno usage:     %s" % formatted_hours.join("\n                ")
+        display "Dyno Usage:     %s" % formatted_hours.join("\n                ")
       end
 
       if attrs[:database_size]
@@ -69,14 +69,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
         if tables = attrs[:database_tables]
           data = data.gsub('(empty)', '0K') + " in #{quantify("table", tables)}"
         end
-        display "Data size:      #{data}"
+        display "Data Size:      #{data}"
       end
 
       if attrs[:cron_next_run]
-        display "Next cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
+        display "Next Cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
       end
       if attrs[:cron_finished_at]
-        display "Last cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
+        display "Last Cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
       end
 
       unless attrs[:addons].empty?
