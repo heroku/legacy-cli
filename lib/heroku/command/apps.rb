@@ -47,55 +47,45 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      display "=== #{attrs[:name]}"
-      display "Web URL:        #{attrs[:web_url]}"
-      display "Domain Name:    #{attrs[:domain_name]}" if attrs[:domain_name]
-      display "Git Repo:       #{attrs[:git_url]}"
-      display "Dynos:          #{attrs[:dynos]}" unless attrs[:stack] == "cedar"
-      display "Workers:        #{attrs[:workers]}" unless attrs[:stack] == "cedar"
-      display "Repo Size:      #{format_bytes(attrs[:repo_size])}" if attrs[:repo_size]
-      display "Slug Size:      #{format_bytes(attrs[:slug_size])}" if attrs[:slug_size]
-      display "Stack:          #{attrs[:stack]}" if attrs[:stack]
+      data = {
+        'Addons:'           => !attrs[:addons].empty? && attrs[:addons].map {|addon| addon['description']}.join(', '),
+        'Create Status:'    => (attrs[:create_status] != 'complete') && attrs[:create_status],
+        'Cron Finished At:' => attrs[:cron_finished_at] && format_date(attrs[:cron_finished_at]),
+        'Cron Next Run:'    => attrs[:cron_next_run] && format_date(attrs[:cron_next_run]),
+        'Database Size:'    => attrs[:database_size] && format_bytes(attrs[:database_size]),
+        'Domain Name:'      => attrs[:domain_name],
+        'Dynos:'            => (attrs[:stack] != 'cedar') && attrs[:dynos],
+        'Git URL:'          => attrs[:git_url],
+        'Owner:'            => attrs[:owner],
+        'Repo Size:'        => attrs[:repo_size] && format_bytes(attrs[:repo_size]),
+        'Slug Size:'        => attrs[:slug_size] && format_bytes(attrs[:slug_size]),
+        'Stack:'            => attrs[:stack],
+        'Web URL:'          => attrs[:web_url],
+        'Workers:'          => (attrs[:stack] != 'cedar') && attrs[:workers],
+      }
+      data.reject! {|key,value| !value}
+      length = data.keys.map {|key| key.to_s.length}.max
 
-      if attrs[:dyno_hours].is_a?(Hash)
-        formatted_hours = attrs[:dyno_hours].keys.map do |type|
-          "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, attrs[:dyno_hours][type] ]
-        end
-        display "Dyno Usage:     %s" % formatted_hours.join("\n                ")
-      end
-
-      if attrs[:database_size]
-        data = format_bytes(attrs[:database_size])
-        if tables = attrs[:database_tables]
-          data = data.gsub('(empty)', '0K') + " in #{quantify("table", tables)}"
-        end
-        display "Data Size:      #{data}"
-      end
-
-      if attrs[:cron_next_run]
-        display "Next Cron:      #{format_date(attrs[:cron_next_run])} (scheduled)"
-      end
-      if attrs[:cron_finished_at]
-        display "Last Cron:      #{format_date(attrs[:cron_finished_at])} (finished)"
-      end
-
-      unless attrs[:addons].empty?
-        display "Addons:         " + attrs[:addons].map { |a| a['description'] }.join(', ')
-      end
-
-      display "Owner:          #{attrs[:owner]}"
       collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
       unless collaborators.empty?
-        first = true
-        lead = "Collaborators:"
-        attrs[:collaborators].each do |collaborator|
-          display "#{first ? lead : ' ' * lead.length}  #{collaborator[:email]}"
-          first = false
-        end
+        attrs[:collaborators].reject! {|collaborator| collaborator[:email] == attrs[:owner]}
+        data['Collaborators:'] = attrs[:collaborators].join("\n".ljust(length + 1))
       end
 
-      if attrs[:create_status] != "complete"
-        display "Create Status:  #{attrs[:create_status]}"
+      if attrs[:database_tables]
+        data['Database Size:'].gsub!('(empty)', '0K') + " in #{quantify("table", attrs[:database_tables])}"
+      end
+
+      if attrs[:dyno_hours].is_a?(Hash)
+        data['Dyno Hours:'] = attrs[:dyno_hours].keys.map do |type|
+          "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, attrs[:dyno_hours][type] ]
+        end.join("\n".ljust(length + 1))
+      end
+
+      hputs("=== #{attrs[:name]}")
+
+      data.keys.sort_by {|key| key.to_s}.each do |key|
+        hputs("#{key.ljust(length)} #{data[key]}")
       end
     end
   end

@@ -6,26 +6,37 @@ module Heroku::Command
     before(:each) do
       @cli = prepare_command(Apps)
       @cli.stub(:options).and_return(:app => "myapp")
+      @data = {
+        :addons         => [],
+        :collaborators  => [],
+        :database_size  => 5*1024*1024,
+        :git_url        => 'git@heroku.com/myapp.git',
+        :name           => 'myapp',
+        :repo_size      => 2*1024,
+        :web_url        => 'http://myapp.heroku.com/'
+      }
     end
 
     it "shows app info, converting bytes to kbs/mbs" do
-      @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024, :web_url => 'http://myapp.heroku.com/' })
-      @cli.should_receive(:display).with('=== myapp')
-      @cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
-      @cli.should_receive(:display).with('Repo Size:      2k')
-      @cli.should_receive(:display).with('Data Size:      5M')
+      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
+      @cli.should_receive(:hputs).with('=== myapp')
+      @cli.should_receive(:hputs).with('Database Size: 5M')
+      @cli.should_receive(:hputs).with('Git URL:       git@heroku.com/myapp.git')
+      @cli.should_receive(:hputs).with('Repo Size:     2k')
+      @cli.should_receive(:hputs).with('Web URL:       http://myapp.heroku.com/')
       @cli.info
     end
 
     it "shows app info using the --app syntax" do
-      @cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
+      @cli.stub!(:options).and_return(:app => "myapp")
+      @cli.heroku.should_receive(:info).and_return(@data)
       @cli.info
     end
 
     it "shows app info reading app from current git dir" do
       @cli.stub!(:options).and_return({})
       @cli.stub!(:extract_app_in_dir).and_return('myapp')
-      @cli.heroku.should_receive(:info).with('myapp').and_return({ :collaborators => [], :addons => []})
+      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
       @cli.info
     end
 
