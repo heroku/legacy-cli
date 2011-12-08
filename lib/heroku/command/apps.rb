@@ -35,9 +35,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
     name = extract_app
     attrs = heroku.info(name)
 
-    attrs[:web_url] ||= "http://#{attrs[:name]}.#{heroku.host}/"
-    attrs[:git_url] ||= "git@#{heroku.host}:#{attrs[:name]}.git"
-
     if options[:raw] then
       attrs.keys.sort_by { |a| a.to_s }.each do |key|
         case key

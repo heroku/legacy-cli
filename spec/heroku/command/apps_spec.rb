@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     it "shows app info, converting bytes to kbs/mbs" do
-      @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024 })
+      @cli.heroku.should_receive(:info).with('myapp').and_return({ :name => 'myapp', :collaborators => [], :addons => [], :repo_size => 2*1024, :database_size => 5*1024*1024, :web_url => 'http://myapp.heroku.com/' })
       @cli.should_receive(:display).with('=== myapp')
       @cli.should_receive(:display).with('Web URL:        http://myapp.heroku.com/')
       @cli.should_receive(:display).with('Repo size:      2k')
