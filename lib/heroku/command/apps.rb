@@ -11,15 +11,15 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def index
     list = heroku.list
     if list.size > 0
-      display list.map {|name, owner|
+      hputs(list.map {|name, owner|
         if heroku.user == owner
           name
         else
           "#{name.ljust(25)} #{owner}"
         end
-      }.join("\n")
+      }.join("\n"))
     else
-      display "You have no apps."
+      hputs("You have no apps.")
     end
   end
 
@@ -42,11 +42,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
       attrs.keys.sort_by { |a| a.to_s }.each do |key|
         case key
         when :addons then
-          display "addons=#{attrs[:addons].map { |a| a["name"] }.sort.join(",")}"
+          hputs("addons=#{attrs[:addons].map { |a| a["name"] }.sort.join(",")}")
         when :collaborators then
-          display "collaborators=#{attrs[:collaborators].map { |c| c[:email] }.sort.join(",")}"
+          hputs("collaborators=#{attrs[:collaborators].map { |c| c[:email] }.sort.join(",")}")
         else
-          display "#{key}=#{attrs[key]}"
+          hputs("#{key}=#{attrs[key]}")
         end
       end
     else
@@ -120,32 +120,32 @@ class Heroku::Command::Apps < Heroku::Command::Base
     timeout = extract_option('--timeout', 30).to_i
     name    = args.shift.downcase.strip rescue nil
     name    = heroku.create_request(name, {:stack => stack})
-    display("Creating #{name}...", false)
+    hputs("Creating #{name}...", false)
     info    = heroku.info(name)
     begin
       Timeout::timeout(timeout) do
         loop do
           break if heroku.create_complete?(name)
-          display(".", false)
+          hprint(".")
           sleep 1
         end
       end
-      display " done, stack is #{info[:stack]}"
+      hputs(" done, stack is #{info[:stack]}")
 
       (options[:addons] || "").split(",").each do |addon|
         addon.strip!
-        display "Adding #{addon} to #{name}... ", false
+        hprint("Adding #{addon} to #{name}... ")
         heroku.install_addon(name, addon)
-        display "done"
+        hputs("done")
       end
 
       if buildpack = options[:buildpack]
         heroku.add_config_vars(name, "BUILDPACK_URL" => buildpack)
       end
 
-      display [ info[:web_url], info[:git_url] ].join(" | ")
+      hputs([ info[:web_url], info[:git_url] ].join(" | "))
     rescue Timeout::Error
-      display "Timed Out! Check heroku info for status updates."
+      hputs("Timed Out! Check heroku info for status updates.")
     end
 
     create_git_remote(name, remote || "heroku")
@@ -165,7 +165,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     heroku.update(name, :name => newname)
 
     info = heroku.info(newname)
-    display [ info[:web_url], info[:git_url] ].join(" | ")
+    hputs([ info[:web_url], info[:git_url] ].join(" | "))
 
     if remotes = git_remotes(Dir.pwd)
       remotes.each do |remote_name, remote_app|
@@ -173,11 +173,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
         if has_git?
           git "remote rm #{remote_name}"
           git "remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
-          display "Git remote #{remote_name} updated"
+          hputs("Git remote #{remote_name} updated")
         end
       end
     else
-      display "Don't forget to update your Git remotes on any local checkouts."
+      hputs("Don't forget to update your Git remotes on any local checkouts.")
     end
   end
 
@@ -190,7 +190,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def open
     app = heroku.info(extract_app)
     url = app[:web_url]
-    display "Opening #{url}"
+    hputs("Opening #{url}")
     Launchy.open url
   end
 
@@ -205,7 +205,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     heroku.info(app) # fail fast if no access or doesn't exist
 
     if confirm_command(app)
-      redisplay "Destroying #{app} (including all add-ons)... "
+      hprint "Destroying #{app} (including all add-ons)... "
       heroku.destroy(app)
       if remotes = git_remotes(Dir.pwd)
         remotes.each do |remote_name, remote_app|
@@ -213,7 +213,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
           git "remote rm #{remote_name}"
         end
       end
-      display "done"
+      hputs("done")
     end
   end
 

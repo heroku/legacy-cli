@@ -332,12 +332,21 @@ module Heroku
           object.keys.sort_by {|key| key.to_s}.each do |key|
             display_header(key)
             display_object(object[key])
-            display
+            hputs
           end
         end
       else
-        display(object.to_s)
+        hputs(object.to_s)
       end
+    end
+
+    def hputs(string='')
+      Kernel.puts(string)
+    end
+
+    def hprint(string='')
+      Kernel.print(string)
+      STDOUT.flush
     end
   end
 end

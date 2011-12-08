@@ -32,7 +32,7 @@ module Heroku::Command
     it "shows raw app info when --raw option is used" do
       @cli.stub(:options).and_return(:app => "myapp", :raw => true)
       @cli.heroku.should_receive(:info).with("myapp").and_return({ :foo => "bar" })
-      @cli.should_receive(:display).with("foo=bar")
+      @cli.should_receive(:hputs).with("foo=bar")
       @cli.info
     end
 
