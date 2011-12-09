@@ -53,7 +53,7 @@ module Heroku
       ask.downcase == 'y'
     end
 
-    def confirm_command(app = app)
+    def confirm_command(message=nil)
       raise(Heroku::Command::CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app
 
       confirmed_app = extract_option('--confirm', false)
@@ -64,9 +64,9 @@ module Heroku
         return true
       else
         display
-        output_with_bang "WARNING: Potentially Destructive Action"
-        output_with_bang "This command will affect the app: #{app}"
-        output_with_bang "To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
+        message ||= "WARNING: Potentially Destructive Action\n This command will affect the app: #{app}"
+        output_with_bang(message)
+        output_with_bang("To proceed, type \"#{app}\" or re-run this command with --confirm #{app}")
         display
         display "> ", false
         if ask.downcase != app

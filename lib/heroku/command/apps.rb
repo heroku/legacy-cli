@@ -188,7 +188,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def destroy
     heroku.info(app) # fail fast if no access or doesn't exist
 
-    if confirm_command(app)
+    if confirm_command
       hprint "Destroying #{app} (including all add-ons)... "
       heroku.destroy(app)
       if remotes = git_remotes(Dir.pwd)

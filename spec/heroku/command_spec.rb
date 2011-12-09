@@ -56,7 +56,7 @@ describe Heroku::Command do
 
       context "and the user didn't include a confirm flag" do
         it "should ask the user for confirmation" do
-          stub(Heroku::Command).confirmation_required.returns(true)
+          stub(Heroku::Command).confirm_command.returns(true)
           stub_request(:post, %r{apps/myapp/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
             to_return({:status => 200})
@@ -65,7 +65,7 @@ describe Heroku::Command do
         end
 
         it "should not continue if the user doesn't confirm" do
-          stub(Heroku::Command).confirmation_required.returns(false)
+          stub(Heroku::Command).confirm_command.returns(false)
           stub_request(:post, %r{apps/myapp/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
             to_raise(StandardError)

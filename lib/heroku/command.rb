@@ -121,8 +121,7 @@ module Heroku
       }
     rescue RestClient::Locked => e
       app = e.response.headers[:x_confirmation_required]
-      message = extract_error(e.response.body)
-      if confirmation_required(app, message)
+      if confirm_command(extract_error(e.response.body))
         arguments << '--confirm' << app
         retry
       end
@@ -165,21 +164,6 @@ module Heroku
     def self.parse_error_plain(body)
       return unless body.respond_to?(:headers) && body.headers[:content_type].to_s.include?("text/plain")
       body.to_s
-    end
-
-    def self.confirmation_required(app, message)
-      display
-      display
-      display message
-      output_with_bang "To proceed, type \"#{app}\" or re-run this command with --confirm #{app}"
-      display
-      display "> ", false
-      if ask.downcase != app
-        output_with_bang "Input did not match #{app}. Aborted."
-        false
-      else
-        true
-      end
     end
   end
 end
