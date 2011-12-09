@@ -91,12 +91,12 @@ describe Heroku::Command do
     end
 
     it "shows Internal Server Error when the response doesn't contain a XML or JSON" do
-      Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == " !    Internal server error.\n !    See 'heroku status' for known issues."
+      Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == " !    Internal server error.\n !    Run 'heroku status' to check for known platform issues."
     end
 
     it "shows Internal Server Error when the response is not plain text" do
       response = mock(:to_s => "Foobar", :headers => { :content_type => "application/xml" })
-      Heroku::Command.extract_error(response).should == " !    Internal server error.\n !    See 'heroku status' for known issues."
+      Heroku::Command.extract_error(response).should == " !    Internal server error.\n !    Run 'heroku status' to check for known platform issues."
     end
 
     it "allows a block to redefine the default error" do
