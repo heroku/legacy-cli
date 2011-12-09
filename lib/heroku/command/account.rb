@@ -4,7 +4,7 @@ module Heroku::Command
 
   # manage heroku account options
   #
-  class Account < BaseWithApp
+  class Account < Base
 
     # account:confirm_billing
     #

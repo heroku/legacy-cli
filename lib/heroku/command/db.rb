@@ -9,7 +9,7 @@ module Heroku::Command
 
   # manage the database for an app
   #
-  class Db < BaseWithApp
+  class Db < Base
 
     # db:push [DATABASE_URL]
     #

@@ -3,7 +3,7 @@ require "heroku/command/base"
 module Heroku::Command
 
   # toggle maintenance mode
-  class Maintenance < BaseWithApp
+  class Maintenance < Base
 
     # maintenance:on
     #

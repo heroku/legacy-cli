@@ -4,7 +4,7 @@ module Heroku::Command
 
   # manage custom domains
   #
-  class Domains < BaseWithApp
+  class Domains < Base
 
     # domains
     #

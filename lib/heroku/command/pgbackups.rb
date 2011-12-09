@@ -6,7 +6,7 @@ require "pgbackups/client"
 module Heroku::Command
 
   # manage backups of heroku postgresql databases
-  class Pgbackups < BaseWithApp
+  class Pgbackups < Base
     include PGResolver
     include PgUtils
 

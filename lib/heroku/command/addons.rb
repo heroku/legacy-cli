@@ -6,7 +6,7 @@ module Heroku::Command
 
   # manage addon resources
   #
-  class Addons < BaseWithApp
+  class Addons < Base
     include PgUtils
 
     # addons

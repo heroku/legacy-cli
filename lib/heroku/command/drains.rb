@@ -4,7 +4,7 @@ module Heroku::Command
 
   # display syslog drains for an app
   #
-  class Drains < BaseWithApp
+  class Drains < Base
 
     # drains
     #

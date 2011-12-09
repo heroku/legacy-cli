@@ -3,7 +3,7 @@ require "heroku/command/base"
 module Heroku::Command
 
   # manage the stack for an app
-  class Stack < BaseWithApp
+  class Stack < Base
 
     # stack
     #

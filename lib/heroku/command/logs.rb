@@ -4,7 +4,7 @@ module Heroku::Command
 
   # display logs for an app
   #
-  class Logs < BaseWithApp
+  class Logs < Base
 
     # logs
     #

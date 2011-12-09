@@ -4,7 +4,7 @@ module Heroku::Command
 
   # manage ssl certificates for an app
   #
-  class Ssl < BaseWithApp
+  class Ssl < Base
 
     # ssl
     #

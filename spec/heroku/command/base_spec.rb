@@ -34,14 +34,8 @@ module Heroku::Command
         @base.confirm_command.should be_false
       end
     end
-  end
-  
-  describe BaseWithApp do
-    context "detecting the app" do
-      before do
-        @base = BaseWithApp.new
-      end
 
+    context "detecting the app" do
       it "attempts to find the app via the --app option" do
         @base.stub!(:options).and_return(:app => "myapp")
         @base.app.should == "myapp"

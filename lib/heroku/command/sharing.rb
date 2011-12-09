@@ -4,7 +4,7 @@ module Heroku::Command
 
   # manage collaborators on an app
   #
-  class Sharing < BaseWithApp
+  class Sharing < Base
 
     # sharing
     #

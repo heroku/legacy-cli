@@ -3,7 +3,7 @@ require "heroku/command/base"
 module Heroku::Command
 
   # update the heroku client
-  class Update < BaseWithApp
+  class Update < Base
 
     # update
     #

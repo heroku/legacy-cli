@@ -5,7 +5,7 @@ require "heroku-postgresql/client"
 
 module Heroku::Command
   # manage heroku postgresql databases
-  class Pg < BaseWithApp
+  class Pg < Base
     include PgUtils
     include PGResolver
 

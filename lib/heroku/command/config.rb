@@ -4,7 +4,7 @@ module Heroku::Command
 
   # manage app config vars
   #
-  class Config < BaseWithApp
+  class Config < Base
 
     # config
     #

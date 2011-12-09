@@ -18,6 +18,10 @@ class Heroku::Command::Base
     @options = options
   end
 
+  def app
+    @app ||= extract_app
+  end
+
   def heroku
     Heroku::Auth.client
   end
@@ -25,7 +29,7 @@ class Heroku::Command::Base
 protected
 
   def self.inherited(klass)
-    return if klass == Heroku::Command::BaseWithApp
+    return if klass == Heroku::Command::Base
 
     help = extract_help_from_caller(caller.first)
 
@@ -37,7 +41,6 @@ protected
 
   def self.method_added(method)
     return if self == Heroku::Command::Base
-    return if self == Heroku::Command::BaseWithApp
     return if private_method_defined?(method)
     return if protected_method_defined?(method)
 
@@ -202,15 +205,5 @@ protected
 
   def escape(value)
     heroku.escape(value)
-  end
-end
-
-class Heroku::Command::BaseWithApp < Heroku::Command::Base
-  def initialize(args=[], options={})
-    super
-  end
-
-  def app
-    extract_app
   end
 end
