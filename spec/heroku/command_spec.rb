@@ -78,29 +78,29 @@ describe Heroku::Command do
 
   describe "parsing errors" do
     it "extracts error messages from response when available in XML" do
-      Heroku::Command.extract_error('<errors><error>Invalid app name</error></errors>').should == ' !   Invalid app name'
+      Heroku::Command.extract_error('<errors><error>Invalid app name</error></errors>').should == ' !    Invalid app name'
     end
 
     it "extracts error messages from response when available in JSON" do
-      Heroku::Command.extract_error("{\"error\":\"Invalid app name\"}").should == ' !   Invalid app name'
+      Heroku::Command.extract_error("{\"error\":\"Invalid app name\"}").should == ' !    Invalid app name'
     end
 
     it "extracts error messages from response when available in JSON" do
       response = mock(:to_s => "Invalid app name", :headers => { :content_type => "text/plain; charset=UTF8" })
-      Heroku::Command.extract_error(response).should == ' !   Invalid app name'
+      Heroku::Command.extract_error(response).should == ' !    Invalid app name'
     end
 
     it "shows Internal Server Error when the response doesn't contain a XML or JSON" do
-      Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == ' !   Internal server error'
+      Heroku::Command.extract_error('<h1>HTTP 500</h1>').should == " !    Internal server error.\n !    See 'heroku status' for known issues."
     end
 
     it "shows Internal Server Error when the response is not plain text" do
       response = mock(:to_s => "Foobar", :headers => { :content_type => "application/xml" })
-      Heroku::Command.extract_error(response).should == ' !   Internal server error'
+      Heroku::Command.extract_error(response).should == " !    Internal server error.\n !    See 'heroku status' for known issues."
     end
 
     it "allows a block to redefine the default error" do
-      Heroku::Command.extract_error("Foobar") { "Ok!" }.should == ' !   Ok!'
+      Heroku::Command.extract_error("Foobar") { "Ok!" }.should == ' !    Ok!'
     end
 
     it "doesn't format the response if set to raw" do

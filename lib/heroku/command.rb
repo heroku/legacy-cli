@@ -142,11 +142,11 @@ module Heroku
     end
 
     def self.extract_error(body, options={})
-      default_error = block_given? ? yield : "Internal server error"
+      default_error = block_given? ? yield : "Internal server error.\nSee 'heroku status' for known issues."
       msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
 
       return msg if options[:raw]
-      msg.split("\n").map { |line| ' !   ' + line }.join("\n")
+      format_with_bang(msg)
     end
 
     def self.parse_error_xml(body)
