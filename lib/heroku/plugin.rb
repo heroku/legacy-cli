@@ -11,6 +11,7 @@ module Heroku
       heroku-postgresql
       heroku-pgdumps
       heroku-logging
+      heroku-status
       pgbackups-automate
       pgcmd
     )
