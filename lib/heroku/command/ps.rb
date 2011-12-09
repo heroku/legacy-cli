@@ -15,8 +15,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
       current = heroku.set_dynos(app, dynos)
       display "#{app} now running #{quantify("dyno", current)}"
     else
-      dynos = heroku.dynos(app)
-      display "#{app} is running #{quantify("dyno", dynos)}"
+      info = heroku.info(app)
+      raise(Heroku::Command::CommandFailed, "for Cedar apps use heroku ps")  if info[:stack] == "cedar"
+      display "#{app} is running #{quantify("dyno", info[:dynos])}"
     end
   end
 
@@ -33,8 +34,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
       current = heroku.set_workers(app, workers)
       display "#{app} now running #{quantify("worker", current)}"
     else
-      workers = heroku.workers(app)
-      display "#{app} is running #{quantify("worker", workers)}"
+      info = heroku.info(app)
+      raise(Heroku::Command::CommandFailed, "for Cedar apps use heroku ps")  if info[:stack] == "cedar"
+      display "#{app} is running #{quantify("worker", info[:workers])}"
     end
   end
 
