@@ -106,7 +106,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     timeout = extract_option('--timeout', 30).to_i
     name    = args.shift.downcase.strip rescue nil
     name    = heroku.create_request(name, {:stack => stack})
-    hputs("Creating #{name}...", false)
+    hputs("Creating #{name}...")
     info    = heroku.info(name)
     begin
       Timeout::timeout(timeout) do
