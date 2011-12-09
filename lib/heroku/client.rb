@@ -561,6 +561,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     rescue RestClient::SSLCertificateNotVerified => ex
       host = URI.parse(realize_full_uri(uri)).host
       #error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
+      ENV["HEROKU_SSL_VERIFY"] = "disable"
+      retry
     end
 
     extract_warning(response)
