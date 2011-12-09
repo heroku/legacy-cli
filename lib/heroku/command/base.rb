@@ -19,8 +19,20 @@ class Heroku::Command::Base
   end
 
   def app
-    @app ||= extract_app
+    @app ||= if options[:app].is_a?(String)
+      if confirm_mismatch?
+        raise Heroku::Command::CommandFailed, "Mismatch between --app and --confirm"
+      end
+      options[:app]
+    elsif options[:confirm].is_a?(String)
+      options[:confirm]
+    elsif app_from_dir = extract_app_in_dir(Dir.pwd)
+      app_from_dir
+    else
+      raise Heroku::Command::CommandFailed, "No app specified.\nRun this command from an app folder or specify which app to use with --app <app name>"
+    end
   end
+
 
   def heroku
     Heroku::Auth.client
@@ -152,21 +164,6 @@ protected
 
   def confirm_mismatch?
     options[:confirm] && (options[:confirm] != options[:app])
-  end
-
-  def extract_app
-    if options[:app].is_a?(String)
-      if confirm_mismatch?
-        raise Heroku::Command::CommandFailed, "Mismatch between --app and --confirm"
-      end
-      options[:app]
-    elsif options[:confirm].is_a?(String)
-      options[:confirm]
-    elsif app_from_dir = extract_app_in_dir(Dir.pwd)
-      app_from_dir
-    else
-      raise Heroku::Command::CommandFailed, "No app specified.\nRun this command from an app folder or specify which app to use with --app <app name>"
-    end
   end
 
   def extract_app_in_dir(dir)

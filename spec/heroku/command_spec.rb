@@ -33,7 +33,7 @@ describe Heroku::Command do
     context "and the app is known" do
       before do
         any_instance_of(Heroku::Command::Base) do |base|
-          stub(base).extract_app.returns("myapp")
+          stub(base).app.returns("myapp")
         end
       end
 

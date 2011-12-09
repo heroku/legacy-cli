@@ -11,7 +11,7 @@ module Heroku::Command
     # list releases
     #
     def index
-      releases = heroku.releases(extract_app)
+      releases = heroku.releases(app)
 
       output = []
       output << "Rel   Change                          By                    When"
@@ -36,7 +36,7 @@ module Heroku::Command
       release = args.shift.downcase.strip rescue nil
       raise(CommandFailed, "Specify a release") unless release
 
-      release = heroku.release(extract_app, release)
+      release = heroku.release(app, release)
 
       display "=== Release #{release['name']}"
       display_info("Change",  release["descr"])
@@ -53,7 +53,6 @@ module Heroku::Command
     # if RELEASE is not specified, will roll back one step
     #
     def rollback
-      app = extract_app
       release = args.shift.downcase.strip rescue nil
       rolled_back = heroku.rollback(app, release)
       display "Rolled back to #{rolled_back}"

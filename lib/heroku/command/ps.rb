@@ -11,7 +11,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if QTY is not specified, display the number of web processes currently running
   #
   def dynos
-    app = extract_app
     if dynos = args.shift
       current = heroku.set_dynos(app, dynos)
       display "#{app} now running #{quantify("dyno", current)}"
@@ -30,7 +29,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if QTY is not specified, display the number of background processes currently running
   #
   def workers
-    app = extract_app
     if workers = args.shift
       current = heroku.set_workers(app, workers)
       display "#{app} now running #{quantify("worker", current)}"
@@ -47,7 +45,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # list processes for an app
   #
   def index
-    app = extract_app
     ps = heroku.ps(app)
 
     objects = ps.sort_by do |p|
@@ -72,8 +69,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if PROCESS is not specified, restarts all processes on the app
   #
   def restart
-    app = extract_app
-
     opts = case args.first
     when NilClass then
       display "Restarting processes... ", false
@@ -100,7 +95,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Example: heroku scale web=3 worker+1
   #
   def scale
-    app = extract_app
     current_process = nil
     changes = args.inject({}) do |hash, process_amount|
       if process_amount =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
@@ -128,7 +122,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Example: heroku stop run.3
   #
   def stop
-    app = extract_app
     opt =
       if (args.first =~ /.+\..+/)
         ps = args.first

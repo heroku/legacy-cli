@@ -32,8 +32,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --raw  # output info as raw key/value pairs
   #
   def info
-    name = extract_app
-    attrs = heroku.info(name)
+    attrs = heroku.info(app)
 
     if options[:raw] then
       attrs.keys.sort_by { |a| a.to_s }.each do |key|
@@ -145,18 +144,17 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # rename the app
   #
   def rename
-    name    = extract_app
     newname = args.shift.downcase.strip rescue ''
     raise(Heroku::Command::CommandFailed, "Must specify a new name.") if newname == ''
 
-    heroku.update(name, :name => newname)
+    heroku.update(app, :name => newname)
 
     info = heroku.info(newname)
     hputs([ info[:web_url], info[:git_url] ].join(" | "))
 
     if remotes = git_remotes(Dir.pwd)
       remotes.each do |remote_name, remote_app|
-        next if remote_app != name
+        next if remote_app != app
         if has_git?
           git "remote rm #{remote_name}"
           git "remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
@@ -175,8 +173,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # open the app in a web browser
   #
   def open
-    app = heroku.info(extract_app)
-    url = app[:web_url]
+    info = heroku.info(app)
+    url = info[:web_url]
     hputs("Opening #{url}")
     Launchy.open url
   end
@@ -188,7 +186,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # permanently destroy an app
   #
   def destroy
-    app = extract_app
     heroku.info(app) # fail fast if no access or doesn't exist
 
     if confirm_command(app)

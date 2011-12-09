@@ -10,7 +10,6 @@ class Heroku::Command::Run < Heroku::Command::Base
   # run an attached process
   #
   def index
-    app = extract_app
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
@@ -49,7 +48,6 @@ class Heroku::Command::Run < Heroku::Command::Base
   # remotely execute a rake command
   #
   def rake
-    app = extract_app
     cmd = args.join(' ')
     if cmd.length == 0
       raise Heroku::Command::CommandFailed, "Usage: heroku run:rake COMMAND"
@@ -69,7 +67,6 @@ class Heroku::Command::Run < Heroku::Command::Base
   # if COMMAND is specified, run the command and exit
   #
   def console
-    app = extract_app
     cmd = args.join(' ').strip
     if cmd.empty?
       console_session(app)

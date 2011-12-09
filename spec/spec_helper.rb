@@ -53,7 +53,7 @@ def execute(command_line)
   end
 
   any_instance_of(Heroku::Command::Base) do |base|
-    stub(base).extract_app.returns("myapp")
+    stub(base).app.returns("myapp")
   end
 
   object.send(method)
