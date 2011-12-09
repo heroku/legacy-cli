@@ -1,3 +1,24 @@
+2.16.0 12/09/2011 5f6ad0c259cec3acac5eeb9a15014bf50e7f9717
+==========================================================
+
+Found this while debugging new Yobuko plugin.
+retry without ssl verification if there's a failure
+2.15.3
+[apps] replace display with t/f with hputs/hprint
+[apps] assume that info always has web/git urls
+[apps] capitilization consistincy fixes for info
+[apps] more consistent helper usage
+[base] consolidate Base and BaseWithApp
+[base] remove explicit extract_app
+[command] simplify/consolidate confirmation
+[command|base] Re-add BaseWithApp alias for backwards compatibility
+Revert "retry without ssl verification if there's a failure"
+[client] re-add ssl error to prevent silent fail
+integrate heroku-status plugin
+[command] update extract_error
+[command] nicer messaging around 500 error status suggestion
+
+
 2.15.3 12/07/2011 72cb70f16d44657f072ba440d31e064ead43dff9
 ==========================================================
 
