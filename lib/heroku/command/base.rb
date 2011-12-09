@@ -204,3 +204,7 @@ protected
     heroku.escape(value)
   end
 end
+
+module Heroku::Command
+  BaseWithApp = Base
+end
