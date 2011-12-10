@@ -206,5 +206,7 @@ protected
 end
 
 module Heroku::Command
-  BaseWithApp = Base
+  unless const_defined?(:BaseWithApp)
+    BaseWithApp = Base
+  end
 end
