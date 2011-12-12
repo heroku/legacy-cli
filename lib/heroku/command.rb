@@ -143,10 +143,7 @@ module Heroku
 
     def self.extract_error(body, options={})
       default_error = block_given? ? yield : "Internal server error.\nRun 'heroku status' to check for known platform issues."
-      msg = parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
-
-      return msg if options[:raw]
-      format_with_bang(msg)
+      parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
     end
 
     def self.parse_error_xml(body)
