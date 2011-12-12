@@ -16,7 +16,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
       display "#{app} now running #{quantify("dyno", current)}"
     else
       info = heroku.info(app)
-      raise(Heroku::Command::CommandFailed, "for Cedar apps use heroku ps")  if info[:stack] == "cedar"
+      raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")  if info[:stack] == "cedar"
       display "#{app} is running #{quantify("dyno", info[:dynos])}"
     end
   end
@@ -35,7 +35,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
       display "#{app} now running #{quantify("worker", current)}"
     else
       info = heroku.info(app)
-      raise(Heroku::Command::CommandFailed, "for Cedar apps use heroku ps")  if info[:stack] == "cedar"
+      raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")  if info[:stack] == "cedar"
       display "#{app} is running #{quantify("worker", info[:workers])}"
     end
   end
