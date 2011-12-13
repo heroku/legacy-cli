@@ -10,8 +10,10 @@ module Heroku
       heroku-releases
       heroku-postgresql
       heroku-pgdumps
+      heroku-kill
       heroku-logging
       heroku-status
+      heroku-stop
       pgbackups-automate
       pgcmd
     )
