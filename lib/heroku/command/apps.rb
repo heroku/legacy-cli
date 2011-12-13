@@ -172,9 +172,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # open the app in a web browser
   #
-  def open
+  def open(url_to_be_opened=nil)
     info = heroku.info(app)
-    url = info[:web_url]
+    unless url_to_be_opened.nil?
+      url = url_to_be_opened
+    else
+      url = info[:web_url]
+    end
     hputs("Opening #{url}")
     Launchy.open url
   end
