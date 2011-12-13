@@ -132,6 +132,14 @@ Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
   import rake
 end
 
+task :local_build => ['gem:build', 'pkg:build', 'tgz:build', 'zip:build'] do
+  puts 'Built [gem, pkg, tgz, zip]'
+end
+
+task :release => ['deb:release', 'exe:release', 'gem:release', 'pkg:release', 'tgz:release', 'zip:release'] do
+  puts 'Released [deb, exe, gem, pkg, tgz, zip]'
+end
+
 task :changelog do
   timestamp = Time.now.utc.strftime('%m/%d/%Y')
   sha = `git log | head -1`.split(' ').last
