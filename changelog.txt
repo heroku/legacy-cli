@@ -1,9 +1,28 @@
+2.16.2 12/13/2011 14ffe86d48c6b7b2871ecaeb04cc7647dfc72338
+==========================================================
+
+Revert "[bin] make load paths local"
+cleaner loadpath setup
+dont go to the next line during creation
+Merge pull request #193 from heroku/disable-dynos-and-workers-on-cedar
+error out when running ps:dynos/workers on cedar apps
+cosmetics, format cedar error messages like the others
+[bin] make load paths local
+[base] avoid redefining BaseWithApp
+fix double bangs on some errors
+fix specs for extract_error
+[plugins] deprecate heroku-kill and heroku-stop
+
+2.16.1 12/10/2011 3bdfb86750af86fbf8e81e56e669857ecb16ef13
+==========================================================
+
+fix bad hputs call
+
 2.16.0 12/09/2011 5f6ad0c259cec3acac5eeb9a15014bf50e7f9717
 ==========================================================
 
 Found this while debugging new Yobuko plugin.
 retry without ssl verification if there's a failure
-2.15.3
 [apps] replace display with t/f with hputs/hprint
 [apps] assume that info always has web/git urls
 [apps] capitilization consistincy fixes for info
@@ -23,7 +42,6 @@ integrate heroku-status plugin
 ==========================================================
 
 use http for travis webhook for now
-2.15.1
 skip subfolders for dist/deb.rake
 [helpers] fix format for error
 [help] display all namespaces in alpha order
