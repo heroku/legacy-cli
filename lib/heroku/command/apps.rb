@@ -186,6 +186,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # permanently destroy an app
   #
   def destroy
+    @app = options[:app] || args.first
+    raise Heroku::Command::CommandFailed, "No app specified.\nSpecify which app to use with --app <app name>" unless @app
+
     heroku.info(app) # fail fast if no access or doesn't exist
 
     if confirm_command
