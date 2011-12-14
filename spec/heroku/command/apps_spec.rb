@@ -126,10 +126,9 @@ module Heroku::Command
     end
 
     it "doesn't destroy the app in the current dir" do
-      @cli.stub!(:app).and_return('myapp')
-      @cli.heroku.stub!(:info).and_return({})
-      @cli.heroku.should_not_receive(:destroy)
-      @cli.destroy
+      @cli.stub!(:options).and_return({})
+      @cli.stub!(:extract_app_in_dir).and_return("myapp")
+      lambda { @cli.destroy }.should raise_error(Heroku::Command::CommandFailed)
     end
 
     context "Git Integration" do
