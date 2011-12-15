@@ -47,10 +47,10 @@ module Heroku::Command
       end
 
       it "partitions addons by state" do
-        @addons.should_receive(:display).with("\n--- Alpha ---")
-        @addons.should_receive(:display).with("\n--- Beta ---")
-        @addons.should_receive(:display).with("\n--- Disabled ---")
-        @addons.should_receive(:display).with("\n--- Available ---")
+        @addons.should_receive(:display).with("=== alpha", true)
+        @addons.should_receive(:display).with("=== beta", true)
+        @addons.should_receive(:display).with("=== disabled", true)
+        @addons.should_receive(:display).with("=== available", true)
         @addons.list
       end
     end

@@ -49,13 +49,7 @@ module Heroku::Command
         display "No addons available currently"
       else
         partitioned_addons = partition_addons(addons)
-        [:disabled, :alpha, :beta, :public].each do |state|
-          if state_addons = partitioned_addons[state.to_s]
-            header = state == :public ? "Available" : state.to_s.capitalize
-            display "\n--- #{header} ---"
-            display_addons(state_addons)
-          end
-        end
+        display_object(partitioned_addons)
       end
     end
 
@@ -127,7 +121,7 @@ module Heroku::Command
 
     private
       def partition_addons(addons)
-        addons.group_by{ |a| a["state"] }
+        addons.group_by{ |a| (a["state"] == "public" ? "available" : a["state"]) }
       end
 
       def display_addons(addons)
