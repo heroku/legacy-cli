@@ -29,6 +29,32 @@ module Heroku::Command
       end
     end
 
+    describe "list" do
+      before do
+        @available_addons = [
+          { "name" => "cloudcounter:basic", "state" => "alpha" },
+          { "name" => "cloudcounter:pro", "state" => "public" },
+          { "name" => "cloudcounter:gold", "state" => "public" },
+          { "name" => "cloudcounter:old", "state" => "disabled" },
+          { "name" => "cloudcounter:platinuam", "state" => "beta" }
+        ]
+        @addons.heroku.stub!(:addons).and_return(@available_addons)
+      end
+
+      it "lists available addons" do
+        @addons.heroku.should_receive(:addons).and_return(@available_addons)
+        @addons.list
+      end
+
+      it "partitions addons by state" do
+        @addons.should_receive(:display).with("=== alpha", true)
+        @addons.should_receive(:display).with("=== beta", true)
+        @addons.should_receive(:display).with("=== disabled", true)
+        @addons.should_receive(:display).with("=== available", true)
+        @addons.list
+      end
+    end
+
     describe 'v1-style command line params' do
       it "understands foo=baz" do
         @addons.stub!(:args).and_return(%w(my_addon foo=baz))
