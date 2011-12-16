@@ -75,7 +75,7 @@ module Heroku
         end
 
         if distances.keys.min < 4
-          suggestions = distances[distances.keys.min]
+          suggestions = distances[distances.keys.min].sort
           if suggestions.length == 1
             output_with_bang("Perhaps you meant `#{suggestions.first}`.")
           else
