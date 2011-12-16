@@ -7,6 +7,8 @@ For more about Heroku see <http://heroku.com>.
 
 To get started see <http://devcenter.heroku.com/articles/quickstart>
 
+<img src="https://secure.travis-ci.org/heroku/heroku.png" />
+
 Setup
 -----
 
