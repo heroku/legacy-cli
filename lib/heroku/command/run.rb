@@ -43,6 +43,25 @@ class Heroku::Command::Run < Heroku::Command::Base
     end
   end
 
+  # run:detached COMMAND
+  #
+  # run a detached process, where output is sent to your logs
+  #
+  def detached
+    command = args.join(" ")
+    fail "Usage: heroku run COMMAND" if command.empty?
+    opts = { :command => command }
+    display "Running #{command}... ", false
+    begin
+      ps = heroku.ps_run(app, opts)
+      puts "up, #{ps["process"]}"
+      puts "Use 'heroku logs -p #{ps["process"]}' to view the log output."
+    rescue
+      puts "failed"
+      raise
+    end
+  end
+
   # run:rake COMMAND
   #
   # remotely execute a rake command
