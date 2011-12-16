@@ -14,6 +14,7 @@ module Heroku
       heroku-logging
       heroku-status
       heroku-stop
+      heroku-suggest
       pgbackups-automate
       pgcmd
     )

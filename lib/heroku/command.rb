@@ -65,8 +65,26 @@ module Heroku
       command = parse(cmd)
 
       unless command
-        error "#{cmd} is not a heroku command. See 'heroku help'."
-        return
+        output_with_bang("`#{cmd}` is not a heroku command.")
+
+        distances = {}
+        (commands.keys + command_aliases.keys).each do |suggestion|
+          distance = string_distance(cmd, suggestion)
+          distances[distance] ||= []
+          distances[distance] << suggestion
+        end
+
+        if distances.keys.min < 4
+          suggestions = distances[distances.keys.min]
+          if suggestions.length == 1
+            output_with_bang("Perhaps you meant `#{suggestions.first}`.")
+          else
+            output_with_bang("Perhaps you meant #{suggestions[0...-1].map {|suggestion| "`#{suggestion}`"}.join(', ')} or `#{suggestions.last}`.")
+          end
+        end
+
+        output_with_bang("See `heroku help` for additional details.")
+        exit(1)
       end
 
       @current_command = cmd

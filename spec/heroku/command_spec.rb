@@ -128,4 +128,31 @@ describe Heroku::Command do
     Heroku::Command.parse("apps").should include(:klass => Heroku::Command::Apps, :method => :index)
     Heroku::Command.parse("apps:create").should include(:klass => Heroku::Command::Apps, :method => :create)
   end
+
+  context "when no commands match" do
+
+    it "suggests similar commands if there are any" do
+      original_stdout = $stdout
+      $stdout = fake = StringIO.new
+      lambda { Heroku::Command.run('aps', []) }.should raise_error(SystemExit)
+      $stdout = original_stdout
+      fake.string.should == <<-SUGGEST
+ !    `aps` is not a heroku command.
+ !    Perhaps you meant `apps` or `ps`.
+ !    See `heroku help` for additional details.
+SUGGEST
+    end
+
+    it "does not suggest similar commands if there are none" do
+      original_stdout = $stdout
+      $stdout = fake = StringIO.new
+      lambda { Heroku::Command.run('sandwich', []) }.should raise_error(SystemExit)
+      $stdout = original_stdout
+      fake.string.should == <<-NO_SUGGEST
+ !    `sandwich` is not a heroku command.
+ !    See `heroku help` for additional details.
+NO_SUGGEST
+    end
+
+  end
 end
