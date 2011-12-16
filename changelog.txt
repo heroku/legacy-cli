@@ -1,3 +1,17 @@
+2.16.3 12/16/2011 26bc36811ba2f78e87c23c9838bec56e38bdf94b
+==========================================================
+
+Partition add-ons based on state.
+Don't display URL.
+Add some specs for partitioning addons by state.
+Use the new display_object helper to show partitioned add-on states.
+Merge pull request #190 from heroku/partition-states
+[release] consolidated local_build and release tasks
+remove no longer used 'display_addons'
+merge in functionality from heroku-suggest plugin
+alphasort command suggestions for consistency
+
+
 2.16.2 12/13/2011 14ffe86d48c6b7b2871ecaeb04cc7647dfc72338
 ==========================================================
 
