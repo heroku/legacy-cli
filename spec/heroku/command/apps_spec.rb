@@ -132,6 +132,19 @@ module Heroku::Command
       @cli.destroy
     end
 
+    it "opens default web url if no url is provided" do
+      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
+      Launchy.should_receive(:open).with(@data[:web_url])
+      @cli.open
+    end
+
+    it "opens provided url if it's passed as an argument" do
+      url_to_be_opened = "http://www.geekbeing.com"
+      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
+      Launchy.should_receive(:open).with(url_to_be_opened)
+      @cli.open url_to_be_opened
+    end
+
     context "Git Integration" do
       include SandboxHelper
       before(:all) do
