@@ -36,13 +36,17 @@ module Heroku::Command
           { "name" => "cloudcounter:pro", "state" => "public" },
           { "name" => "cloudcounter:gold", "state" => "public" },
           { "name" => "cloudcounter:old", "state" => "disabled" },
-          { "name" => "cloudcounter:platinuam", "state" => "beta" }
+          { "name" => "cloudcounter:platinum", "state" => "beta" }
         ]
         @addons.heroku.stub!(:addons).and_return(@available_addons)
       end
 
       it "lists available addons" do
         @addons.heroku.should_receive(:addons).and_return(@available_addons)
+        @addons.should_receive(:hputs).with("cloudcounter:basic".ljust(34))
+        @addons.should_receive(:hputs).with("cloudcounter:gold, pro".ljust(34))
+        @addons.should_receive(:hputs).with("cloudcounter:platinum".ljust(34))
+        @addons.should_receive(:hputs).with("cloudcounter:old".ljust(34))
         @addons.list
       end
 

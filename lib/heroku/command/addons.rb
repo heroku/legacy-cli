@@ -49,6 +49,9 @@ module Heroku::Command
         display "No addons available currently"
       else
         partitioned_addons = partition_addons(addons)
+        partitioned_addons.each do |key, addons|
+          partitioned_addons[key] = format_for_display(addons)
+        end
         display_object(partitioned_addons)
       end
     end
@@ -122,6 +125,35 @@ module Heroku::Command
     private
       def partition_addons(addons)
         addons.group_by{ |a| (a["state"] == "public" ? "available" : a["state"]) }
+      end
+
+      def format_for_display(addons)
+        grouped = addons.inject({}) do |base, addon|
+          group, short = addon['name'].split(':')
+          base[group] ||= []
+          base[group] << addon.merge('short' => short)
+          base
+        end
+        grouped.keys.sort.map do |name|
+          addons = grouped[name]
+          row = name.dup
+          if addons.any? { |a| a['short'] }
+            row << ':'
+            size = row.size
+            stop = false
+            row << addons.map { |a| a['short'] }.sort.map do |short|
+              size += short.size
+              if size < 31
+                short
+              else
+                stop = true
+                nil
+              end
+            end.compact.join(', ')
+            row << '...' if stop
+          end
+          row.ljust(34)
+        end
       end
 
       def addon_run
