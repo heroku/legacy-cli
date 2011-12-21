@@ -152,16 +152,12 @@ module Heroku
       "%d %s" % [ num, num.to_i == 1 ? string : "#{string}s" ]
     end
 
-    def create_git_remote(app, remote)
+    def create_git_remote(remote, url)
       return unless has_git?
       return if git('remote').split("\n").include?(remote)
       return unless File.exists?(".git")
-      git "remote add #{remote} git@#{heroku.host}:#{app}.git"
+      git "remote add #{remote} #{url}"
       display "Git remote #{remote} added"
-    end
-
-    def app_urls(name)
-      "http://#{name}.heroku.com/ | git@heroku.com:#{name}.git"
     end
 
     def longest(items)

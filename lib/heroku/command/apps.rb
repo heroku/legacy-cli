@@ -134,7 +134,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       hputs("Timed Out! Check heroku info for status updates.")
     end
 
-    create_git_remote(name, remote || "heroku")
+    create_git_remote(remote || "heroku", info[:git_url])
   end
 
   alias_command "create", "apps:create"
@@ -157,7 +157,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         next if remote_app != app
         if has_git?
           git "remote rm #{remote_name}"
-          git "remote add #{remote_name} git@#{heroku.host}:#{newname}.git"
+          git "remote add #{remote_name} #{info[:git_url]}.git"
           hputs("Git remote #{remote_name} updated")
         end
       end
