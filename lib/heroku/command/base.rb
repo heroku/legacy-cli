@@ -83,6 +83,11 @@ protected
     Heroku::Command.command_aliases[new] = old
   end
 
+  def extract_app
+    output_with_bang "Command::Base#extract_app has been deprecated. Please use Command::Base#app instead.  #{caller.first}"
+    app
+  end
+
   #
   # Parse the caller format and identify the file and line number as identified
   # in : http://www.ruby-doc.org/core/classes/Kernel.html#M001397.  This will
