@@ -202,5 +202,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
   end
 
   alias_command "destroy", "apps:destroy"
+  alias_command "apps:delete", "apps:destroy"
 
 end
