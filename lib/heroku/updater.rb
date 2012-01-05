@@ -1,7 +1,7 @@
 module Heroku
   module Updater
     def self.home_directory
-      ENV['HOME'] || ENV['USERPROFILE']
+      ENV['HOME'] || ENV['USERPROFILE'] || ''
     end
 
     def self.running_on_windows?
