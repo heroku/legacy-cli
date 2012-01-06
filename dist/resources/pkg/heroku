@@ -1,27 +1,28 @@
 #!/usr/bin/env ruby
 
+# attempt to load rubygems
+begin
+  require "rubygems"
+rescue LoadError
+end
+
+# resolve bin path, ignoring symlinks
 require "pathname"
 bin_file = Pathname.new(__FILE__).realpath
 
+# add locally vendored gems to libpath
 gem_dir = File.expand_path("../../vendor/gems", bin_file)
 Dir["#{gem_dir}/**/lib"].each do |libdir|
   $:.unshift libdir
 end
 
+# add self to libpath
 $:.unshift File.expand_path("../../lib", bin_file)
 
+# inject any code in ~/.heroku/client over top
 require "heroku/updater"
-gem_dir = File.join(Heroku::Updater.updated_client_path, "vendor", "gems")
-Dir["#{gem_dir}/**/lib"].each do |libdir|
-  $:.unshift libdir
-end
+Heroku::Updater.inject_libpath
 
-require 'heroku'
-require 'heroku/command'
-
-args = ARGV.dup
-ARGV.clear
-command = args.shift.strip rescue 'help'
-
-Heroku::Command.load
-Heroku::Command.run(command, args)
+# start up the CLI
+require "heroku/cli"
+Heroku::CLI.start(*ARGV)

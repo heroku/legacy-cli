@@ -1,14 +1,12 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.expand_path("../../lib", __FILE__)
+# resolve bin path, ignoring symlinks
+require "pathname"
+bin_file = Pathname.new(__FILE__).realpath
 
-require 'heroku'
-require 'heroku/command'
+# add self to libpath
+$:.unshift File.expand_path("../lib", bin_file)
 
-args = ARGV.dup
-ARGV.clear
-command = args.shift.strip rescue 'help'
-
-Heroku::Command.load
-Heroku::Command.run(command, args)
-
+# start up the CLI
+require "heroku/cli"
+Heroku::CLI.start(*ARGV)
