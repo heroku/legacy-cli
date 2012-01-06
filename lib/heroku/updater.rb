@@ -12,6 +12,11 @@ module Heroku
       File.join(home_directory, ".heroku", "client")
     end
 
+    def self.disable(message=nil)
+      @disable = message if message
+      @disable
+    end
+
     def self.update(beta=false)
       require "fileutils"
       require "tmpdir"

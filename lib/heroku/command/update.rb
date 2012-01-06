@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/updater"
 
 module Heroku::Command
 
@@ -10,12 +11,18 @@ module Heroku::Command
     # update the heroku client
     #
     def index
-      output_with_arrow("Updating to latest client... ", false)
-      Heroku::Updater.update
-      display "done"
-    rescue Exception => ex
-      display "failed"
-      display "   !   #{ex.message}"
+      if message = Heroku::Updater.disable
+        error message
+      end
+
+      begin
+        output_with_arrow("Updating to latest client... ", false)
+        Heroku::Updater.update
+        display "done"
+      rescue Exception => ex
+        display "failed"
+        display "   !   #{ex.message}"
+      end
     end
 
     # update:beta
