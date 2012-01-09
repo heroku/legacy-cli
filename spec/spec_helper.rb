@@ -6,6 +6,7 @@ SimpleCov.start do
   add_filter "/spec/"
 end
 
+require "heroku/cli"
 require "rspec"
 require "rr"
 require "fakefs/safe"
@@ -69,8 +70,7 @@ def any_instance_of(klass, &block)
 end
 
 def run(command_line)
-  cmd, *args = command_line.split(" ")
-  capture_stdout { Heroku::Command.run(cmd, args) }
+  capture_stdout { Heroku::CLI.start(*command_line.split(" ")) }
 end
 
 def capture_stdout(&block)
