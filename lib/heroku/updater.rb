@@ -51,7 +51,7 @@ module Heroku
       $:.unshift File.join(updated_client_path, "lib")
       vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
       vendored_gems.each do |vendored_gem|
-        $:.unshift File.join(vendored_gem, lib)
+        $:.unshift File.join(vendored_gem, "lib")
       end
     end
   end
