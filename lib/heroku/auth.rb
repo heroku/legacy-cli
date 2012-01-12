@@ -78,7 +78,11 @@ class Heroku::Auth
     end
 
     def read_credentials
-      File.exists?(credentials_file) and File.read(credentials_file).split("\n")
+      if ENV['HEROKU_USERNAME'] || ENV['HEROKU_PASSWORD']
+        [ENV['HEROKU_USERNAME'], ENV['HEROKU_PASSWORD']]
+      else
+        File.exists?(credentials_file) and File.read(credentials_file).split("\n")
+      end
     end
 
     def echo_off

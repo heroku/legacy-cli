@@ -21,6 +21,58 @@ module Heroku
     after do
       FakeFS.deactivate!
     end
+    
+    context "credentials are set via environment variables" do
+      before do
+        ENV['HEROKU_USERNAME'] = "env_user"
+        ENV['HEROKU_PASSWORD'] = "env_password"
+      end
+      
+      it "gets credentials from environment variables in preference to credentials file" do
+        @cli.read_credentials.should == ['env_user', 'env_password']
+      end
+    
+      it "does not overwrite credentials file with environment variable credentials" do
+        @cli.should_not_receive(:write_credentials)
+        @cli.read_credentials
+      end
+      
+      context "only a username is provided" do
+        before do
+          ENV['HEROKU_PASSWORD'] = nil
+        end
+        
+        it "should use a nil password" do
+          @cli.read_credentials.should == ['env_user', nil]
+        end
+      end
+      
+      context "only a password is provided" do
+        before do
+          ENV['HEROKU_USERNAME'] = nil
+        end
+        
+        it "should use a nil username" do
+          @cli.read_credentials.should == [nil, 'env_password']
+        end
+      end
+    
+      context "reauthenticating" do
+        before do
+          @cli.stub!(:ask_for_credentials).and_return(['new_user', 'new_password'])
+          @cli.stub!(:check)
+          @cli.should_receive(:set_credentials_permissions)
+          @cli.should_receive(:check_for_associated_ssh_key)
+          @cli.reauthorize
+        end
+        it "updates saved credentials" do
+          File.read(@cli.credentials_file).should == "new_user\nnew_password\n"
+        end
+        it "returns environment variable credentials" do
+          @cli.read_credentials.should == %w(env_user env_password)
+        end
+      end
+    end
 
     it "reads credentials from the credentials file" do
       @cli.read_credentials.should == %w(user pass)
