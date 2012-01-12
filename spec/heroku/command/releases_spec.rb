@@ -58,13 +58,13 @@ describe Heroku::Command::Releases do
   describe "rollback" do
     it "rolls back to the latest release with no argument" do
       stub_core.rollback("myapp", nil).returns("v10")
-      execute "rollback"
+      execute "releases:rollback"
       output.should =~ /Rolled back to v10/
     end
 
     it "rolls back to the specified release" do
       stub_core.rollback("myapp", "v11").returns("v11")
-      execute "rollback v11"
+      execute "releases:rollback v11"
       output.should =~ /Rolled back to v11/
     end
   end

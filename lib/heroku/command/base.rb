@@ -58,8 +58,7 @@ protected
 
     help = extract_help_from_caller(caller.first)
     resolved_method = (method.to_s == "index") ? nil : method.to_s
-    default_command = [ self.namespace, resolved_method ].compact.join(":")
-    command = extract_command(help) || default_command
+    command = [ self.namespace, resolved_method ].compact.join(":")
     banner = extract_banner(help) || command
     permute = !banner.index("*")
     banner.gsub!("*", "")
@@ -127,10 +126,6 @@ protected
     end
 
     buffer.reverse.join("\n").strip
-  end
-
-  def self.extract_command(help)
-    extract_banner(help).to_s.split(" ").first
   end
 
   def self.extract_banner(help)

@@ -46,7 +46,7 @@ module Heroku::Command
       display_vars(release["env"])
     end
 
-    # rollback [RELEASE]
+    # releases:rollback [RELEASE]
     #
     # roll back to an older release
     #
@@ -57,6 +57,8 @@ module Heroku::Command
       rolled_back = heroku.rollback(app, release)
       display "Rolled back to #{rolled_back}"
     end
+
+    alias_command "rollback", "releases:rollback"
 
     private
 
