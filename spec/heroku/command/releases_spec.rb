@@ -12,10 +12,10 @@ describe Heroku::Command::Releases do
         { "name" => "v4", "descr" => "Description4", "user" => "User4", "created_at" => (Time.now - 305).to_s },
         { "name" => "v6", "descr" => "Description5", "user" => "User6", "created_at" => (Time.now - 18005).to_s }
       ])
+      execute "releases"
     end
 
     it "should list releases" do
-      execute "releases"
       output.should =~ /v1\s+Description1\s+User1\s+2011-01-01/
       output.should =~ /v2\s+Description2\s+User2\s+2011-02-02/
     end
