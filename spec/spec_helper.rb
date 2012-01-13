@@ -1,3 +1,5 @@
+$stdin = File.new("/dev/null")
+
 require "rubygems"
 require "bundler/setup"
 
