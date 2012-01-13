@@ -2,8 +2,25 @@ require "spec_helper"
 require "heroku/command"
 require 'json' #FOR WEBMOCK
 
+class FakeResponse
+
+  attr_accessor :body, :headers
+
+  def initialize(attributes)
+    self.body, self.headers = attributes[:body], attributes[:headers]
+  end
+
+  def to_s
+    body
+  end
+
+end
+
 describe Heroku::Command do
-  before { Heroku::Command.load }
+  before {
+    Heroku::Command.load
+    stub_core # setup fake auth
+  }
 
   describe "when the command requires confirmation" do
 
@@ -85,8 +102,8 @@ describe Heroku::Command do
       Heroku::Command.extract_error("{\"error\":\"Invalid app name\"}").should == 'Invalid app name'
     end
 
-    it "extracts error messages from response when available in JSON" do
-      response = mock(:to_s => "Invalid app name", :headers => { :content_type => "text/plain; charset=UTF8" })
+    it "extracts error messages from response when available in plain text" do
+      response = FakeResponse.new(:body => "Invalid app name", :headers => { :content_type => "text/plain; charset=UTF8" })
       Heroku::Command.extract_error(response).should == 'Invalid app name'
     end
 
@@ -95,7 +112,7 @@ describe Heroku::Command do
     end
 
     it "shows Internal Server Error when the response is not plain text" do
-      response = mock(:to_s => "Foobar", :headers => { :content_type => "application/xml" })
+      response = FakeResponse.new(:body => "Foobar", :headers => { :content_type => "application/xml" })
       Heroku::Command.extract_error(response).should == "Internal server error.\nRun 'heroku status' to check for known platform issues."
     end
 
