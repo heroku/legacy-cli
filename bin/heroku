@@ -5,7 +5,7 @@ require "pathname"
 bin_file = Pathname.new(__FILE__).realpath
 
 # add self to libpath
-$:.unshift File.expand_path("../lib", File.dirname(bin_file))
+$:.unshift File.expand_path("../../lib", bin_file)
 
 require "heroku/updater"
 Heroku::Updater.disable "To update the gem version of the Heroku client please use `gem update heroku`"
