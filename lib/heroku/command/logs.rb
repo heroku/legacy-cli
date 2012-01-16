@@ -43,6 +43,10 @@ module Heroku::Command
       display heroku.cron_logs(app)
     end
 
+    # logs:drains
+    #
+    # DEPRECATED: use `heroku drains`
+    #
     def drains
       output_with_bang "The logs:drain command has been deprecated. Please use drains"
       usage = Heroku::Command::Help.usage_for_command("drains")
