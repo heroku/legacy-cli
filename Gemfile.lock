@@ -25,6 +25,7 @@ GEM
     launchy (2.0.5)
       addressable (~> 2.2.6)
     mime-types (1.17.2)
+    multi_json (1.0.4)
     parka (0.6.2)
       crack
       rest-client
@@ -44,9 +45,10 @@ GEM
     rspec-mocks (2.8.0)
     rubyzip (0.9.4)
     sequel (3.20.0)
-    simplecov (0.4.2)
-      simplecov-html (~> 0.4.4)
-    simplecov-html (0.4.4)
+    simplecov (0.5.4)
+      multi_json (~> 1.0.3)
+      simplecov-html (~> 0.5.3)
+    simplecov-html (0.5.3)
     sinatra (1.0)
       rack (>= 1.0)
     sqlite3 (1.3.3)
@@ -80,6 +82,6 @@ DEPENDENCIES
   rr (~> 1.0.2)
   rspec (>= 2.0)
   rubyzip
-  simplecov (~> 0.4.2)
+  simplecov (~> 0.5.4)
   taps (>= 0.3.23)
   webmock
