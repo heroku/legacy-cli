@@ -61,7 +61,7 @@ Released under the [MIT license](http://www.opensource.org/licenses/mit-license.
 
 Created by Adam Wiggins
 
-Maintained by David Dollar
+Maintained by Wesley Beary
 
 Patches contributed by:
 
