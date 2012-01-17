@@ -157,7 +157,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         next if remote_app != app
         if has_git?
           git "remote rm #{remote_name}"
-          git "remote add #{remote_name} #{info[:git_url]}.git"
+          git "remote add #{remote_name} #{info[:git_url]}"
           hputs("Git remote #{remote_name} updated")
         end
       end
