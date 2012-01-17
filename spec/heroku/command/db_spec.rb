@@ -24,8 +24,16 @@ module Heroku::Command
       @db.push
     end
 
-    it "defaults host to 127.0.0.1 with a username" do
-      @db.send(:uri_hash_to_url, {'scheme' => 'db', 'username' => 'user', 'path' => 'database'}).should == 'db://user@127.0.0.1/database'
+    describe "without PostgreSQL" do
+      it "defaults host to 127.0.0.1 with a username" do
+        @db.send(:uri_hash_to_url, {'scheme' => 'db', 'username' => 'user', 'path' => 'database'}).should == 'db://user@127.0.0.1/database'
+      end
+    end
+
+    describe "with PostgreSQL" do
+      it "handles lack of host as UNIX domain socket connection" do
+        @db.send(:uri_hash_to_url, {'scheme' => 'postgres', 'path' => 'database'}).should == 'postgres:/database'
+      end
     end
 
     it "handles the lack of a username properly" do
