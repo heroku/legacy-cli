@@ -376,7 +376,22 @@ Check the output of "heroku ps" and "heroku logs" for more information.
       puts get("/apps/#{app_name}/logs").to_s
     else
       uri  = URI.parse(url);
-      http = Net::HTTP.new(uri.host, uri.port)
+
+      if uri.scheme == 'https'
+        proxy = ENV['HTTPS_PROXY'] || ENV['https_proxy']
+      else
+        proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+      end
+
+      if proxy
+        unless /^[^:]+:\/\// =~ proxy
+          proxy = "http://" + proxy
+        end
+        proxy = URI.parse(proxy)
+        http = Net::HTTP.new(uri.host, uri.port, proxy.host, proxy.port, proxy.user, proxy.password)
+      else
+        http = Net::HTTP.new(uri.host, uri.port)
+      end
 
       if uri.scheme == 'https'
         http.use_ssl = true
