@@ -68,7 +68,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
       unless collaborators.empty?
         attrs[:collaborators].reject! {|collaborator| collaborator[:email] == attrs[:owner]}
-        data['Collaborators:'] = attrs[:collaborators].join("\n".ljust(length + 1))
+        data['Collaborators:'] = attrs[:collaborators].map {|collaborator| collaborator[:email]}.join("\n".ljust(length + 1))
       end
 
       if attrs[:database_tables]
