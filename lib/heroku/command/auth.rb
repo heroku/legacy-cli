@@ -10,6 +10,7 @@ class Heroku::Command::Auth < Heroku::Command::Base
   #
   def login
     Heroku::Auth.login
+    display "Authentication successful."
   end
 
   alias_command "login", "auth:login"
