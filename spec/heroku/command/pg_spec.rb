@@ -9,7 +9,6 @@ module Heroku::Command
         "DATABASE_URL" => "postgres://database_url",
         "SHARED_DATABASE_URL" => "postgres://other_database_url",
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://database_url",
-        "HEROKU_SHARED_POSTGRESQL_BLACK_URL" => "postgres://database_url"
       })
       @pg.stub!(:args).and_return ["DATABASE_URL"]
       @pg.heroku.stub!(:info).and_return({})
