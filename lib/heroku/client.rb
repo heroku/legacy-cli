@@ -53,6 +53,7 @@ class Heroku::Client
 
   # Show info such as mode, custom domain, and collaborators on an app.
   def info(name_or_domain)
+    raise ArgumentError.new("name_or_domain is required for info") unless name_or_domain
     name_or_domain = name_or_domain.gsub(/^(http:\/\/)?(www\.)?/, '')
     doc = xml(get("/apps/#{name_or_domain}").to_s)
     attrs = hash_from_xml_doc(doc)[:app]
