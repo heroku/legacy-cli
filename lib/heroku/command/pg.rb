@@ -77,7 +77,7 @@ module Heroku::Command
       deprecate_dash_dash_db("pg:reset")
       db = resolve_db(:required => 'pg:reset')
 
-      display "-----> Resetting #{db[:pretty_name]}"
+      output_with_arrow("Resetting #{db[:pretty_name]}")
       return unless confirm_command
 
       working_display 'Resetting' do
@@ -155,7 +155,7 @@ module Heroku::Command
     def reset_password
       deprecate_dash_dash_db("pg:reset")
       db = resolve_db(:required => 'pg:reset')
-      display "-----> Resetting password for #{db[:pretty_name]}"
+      output_with_arrow("Resetting password for #{db[:pretty_name]}")
       return unless confirm_command
 
       working_display 'Resetting' do
