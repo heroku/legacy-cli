@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ruby1.9.1
 
-# attempt to load rubygems
+# attempt to load rubygems in order to have access to taps
 begin
   require "rubygems"
 rescue LoadError
