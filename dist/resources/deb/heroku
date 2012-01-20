@@ -22,6 +22,8 @@ $:.unshift File.expand_path("../../lib", bin_file)
 # inject any code in ~/.heroku/client over top
 require "heroku/updater"
 Heroku::Updater.inject_libpath
+Heroku::Updater.disable("To update this version of the Heroku client please use
+`apt-get install heroku-toolbelt`")
 
 # start up the CLI
 require "heroku/cli"
