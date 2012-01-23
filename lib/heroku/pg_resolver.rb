@@ -73,7 +73,8 @@ module PGResolver
 
     def initialize(db_id, config_vars)
       raise ArgumentError unless db_id
-      @db_id, @config_vars = db_id.upcase, config_vars
+      @db_id, @config_vars = db_id, config_vars
+      @db_id = @db_id.upcase unless @db_id =~ /\Apostgres/
       @messages = []
       parse_config
       resolve
@@ -148,7 +149,7 @@ module PGResolver
 
     def postgres_url_check
       return unless @db_id.downcase =~ /^postgres:\/\//
-      @url = @db_id.downcase
+      @url = @db_id
       @db_id = name_from_url(@url)
     end
 

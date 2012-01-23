@@ -53,6 +53,14 @@ module Heroku::Command
         @pg.promote
       end
 
+      it "promotes the specified database url case-sensitively" do
+        @pg.stub!(:args).and_return ["postgres://john:S3nsit1ve@my.example.com/db_name"]
+        @pg.stub!(:confirm_command).and_return(true)
+        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => "postgres://john:S3nsit1ve@my.example.com/db_name"})
+
+        @pg.promote
+      end
+
       it "fails if no database is specified" do
         @pg.stub(:args).and_return []
         @pg.stub!(:confirm_command).and_return(true)

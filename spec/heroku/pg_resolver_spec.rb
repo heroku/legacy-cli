@@ -5,11 +5,15 @@ include PGResolver
 
 describe Resolver do
   context 'passed in a postgres:// url' do
-    let(:url) {  "postgres://user:pass@ec2-whatever.com/database" }
+    let(:url) { "postgres://uSer:pAss@ec2-whATEver.com/daTABAse" }
     let(:r) { Resolver.new url, "HEROKU_POSTGRESQL_SOME_URL" => 'not_that_db'}
 
-    it { r[:url].should == url }
-    it { r[:name].should == 'Database on ec2-whatever.com' }
+    it { r[:name].should == 'Database on ec2-whATEver.com' }
+
+    it "preserves case of the url" do
+      r[:url].should == url
+      url.upcase.should_not == url
+    end
   end
 
   context "pass in *_URL" do
@@ -58,6 +62,12 @@ describe Resolver do
 
     it 'works when asked for just COLOR' do
       r = Resolver.new('PERIWINKLE', config)
+      r.url.should == 'postgres://dedicated'
+      r.message.should_not be
+    end
+
+    it 'works when asked for just lowercase color' do
+      r = Resolver.new('periwinkle', config)
       r.url.should == 'postgres://dedicated'
       r.message.should_not be
     end
