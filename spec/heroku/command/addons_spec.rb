@@ -67,11 +67,17 @@ module Heroku::Command
       end
       
       it "gives a deprecation notice with an example" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => {:foo => 'bar', :extra => "XXX"}})
         execute "addons:add my_addon --foo=bar extra=XXX"
         output.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
+      end
 
-        execute "addons:add my_addon --foo=bar extra=XXX"
-        output.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
+      it "includes a complete example" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => {:foo => 'bar', :extra => "XXX"}})
+        execute "addons:add my_addon foo=bar extra=XXX"
+        output.should include("Warning: non-unix style params have been deprecated, use --foo=bar --extra=XXX instead")
       end
     end
 
@@ -106,6 +112,12 @@ module Heroku::Command
         @addons.add
       end
 
+      it "sends the variables to the server" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => 'true', 'bob' => 'true' }})
+        execute "addons:add my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true"
+      end
+
       it "raises an error for spurious arguments" do
         @addons.stub!(:args).and_return(%w(my_addon spurious))
         lambda { @addons.add }.should raise_error(CommandFailed)
@@ -117,6 +129,13 @@ module Heroku::Command
         @addons.stub!(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
         @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz', 'baz' => 'bar', 'bar' => true, 'bob' => true })
         @addons.add
+      end
+
+      it "sends the variables to the server" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => { 'foo' => 'baz', 'baz' => 'bar', 'bar' => 'true', 'bob' => 'true' }})
+        execute "addons:add my_addon foo=baz --baz=bar bob=true --bar"
+        output.should include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
       end
     end
 
