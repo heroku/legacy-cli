@@ -42,18 +42,6 @@ module Heroku::Command
         @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
         @pg.info
       end
-
-      it "requests the info from the server based on the 'shortcut' name" do
-        fake_client = mock("heroku_postgresql_client")
-        fake_client.should_receive("get_database").and_return(:info => [
-          {'name' => "State", 'value' => "available"},
-          {'name' => "whatever", 'values' => ['one', 'eh']}
-        ])
-
-        @pg.stub(:args).and_return ["RONIN"]
-        @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
-        @pg.info
-      end
     end
 
     context "promotion" do
