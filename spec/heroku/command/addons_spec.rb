@@ -263,8 +263,16 @@ module Heroku::Command
       lambda { @addons.add }.should raise_error(SystemExit)
     end
 
+    it "does not remove addons with no confirm" do
+      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.should_receive(:confirm_command).once.and_return(false)
+      @addons.heroku.should_not_receive(:uninstall_addon)
+      @addons.remove
+    end
+
     it "removes addons" do
       @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.should_receive(:confirm_command).once.and_return(true)
       @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => nil)
       @addons.remove
     end

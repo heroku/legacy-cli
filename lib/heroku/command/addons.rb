@@ -87,6 +87,8 @@ module Heroku::Command
     # uninstall an addon
     #
     def remove
+      return unless confirm_command
+
       args.each do |name|
         messages = nil
         action("Removing #{name} from #{app}") do
