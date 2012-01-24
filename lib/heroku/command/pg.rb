@@ -145,18 +145,16 @@ module Heroku::Command
       case reset
       when true
         db = resolve_db(:required => 'pg:reset')
-        output_with_arrow("Resetting password for #{db[:pretty_name]}")
-        return unless confirm_command
-
-        working_display 'Resetting' do
-          case db[:name]
-          when /\A#{Resolver.shared_addon_prefix}\w+/
-            display " password", false
+        case db[:name]
+        when /\A#{Resolver.shared_addon_prefix}\w+/
+          working_display 'Resetting' do
+            return unless confirm_command
+            output_with_arrow("Resetting password for #{db[:pretty_name]}")
             response = heroku_shared_postgresql_client(db[:url]).reset_password
             heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
-          else
-            output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
           end
+        else
+          output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
         end
       else
         uri = generate_ingress_uri
