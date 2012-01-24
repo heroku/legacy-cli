@@ -28,13 +28,16 @@ file pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb") => distribution_files
   end
 end
 
+desc "Build a .deb package"
 task "deb:build" => pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb")
 
+desc "Remove build artifacts for .deb"
 task "deb:clean" do
   clean pkg("heroku-toolbelt-#{version}.deb")
   FileUtils.rm_rf("pkg/apt-#{version}") if Dir.exists?("pkg/apt-#{version}")
 end
 
+desc "Publish .deb to S3."
 task "deb:release" => "deb:build" do |t|
   Dir["pkg/apt-#{version}/*"].each do |file|
     unless File.directory?(file)
