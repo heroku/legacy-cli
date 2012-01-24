@@ -208,16 +208,20 @@ module Heroku::Command
         output messages[:message]
       end
 
+      #this will clean up when we officially deprecate
       def parse_options(args)
+        deprecated_args = []
         {}.tap do |config|
           flag = /^--/
           args.size.times do
+            break if args.empty?
             peek = args.first
             next unless peek && (peek.match(flag) || peek.match(/=/))
             arg  = args.shift
             peek = args.first
-            key  = arg.sub(flag,'')
+            key  = arg
             if key.match(/=/)
+              deprecated_args << key unless key.match(flag)
               key, value = key.split('=', 2)
             elsif peek.nil? || peek.match(flag)
               value = true
@@ -225,7 +229,12 @@ module Heroku::Command
               value = args.shift
             end
             value = true if value == 'true'
-            config[key] = value
+            config[key.sub(flag, '')] = value
+          end
+
+          if !deprecated_args.empty?
+            out_string = deprecated_args.map{|a| "--#{a}"}.join(' ')
+            output "Warning: non-unix style params have been deprecated, use #{out_string} instead"
           end
         end
       end
