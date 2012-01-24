@@ -214,11 +214,12 @@ module Heroku::Command
         {}.tap do |config|
           flag = /^--/
           args.size.times do
+            break if args.empty?
             peek = args.first
             next unless peek && (peek.match(flag) || peek.match(/=/))
             arg  = args.shift
             peek = args.first
-            key  = arg.sub(flag,'')
+            key  = arg
             if key.match(/=/)
               deprecated_args << key unless key.match(flag)
               key, value = key.split('=', 2)
