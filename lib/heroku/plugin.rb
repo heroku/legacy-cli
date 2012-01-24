@@ -9,6 +9,7 @@ module Heroku
       heroku-cedar
       heroku-releases
       heroku-postgresql
+      heroku-shared-postgresql
       heroku-pgdumps
       heroku-kill
       heroku-logging

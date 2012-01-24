@@ -48,6 +48,25 @@ describe Resolver do
     end
   end
 
+  context 'only yobuko database' do
+    let(:config) do
+       { 'DATABASE_URL'        => 'postgres://yobuko',
+         'HEROKU_SHARED_POSTGRESQL_BLACK_URL' => 'postgres://yobuko' }
+    end
+
+    it 'returns the yobuko url when asked for DATABASE' do
+      r = Resolver.new("DATABASE", config)
+      r.url.should == 'postgres://yobuko'
+      r.message.should_not be
+    end
+
+    it 'returns the yobuko url when asked for HEROKU_SHARED_POSTGRESQL' do
+      r = Resolver.new("HEROKU_SHARED_POSTGRESQL_BLACK", config)
+      r.url.should == 'postgres://yobuko'
+      r.message.should_not be
+    end
+  end
+
   context 'only dedicated database' do
     let(:config) do
       { 'DATABASE_URL' => 'postgres://dedicated',
@@ -85,10 +104,11 @@ describe Resolver do
     end
   end
 
-  context 'dedicated databases and shared database' do
+  context 'dedicated databases, yobuko and shared database' do
     let(:config) do
       { 'DATABASE_URL' => 'postgres://red',
         'SHARED_DATABASE_URL' => 'postgres://shared',
+        'HEROKU_SHARED_POSTGRESQL_BLACK_URL' => 'postgres://yobuko',
         'HEROKU_POSTGRESQL_PERIWINKLE_URL' => 'postgres://pari',
         'HEROKU_POSTGRESQL_RED_URL' => 'postgres://red' }
     end
@@ -108,9 +128,15 @@ describe Resolver do
       r.url.should == 'postgres://pari'
     end
 
+    it 'is able to get the yobuko config var' do
+      r = Resolver.new('HEROKU_SHARED_POSTGRESQL_BLACK', config)
+      r.url.should == 'postgres://yobuko'
+    end
+
     it 'returns all with Resolver.all' do
       Resolver.all(config).should =~ [
         {:name => 'SHARED_DATABASE',              :pretty_name => 'SHARED_DATABASE',                      :url => 'postgres://shared', :default => false},
+        {:name => 'HEROKU_SHARED_POSTGRESQL_BLACK',:pretty_name =>'HEROKU_SHARED_POSTGRESQL_BLACK',      :url => 'postgres://yobuko', :default => false},
         {:name => 'HEROKU_POSTGRESQL_PERIWINKLE', :pretty_name => 'HEROKU_POSTGRESQL_PERIWINKLE',         :url => 'postgres://pari',   :default => false},
         {:name => 'HEROKU_POSTGRESQL_RED',        :pretty_name => 'HEROKU_POSTGRESQL_RED (DATABASE_URL)', :url => 'postgres://red',    :default => true}
       ]
