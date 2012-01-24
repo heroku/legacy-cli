@@ -20,20 +20,6 @@ module Heroku::Command
       specified_db_or_all { |db| display_db_info db }
     end
 
-    # pg:ingress [DATABASE]
-    #
-    # Show connection info
-    #
-    # (dedicated only)
-    # defaults to DATABASE_URL databases if no DATABASE is specified
-    #
-    def ingress
-      deprecate_dash_dash_db("pg:ingress")
-      uri = generate_ingress_uri
-      display "Connection info string:"
-      display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
-    end
-
     # pg:promote [DATABASE]
     #
     # Sets DATABASE as your DATABASE_URL
@@ -148,25 +134,34 @@ module Heroku::Command
       end
     end
 
-    # pg:reset_password [DATABASE]
+    # pg:credentials [DATABASE]
     #
-    # Reset the credentials on DATABASE
+    # Display the DATABASE credentials.
     #
-    def reset_password
-      deprecate_dash_dash_db("pg:reset")
-      db = resolve_db(:required => 'pg:reset')
-      output_with_arrow("Resetting password for #{db[:pretty_name]}")
-      return unless confirm_command
+    #   --reset       # Reset credentials on the specified database.
+    def credentials
+      deprecate_dash_dash_db("pg:ingress")
+      reset = extract_option("--reset", false)
+      case reset
+      when true
+        db = resolve_db(:required => 'pg:reset')
+        output_with_arrow("Resetting password for #{db[:pretty_name]}")
+        return unless confirm_command
 
-      working_display 'Resetting' do
-        case db[:name]
-        when /\A#{Resolver.shared_addon_prefix}\w+/
-          display " password", false
-          response = heroku_shared_postgresql_client(db[:url]).reset_password
-          heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
-        else
-          output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
+        working_display 'Resetting' do
+          case db[:name]
+          when /\A#{Resolver.shared_addon_prefix}\w+/
+            display " password", false
+            response = heroku_shared_postgresql_client(db[:url]).reset_password
+            heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
+          else
+            output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
+          end
         end
+      else
+        uri = generate_ingress_uri
+        display "Connection info string:"
+        display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
       end
     end
 
