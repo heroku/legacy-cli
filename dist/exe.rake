@@ -25,12 +25,15 @@ file pkg("heroku-#{version}.exe") => distribution_files("exe") do |t|
   end
 end
 
+desc "Build .exe"
 task "exe:build" => pkg("heroku-#{version}.exe")
 
+desc "Remove build artifacts for .exe"
 task "exe:clean" do
   clean pkg("heroku-#{version}.exe")
 end
 
+desc "Publish .exe to S3."
 task "exe:release" => "exe:build" do |t|
   store pkg("heroku-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-#{version}.exe"
   store pkg("heroku-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-beta.exe" if beta?
