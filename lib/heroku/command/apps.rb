@@ -63,12 +63,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
         'Workers:'          => (attrs[:stack] != 'cedar') && attrs[:workers],
       }
       data.reject! {|key,value| !value}
-      length = data.keys.map {|key| key.to_s.length}.max
+      length = (data.keys + ['Collaborators:']).map {|key| key.to_s.length}.max
 
       collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
       unless collaborators.empty?
         attrs[:collaborators].reject! {|collaborator| collaborator[:email] == attrs[:owner]}
-        data['Collaborators:'] = attrs[:collaborators].map {|collaborator| collaborator[:email]}.join("\n".ljust(length + 1))
+        data['Collaborators:'] = attrs[:collaborators].map {|collaborator| collaborator[:email]}.join("\n#{' ' * length} ")
       end
 
       if attrs[:database_tables]
