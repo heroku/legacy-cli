@@ -173,7 +173,8 @@ module Heroku::Command
           end
 
           begin
-            release = heroku.releases(app).last['name']
+            release = heroku.releases(app).last
+            release = release['name'] if release
           rescue RestClient::RequestFailed => e
             release = nil
           end
