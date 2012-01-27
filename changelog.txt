@@ -1,3 +1,11 @@
+2.19.1 01/27/2010
+=================
+
+fix formatting for collaborators in app info
+fix error around adding addons to an app which has no releases
+use vendored OkJson instead of JSON for shared database client
+
+
 2.19.0 01/26/2012 818b34d8e6592bf3a3ea08beb4b4868e1582c9b3
 ==========================================================
 
