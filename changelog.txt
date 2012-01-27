@@ -1,70 +1,42 @@
 2.19.0 01/26/2012 818b34d8e6592bf3a3ea08beb4b4868e1582c9b3
 ==========================================================
 
+Possible to do 'heroku logs' via proxy
 connect to postgresql domain socket
-failing test
 deprecate old foo=bar style provisioning params
-fix rebase problem
-Heroku Shared PostgreSQL (Yobuko)
+Support Heroku Shared PostgreSQL (Yobuko)
 Deprecate heroku-shared-postgresql plugin
-Remove breaking configvar.
-Use helpers for some display messages.
 New command: pg:credentials
 Much better prompting and output
-wip
-fix updater typo
-clean up binstubs
-clean up windows installer, make git installation optional with default detected appropriately
-2.18.0.pre1
+make git installation optional with default detected appropriately
 gem version of the client should disable heroku update
-2.18.0.pre2
 use Heroku::CLI to simulate runs
-2.18.0
-fix typo
-2.18.1
-pedantry
-make wes maintainer
 bump rubyzip for better 1.9 compat
 fix broken load path setup
 Allow pg:promote to receive case-sensitive postgres URLs
 Add example for checking heroku pg:info RONIN
 Switch .deb to depending on Ruby 1.9.
 Disable updates when installed via deb.
-Add descriptions to debian rake tasks.
-Ignore vendor directory.
-Link build status and add dependency status to README
-Merge pull request #164 from e2/postgresql_domain_socket
-Merge pull request #187 from rinrinne/master
-Merge pull request #216 from will/confirm_addon_removal
-Merge pull request #217 from will/neil
-Merge pull request #218 from heroku/deb-tweaks
-Merge pull request #179 from heroku/deprecate-old-addons-add-cmd-line-params
-Merge pull request #215 from heroku/yobuko
 confirm command on addon removal
 allow for the shortcut lowercase color with the addition of case sensitive url ids
-2.17.0
-allow extract_app to work, but warn of deprecation
-use returned git_url instead of contructed url
-silently alias apps:delete to apps:destroy, as I keep mistyping this
-fixes for commands
-wrap travis status image in link
-set  to dev/null, working on debugging ci
-comment out config add tests (debugging ci)
-Revert "comment out config add tests (debugging ci)"
-bump rspec version
-fix run-order dependant release spec
-fix run-order dependant command spec
-bump gem deps (simplecov in particular was outdated)
-fix help for logs:drains
 more explicit success for login
 update apps:info to show only the email address for collaborators
 remove duplicate .git in remotes after app:rename
 provide better error from Client#info when argument is nil
-test cleanup (get tests passing again locally)
-add desc to dist/exe tasks
-2.19.0
-Possible to do 'heroku logs' via proxy
 
+2.18.1 01/09/2012 3dbc88b55c1c5621b53d002007525808626285bb
+==========================================================
+
+fix typo
+
+2.18.0 01/09/2012 b145e6ae57bd89c7c8c7a21a1054d79831129e5c
+==========================================================
+
+clean up windows installer
+allow extract_app to work, but warn of deprecation
+use returned git_url instead of contructed url
+silently alias apps:delete to apps:destroy, as I keep mistyping this
+fix help for logs:drains
 
 2.17.0 12/19/2011 9532885dbc4b880088da4a7a3a9a61b9e0c3b462
 ==========================================================
