@@ -91,7 +91,7 @@ module Heroku::Command
       uri['scheme'] = conf['adapter']
       uri['username'] = conf['user'] || conf['username']
       uri['password'] = conf['password']
-      uri['host'] = conf['host'] || conf['hostname']
+      uri['host'] = conf['host'] || conf['hostname'] || '127.0.0.1'
       uri['port'] = conf['port']
       uri['path'] = conf['database']
 
