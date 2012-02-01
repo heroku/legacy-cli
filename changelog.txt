@@ -1,4 +1,12 @@
-2.19.1 01/27/2010
+2.19.2 02/01/2012
+=================
+
+fix pg:wait with no arguments to loop over all databases
+fix default hostname when parsing database.yml for db:push and db:pull
+fix apps:destroy to prevent improperly defaulting to app from current directory
+deb build/release are now in toolbelt
+
+2.19.1 01/27/2012
 =================
 
 fix formatting for collaborators in app info
