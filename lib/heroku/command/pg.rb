@@ -125,9 +125,9 @@ module Heroku::Command
       specified_db_or_all do |db|
         case db[:name]
         when 'SHARED_DATABASE'
-          return
+          next
         when /\A#{Resolver.shared_addon_prefix}\w+/
-          return
+          next
         else
           wait_for db
         end
