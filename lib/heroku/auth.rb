@@ -57,6 +57,10 @@ class Heroku::Auth
       @credentials[1]
     end
 
+    def api_key
+      Heroku::Client.auth(user, password, host)["api_key"]
+    end
+
     def credentials_file
       if host == default_host
         "#{home_directory}/.heroku/credentials"
