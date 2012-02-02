@@ -26,5 +26,13 @@ class Heroku::Command::Auth < Heroku::Command::Base
 
   alias_command "logout", "auth:logout"
 
+  # auth:token
+  #
+  # display your api token
+  #
+  def token
+    display Heroku::Auth.api_key
+  end
+
 end
 
