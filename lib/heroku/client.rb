@@ -176,7 +176,7 @@ class Heroku::Client
   def list_stacks(app_name, options={})
     include_deprecated = options.delete(:include_deprecated) || false
 
-    json_decode resource("/apps/#{app_name}/stack").get(
+    json_decode get("/apps/#{app_name}/stack",
       :params => { :include_deprecated => include_deprecated },
       :accept => 'application/json'
     ).to_s
@@ -184,7 +184,7 @@ class Heroku::Client
 
   # Request a stack migration.
   def migrate_to_stack(app_name, stack)
-    resource("/apps/#{app_name}/stack").put(stack, :accept => 'text/plain').to_s
+    put("/apps/#{app_name}/stack", stack, :accept => 'text/plain').to_s
   end
 
   class AppCrashed < RuntimeError; end
@@ -325,7 +325,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   # Retreive ps list for the given app name.
   def ps(app_name)
-    json_decode resource("/apps/#{app_name}/ps").get(:accept => 'application/json').to_s
+    json_decode get("/apps/#{app_name}/ps", :accept => 'application/json').to_s
   end
 
   # Run a service. If Responds to #each and yields output as it's received.
