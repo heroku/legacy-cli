@@ -1,10 +1,12 @@
 require "spec_helper"
 require "heroku/command/auth"
 
-module Heroku::Command
-  describe Auth do
-    before(:each) do
-      @cli = prepare_command(Auth)
+describe Heroku::Command::Auth do
+  describe "auth:token" do
+    it "displays the user's api key" do
+      Heroku::Auth.should_receive(:api_key).and_return("foo_token")
+      execute "auth:token"
+      output.should == "foo_token"
     end
   end
 end
