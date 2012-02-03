@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-script minSpecVersion="1.000000" authoringTool="org.ruby-lang.rake" authoringToolVersion="0.8.7">
-  <title>Heroku Toolbelt</title>
+  <title>Heroku Client</title>
   <options customize="allow" allow-external-scripts="no"/>
   <domains enable_localSystem="true"/>
   <choices-outline>
-    <line choice="foreman"/>
-    <line choice="git"/>
     <line choice="heroku-<%= version %>"/>
   </choices-outline>
-  <choice id="foreman" title="Foreman" start_selected="true" start_enabled="true" enabled="true">
-    <pkg-ref id="io.foreman.installer" />
-  </choice>
-  <choice id="git" title="Git" start_selected="true" start_enabled="true" enabled="true">
-    <pkg-ref id="git-etc.pkg" />
-    <pkg-ref id="git-git.pkg" />
-  </choice>
   <choice id="heroku-<%= version %>" title="Heroku Client">
-    <pkg-ref id="com.heroku.toolbelt"/>
+    <pkg-ref id="com.heroku.client"/>
   </choice>
-  <pkg-ref id="io.foreman.installer" installKBytes="651" auth="Root">#foreman.pkg</pkg-ref>
-  <pkg-ref id="git-etc.pkg" installKBytes="1" auth="Root">#git-etc.pkg</pkg-ref>
-  <pkg-ref id="git-git.pkg" installKBytes="16900" auth="Root">#git-git.pkg</pkg-ref>
-  <pkg-ref id="com.heroku.toolbelt" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-<%= version %>.pkg</pkg-ref>
+  <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-<%= version %>.pkg</pkg-ref>
 </installer-script>

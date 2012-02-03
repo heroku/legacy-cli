@@ -2,14 +2,14 @@ require "erb"
 
 file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
   tempdir do |dir|
-    mkchdir("heroku-toolbelt") do
+    mkchdir("heroku-client") do
       assemble_distribution
       assemble_gems
       assemble resource("pkg/heroku"), "bin/heroku", 0755
     end
 
-    kbytes = %x{ du -ks heroku-toolbelt | cut -f 1 }
-    num_files = %x{ find heroku-toolbelt | wc -l }
+    kbytes = %x{ du -ks heroku-client | cut -f 1 }
+    num_files = %x{ find heroku-client | wc -l }
 
     mkdir_p "pkg"
     mkdir_p "pkg/Resources"
@@ -27,20 +27,11 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
     cp resource("pkg/postinstall"), "pkg/heroku-#{version}.pkg/Scripts/postinstall"
     chmod 0755, "pkg/heroku-#{version}.pkg/Scripts/postinstall"
 
-    sh %{ mkbom -s heroku-toolbelt pkg/heroku-#{version}.pkg/Bom }
+    sh %{ mkbom -s heroku-client pkg/heroku-#{version}.pkg/Bom }
 
-    Dir.chdir("heroku-toolbelt") do
+    Dir.chdir("heroku-client") do
       sh %{ pax -wz -x cpio . > ../pkg/heroku-#{version}.pkg/Payload }
     end
-
-    sh %{ curl http://assets.foreman.io.s3.amazonaws.com/foreman/foreman.pkg -o foreman-full.pkg }
-    sh %{ pkgutil --expand foreman-full.pkg foreman-full }
-    sh %{ mv foreman-full/foreman-*.pkg pkg/foreman.pkg }
-
-    sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/git.pkg -o git-full.pkg }
-    sh %{ pkgutil --expand git-full.pkg git-full }
-    mv "git-full/etc.pkg", "pkg/git-etc.pkg"
-    mv "git-full/git.pkg", "pkg/git-git.pkg"
 
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
 
@@ -52,10 +43,4 @@ task "pkg:build" => pkg("heroku-#{version}.pkg")
 
 task "pkg:clean" do
   clean pkg("heroku-#{version}.pkg")
-end
-
-task "pkg:release" => "pkg:build" do |t|
-  store pkg("heroku-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt-#{version}.pkg"
-  store pkg("heroku-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt-beta.pkg" if beta?
-  store pkg("heroku-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt.pkg" unless beta?
 end
