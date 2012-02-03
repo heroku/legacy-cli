@@ -4,10 +4,10 @@
   <options customize="allow" allow-external-scripts="no"/>
   <domains enable_localSystem="true"/>
   <choices-outline>
-    <line choice="heroku-<%= version %>"/>
+    <line choice="heroku-client"/>
   </choices-outline>
-  <choice id="heroku-<%= version %>" title="Heroku Client">
+  <choice id="heroku-client" title="Heroku Client">
     <pkg-ref id="com.heroku.client"/>
   </choice>
-  <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-<%= version %>.pkg</pkg-ref>
+  <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-client.pkg</pkg-ref>
 </installer-script>

@@ -13,7 +13,7 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
 
     mkdir_p "pkg"
     mkdir_p "pkg/Resources"
-    mkdir_p "pkg/heroku-#{version}.pkg"
+    mkdir_p "pkg/heroku-client.pkg"
 
     dist = File.read(resource("pkg/Distribution.erb"))
     dist = ERB.new(dist).result(binding)
@@ -21,16 +21,16 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
 
     dist = File.read(resource("pkg/PackageInfo.erb"))
     dist = ERB.new(dist).result(binding)
-    File.open("pkg/heroku-#{version}.pkg/PackageInfo", "w") { |f| f.puts dist }
+    File.open("pkg/heroku-client.pkg/PackageInfo", "w") { |f| f.puts dist }
 
-    mkdir_p "pkg/heroku-#{version}.pkg/Scripts"
-    cp resource("pkg/postinstall"), "pkg/heroku-#{version}.pkg/Scripts/postinstall"
-    chmod 0755, "pkg/heroku-#{version}.pkg/Scripts/postinstall"
+    mkdir_p "pkg/heroku-client.pkg/Scripts"
+    cp resource("pkg/postinstall"), "pkg/heroku-client.pkg/Scripts/postinstall"
+    chmod 0755, "pkg/heroku-client.pkg/Scripts/postinstall"
 
-    sh %{ mkbom -s heroku-client pkg/heroku-#{version}.pkg/Bom }
+    sh %{ mkbom -s heroku-client pkg/heroku-client.pkg/Bom }
 
     Dir.chdir("heroku-client") do
-      sh %{ pax -wz -x cpio . > ../pkg/heroku-#{version}.pkg/Payload }
+      sh %{ pax -wz -x cpio . > ../pkg/heroku-client.pkg/Payload }
     end
 
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
