@@ -39,8 +39,14 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
   end
 end
 
+desc "build pkg"
 task "pkg:build" => pkg("heroku-#{version}.pkg")
 
+desc "clean pkg"
 task "pkg:clean" do
   clean pkg("heroku-#{version}.pkg")
+end
+
+task "pkg:release" do
+  raise "pkg:release moved to toolbelt repo"
 end
