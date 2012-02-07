@@ -1,7 +1,9 @@
+require 'heroku/helpers'
 require 'heroku/pg_resolver'
 
 module PgUtils
   include PGResolver
+  include Heroku::Helpers
 
   def deprecate_dash_dash_db(name)
     return unless args.include? "--db"
@@ -30,6 +32,9 @@ module PgUtils
   def translate_fork_and_follow(addon, config)
     %w[fork follow].each do |opt|
       if val = config[opt]
+        unless val.is_a?(String)
+          error("--#{opt} requires a database argument")
+        end
         resolved = Resolver.new(val, config_vars)
         display resolved.message if resolved.message
         abort_with_database_list(val) unless resolved[:url]
