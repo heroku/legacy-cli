@@ -1,5 +1,21 @@
-2.19.2 02/01/2012
-=================
+2.20.0 02/10/2012 4a96f9199ebaa6fa087df186c3ec4ecce08c94fa
+==========================================================
+
+leveraged put and get helper methods
+upgrade rake
+add auth:token command
+Merge pull request #227 from heroku/auth-token
+helps to have an api_key method
+update pkg installing
+remove version from inner package
+stub old pkg:release
+Merge pull request #225 from heroku/api_calls
+more explicit usage instructions of apps:destroy error.     closes #228
+better error when missing fork/follow argument for resolver     closes #229
+
+
+2.19.2 02/01/2012 946ef8889bd673089efe2164490bdbdd1283836f
+==========================================================
 
 fix pg:wait with no arguments to loop over all databases
 fix default hostname when parsing database.yml for db:push and db:pull
