@@ -5,9 +5,8 @@ file pkg("heroku-#{version}.zip") => distribution_files("zip") do |t|
     mkchdir("heroku-client") do
       assemble_distribution
       assemble_gems
-      rm_rf "bin"
       Zip::ZipFile.open(t.name, Zip::ZipFile::CREATE) do |zip|
-        Dir["{data,lib,vendor}/**/*"].each do |file|
+        Dir["**/*"].each do |file|
           zip.add(file, file) { true }
         end
       end
