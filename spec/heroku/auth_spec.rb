@@ -24,37 +24,24 @@ module Heroku
     
     context "credentials are set via environment variables" do
       before do
-        ENV['HEROKU_USERNAME'] = "env_user"
-        ENV['HEROKU_PASSWORD'] = "env_password"
+        ENV['HEROKU_API_KEY'] = "secret"
       end
       
       it "gets credentials from environment variables in preference to credentials file" do
-        @cli.read_credentials.should == ['env_user', 'env_password']
+        @cli.read_credentials.should == [nil, ENV['HEROKU_API_KEY']]
+      end
+      
+      it "returns a nil username" do
+        @cli.user.should be_nil
+      end
+      
+      it "returns the api key as the password" do
+        @cli.password.should == ENV['HEROKU_API_KEY']
       end
     
       it "does not overwrite credentials file with environment variable credentials" do
         @cli.should_not_receive(:write_credentials)
         @cli.read_credentials
-      end
-      
-      context "only a username is provided" do
-        before do
-          ENV['HEROKU_PASSWORD'] = nil
-        end
-        
-        it "should use a nil password" do
-          @cli.read_credentials.should == ['env_user', nil]
-        end
-      end
-      
-      context "only a password is provided" do
-        before do
-          ENV['HEROKU_USERNAME'] = nil
-        end
-        
-        it "should use a nil username" do
-          @cli.read_credentials.should == [nil, 'env_password']
-        end
       end
     
       context "reauthenticating" do
@@ -69,7 +56,7 @@ module Heroku
           File.read(@cli.credentials_file).should == "new_user\nnew_password\n"
         end
         it "returns environment variable credentials" do
-          @cli.read_credentials.should == %w(env_user env_password)
+          @cli.read_credentials.should == [nil, ENV['HEROKU_API_KEY']]
         end
       end
     end
