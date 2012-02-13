@@ -129,8 +129,10 @@ module Heroku
       object.send(method)
     rescue RestClient::Unauthorized
       puts "Authentication failure"
-      run "login"
-      retry
+      unless ENV['HEROKU_API_KEY'] 
+        run "login"
+        retry
+      end
     rescue RestClient::PaymentRequired => e
       retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e

@@ -15,7 +15,7 @@ class Heroku::Auth
     end
 
     def login
-      delete_credentials
+      delete_credentials unless ENV['HEROKU_API_KEY']
       get_credentials
     end
 
@@ -78,7 +78,11 @@ class Heroku::Auth
     end
 
     def read_credentials
-      File.exists?(credentials_file) and File.read(credentials_file).split("\n")
+      if ENV['HEROKU_API_KEY']
+        ['', ENV['HEROKU_API_KEY']]
+      else
+        File.exists?(credentials_file) and File.read(credentials_file).split("\n")
+      end
     end
 
     def echo_off
