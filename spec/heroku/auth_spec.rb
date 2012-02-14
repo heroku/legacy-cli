@@ -14,6 +14,7 @@ module Heroku
       @cli.stub!(:set_credentials_permissions)
       @cli.credentials = nil
 
+      ENV['HEROKU_API_KEY'] = nil
       FakeFS.activate!
 
       File.open(@cli.credentials_file, "w") do |file|
@@ -29,7 +30,7 @@ module Heroku
       before do
         ENV['HEROKU_API_KEY'] = "secret"
         user_info = { "api_key" => ENV['HEROKU_API_KEY'] }
-        stub_request(:post, "https://api.#{@cli.host}/login").to_return(:body => json_encode(user_info))
+        stub_request(:post, "https://:secret@api.#{@cli.host}/login").to_return(:body => json_encode(user_info))
       end
       
       it "gets credentials from environment variables in preference to credentials file" do
@@ -45,7 +46,7 @@ module Heroku
       end
       
       it "returns the provided api key from api_key" do
-        @cli.api_key.should ==  ENV['HEROKU_API_KEY']
+        @cli.api_key.should == ENV['HEROKU_API_KEY']
       end
     
       it "does not overwrite credentials file with environment variable credentials" do
