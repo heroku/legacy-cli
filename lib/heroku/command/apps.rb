@@ -188,7 +188,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def destroy
     @app = args.first || options[:app]
     unless @app
-      raise CommandFailed.new("Usage: heroku apps:destroy --app APP")
+      raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP")
     end
 
     heroku.info(app) # fail fast if no access or doesn't exist
