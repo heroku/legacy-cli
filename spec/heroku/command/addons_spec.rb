@@ -183,8 +183,8 @@ module Heroku::Command
         stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "foo" })
         execute "addons:add my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Adding my_addon to myapp... done, v99 (free)
-                 foo
+          ----> Adding my_addon to myapp... done, v99 (free)
+                foo
         OUTPUT
       end
 
@@ -192,9 +192,9 @@ module Heroku::Command
         stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
         execute "addons:add my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Adding my_addon to myapp... done, v99 ($200/mo)
-                 foo
-                 bar
+          ----> Adding my_addon to myapp... done, v99 ($200/mo)
+                foo
+                bar
         OUTPUT
       end
 
@@ -228,7 +228,7 @@ module Heroku::Command
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
         execute "addons:upgrade my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Upgrading my_addon to myapp... done, v99 (free)
+          ----> Upgrading my_addon to myapp... done, v99 (free)
         OUTPUT
       end
 
@@ -236,8 +236,8 @@ module Heroku::Command
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
         execute "addons:upgrade my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Upgrading my_addon to myapp... done, v99 (free)
-                 Don't Panic
+          ----> Upgrading my_addon to myapp... done, v99 (free)
+                Don't Panic
         OUTPUT
       end
     end
@@ -266,7 +266,7 @@ module Heroku::Command
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
         execute "addons:downgrade my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Upgrading my_addon to myapp... done, v99 (free)
+          ----> Upgrading my_addon to myapp... done, v99 (free)
         OUTPUT
       end
 
@@ -274,8 +274,8 @@ module Heroku::Command
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
         execute "addons:downgrade my_addon"
         output.should == <<-OUTPUT.undent
-          -----> Upgrading my_addon to myapp... done, v99 (free)
-                 Don't Panic
+          ----> Upgrading my_addon to myapp... done, v99 (free)
+                Don't Panic
         OUTPUT
       end
     end
