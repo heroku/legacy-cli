@@ -1,8 +1,11 @@
 require "spec_helper"
 require "heroku/auth"
+require "heroku/helpers"
 
 module Heroku
   describe Auth do
+    include Heroku::Helpers
+    
     before do
       @cli = Heroku::Auth
       @cli.stub!(:check)
@@ -20,6 +23,69 @@ module Heroku
 
     after do
       FakeFS.deactivate!
+    end
+    
+    context "API key is set via environment variable" do
+      before do
+        ENV['HEROKU_API_KEY'] = "secret"
+        user_info = { "api_key" => ENV['HEROKU_API_KEY'] }
+        stub_request(:post, "https://api.#{@cli.host}/login").to_return(:body => json_encode(user_info))
+      end
+      
+      it "gets credentials from environment variables in preference to credentials file" do
+        @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
+      end
+      
+      it "returns a blank username" do
+        @cli.user.should be_empty
+      end
+      
+      it "returns the api key as the password" do
+        @cli.password.should == ENV['HEROKU_API_KEY']
+      end
+      
+      it "returns the provided api key from api_key" do
+        @cli.api_key.should ==  ENV['HEROKU_API_KEY']
+      end
+    
+      it "does not overwrite credentials file with environment variable credentials" do
+        @cli.should_not_receive(:write_credentials)
+        @cli.read_credentials
+      end
+    
+      context "reauthenticating" do
+        before do
+          @cli.stub!(:ask_for_credentials).and_return(['new_user', 'new_password'])
+          @cli.stub!(:check)
+          @cli.should_receive(:set_credentials_permissions)
+          @cli.should_receive(:check_for_associated_ssh_key)
+          @cli.reauthorize
+        end
+        it "updates saved credentials" do
+          File.read(@cli.credentials_file).should == "new_user\nnew_password\n"
+        end
+        it "returns environment variable credentials" do
+          @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
+        end
+      end
+      
+      context "login" do
+        before do
+          @cli.login
+        end
+        it "does not delete existing credentials on disk" do
+          File.read(@cli.credentials_file).should == "user\npass\n"
+        end
+      end
+      
+      context "logout" do
+        before do
+          @cli.logout
+        end
+        it "should delete saved credentials" do
+          File.exists?(@cli.credentials_file).should be_false
+        end
+      end
     end
 
     it "reads credentials from the credentials file" do
