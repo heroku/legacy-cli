@@ -244,12 +244,12 @@ module Heroku
 
     def output(message="", new_line=true)
       return if message.to_s.strip == ""
-      display("       " + message.split("\n").join("\n       "), new_line)
+      display("      " + message.split("\n").join("\n      "), new_line)
     end
 
     def output_with_arrow(message="", new_line=true)
       return if message.to_s.strip == ""
-      display("-----> " + message.split("\n").join("\n       "), new_line)
+      display("----> " + message.split("\n").join("\n      "), new_line)
     end
 
     def format_with_bang(message)
