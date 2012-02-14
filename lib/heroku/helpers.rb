@@ -64,7 +64,7 @@ module Heroku
         return true
       else
         display
-        message ||= "WARNING: Potentially Destructive Action\n This command will affect the app: #{app}"
+        message ||= "WARNING: Potentially Destructive Action\nThis command will affect the app: #{app}"
         output_with_bang(message)
         output_with_bang("To proceed, type \"#{app}\" or re-run this command with --confirm #{app}")
         display
