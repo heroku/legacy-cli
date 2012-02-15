@@ -542,7 +542,9 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   ##################
 
   def resource(uri, options={})
-    RestClient.proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+    proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+    proxy = "http://" + proxy unless /^[^:]+:\/\// =~ proxy
+    RestClient.proxy = proxy
     resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
     resource
   end
