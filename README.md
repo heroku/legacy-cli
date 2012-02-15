@@ -57,7 +57,7 @@ Heroku API documentation can be found at <https://api-docs.heroku.com>
 Meta
 ----
 
-Released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+Released under the MIT license; see the file License.
 
 Created by Adam Wiggins
 
