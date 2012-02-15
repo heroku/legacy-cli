@@ -276,7 +276,7 @@ describe Heroku::Client do
     end
   end
 
-  describe "ssh keys" do
+  describe "SSH keys" do
     it "fetches a list of the user's current keys" do
       stub_api_request(:get, "/user/keys").to_return(:body => <<-EOXML)
         <?xml version="1.0" encoding="UTF-8"?>
@@ -289,17 +289,17 @@ describe Heroku::Client do
       @client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
     end
 
-    it "add_key(key) -> add an ssh key (e.g., the contents of id_rsa.pub) to the user" do
+    it "add_key(key) -> add an SSH key (e.g., the contents of id_rsa.pub) to the user" do
       stub_api_request(:post, "/user/keys").with(:body => "a key")
       @client.add_key('a key')
     end
 
-    it "remove_key(key) -> remove an ssh key by name (user@box)" do
+    it "remove_key(key) -> remove an SSH key by name (user@box)" do
       stub_api_request(:delete, "/user/keys/joe%40workstation")
       @client.remove_key('joe@workstation')
     end
 
-    it "remove_all_keys -> removes all ssh keys for the user" do
+    it "remove_all_keys -> removes all SSH keys for the user" do
       stub_api_request(:delete, "/user/keys")
       @client.remove_all_keys
     end

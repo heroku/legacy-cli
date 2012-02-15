@@ -33,7 +33,7 @@ module Heroku::Command
     #
     def add
       if keyfile = args.first
-        display "Uploading ssh public key #{keyfile}"
+        display "Uploading SSH public key #{keyfile}"
         heroku.add_key(File.read(keyfile))
       else
         # make sure we have credentials

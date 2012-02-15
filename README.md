@@ -45,9 +45,9 @@ Once installed, you'll have access to the `heroku` command from your command she
     Could not find an existing public key.
     Would you like to generate one? [Yn]
     Generating new SSH public key.
-    Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
+    Uploading SSH public key /Users/adam/.ssh/id_rsa.pub
 
-Press enter at the prompt to upload your existing `ssh` key or create a new one, used for pushing code later on.
+Press enter at the prompt to upload your existing `SSH` key or create a new one, used for pushing code later on.
 
 API
 ---

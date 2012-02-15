@@ -199,7 +199,7 @@ class Heroku::Auth
     end
 
     def associate_key(key)
-      display "Uploading ssh public key #{key}"
+      display "Uploading SSH public key #{key}"
       client.add_key(File.read(key))
     end
 
