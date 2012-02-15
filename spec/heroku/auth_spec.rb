@@ -69,16 +69,7 @@ module Heroku
           @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
         end
       end
-      
-      context "login" do
-        before do
-          @cli.login
-        end
-        it "does not delete existing credentials on disk" do
-          File.read(@cli.credentials_file).should == "user\npass\n"
-        end
-      end
-      
+
       context "logout" do
         before do
           @cli.logout

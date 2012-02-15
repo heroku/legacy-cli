@@ -15,7 +15,7 @@ class Heroku::Auth
     end
 
     def login
-      delete_credentials unless ENV['HEROKU_API_KEY']
+      delete_credentials
       get_credentials
     end
 
