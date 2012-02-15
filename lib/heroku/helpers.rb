@@ -53,24 +53,23 @@ module Heroku
       ask.downcase == 'y'
     end
 
-    def confirm_command(message=nil)
-      raise(Heroku::Command::CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app
+    def confirm_command(app_to_confirm = app, message=nil)
+      raise(Heroku::Command::CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app_to_confirm
 
-      confirmed_app = extract_option('--confirm', false)
-      if confirmed_app
-        unless confirmed_app == app
-          raise(Heroku::Command::CommandFailed, "Confirmed app #{confirmed_app} did not match the selected app #{app}.")
+      if methods.include?(:extract_option) && confirmed_app = extract_option('--confirm', false)
+        unless confirmed_app == app_to_confirm
+          raise(Heroku::Command::CommandFailed, "Confirmed app #{confirmed_app} did not match the selected app #{app_to_confirm}.")
         end
         return true
       else
         display
-        message ||= "WARNING: Potentially Destructive Action\nThis command will affect the app: #{app}"
+        message ||= "WARNING: Potentially Destructive Action\nThis command will affect the app: #{app_to_confirm}"
+        message << "\nTo proceed, type \"#{app_to_confirm}\" or re-run this command with --confirm #{app_to_confirm}"
         output_with_bang(message)
-        output_with_bang("To proceed, type \"#{app}\" or re-run this command with --confirm #{app}")
         display
         display "> ", false
-        if ask.downcase != app
-          output_with_bang "Input did not match #{app}. Aborted."
+        if ask.downcase != app_to_confirm
+          output_with_bang "Input did not match #{app_to_confirm}. Aborted."
           false
         else
           true

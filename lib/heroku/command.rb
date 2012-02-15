@@ -141,7 +141,7 @@ module Heroku
       }
     rescue RestClient::Locked => e
       app = e.response.headers[:x_confirmation_required]
-      if confirm_command(extract_error(e.response.body))
+      if confirm_command(app, extract_error(e.response.body))
         arguments << '--confirm' << app
         retry
       end
