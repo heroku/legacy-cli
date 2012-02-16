@@ -1,3 +1,16 @@
+2.20.1 02/16/2012
+=================
+
+packaging related fixes
+add ability to pass credentials via ENV['HEROKU_API_KEY']
+consistency fixes for indentation/formatting
+fix for error type in apps:destroy
+link to contributors rather than explicitly listing
+proxy fixes (prepend missing http(s)://, don't use if value is empty string)
+fix x_confirmation_required response handling
+include license
+
+
 2.20.0 02/10/2012 4a96f9199ebaa6fa087df186c3ec4ecce08c94fa
 ==========================================================
 
