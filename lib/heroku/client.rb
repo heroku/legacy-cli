@@ -379,17 +379,14 @@ Check the output of "heroku ps" and "heroku logs" for more information.
       uri  = URI.parse(url);
 
       if uri.scheme == 'https'
-        proxy = ENV['HTTPS_PROXY'] || ENV['https_proxy']
+        proxy = https_proxy
       else
-        proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+        proxy = http_proxy
       end
 
       if proxy
-        unless /^[^:]+:\/\// =~ proxy
-          proxy = "http://" + proxy
-        end
-        proxy = URI.parse(proxy)
-        http = Net::HTTP.new(uri.host, uri.port, proxy.host, proxy.port, proxy.user, proxy.password)
+        proxy_uri = URI.parse(proxy)
+        http = Net::HTTP.new(uri.host, uri.port, proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
       else
         http = Net::HTTP.new(uri.host, uri.port)
       end
@@ -542,9 +539,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   ##################
 
   def resource(uri, options={})
-    if proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
-      proxy = "http://" + proxy unless /^[^:]+:\/\// =~ proxy
-      RestClient.proxy = proxy
+    if http_proxy
+      RestClient.proxy = http_proxy
     end
     resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
     resource
@@ -686,6 +682,30 @@ Check the output of "heroku ps" and "heroku logs" for more information.
         when 1 then e.text
         else hash_from_xml_doc(e.children)
       end)
+    end
+  end
+
+  def http_proxy
+    proxy = ENV['HTTP_PROXY'] || ENV['http_proxy']
+    if proxy && !proxy.empty?
+      unless /^[^:]+:\/\// =~ proxy
+        proxy = "http://" + proxy
+      end
+      proxy
+    else
+      nil
+    end
+  end
+
+  def https_proxy
+    proxy = ENV['HTTPS_PROXY'] || ENV['https_proxy']
+    if proxy && !proxy.empty?
+      unless /^[^:]+:\/\// =~ proxy
+        proxy = "https://" + proxy
+      end
+      proxy
+    else
+      nil
     end
   end
 end
