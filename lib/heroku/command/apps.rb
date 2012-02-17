@@ -186,7 +186,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # permanently destroy an app
   #
   def destroy
-    @app = args.first || options[:app]
+    @app = args.first || options[:app] || options[:confirm]
     unless @app
       raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP")
     end
