@@ -25,11 +25,6 @@ class Heroku::Auth
       delete_credentials
     end
 
-    def clear
-      @credentials = nil
-      @client = nil
-    end
-
     # just a stub; will raise if not authenticated
     def check
       client.list
@@ -147,7 +142,6 @@ class Heroku::Auth
         check
       rescue ::RestClient::Unauthorized, ::RestClient::ResourceNotFound => e
         delete_credentials
-        clear
         display "Authentication failed."
         retry if retry_login?
         exit 1
@@ -233,7 +227,7 @@ class Heroku::Auth
 
     def delete_credentials
       FileUtils.rm_f(credentials_file)
-      clear
+      @client, @credentials = nil, nil
     end
   end
 end
