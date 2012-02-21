@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     it "shows app info using the --app syntax" do
-      @cli.should_receive(:display).with("heroku-gem/#{Heroku::VERSION}")
+      @cli.should_receive(:display).with(Heroku::VERSION)
       @cli.index
     end
   end
