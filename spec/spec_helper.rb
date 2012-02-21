@@ -72,8 +72,15 @@ def any_instance_of(klass, &block)
 end
 
 def run(command_line)
-  capture_stdout { Heroku::CLI.start(*command_line.split(" ")) }
+  capture_stdout do
+    begin
+      Heroku::CLI.start(*command_line.split(" "))
+    rescue SystemExit
+    end
+  end
 end
+
+alias heroku run
 
 def capture_stdout(&block)
   original_stdout = $stdout
