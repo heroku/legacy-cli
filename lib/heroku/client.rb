@@ -30,12 +30,12 @@ class Heroku::Client
 
   attr_accessor :host, :user, :password
 
-  def self.auth(user, password, host=Heroku::Auth.default_host)
+  def self.auth(user, password, host=Heroku::Auth.host)
     client = new(user, password, host)
     json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
-  def initialize(user, password, host=Heroku::Auth.default_host)
+  def initialize(user, password, host=Heroku::Auth.host)
     @user = user
     @password = password
     @host = host

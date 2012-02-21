@@ -4,6 +4,8 @@ require "heroku/helpers"
 
 class Heroku::Auth
   class << self
+
+    include Heroku::Helpers
     attr_accessor :credentials
 
     def client
@@ -27,8 +29,6 @@ class Heroku::Auth
       @credentials = nil
       @client = nil
     end
-
-    include Heroku::Helpers
 
     # just a stub; will raise if not authenticated
     def check
@@ -58,7 +58,7 @@ class Heroku::Auth
     end
 
     def api_key
-      Heroku::Client.auth(user, password, host)["api_key"]
+      Heroku::Client.auth(user, password)["api_key"]
     end
 
     def credentials_file
@@ -105,7 +105,7 @@ class Heroku::Auth
 
       print "Password: "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
-      api_key = Heroku::Client.auth(user, password, host)['api_key']
+      api_key = Heroku::Client.auth(user, password)['api_key']
 
       [user, api_key]
     end
