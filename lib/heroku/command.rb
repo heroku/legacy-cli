@@ -1,6 +1,7 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
 require 'heroku/builtin_plugin'
+require 'heroku/version'
 require "optparse"
 
 module Heroku
@@ -65,6 +66,11 @@ module Heroku
       command = parse(cmd)
 
       unless command
+        if %w( -v --version ).include?(cmd)
+          display Heroku::VERSION
+          exit
+        end
+
         output_with_bang("`#{cmd}` is not a heroku command.")
 
         distances = {}

@@ -148,6 +148,11 @@ describe Heroku::Command do
 
   context "when no commands match" do
 
+    it "displays the version if -v or --version is used" do
+      heroku("-v").chomp.should == Heroku::VERSION
+      heroku("--version").chomp.should == Heroku::VERSION
+    end
+
     it "suggests similar commands if there are any" do
       original_stdout = $stdout
       $stdout = fake = StringIO.new
