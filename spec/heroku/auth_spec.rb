@@ -11,7 +11,6 @@ module Heroku
       @cli.stub!(:check)
       @cli.stub!(:display)
       @cli.stub!(:running_on_a_mac?).and_return(false)
-      @cli.stub!(:set_credentials_permissions)
       @cli.credentials = nil
 
       ENV['HEROKU_API_KEY'] = nil
@@ -58,7 +57,7 @@ module Heroku
         before do
           @cli.stub!(:ask_for_credentials).and_return(['new_user', 'new_password'])
           @cli.stub!(:check)
-          @cli.should_receive(:set_credentials_permissions)
+          FileUtils.should_receive(:chmod).exactly(2).times
           @cli.should_receive(:check_for_associated_ssh_key)
           @cli.reauthorize
         end
@@ -93,6 +92,7 @@ module Heroku
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
+      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.user.should == 'u'
       @cli.password.should == 'p'
@@ -100,13 +100,13 @@ module Heroku
 
     it "writes the credentials to a file" do
       @cli.should_receive(:credentials).and_return(%w( one two ))
-      @cli.should_receive(:set_credentials_permissions)
+      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.write_credentials
       File.read(@cli.credentials_file).should == "one\ntwo\n"
     end
 
     it "sets ~/.heroku/credentials to be readable only by the user" do
-      @cli.should_receive(:set_credentials_permissions)
+      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.write_credentials
     end
 
@@ -146,7 +146,7 @@ module Heroku
     it "writes the login information to the credentials file for the 'heroku login' command" do
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
-      @cli.should_receive(:set_credentials_permissions)
+      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
       File.read(@cli.credentials_file).should == "one\ntwo\n"

@@ -198,20 +198,17 @@ class Heroku::Auth
       @login_attempts < 3
     end
 
-    def write_credentials
-      FileUtils.mkdir_p(File.dirname(credentials_file))
-      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
-      set_credentials_permissions
-    end
-
-    def set_credentials_permissions
-      FileUtils.chmod 0700, File.dirname(credentials_file)
-      FileUtils.chmod 0600, credentials_file
-    end
 
     def delete_credentials
       FileUtils.rm_f(credentials_file)
       @client, @credentials = nil, nil
+    end
+
+    def write_credentials
+      FileUtils.mkdir_p(File.dirname(credentials_file))
+      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
+      FileUtils.chmod(0700, File.dirname(credentials_file))
+      FileUtils.chmod(0600, credentials_file)
     end
   end
 end
