@@ -95,7 +95,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # create a new app
   #
-  #     --addons ADDONS        # a list of addons to install
+  #     --addons ADDONS        # a comma-delimited list of addons to install
   # -b, --buildpack BUILDPACK  # a buildpack url to use for this app
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
