@@ -148,7 +148,7 @@ class Heroku::Auth
     end
 
     def check_for_associated_ssh_key
-      return unless client.keys.length.zero?
+      return unless client.keys.empty?
       associate_or_generate_ssh_key
     end
 
