@@ -209,9 +209,7 @@ class Heroku::Auth
 
     def write_credentials
       FileUtils.mkdir_p(File.dirname(credentials_file))
-      f = File.open(credentials_file, 'w')
-      f.puts self.credentials
-      f.close
+      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
       set_credentials_permissions
     end
 
