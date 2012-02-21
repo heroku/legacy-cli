@@ -66,12 +66,24 @@ class Heroku::Auth
       @credentials ||= (read_credentials || ask_for_and_save_credentials)
     end
 
+    def delete_credentials
+      FileUtils.rm_f(credentials_file)
+      @client, @credentials = nil, nil
+    end
+
     def read_credentials
       if ENV['HEROKU_API_KEY']
         ['', ENV['HEROKU_API_KEY']]
       else
         File.exists?(credentials_file) and File.read(credentials_file).split("\n")
       end
+    end
+
+    def write_credentials
+      FileUtils.mkdir_p(File.dirname(credentials_file))
+      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
+      FileUtils.chmod(0700, File.dirname(credentials_file))
+      FileUtils.chmod(0600, credentials_file)
     end
 
     def echo_off
@@ -196,19 +208,6 @@ class Heroku::Auth
       @login_attempts ||= 0
       @login_attempts += 1
       @login_attempts < 3
-    end
-
-
-    def delete_credentials
-      FileUtils.rm_f(credentials_file)
-      @client, @credentials = nil, nil
-    end
-
-    def write_credentials
-      FileUtils.mkdir_p(File.dirname(credentials_file))
-      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
-      FileUtils.chmod(0700, File.dirname(credentials_file))
-      FileUtils.chmod(0600, credentials_file)
     end
   end
 end
