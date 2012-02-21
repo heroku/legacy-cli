@@ -43,13 +43,11 @@ class Heroku::Auth
     end
 
     def user    # :nodoc:
-      get_credentials
-      @credentials[0]
+      get_credentials[0]
     end
 
     def password    # :nodoc:
-      get_credentials
-      @credentials[1]
+      get_credentials[1]
     end
 
     def api_key
@@ -65,11 +63,7 @@ class Heroku::Auth
     end
 
     def get_credentials    # :nodoc:
-      return if @credentials
-      unless @credentials = read_credentials
-        ask_for_and_save_credentials
-      end
-      @credentials
+      @credentials ||= (read_credentials || ask_for_and_save_credentials)
     end
 
     def read_credentials
@@ -150,6 +144,7 @@ class Heroku::Auth
         raise e
       end
       check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
+      @credentials
     end
 
     def check_for_associated_ssh_key
