@@ -153,7 +153,7 @@ class Heroku::Auth
     end
 
     def associate_or_generate_ssh_key
-      public_keys = available_ssh_public_keys.sort
+      public_keys = Dir.glob("#{home_directory}/.ssh/*.pub").sort
 
       case public_keys.length
       when 0 then
@@ -190,15 +190,6 @@ class Heroku::Auth
     def associate_key(key)
       display "Uploading SSH public key #{key}"
       client.add_key(File.read(key))
-    end
-
-    def available_ssh_public_keys
-      keys = [
-        "#{home_directory}/.ssh/id_rsa.pub",
-        "#{home_directory}/.ssh/id_dsa.pub"
-      ]
-      keys.concat(Dir["#{home_directory}/.ssh/*.pub"])
-      keys.select { |d| File.exists?(d) }.uniq
     end
 
     def retry_login?
