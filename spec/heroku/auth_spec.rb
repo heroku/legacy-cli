@@ -5,64 +5,100 @@ require "heroku/helpers"
 module Heroku
   describe Auth do
     include Heroku::Helpers
-    
+
     before do
       @cli = Heroku::Auth
       @cli.stub!(:check)
       @cli.stub!(:display)
       @cli.stub!(:running_on_a_mac?).and_return(false)
-      @cli.credentials = nil
 
       ENV['HEROKU_API_KEY'] = nil
       FakeFS.activate!
 
-      File.open(@cli.credentials_file, "w") do |file|
-        file.puts "user\npass"
+      FakeFS::File.stub!(:stat).and_return(double('stat', :mode => "0600".to_i(8)))
+      FakeFS::FileUtils.stub!(:chmod)
+      FakeFS::File.stub!(:readlines) do |path|
+        File.read(path).split("\n").map {|line| "#{line}\n"}
       end
+    end
+
+    before(:each) do
+      @cli.credentials = nil
+      File.open(@cli.netrc_path, "w") do |file|
+        file.puts("machine api.heroku.com\n  login user\n  password pass\n")
+        file.puts("machine code.heroku.com\n  login user\n  password pass\n")
+      end
+    end
+
+    after(:each) do
+      FileUtils.rm_rf(@cli.netrc_path)
     end
 
     after do
       FakeFS.deactivate!
     end
-    
+
+    context "legacy credentials" do
+
+      before do
+        FileUtils.rm_rf(@cli.netrc_path)
+        File.open(@cli.legacy_credentials_path, "w") do |file|
+          file.puts "legacy_user\nlegacy_pass"
+        end
+      end
+
+      it "should translate to netrc and cleanup" do
+        # preconditions
+        File.exist?(@cli.legacy_credentials_path).should == true
+        File.exist?(@cli.netrc_path).should == false
+
+        # transition
+        @cli.get_credentials.should == ['legacy_user', 'legacy_pass']
+
+        # postconditions
+        File.exist?(@cli.legacy_credentials_path).should == false
+        File.exist?(@cli.netrc_path).should == true
+        Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['legacy_user', 'legacy_pass']
+      end
+    end
+
     context "API key is set via environment variable" do
       before do
         ENV['HEROKU_API_KEY'] = "secret"
         user_info = { "api_key" => ENV['HEROKU_API_KEY'] }
         stub_request(:post, "https://:secret@api.#{@cli.host}/login").to_return(:body => json_encode(user_info))
       end
-      
+
       it "gets credentials from environment variables in preference to credentials file" do
         @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
       end
-      
+
       it "returns a blank username" do
         @cli.user.should be_empty
       end
-      
+
       it "returns the api key as the password" do
         @cli.password.should == ENV['HEROKU_API_KEY']
       end
-      
+
       it "returns the provided api key from api_key" do
         @cli.api_key.should == ENV['HEROKU_API_KEY']
       end
-    
+
       it "does not overwrite credentials file with environment variable credentials" do
         @cli.should_not_receive(:write_credentials)
         @cli.read_credentials
       end
-    
+
       context "reauthenticating" do
         before do
           @cli.stub!(:ask_for_credentials).and_return(['new_user', 'new_password'])
           @cli.stub!(:check)
-          FileUtils.should_receive(:chmod).exactly(2).times
           @cli.should_receive(:check_for_associated_ssh_key)
           @cli.reauthorize
         end
         it "updates saved credentials" do
-          File.read(@cli.credentials_file).should == "new_user\nnew_password\n"
+          Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['new_user', 'new_password']
         end
         it "returns environment variable credentials" do
           @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
@@ -74,40 +110,18 @@ module Heroku
           @cli.logout
         end
         it "should delete saved credentials" do
-          File.exists?(@cli.credentials_file).should be_false
+          File.exists?(@cli.legacy_credentials_path).should be_false
+          Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should be_nil
         end
       end
-    end
-
-    it "reads credentials from the credentials file" do
-      @cli.read_credentials.should == %w(user pass)
-    end
-
-    it "takes the user from the first line and the password from the second line" do
-      @cli.read_credentials
-      @cli.user.should == 'user'
-      @cli.password.should == 'pass'
     end
 
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
-      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.user.should == 'u'
       @cli.password.should == 'p'
-    end
-
-    it "writes the credentials to a file" do
-      @cli.should_receive(:credentials).and_return(%w( one two ))
-      FileUtils.should_receive(:chmod).exactly(2).times
-      @cli.write_credentials
-      File.read(@cli.credentials_file).should == "one\ntwo\n"
-    end
-
-    it "sets ~/.heroku/credentials to be readable only by the user" do
-      FileUtils.should_receive(:chmod).exactly(2).times
-      @cli.write_credentials
     end
 
     it "writes credentials and uploads authkey when credentials are saved" do
@@ -139,17 +153,16 @@ module Heroku
     end
 
     it "deletes the credentials file" do
-      FileUtils.should_receive(:rm_f).with(@cli.credentials_file)
+      FileUtils.should_receive(:rm_f).with(@cli.legacy_credentials_path)
       @cli.delete_credentials
     end
 
     it "writes the login information to the credentials file for the 'heroku login' command" do
       @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
       @cli.stub!(:check)
-      FileUtils.should_receive(:chmod).exactly(2).times
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
-      File.read(@cli.credentials_file).should == "one\ntwo\n"
+      Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
     end
 
     describe "automatic key uploading" do

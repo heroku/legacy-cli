@@ -1,11 +1,12 @@
 require "heroku"
 require "heroku/client"
 require "heroku/helpers"
+require "vendor/heroku/netrc"
 
 class Heroku::Auth
   class << self
-
     include Heroku::Helpers
+
     attr_accessor :credentials
 
     def client
@@ -54,7 +55,21 @@ class Heroku::Auth
       Heroku::Client.auth(user, password)["api_key"]
     end
 
-    def credentials_file
+    def get_credentials    # :nodoc:
+      @credentials ||= (read_credentials || ask_for_and_save_credentials)
+    end
+
+    def delete_credentials
+      FileUtils.rm_f(legacy_credentials_path) # delete legacy credentials, if any exist
+      if netrc
+        netrc.delete("api.#{host}")
+        netrc.delete("code.#{host}")
+        netrc.save
+      end
+      @client, @credentials = nil, nil
+    end
+
+    def legacy_credentials_path
       if host == default_host
         "#{home_directory}/.heroku/credentials"
       else
@@ -62,28 +77,53 @@ class Heroku::Auth
       end
     end
 
-    def get_credentials    # :nodoc:
-      @credentials ||= (read_credentials || ask_for_and_save_credentials)
+    def netrc_path
+      if running_on_windows?
+        "#{home_directory}/_netrc"
+      else
+        "#{home_directory}/.netrc"
+      end
     end
 
-    def delete_credentials
-      FileUtils.rm_f(credentials_file)
-      @client, @credentials = nil, nil
+    def netrc   # :nodoc:
+      @netrc ||= begin
+        File.exists?(netrc_path) && Heroku::Netrc.read(netrc_path)
+      rescue => error
+        if error.message =~ /^Permission bits for/
+          perm = File.stat(netrc_path).mode & 0777
+          abort("Permissions #{perm} for '#{netrc_path}' are too open. You should run `chmod 0600 #{netrc_path}` so that your credentials are NOT accessible by others.")
+        else
+          raise error
+        end
+      end
     end
 
     def read_credentials
       if ENV['HEROKU_API_KEY']
         ['', ENV['HEROKU_API_KEY']]
       else
-        File.exists?(credentials_file) and File.read(credentials_file).split("\n")
+        # convert legacy credentials to netrc
+        if File.exists?(legacy_credentials_path)
+          @client = nil
+          @credentials = File.read(legacy_credentials_path).split("\n")
+          write_credentials
+          FileUtils.rm_f(legacy_credentials_path)
+        end
+
+        # read netrc credentials if they exist
+        if netrc
+          netrc["api.#{host}"]
+        end
       end
     end
 
     def write_credentials
-      FileUtils.mkdir_p(File.dirname(credentials_file))
-      File.open(credentials_file, 'w') {|credentials| credentials.puts(self.credentials)}
-      FileUtils.chmod(0700, File.dirname(credentials_file))
-      FileUtils.chmod(0600, credentials_file)
+      FileUtils.mkdir_p(File.dirname(netrc_path))
+      FileUtils.touch(netrc_path)
+      FileUtils.chmod(0600, netrc_path)
+      netrc["api.#{host}"] = self.credentials
+      netrc["code.#{host}"] = self.credentials
+      netrc.save
     end
 
     def echo_off
