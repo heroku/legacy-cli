@@ -43,6 +43,15 @@ module Heroku
           display
         end
       end
+      # check to see if we are using ddollar/heroku-accounts
+      if list.include?('heroku-accounts') && Heroku::Auth.methods.include?(:fetch_from_account)
+        # setup netrc to match the default, if one exists
+        if default_account = %x{ git config heroku.account }.chomp
+          Heroku::Auth.credentials = [Heroku::Auth.user, Heroku::Auth.password]
+          Heroku::Auth.write_credentials
+          load("#{File.dirname(__FILE__)}/command/accounts.rb")
+        end
+      end
     end
 
     def self.load_plugin(plugin)
