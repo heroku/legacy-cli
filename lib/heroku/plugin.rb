@@ -13,6 +13,7 @@ module Heroku
       heroku-pgdumps
       heroku-kill
       heroku-logging
+      heroku-netrc
       heroku-status
       heroku-stop
       heroku-suggest
