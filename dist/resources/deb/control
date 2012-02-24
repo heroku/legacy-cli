@@ -3,6 +3,7 @@ Version: <%= version %>
 Section: main
 Priority: standard
 Architecture: all
-Depends: ruby1.9.1, git-core, foreman, libssl0.9.8 (>= 0.9.8o)
+Depends: ruby1.9.1, libopenssl-ruby1.9.1, git-core, foreman, 
+         libssl0.9.8 (>= 0.9.8k)
 Maintainer: Heroku
 Description: Tools for working with the Heroku platform.
