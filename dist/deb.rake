@@ -1,4 +1,4 @@
-file pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb") => distribution_files("deb") do |t|
+file pkg("/apt-#{version}/heroku-#{version}.deb") => distribution_files("deb") do |t|
   mkchdir(File.dirname(t.name)) do
     mkchdir("usr/local/heroku") do
       assemble_distribution
@@ -23,10 +23,10 @@ file pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb") => distribution_files
 end
 
 desc "Build a .deb package"
-task "deb:build" => pkg("/apt-#{version}/heroku-toolbelt-#{version}.deb")
+task "deb:build" => pkg("/apt-#{version}/heroku-#{version}.deb")
 
 desc "Remove build artifacts for .deb"
 task "deb:clean" do
-  clean pkg("heroku-toolbelt-#{version}.deb")
+  clean pkg("heroku-#{version}.deb")
   FileUtils.rm_rf("pkg/apt-#{version}") if Dir.exists?("pkg/apt-#{version}")
 end
