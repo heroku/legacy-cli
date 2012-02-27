@@ -51,6 +51,8 @@ module Heroku
           Heroku::Auth.credentials = [Heroku::Auth.user, Heroku::Auth.password]
           Heroku::Auth.write_credentials
           load("#{File.dirname(__FILE__)}/command/accounts.rb")
+          # kill memoization in case '--account' was passed
+          Heroku::Auth.instance_variable_set(:@account, nil)
         end
       end
     end
