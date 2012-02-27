@@ -112,6 +112,14 @@ class Heroku::Auth
 
         # read netrc credentials if they exist
         if netrc
+          # force migration of long api tokens (80 chars) to short ones (40)
+          # #write_credentials rewrites both api.* and code.*
+          credentials = netrc["api.#{host}"]
+          if credentials && credentials[1].length > 40
+            @credentials = [ credentials[0], credentials[1][0,40] ]
+            write_credentials
+          end
+
           netrc["api.#{host}"]
         end
       end
