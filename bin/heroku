@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 
+# return a nicer message from ctrl-c
+trap("INT") do
+  puts("\n !    Command cancelled.")
+  exit
+end
+
 # resolve bin path, ignoring symlinks
 require "pathname"
 bin_file = Pathname.new(__FILE__).realpath

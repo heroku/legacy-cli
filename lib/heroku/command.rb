@@ -159,8 +159,6 @@ module Heroku
       error e.message
     rescue OptionParser::ParseError => ex
       commands[cmd] ? run("help", [cmd]) : run("help")
-    rescue Interrupt => e
-      error "\n[canceled]"
     end
 
     def self.parse(cmd)

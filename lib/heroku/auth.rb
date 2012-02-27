@@ -173,6 +173,7 @@ class Heroku::Auth
       echo_off
       trap("INT") do
         echo_on
+        puts("\n !    Command cancelled.")
         exit
       end
       password = ask
