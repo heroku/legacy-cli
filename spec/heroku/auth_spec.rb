@@ -165,6 +165,16 @@ module Heroku
       Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
     end
 
+    it "migrates long api keys to short api keys" do
+      api_key = "7e262de8cac430d8a250793ce8d5b334ae56b4ff15767385121145198a2b4d2e195905ef8bf7cfc5"
+      @cli.netrc["api.#{@cli.host}"] = ["user", api_key]
+
+      @cli.get_credentials.should == ["user", api_key[0,40]]
+      %w{api code}.each do |section|
+        Heroku::Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"].should == ["user", api_key[0,40]]
+      end
+    end
+
     describe "automatic key uploading" do
       before(:each) do
         FileUtils.mkdir_p("#{@cli.home_directory}/.ssh")
