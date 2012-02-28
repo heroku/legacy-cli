@@ -128,7 +128,9 @@ class Heroku::Auth
     def write_credentials
       FileUtils.mkdir_p(File.dirname(netrc_path))
       FileUtils.touch(netrc_path)
-      FileUtils.chmod(0600, netrc_path)
+      unless running_on_windows?
+        FileUtils.chmod(0600, netrc_path)
+      end
       netrc["api.#{host}"] = self.credentials
       netrc["code.#{host}"] = self.credentials
       netrc.save
@@ -243,7 +245,9 @@ class Heroku::Auth
       ssh_dir = File.join(home_directory, ".ssh")
       unless File.exists?(ssh_dir)
         FileUtils.mkdir_p ssh_dir
-        File.chmod(0700, ssh_dir)
+        unless running_on_windows?
+          File.chmod(0700, ssh_dir)
+        end
       end
       `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
     end
