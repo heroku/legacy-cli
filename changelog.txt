@@ -1,3 +1,18 @@
+2.21.0 02/28/2012
+=================
+
+truncate API keys to use first 40 characters
+cleaner output when using ctrl-c to cancel commands
+add explicit dependency on libopenssl-ruby1.9.1
+rename deb and don't pull in git/foreman
+specify newer libssl dependency
+change credential storage to use ~/.netrc
+refactoring/cleanup in auth
+more explicit help for specifying addons to apps:create
+build jruby, rbx and ree in travis (but allow failures)
+make `heroku -v` and `heroku --version` return version string
+allow apps:destroy with just --confirm (instead of also requiring --app)
+
 2.20.1 02/16/2012
 =================
 
