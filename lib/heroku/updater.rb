@@ -1,12 +1,9 @@
+require 'heroku/helpers'
+
 module Heroku
   module Updater
-    def self.home_directory
-      ENV['HOME'] || ENV['USERPROFILE']
-    end
 
-    def self.running_on_windows?
-      RUBY_PLATFORM =~ /mswin32|mingw32/
-    end
+    extend Heroku::Helpers
 
     def self.updated_client_path
       File.join(home_directory, ".heroku", "client")
