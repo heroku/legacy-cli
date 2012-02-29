@@ -1,3 +1,11 @@
+2.21.1 02/29/2012
+=================
+
+add libreadline-ruby1.9.1 to debian dependencies
+fix for windows users with non-ascii usernames
+status command now uses proxy setting correctly
+logplex now verifies ssl in production
+
 2.21.0 02/28/2012
 =================
 
