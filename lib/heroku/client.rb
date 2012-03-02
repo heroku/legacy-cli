@@ -393,14 +393,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
       if uri.scheme == 'https'
         http.use_ssl = true
-        if ENV["HEROKU_SSL_VERIFY"] == "disable"
-          # do nothing
-        elsif url =~ %r|^https://logplex.heroku.com|
-          http.ca_file = local_ca_file
-          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        else
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        end
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
       http.read_timeout = 60 * 60 * 24
