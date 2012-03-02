@@ -1,3 +1,8 @@
 #!/bin/sh
 set -e
+
+if [ `which heroku` != "/usr/bin/heroku" ]; then
+    echo "Warning: existing heroku gem detected."
+fi
+
 ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
