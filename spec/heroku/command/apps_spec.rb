@@ -151,7 +151,7 @@ module Heroku::Command
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
           @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           @cli.create
-          bash("git remote").strip.should == 'heroku'
+          bash("git remote").strip.should match(/^heroku$/)
         end
       end
 
@@ -163,7 +163,7 @@ module Heroku::Command
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
           @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           @cli.create
-          bash("git remote").strip.should == 'myremote'
+          bash("git remote").strip.should match(/^myremote$/)
         end
       end
 
@@ -203,7 +203,7 @@ module Heroku::Command
           @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           @cli.heroku.should_receive(:destroy)
           @cli.destroy
-          bash("git remote").strip.should == ''
+          bash("git remote").strip.should_not include('heroku')
         end
       end
     end
