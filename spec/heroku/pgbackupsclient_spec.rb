@@ -17,7 +17,7 @@ describe PGBackups::Client do
       version.split(/\./).first.to_i.should >= 2
     end
 
-    it 'incldues the heroku gem version' do
+    it 'includes the heroku gem version' do
       stub_request(:get, transfer_path)
       client.get_transfers
       a_request(:get, transfer_path).with(
@@ -29,7 +29,7 @@ describe PGBackups::Client do
   describe "create transfers" do
     it "sends a request to the client" do
       stub_request(:post, transfer_path).to_return(
-        :body => json_encode({:message => "success"}),
+        :body => json_encode({"message" => "success"}),
         :status => 200
       )
 

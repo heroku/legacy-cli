@@ -13,7 +13,7 @@ describe HerokuPostgresql::Client do
     url = "https://shogun.heroku.com/client/v10/databases/#{url_sha}/ingress"
 
     stub_request(:put, url).to_return(
-      :body => json_encode({:message => "ok"}),
+      :body => json_encode({"message" => "ok"}),
       :status => 200
     )
 

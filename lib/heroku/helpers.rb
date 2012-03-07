@@ -186,13 +186,13 @@ module Heroku
 
     def json_encode(object)
       Heroku::OkJson.encode(object)
-    rescue Heroku::OkJson::ParserError
+    rescue Heroku::OkJson::Error
       nil
     end
 
     def json_decode(json)
       Heroku::OkJson.decode(json)
-    rescue Heroku::OkJson::ParserError
+    rescue Heroku::OkJson::Error
       nil
     end
 
