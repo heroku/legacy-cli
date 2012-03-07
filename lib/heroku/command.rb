@@ -99,6 +99,11 @@ module Heroku
       invalid_options = []
 
       parser = OptionParser.new do |parser|
+        # remove OptionParsers Officious['version'] to avoid conflicts
+        # see: https://github.com/ruby/ruby/blob/trunk/lib/optparse.rb#L814
+        parser.instance_variable_get(:@stack).each do |list|
+          list.long.reject! {|key, value| key == 'version'}
+        end
         global_options.each do |global_option|
           parser.on(*global_option[:args]) do |value|
             opts[global_option[:name]] = value
