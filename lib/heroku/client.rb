@@ -391,9 +391,20 @@ Check the output of "heroku ps" and "heroku logs" for more information.
         http = Net::HTTP.new(uri.host, uri.port)
       end
 
-      if uri.scheme == 'https'
+      if url =~ %r|^https://logplex.heroku.com|
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        if ENV["HEROKU_SSL_VERIFY"] == "disable"
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        else
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.ca_file = local_ca_file
+          http.verify_callback = lambda do |preverify_ok, ssl_context|
+            if (!preverify_ok) || ssl_context.error != 0
+              error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
+            end
+            true
+          end
+        end
       end
 
       http.read_timeout = 60 * 60 * 24
