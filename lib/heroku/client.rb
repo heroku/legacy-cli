@@ -539,11 +539,13 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   ##################
 
   def resource(uri, options={})
-    if http_proxy
-      RestClient.proxy = http_proxy
+    RestClient.proxy = case URI.parse(uri).scheme
+    when "http"
+      http_proxy
+    when "https"
+      https_proxy
     end
-    resource = RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
-    resource
+    RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
   end
 
   def get(uri, extra_headers={})    # :nodoc:
