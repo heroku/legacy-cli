@@ -146,6 +146,8 @@ module Heroku::Command
       when true
         db = resolve_db(:required => 'pg:reset')
         case db[:name]
+        when "SHARED_DATABASE"
+          output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
         when /\A#{Resolver.shared_addon_prefix}\w+/
           working_display 'Resetting' do
             return unless confirm_command
@@ -155,6 +157,11 @@ module Heroku::Command
           end
         else
           output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
+          working_display 'Resetting' do
+            return unless confirm_command
+            output_with_arrow("Resetting password for #{db[:pretty_name]}")
+            heroku_postgresql_client(db[:url]).rotate_credentials
+          end
         end
       else
         uri = generate_ingress_uri
