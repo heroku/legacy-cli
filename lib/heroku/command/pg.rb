@@ -243,7 +243,7 @@ private
         return URI.parse(db[:url])
       else
         hpc = heroku_postgresql_client(db[:url])
-        error "The database is not available for ingress" unless hpc.get_database[:available_for_ingress]
+        error "This database is not yet accepting connections." unless hpc.get_database[:available_for_ingress]
         if action
           working_display("#{action} to #{db[:name]}") { hpc.ingress }
         else
