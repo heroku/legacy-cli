@@ -156,7 +156,6 @@ module Heroku::Command
             heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
           end
         else
-          output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
           working_display 'Resetting' do
             return unless confirm_command
             output_with_arrow("Resetting password for #{db[:pretty_name]}")
