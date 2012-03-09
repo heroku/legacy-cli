@@ -246,9 +246,9 @@ private
         database = hpc.get_database
         if !database[:available_for_ingress]
           if Time.parse(database[:created_at]) < (Time.now - 20)
-            error "This database is not accepting connections."
+            error "#{database[:database_name]} is not accepting connections."
           else
-            error "This database is not yet accepting connections."
+            error "#{database[:database_name]} is not yet accepting connections."
           end
         end
         if action
