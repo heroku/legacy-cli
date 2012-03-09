@@ -132,8 +132,8 @@ describe Heroku::Client do
 
     describe "new style" do
       before(:each) do
-        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://api.heroku.com/logplex_url")
-        stub_api_request(:get, "/logplex_url").to_return(:body => "newlogs")
+        stub_api_request(:get, "/apps/myapp/logs?logplex=true").to_return(:body => "https://logplex.heroku.com/identifier")
+        stub_request(:get, "https://logplex.heroku.com/identifier").to_return(:body => "newlogs")
       end
 
       it "can read new style logs" do
