@@ -18,7 +18,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     begin
       ps = heroku.ps_run(app, opts)
     rescue
-      puts "failed"
+      display "failed"
       raise
     end
 
@@ -54,10 +54,10 @@ class Heroku::Command::Run < Heroku::Command::Base
     display "Running #{command}... ", false
     begin
       ps = heroku.ps_run(app, opts)
-      puts "up, #{ps["process"]}"
-      puts "Use 'heroku logs -p #{ps["process"]}' to view the log output."
+      display "up, #{ps["process"]}"
+      display "Use 'heroku logs -p #{ps["process"]}' to view the log output."
     rescue
-      puts "failed"
+      display "failed"
       raise
     end
   end

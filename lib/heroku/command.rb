@@ -139,7 +139,7 @@ module Heroku
       object, method = prepare_run(cmd, arguments.dup)
       object.send(method)
     rescue RestClient::Unauthorized
-      puts "Authentication failure"
+      display "Authentication failure"
       unless ENV['HEROKU_API_KEY'] 
         run "login"
         retry

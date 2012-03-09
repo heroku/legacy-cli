@@ -85,21 +85,21 @@ private
     namespaces.sort_by {|namespace| namespace[:name]}.each do |namespace|
       name = namespace[:name]
       namespace[:description] ||= legacy_help_for_namespace(name)
-      puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
+      display "  %-#{size}s  # %s" % [ name, namespace[:description] ]
     end
   end
 
   def help_for_root
-    puts "Usage: heroku COMMAND [--app APP] [command-specific-options]"
-    puts
-    puts "Primary help topics, type \"heroku help TOPIC\" for more details:"
-    puts
+    display "Usage: heroku COMMAND [--app APP] [command-specific-options]"
+    display
+    display "Primary help topics, type \"heroku help TOPIC\" for more details:"
+    display
     summary_for_namespaces(primary_namespaces)
-    puts
-    puts "Additional topics:"
-    puts
+    display
+    display "Additional topics:"
+    display
     summary_for_namespaces(additional_namespaces)
-    puts
+    display
   end
 
   def help_for_namespace(name)
@@ -110,7 +110,7 @@ private
       namespace_commands.sort_by { |c| c[:banner].to_s }.each do |command|
         next if command[:help] =~ /DEPRECATED/
         command[:summary] ||= legacy_help_for_command(command[:command])
-        puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
+        display "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
       end
     end
   end
@@ -119,22 +119,22 @@ private
     command = commands[name]
 
     if command
-      puts "Usage: heroku #{command[:banner]}"
+      display "Usage: heroku #{command[:banner]}"
 
       if command[:help].strip.length > 0
-        puts command[:help].split("\n")[1..-1].join("\n")
+        display command[:help].split("\n")[1..-1].join("\n")
       else
-        puts
-        puts " " + legacy_help_for_command(name).to_s
+        display
+        display " " + legacy_help_for_command(name).to_s
       end
-      puts
+      display
     end
 
     if commands_for_namespace(name).size > 0
-      puts "Additional commands, type \"heroku help COMMAND\" for more details:"
-      puts
+      display "Additional commands, type \"heroku help COMMAND\" for more details:"
+      display
       help_for_namespace(name)
-      puts
+      display
     elsif command.nil?
       error "#{name} is not a heroku command. See 'heroku help'."
     end
