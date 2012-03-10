@@ -169,11 +169,7 @@ class Heroku::Auth
 
     def ask_for_password
       echo_off
-      trap("INT") do
-        echo_on
-        display "\n !    Command cancelled." 
-        exit
-      end
+      register_trap
       password = ask
       display
       echo_on
