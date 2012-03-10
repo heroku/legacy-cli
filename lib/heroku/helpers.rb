@@ -23,6 +23,10 @@ module Heroku
       end
     end
 
+    def help(msg="")
+      display msg
+    end
+
     def redisplay(line, line_break = false)
       display("\r\e[0K#{line}", line_break)
     end
