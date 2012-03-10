@@ -41,6 +41,13 @@ module Heroku
       exit 1
     end
 
+    def register_trap
+      trap("INT") do
+        echo_on
+        error "\nCommand cancelled."
+      end
+    end
+
     def confirm_billing
       display
       display "This action will cause your account to be billed at the end of the month"
