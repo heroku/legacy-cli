@@ -136,18 +136,6 @@ class Heroku::Auth
       netrc.save
     end
 
-    def echo_off
-      with_tty do
-        system "stty -echo"
-      end
-    end
-
-    def echo_on
-      with_tty do
-        system "stty echo"
-      end
-    end
-
     def ask_for_credentials
       display "Enter your Heroku credentials."
 
