@@ -1,17 +1,15 @@
 #!/usr/bin/env ruby
 
-# return a nicer message from ctrl-c
-trap("INT") do
-  puts("\n !    Command cancelled.")
-  exit
-end
-
 # resolve bin path, ignoring symlinks
 require "pathname"
 bin_file = Pathname.new(__FILE__).realpath
 
 # add self to libpath
 $:.unshift File.expand_path("../../lib", bin_file)
+
+# return a nicer message from ctrl-c
+require "heroku/helpers"
+register_trap
 
 require "heroku/updater"
 Heroku::Updater.disable "To update the gem version of the Heroku client please use `gem update heroku`"
