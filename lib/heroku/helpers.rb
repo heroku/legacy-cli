@@ -210,6 +210,14 @@ module Heroku
       end
     end
 
+    def echo_off
+      set_buffer false
+    end
+
+    def echo_on
+      set_buffer true
+    end
+
     def with_tty(&block)
       return unless $stdin.tty?
       begin
