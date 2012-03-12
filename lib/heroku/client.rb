@@ -374,7 +374,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     query = "&" + options.join("&") unless options.empty?
     url = get("/apps/#{app_name}/logs?logplex=true#{query}").to_s
     if url == 'Use old logs'
-      puts get("/apps/#{app_name}/logs").to_s
+      display get("/apps/#{app_name}/logs").to_s
     else
       uri  = URI.parse(url);
 

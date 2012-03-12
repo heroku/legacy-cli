@@ -30,7 +30,7 @@ module Heroku::Command
       $stdout.sync = true
       heroku.read_logs(app, opts) do |chk|
         next unless output = format_with_colors(chk)
-        puts output
+        display output
       end
     rescue Errno::EPIPE
     end
@@ -50,7 +50,7 @@ module Heroku::Command
     def drains
       output_with_bang "The logs:drain command has been deprecated. Please use drains"
       usage = Heroku::Command::Help.usage_for_command("drains")
-      puts usage
+      display usage
     end
 
   protected
@@ -66,7 +66,7 @@ module Heroku::Command
       @assigned_colors = {}
 
       trap("INT") do
-        puts @colorizer.reset if @colorizer
+        display(@colorizer.reset, false) if @colorizer
         exit
       end
     rescue LoadError

@@ -136,25 +136,13 @@ class Heroku::Auth
       netrc.save
     end
 
-    def echo_off
-      with_tty do
-        system "stty -echo"
-      end
-    end
-
-    def echo_on
-      with_tty do
-        system "stty echo"
-      end
-    end
-
     def ask_for_credentials
-      puts "Enter your Heroku credentials."
+      display "Enter your Heroku credentials."
 
-      print "Email: "
+      display "Email: ", false
       user = ask
 
-      print "Password: "
+      display "Password: ", false
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
       api_key = Heroku::Client.auth(user, password)['api_key']
 
@@ -175,19 +163,15 @@ class Heroku::Auth
           (password << char.chr) rescue RangeError
         end
       end
-      puts
+      display
       return password
     end
 
     def ask_for_password
       echo_off
-      trap("INT") do
-        echo_on
-        puts("\n !    Command cancelled.")
-        exit
-      end
+      register_trap
       password = ask
-      puts
+      display
       echo_on
       return password
     end

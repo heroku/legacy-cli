@@ -82,59 +82,66 @@ private
 
   def summary_for_namespaces(namespaces)
     size = longest(namespaces.map { |n| n[:name] })
-    namespaces.sort_by {|namespace| namespace[:name]}.each do |namespace|
-      name = namespace[:name]
-      namespace[:description] ||= legacy_help_for_namespace(name)
-      puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
-    end
+    [].tap do |result|
+      namespaces.sort_by {|namespace| namespace[:name]}.each do |namespace|
+        name = namespace[:name]
+        namespace[:description] ||= legacy_help_for_namespace(name)
+        result << "  %-#{size}s  # %s" % [ name, namespace[:description] ]
+      end
+    end.join "\n"
   end
 
   def help_for_root
-    puts "Usage: heroku COMMAND [--app APP] [command-specific-options]"
-    puts
-    puts "Primary help topics, type \"heroku help TOPIC\" for more details:"
-    puts
-    summary_for_namespaces(primary_namespaces)
-    puts
-    puts "Additional topics:"
-    puts
-    summary_for_namespaces(additional_namespaces)
-    puts
+    help <<-EOS
+    Usage: heroku COMMAND [--app APP] [command-specific-options]
+
+    Primary help topics, type \"heroku help TOPIC\" for more details:
+
+    #{summary_for_namespaces(primary_namespaces)}
+ 
+    Additional topics:
+ 
+    #{summary_for_namespaces(additional_namespaces)}
+
+    EOS
   end
 
   def help_for_namespace(name)
     namespace_commands = commands_for_namespace(name)
-
-    unless namespace_commands.empty?
-      size = longest(namespace_commands.map { |c| c[:banner] })
-      namespace_commands.sort_by { |c| c[:banner].to_s }.each do |command|
-        next if command[:help] =~ /DEPRECATED/
-        command[:summary] ||= legacy_help_for_command(command[:command])
-        puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
+    [].tap do |result| 
+      unless namespace_commands.empty?
+        size = longest(namespace_commands.map { |c| c[:banner] })
+        namespace_commands.sort_by { |c| c[:banner].to_s }.each do |command|
+          next if command[:help] =~ /DEPRECATED/
+          command[:summary] ||= legacy_help_for_command(command[:command])
+          result << "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
+        end
       end
-    end
+    end.join "\n"
   end
 
   def help_for_command(name)
-    command = commands[name]
+    if (command = commands[name])
+      help( [].tap() { |result| 
+        result << "Usage: heroku #{command[:banner]}"
 
-    if command
-      puts "Usage: heroku #{command[:banner]}"
-
-      if command[:help].strip.length > 0
-        puts command[:help].split("\n")[1..-1].join("\n")
-      else
-        puts
-        puts " " + legacy_help_for_command(name).to_s
-      end
-      puts
+        if command[:help].strip.length > 0
+          result << command[:help].split("\n")[1..-1].join("\n")
+        else
+          result << ''
+          result << " " + legacy_help_for_command(name).to_s
+        end
+        result << ''
+      }.join "\n")
     end
 
     if commands_for_namespace(name).size > 0
-      puts "Additional commands, type \"heroku help COMMAND\" for more details:"
-      puts
-      help_for_namespace(name)
-      puts
+      display <<-EOS
+      Additional commands, type \"heroku help COMMAND\" for more details:
+
+      #{help_for_namespace(name)}
+
+      EOS
     elsif command.nil?
       error "#{name} is not a heroku command. See 'heroku help'."
     end

@@ -23,6 +23,10 @@ module Heroku
       end
     end
 
+    def help(msg="")
+      display msg
+    end
+
     def redisplay(line, line_break = false)
       display("\r\e[0K#{line}", line_break)
     end
@@ -35,6 +39,13 @@ module Heroku
     def error(msg)
       STDERR.puts(format_with_bang(msg))
       exit 1
+    end
+
+    def register_trap
+      trap("INT") do
+        echo_on
+        error "\nCommand cancelled."
+      end
     end
 
     def confirm_billing
@@ -203,6 +214,14 @@ module Heroku
           `stty -icanon -echo`
         end
       end
+    end
+
+    def echo_off
+      set_buffer false
+    end
+
+    def echo_on
+      set_buffer true
     end
 
     def with_tty(&block)

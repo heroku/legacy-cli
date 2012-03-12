@@ -11,7 +11,7 @@ module Heroku::Command
     # list all syslog drains
     #
     def index
-      puts heroku.list_drains(app)
+      display heroku.list_drains(app)
       return
     end
 
@@ -21,7 +21,7 @@ module Heroku::Command
     #
     def add
       if url = args.shift
-        puts heroku.add_drain(app, url)
+        display heroku.add_drain(app, url)
         return
       else
         raise(CommandFailed, "usage: heroku drains:add URL")
@@ -34,7 +34,7 @@ module Heroku::Command
     #
     def remove
       if url = args.shift
-        puts heroku.remove_drain(app, url)
+        display heroku.remove_drain(app, url)
         return
       else
         raise(CommandFailed, "usage: heroku drains remove URL")
