@@ -191,7 +191,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
     heroku.info(app) # fail fast if no access or doesn't exist
 
-    if confirm_command
+    message = "WARNING: Potentially Destructive Action\nThis command will destroy #{app} (including all add-ons)."
+    if confirm_command(app, message)
       hprint "Destroying #{app} (including all add-ons)... "
       heroku.destroy(app)
       if remotes = git_remotes(Dir.pwd)
