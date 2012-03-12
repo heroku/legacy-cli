@@ -189,6 +189,7 @@ protected
     original_dir = Dir.pwd
     Dir.chdir(base_dir)
 
+    return unless File.exists?(".git")
     git("remote -v").split("\n").each do |remote|
       name, url, method = remote.split(/\s/)
       if url =~ /^git@#{heroku.host}:([\w\d-]+)\.git$/
@@ -197,7 +198,11 @@ protected
     end
 
     Dir.chdir(original_dir)
-    remotes
+    if remotes.empty?
+      nil
+    else
+      remotes
+    end
   end
 
   def escape(value)

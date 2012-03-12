@@ -155,11 +155,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
     if remotes = git_remotes(Dir.pwd)
       remotes.each do |remote_name, remote_app|
         next if remote_app != app
-        if has_git?
-          git "remote rm #{remote_name}"
-          git "remote add #{remote_name} #{info[:git_url]}"
-          hputs("Git remote #{remote_name} updated")
-        end
+        git "remote rm #{remote_name}"
+        git "remote add #{remote_name} #{info[:git_url]}"
+        hputs("Git remote #{remote_name} updated")
       end
     else
       hputs("Don't forget to update your Git remotes on any local checkouts.")
