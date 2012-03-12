@@ -28,7 +28,10 @@ module Heroku::Command
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
         @pgbackups.should_receive(:display).with('"'+latest_backup_url+'"')
 
+        old_stdout_isatty = STDOUT.isatty
+        STDOUT.stub!(:isatty).and_return(true)
         @pgbackups.url
+        STDOUT.stub!(:isatty).and_return(old_stdout_isatty)
       end
 
       it "gets the url for the named backup if a name is specified" do
@@ -42,7 +45,10 @@ module Heroku::Command
 
         @pgbackups.should_receive(:display).with('"'+named_url+'"')
 
+        old_stdout_isatty = STDOUT.isatty
+        STDOUT.stub!(:isatty).and_return(true)
         @pgbackups.url
+        STDOUT.stub!(:isatty).and_return(old_stdout_isatty)
       end
 
       it "should capture a backup when requested" do

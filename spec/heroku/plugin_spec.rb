@@ -104,10 +104,12 @@ module Heroku
         end
 
         it "should not prompt for deprecation if not in an interactive shell" do
-          STDIN.should_receive(:tty?).and_return(false)
+          old_stdin_isatty = STDIN.isatty
+          STDIN.stub!(:isatty).and_return(false)
           Plugin.should_not_receive(:confirm)
           Plugin.should_not_receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
+          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
         end
       end
     end

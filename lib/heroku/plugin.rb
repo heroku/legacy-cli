@@ -68,7 +68,7 @@ module Heroku
     end
 
     def self.check_for_deprecation(plugin)
-      return unless STDIN.tty?
+      return unless STDIN.isatty
 
       if DEPRECATED_PLUGINS.include?(plugin)
         if confirm "The plugin #{plugin} has been deprecated. Would you like to remove it? (y/N)"

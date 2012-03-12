@@ -206,7 +206,7 @@ module Heroku
     end
 
     def with_tty(&block)
-      return unless $stdin.tty?
+      return unless $stdin.isatty
       begin
         yield
       rescue

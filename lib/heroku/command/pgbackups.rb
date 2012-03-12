@@ -39,7 +39,7 @@ module Heroku::Command
         b = pgbackup_client.get_latest_backup
       end
       abort("No backup found.") unless b['public_url']
-      if STDOUT.tty?
+      if STDOUT.isatty
         display '"'+b['public_url']+'"'
       else
         display b['public_url']
