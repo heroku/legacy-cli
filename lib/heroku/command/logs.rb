@@ -33,6 +33,9 @@ module Heroku::Command
         puts output
       end
     rescue Errno::EPIPE
+    rescue Interrupt
+      puts @colorizer.reset if @colorizer
+      raise Interrupt
     end
 
     # logs:cron
@@ -64,11 +67,6 @@ module Heroku::Command
       end
 
       @assigned_colors = {}
-
-      trap("INT") do
-        puts @colorizer.reset if @colorizer
-        exit
-      end
     rescue LoadError
     end
 
