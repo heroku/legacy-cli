@@ -88,6 +88,7 @@ module Heroku::Command
     #
     def remove
       return unless confirm_command
+      options[:confirm] ||= app
 
       args.each do |name|
         messages = nil

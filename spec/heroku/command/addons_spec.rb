@@ -297,14 +297,14 @@ module Heroku::Command
       @addons.remove
     end
 
-    it "removes addons" do
+    it "removes addons after prompting for confirmation" do
       @addons.stub!(:args).and_return(%w( addon1 ))
       @addons.should_receive(:confirm_command).once.and_return(true)
-      @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => nil)
+      @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => "myapp")
       @addons.remove
     end
 
-    it "removes addons with confirmation when provided" do
+    it "removes addons with confirm option" do
       @addons.stub!(:args).and_return(%w( addon1 ))
       @addons.stub!(:options).and_return(:confirm => "myapp")
       @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => "myapp")
