@@ -16,26 +16,32 @@ module Heroku::Command
     # -t, --tail           # continually stream logs
     #
     def index
-      init_colors
-
       opts = []
       opts << "tail=1"                                 if options[:tail]
       opts << "num=#{options[:num]}"                   if options[:num]
       opts << "ps=#{URI.encode(options[:ps])}"         if options[:ps]
       opts << "source=#{URI.encode(options[:source])}" if options[:source]
 
+      @assigned_colors = {}
       @line_start = true
       @token = nil
 
       $stdout.sync = true
-      heroku.read_logs(app, opts) do |chk|
-        next unless output = format_with_colors(chk)
-        puts output
+      heroku.read_logs(app, opts) do |chunk|
+        unless chunk.empty?
+          if STDOUT.isatty && ENV.has_key?("TERM")
+            display(colorize(chunk))
+          else
+            display(chunk)
+          end
+        end
       end
     rescue Errno::EPIPE
-    rescue Interrupt
-      puts @colorizer.reset if @colorizer
-      raise Interrupt
+    rescue Interrupt => interrupt
+      if STDOUT.isatty? && !running_on_windows?
+        display("\e[0m")
+      end
+      raise(interrupt)
     end
 
     # logs:cron
@@ -56,33 +62,25 @@ module Heroku::Command
       puts usage
     end
 
-  protected
-
-    def init_colors(colorizer=nil)
-      if !colorizer && STDOUT.isatty && ENV.has_key?("TERM")
-        require 'term/ansicolor'
-        @colorizer = Term::ANSIColor
-      else
-        @colorizer = colorizer
-      end
-
-      @assigned_colors = {}
-    rescue LoadError
-    end
+    protected
 
     COLORS = %w( cyan yellow green magenta red )
+    COLOR_CODES = {
+      "red"     => 31,
+      "green"   => 32,
+      "yellow"  => 33,
+      "magenta" => 35,
+      "cyan"    => 36,
+    }
 
-    def format_with_colors(chunk)
-      return if chunk.empty?
-      return chunk unless @colorizer
-
+    def colorize(chunk)
       chunk.split("\n").map do |line|
         header, identifier, body = parse_log(line)
         @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
         [
-          @colorizer.send(@assigned_colors[identifier]),
+          "\e[#{COLOR_CODES[@assigned_colors[identifier]]}m",
           header,
-          @colorizer.reset,
+          "\e[0m",
           body,
         ].join("")
       end.join("\n")
@@ -92,6 +90,7 @@ module Heroku::Command
       return unless parsed = log.match(/^(.*\[(\w+)([\d\.]+)?\]:)(.*)?$/)
       [1, 2, 4].map { |i| parsed[i] }
     end
+
   end
 end
 

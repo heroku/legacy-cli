@@ -6,7 +6,6 @@ PATH
       netrc (~> 0.7.1)
       rest-client (~> 1.6.1)
       rubyzip
-      term-ansicolor (~> 1.0.5)
 
 GEM
   remote: http://rubygems.org/
@@ -63,7 +62,6 @@ GEM
       sequel (~> 3.20.0)
       sinatra (~> 1.0.0)
       sqlite3-ruby (~> 1.2)
-    term-ansicolor (1.0.7)
     thor (0.14.6)
     webmock (1.7.7)
       addressable (~> 2.2, > 2.2.5)
