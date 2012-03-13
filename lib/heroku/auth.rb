@@ -1,7 +1,7 @@
 require "heroku"
 require "heroku/client"
 require "heroku/helpers"
-require "vendor/heroku/netrc"
+require "netrc"
 
 class Heroku::Auth
   class << self
@@ -87,7 +87,7 @@ class Heroku::Auth
 
     def netrc   # :nodoc:
       @netrc ||= begin
-        File.exists?(netrc_path) && Heroku::Netrc.read(netrc_path)
+        File.exists?(netrc_path) && Netrc.read(netrc_path)
       rescue => error
         if error.message =~ /^Permission bits for/
           perm = File.stat(netrc_path).mode & 0777

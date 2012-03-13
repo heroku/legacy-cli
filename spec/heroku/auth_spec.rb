@@ -58,7 +58,7 @@ module Heroku
         # postconditions
         File.exist?(@cli.legacy_credentials_path).should == false
         File.exist?(@cli.netrc_path).should == true
-        Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['legacy_user', 'legacy_pass']
+        Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['legacy_user', 'legacy_pass']
       end
     end
 
@@ -98,7 +98,7 @@ module Heroku
           @cli.reauthorize
         end
         it "updates saved credentials" do
-          Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['new_user', 'new_password']
+          Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == ['new_user', 'new_password']
         end
         it "returns environment variable credentials" do
           @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
@@ -111,7 +111,7 @@ module Heroku
         end
         it "should delete saved credentials" do
           File.exists?(@cli.legacy_credentials_path).should be_false
-          Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should be_nil
+          Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should be_nil
         end
       end
     end
@@ -162,7 +162,7 @@ module Heroku
       @cli.stub!(:check)
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
-      Heroku::Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
+      Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
     end
 
     it "migrates long api keys to short api keys" do
@@ -171,7 +171,7 @@ module Heroku
 
       @cli.get_credentials.should == ["user", api_key[0,40]]
       %w{api code}.each do |section|
-        Heroku::Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"].should == ["user", api_key[0,40]]
+        Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"].should == ["user", api_key[0,40]]
       end
     end
 
