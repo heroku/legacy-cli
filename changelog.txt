@@ -1,3 +1,20 @@
+2.21.3 03/14/2012
+=================
+
+pass confirm properly after add-on remove confirmation
+remove term-ansicolor and manipulate colors directly
+add netrc dependency (instead of vendoring)
+more consistent tty checking with isatty
+explicitly warn about add-ons destruction in apps:destroy
+consolidate/improve ctrl-c handling edge cases
+git remote handling fixes
+improved messaging around database ingresses
+use ssl verification against logplex
+use HTTPS_PROXY settings if using https
+update vendored okjson
+fix to allow --version to be passed through (for postgres)
+test cleanup/fixes
+
 2.21.2 03/02/2012
 =================
 
