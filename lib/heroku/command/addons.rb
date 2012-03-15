@@ -200,7 +200,7 @@ module Heroku::Command
         config.merge!(:confirm => app) if app == options[:confirm]
         raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
 
-        translate_fork_and_follow(addon, config) if addon =~ /^heroku-postgresql/
+        translate_fork_and_follow(addon, config)
 
         messages = nil
         action("#{label} #{addon} to #{app}") do
