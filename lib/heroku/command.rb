@@ -140,7 +140,7 @@ module Heroku
       object.send(method)
     rescue RestClient::Unauthorized
       puts "Authentication failure"
-      unless ENV['HEROKU_API_KEY'] 
+      unless ENV['HEROKU_API_KEY']
         run "login"
         retry
       end
