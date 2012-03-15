@@ -146,6 +146,17 @@ describe Heroku::Command do
     Heroku::Command.parse("apps:create").should include(:klass => Heroku::Command::Apps, :method => :create)
   end
 
+  context "help" do
+    it "works as a prefix" do
+      heroku("help ps:scale").should =~ /scale processes by/
+    end
+
+    it "works as an option" do
+      heroku("ps:scale -h").should =~ /scale processes by/
+      heroku("ps:scale --help").should =~ /scale processes by/
+    end
+  end
+
   context "when no commands match" do
 
     it "displays the version if -v or --version is used" do
