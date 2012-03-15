@@ -125,7 +125,11 @@ module Heroku
         retry
       end
 
-      raise OptionParser::ParseError if opts[:help]
+      if opts[:help]
+        args.unshift cmd unless cmd =~ /^-.*/
+        cmd = "help"
+        command = parse(cmd)
+      end
 
       args.concat(invalid_options)
 
