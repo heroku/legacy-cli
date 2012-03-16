@@ -60,7 +60,7 @@ class Heroku::Client::Rendezvous
             rescue EOFError
               break
             end
-            output.write(data)
+            output.write(data.gsub(/\cM/,""))
           end
         else
           raise(Timeout::Error.new)
