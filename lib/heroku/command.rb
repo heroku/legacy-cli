@@ -125,7 +125,11 @@ module Heroku
         retry
       end
 
-      raise OptionParser::ParseError if opts[:help]
+      if opts[:help]
+        args.unshift cmd unless cmd =~ /^-.*/
+        cmd = "help"
+        command = parse(cmd)
+      end
 
       args.concat(invalid_options)
 
@@ -140,7 +144,7 @@ module Heroku
       object.send(method)
     rescue RestClient::Unauthorized
       puts "Authentication failure"
-      unless ENV['HEROKU_API_KEY'] 
+      unless ENV['HEROKU_API_KEY']
         run "login"
         retry
       end
