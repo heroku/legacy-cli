@@ -13,6 +13,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if QTY is not specified, display the number of web processes currently running
   #
   def dynos
+    display("~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`")
     if dynos = args.shift
       current = heroku.set_dynos(app, dynos)
       display "#{app} now running #{quantify("dyno", current)}"
@@ -34,6 +35,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if QTY is not specified, display the number of background processes currently running
   #
   def workers
+    display("~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`")
     if workers = args.shift
       current = heroku.set_workers(app, workers)
       display "#{app} now running #{quantify("worker", current)}"
