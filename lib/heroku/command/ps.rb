@@ -6,6 +6,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   # ps:dynos [QTY]
   #
+  # DEPRECATED: use `heroku ps:scale dynos=N`
+  #
   # scale to QTY web processes
   #
   # if QTY is not specified, display the number of web processes currently running
@@ -24,6 +26,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
   alias_command "dynos", "ps:dynos"
 
   # ps:workers [QTY]
+  #
+  # DEPRECATED: use `heroku ps:scale workers=N`
   #
   # scale to QTY background processes
   #
