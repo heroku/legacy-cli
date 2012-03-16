@@ -60,7 +60,9 @@ class Heroku::Auth
     end
 
     def delete_credentials
-      FileUtils.rm_f(legacy_credentials_path) # delete legacy credentials, if any exist
+      if File.exists?(legacy_credentials_path)
+        FileUtils.rm_f(legacy_credentials_path)
+      end
       if netrc
         netrc.delete("api.#{host}")
         netrc.delete("code.#{host}")

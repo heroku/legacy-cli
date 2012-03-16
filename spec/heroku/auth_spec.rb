@@ -42,6 +42,7 @@ module Heroku
 
       before do
         FileUtils.rm_rf(@cli.netrc_path)
+        FileUtils.mkdir_p(File.dirname(@cli.legacy_credentials_path))
         File.open(@cli.legacy_credentials_path, "w") do |file|
           file.puts "legacy_user\nlegacy_pass"
         end
@@ -153,6 +154,10 @@ module Heroku
     end
 
     it "deletes the credentials file" do
+      FileUtils.mkdir_p(File.dirname(@cli.legacy_credentials_path))
+      File.open(@cli.legacy_credentials_path, "w") do |file|
+        file.puts "legacy_user\nlegacy_pass"
+      end
       FileUtils.should_receive(:rm_f).with(@cli.legacy_credentials_path)
       @cli.delete_credentials
     end
