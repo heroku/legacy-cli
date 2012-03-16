@@ -38,7 +38,7 @@ module Heroku::Command
       end
     rescue Errno::EPIPE
     rescue Interrupt => interrupt
-      if STDOUT.isatty? && ENV.has_key?("TERM")
+      if STDOUT.isatty && ENV.has_key?("TERM")
         display("\e[0m")
       end
       raise(interrupt)
