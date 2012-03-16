@@ -171,6 +171,7 @@ module Heroku
     end
 
     it "migrates long api keys to short api keys" do
+      @cli.delete_credentials
       api_key = "7e262de8cac430d8a250793ce8d5b334ae56b4ff15767385121145198a2b4d2e195905ef8bf7cfc5"
       @cli.netrc["api.#{@cli.host}"] = ["user", api_key]
 
