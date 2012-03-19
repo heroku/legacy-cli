@@ -12,6 +12,7 @@ module Heroku
       heroku-shared-postgresql
       heroku-pgdumps
       heroku-kill
+      heroku-labs
       heroku-logging
       heroku-netrc
       heroku-status
