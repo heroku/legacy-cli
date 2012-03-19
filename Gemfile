@@ -14,6 +14,7 @@ end
 
 group :test do
   gem "fakefs"
+  gem "json"
   gem "rake",  ">= 0.8.7"
   gem "rr",    "~> 1.0.2"
   gem "rspec", ">= 2.0"

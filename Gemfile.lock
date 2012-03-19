@@ -79,6 +79,7 @@ DEPENDENCIES
   fakefs
   fpm
   heroku!
+  json
   parka (>= 0.6.2)
   rake (>= 0.8.7)
   rr (~> 1.0.2)
