@@ -45,15 +45,15 @@ describe Heroku::Command::Help do
       output.should_not include "Additional commands"
     end
 
-    it "should show that the command is an alias" do
+    it "should redirect if the command is an alias" do
       execute "help create"
-      output.should include "heroku apps:create"
+      output.should include "See `heroku apps:create --help`."
     end
 
     it "should show if the command does not exist" do
       execute "help sudo:sandwich"
       output.strip.should_not be_empty
-      output.should include "sudo:sandwich is not a heroku command. See 'heroku help'."
+      output.should include "sudo:sandwich is not a heroku command. See `heroku help`."
     end
 
     it "should show help with naked -h" do

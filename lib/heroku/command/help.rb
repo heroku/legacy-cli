@@ -44,14 +44,7 @@ private
   end
 
   def commands
-    commands = Heroku::Command.commands
-    Heroku::Command.command_aliases.each do |new, old|
-      commands[new] = commands[old].dup
-      commands[new][:command] = new
-      commands[new][:namespace] = nil
-      commands[new][:alias_for] = old
-    end
-    commands
+    Heroku::Command.commands
   end
 
   def legacy_help_for_namespace(namespace)
@@ -116,9 +109,7 @@ private
   end
 
   def help_for_command(name)
-    command = commands[name]
-
-    if command
+    if command = commands[name]
       puts "Usage: heroku #{command[:banner]}"
 
       if command[:help].strip.length > 0
@@ -128,6 +119,8 @@ private
         puts " " + legacy_help_for_command(name).to_s
       end
       puts
+    elsif command = Heroku::Command.command_aliases[name]
+      display("See `heroku #{command} --help`.")
     end
 
     if commands_for_namespace(name).size > 0
@@ -136,7 +129,7 @@ private
       help_for_namespace(name)
       puts
     elsif command.nil?
-      error "#{name} is not a heroku command. See 'heroku help'."
+      error "#{name} is not a heroku command. See `heroku help`."
     end
   end
 end
