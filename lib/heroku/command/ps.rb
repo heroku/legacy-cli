@@ -102,7 +102,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # scale processes by the given amount
   #
-  # Example: heroku scale web=3 worker+1
+  # Example: heroku ps:scale web=3 worker+1
   #
   def scale
     current_process = nil
