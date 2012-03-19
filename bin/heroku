@@ -9,7 +9,7 @@ begin
   $:.unshift File.expand_path("../../lib", bin_file)
 
   require "heroku/updater"
-  Heroku::Updater.disable "To update the gem version of the Heroku client please use `gem update heroku`"
+  Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
 
   # start up the CLI
   require "heroku/cli"
