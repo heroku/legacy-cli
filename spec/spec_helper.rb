@@ -1,7 +1,7 @@
 $stdin = File.new("/dev/null")
 
 require "rubygems"
-require "bundler/setup"
+Bundler.setup(:default, :test)
 
 require "simplecov"
 SimpleCov.start do
