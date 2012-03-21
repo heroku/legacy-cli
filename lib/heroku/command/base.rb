@@ -175,7 +175,11 @@ protected
       remotes[remote]
     else
       apps = remotes.values.uniq
-      return apps.first if apps.size == 1
+      if apps.size == 1
+        apps.first
+      else
+        raise(Heroku::Command::CommandFailed, "Multiple apps in folder and no app specified.\nSpecify which app to use with --app <app name>")
+      end
     end
   end
 
