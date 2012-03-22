@@ -85,6 +85,8 @@ module Heroku::Command
             "\e[0m",
             body,
           ].join("")
+        elsif not line.empty?
+          lines << line
         end
       end
       lines.join("\n")
