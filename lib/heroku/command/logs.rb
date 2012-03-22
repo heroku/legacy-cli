@@ -74,16 +74,20 @@ module Heroku::Command
     }
 
     def colorize(chunk)
+      lines = []
       chunk.split("\n").map do |line|
-        header, identifier, body = parse_log(line)
-        @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
-        [
-          "\e[#{COLOR_CODES[@assigned_colors[identifier]]}m",
-          header,
-          "\e[0m",
-          body,
-        ].join("")
-      end.join("\n")
+        if parsed_line = parse_log(line)
+          header, identifier, body = parsed_line
+          @assigned_colors[identifier] ||= COLORS[@assigned_colors.size % COLORS.size]
+          lines << [
+            "\e[#{COLOR_CODES[@assigned_colors[identifier]]}m",
+            header,
+            "\e[0m",
+            body,
+          ].join("")
+        end
+      end
+      lines.join("\n")
     end
 
     def parse_log(log)
