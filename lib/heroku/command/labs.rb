@@ -28,7 +28,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # displays additional information about FEATURE
   #
   def info
-    error("Usage: heroku labs:info FEATURE") unless feature_name
+    if feature_name = args.shift
+      feature_name = feature_name.downcase.strip
+    else
+      error("Usage: heroku labs:info FEATURE")
+    end
     feature = heroku.get_feature(app, feature_name)
     display "=== #{feature['name']}"
     display "Summary: %s" % feature["summary"]
@@ -40,7 +44,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # enables FEATURE on an app
   #
   def enable
-    error("Usage: heroku labs:enable FEATURE") unless feature_name
+    if feature_name = args.shift
+      feature_name = feature_name.downcase.strip
+    else
+      error("Usage: heroku labs:enable FEATURE")
+    end
     message = "Enabling #{feature_name}"
     message += " for #{app}" if app
     action(message) do
@@ -54,7 +62,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # disables FEATURE on an app
   #
   def disable
-    error("Usage: heroku labs:disable FEATURE") unless feature_name
+    if feature_name = args.shift
+      feature_name = feature_name.downcase.strip
+    else
+      error("Usage: heroku labs:disable FEATURE")
+    end
     message = "Disabling #{feature_name}"
     message += " for #{app}" if app
     action(message) do
@@ -77,12 +89,6 @@ private
         feature["name"],
         feature["summary"]
       ]
-    end
-  end
-
-  def feature_name
-    @feature_name ||= if feature = args.shift
-      feature.downcase.strip
     end
   end
 
