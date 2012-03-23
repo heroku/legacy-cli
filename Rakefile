@@ -131,37 +131,3 @@ end
 Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
   import rake
 end
-
-task :local_build => ['gem:build', 'pkg:build', 'tgz:build', 'zip:build'] do
-  puts 'Built [gem, pkg, tgz, zip]'
-end
-
-task :release => ['exe:release', 'gem:release', 'pkg:release', 'tgz:release', 'zip:release'] do
-  puts 'Released [deb, exe, gem, pkg, tgz, zip]'
-end
-
-task :changelog do
-  timestamp = Time.now.utc.strftime('%m/%d/%Y')
-  sha = `git log | head -1`.split(' ').last
-  changelog = ["#{version} #{timestamp} #{sha}"]
-  changelog << ('=' * changelog[0].length)
-  changelog << ''
-
-  last_sha = `cat changelog.txt | head -1`.split(' ').last
-  shortlog = `git shortlog #{last_sha}..HEAD`
-  for line in shortlog.split("\n")
-    case line
-    when /^\S/, /^\s*$/ # committer, blank
-      next
-    else
-      changelog << line.lstrip!
-    end
-  end
-  changelog.concat ['', '', '']
-
-  old_changelog = File.read('changelog.txt')
-  File.open('changelog.txt', 'w') do |file|
-    file.write(changelog.join("\n"))
-    file.write(old_changelog)
-  end
-end
