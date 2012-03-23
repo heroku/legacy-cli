@@ -287,6 +287,7 @@ module Heroku::Command
       e.stub!(:http_body).and_return('{"error":"test"}')
       @addons.heroku.should_receive(:install_addon).and_raise(e)
       @addons.should_receive(:confirm_billing).and_return(false)
+      STDERR.should_receive(:puts).with(" !    test")
       lambda { @addons.add }.should raise_error(SystemExit)
     end
 
