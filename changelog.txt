@@ -1,3 +1,21 @@
+2.22.0 03/23/2012
+=================
+
+deprecate ps:dynos and ps:workers in favor of ps:scale
+allow --help and -h to trigger help
+fix heroku-accounts + netrc integration
+add pg:credentials --reset
+strip ^M from run output
+alias help now redirects to its targets help
+disabled gem updater redirects users to toolbelt
+merge heroku-labs
+better error messaging when multiple git remotes match
+fix spacing incosistency in logs output
+fix login with proxy usage
+error_with_failure now uses STDERR
+cleanup rake tasks
+add release checklist
+
 2.21.3 03/14/2012
 =================
 
