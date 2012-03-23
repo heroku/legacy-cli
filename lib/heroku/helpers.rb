@@ -34,7 +34,7 @@ module Heroku
 
     def error(msg)
       STDERR.puts(format_with_bang(msg))
-      exit 1
+      exit(1)
     end
 
     def confirm_billing
@@ -262,8 +262,8 @@ module Heroku
 
     def error_with_failure(message)
       display "failed"
-      output_with_bang(message)
-      exit 1
+      STDERR.puts(format_with_bang(message))
+      exit(1)
     end
 
     def self.included_into
