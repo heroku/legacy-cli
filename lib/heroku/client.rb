@@ -566,7 +566,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   ##################
 
   def resource(uri, options={})
-    RestClient.proxy = case URI.parse(uri).scheme
+    RestClient.proxy = case URI.parse(realize_full_uri(uri)).scheme
     when "http"
       http_proxy
     when "https"
