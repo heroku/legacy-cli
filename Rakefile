@@ -148,6 +148,7 @@ def poll_ci
   end
 end
 
+desc("Check current ci status and/or wait for build to finish.")
 task "ci" do
   poll_ci
 end
