@@ -4,7 +4,6 @@ gemspec
 
 group :development do
   gem "aws-s3"
-  gem "parka", ">= 0.6.2"
   gem "rake",  ">= 0.8.7"
   gem "rr",    "~> 1.0.2"
   gem "taps",  ">= 0.3.23"
