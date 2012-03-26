@@ -1,3 +1,9 @@
+2.23.0 03/26/2012
+=================
+
+warn that password entry will be hidden
+update heroku-shared-postgres to use postgres-addon instead
+
 2.22.0 03/23/2012
 =================
 
