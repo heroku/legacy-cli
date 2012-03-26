@@ -156,7 +156,7 @@ class Heroku::Auth
       print "Email: "
       user = ask
 
-      print "Password: "
+      print "Password (typing will be hidden): "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
       api_key = Heroku::Client.auth(user, password)['api_key']
 
