@@ -1,7 +1,9 @@
 #!/bin/sh
 set -e
 
-if [ `which heroku` != "/usr/bin/heroku" ]; then
+existing=$(which heroku)
+
+if [ "$existing" != "/usr/bin/heroku" ] && [ "$existing" != "" ]; then
     echo "Warning: existing heroku gem detected."
 fi
 
