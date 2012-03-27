@@ -105,36 +105,37 @@ class Heroku::Command::Apps < Heroku::Command::Base
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
     name    = args.shift.downcase.strip rescue nil
-    name    = heroku.create_request(name, {:stack => stack})
-    hprint("Creating #{name}...")
-    info    = heroku.info(name)
+    info    = heroku.create_app(name, {:stack => stack})
+    hprint("Creating #{info["name"]}...")
     begin
-      Timeout::timeout(timeout) do
-        loop do
-          break if heroku.create_complete?(name)
-          hprint(".")
-          sleep 1
+      if info["create_status"] == "creating"
+        Timeout::timeout(timeout) do
+          loop do
+            break if heroku.create_complete?(info["name"])
+            hprint(".")
+            sleep 1
+          end
         end
       end
-      hputs(" done, stack is #{info[:stack]}")
+      hputs(" done, stack is #{info["stack"]}")
 
       (options[:addons] || "").split(",").each do |addon|
         addon.strip!
-        hprint("Adding #{addon} to #{name}... ")
-        heroku.install_addon(name, addon)
+        hprint("Adding #{addon} to #{info["name"]}... ")
+        heroku.install_addon(info["name"], addon)
         hputs("done")
       end
 
       if buildpack = options[:buildpack]
-        heroku.add_config_vars(name, "BUILDPACK_URL" => buildpack)
+        heroku.add_config_vars(info["name"], "BUILDPACK_URL" => buildpack)
       end
 
-      hputs([ info[:web_url], info[:git_url] ].join(" | "))
+      hputs([ info["web_url"], info["git_url"] ].join(" | "))
     rescue Timeout::Error
-      hputs("Timed Out! Check heroku info for status updates.")
+      hputs("Timed Out! Check heroku status for known issues.")
     end
 
-    create_git_remote(remote || "heroku", info[:git_url])
+    create_git_remote(remote || "heroku", info["git_url"])
   end
 
   alias_command "create", "apps:create"

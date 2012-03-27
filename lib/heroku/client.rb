@@ -71,6 +71,11 @@ class Heroku::Client
     name
   end
 
+  def create_app(name=nil, options={})
+    options[:name] = name if name
+    json_decode(post("/apps", { :app => options }, :accept => "application/json").to_s)
+  end
+
   def create_request(name=nil, options={})
     options[:name] = name if name
     xml(post('/apps', :app => options).to_s).elements["//app/name"].text

@@ -48,18 +48,28 @@ module Heroku::Command
     end
 
     it "creates without a name" do
-      @cli.heroku.should_receive(:create_request).with(nil, {:stack => nil}).and_return("untitled-123")
+      @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
+        "create_status" => "creating",
+        "name"          => "untitled-123",
+        "git_url"       => "git@heroku.com:untitled-123.git",
+        "web_url"       => "http://untitled-123.herokuapp.com",
+        "stack"         => "bamboo-mri-1.9.2"
+      })
       @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:untitled-123.git'})
       @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:untitled-123.git')
       @cli.create
     end
 
     it "creates with a name" do
       @cli.stub!(:args).and_return(["myapp"])
-      @cli.heroku.should_receive(:create_request).with('myapp', {:stack => nil}).and_return("myapp")
+      @cli.heroku.should_receive(:create_app).with('myapp', {:stack => nil}).and_return({
+        "create_status" => "creating",
+        "name"          => "myapp",
+        "git_url"       => "git@heroku.com:myapp.git",
+        "web_url"       => "http://myapp.herokuapp.com",
+        "stack"         => "bamboo-mri-1.9.2"
+      })
       @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
       @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:myapp.git')
       @cli.create
     end
@@ -67,11 +77,16 @@ module Heroku::Command
     it "creates with addons" do
       @cli.stub!(:args).and_return(["addonapp"])
       @cli.stub!(:options).and_return(:addons => "foo:bar,fred:barney")
-      @cli.heroku.should_receive(:create_request).with('addonapp', {:stack => nil}).and_return("addonapp")
+      @cli.heroku.should_receive(:create_app).with('addonapp', {:stack => nil}).and_return({
+        "create_status" => "creating",
+        "name"          => "addonapp",
+        "git_url"       => "git@heroku.com:addonapp.git",
+        "web_url"       => "http://addonapp.herokuapp.com",
+        "stack"         => "bamboo-mri-1.9.2"
+      })
       @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
       @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
       @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:addonapp.git'})
       @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:addonapp.git')
       @cli.create
     end
@@ -79,10 +94,15 @@ module Heroku::Command
     it "creates with a buildpack" do
       @cli.stub!(:args).and_return(["buildpackapp"])
       @cli.stub!(:options).and_return(:buildpack => "http://example.org/buildpack.git")
-      @cli.heroku.should_receive(:create_request).with('buildpackapp', {:stack => nil}).and_return("buildpackapp")
+      @cli.heroku.should_receive(:create_app).with('buildpackapp', {:stack => nil}).and_return({
+        "create_status" => "creating",
+        "name"          => "buildpackapp",
+        "git_url"       => "git@heroku.com:buildpackapp.git",
+        "web_url"       => "http://buildpackapp.herokuapp.com",
+        "stack"         => "bamboo-mri-1.9.2"
+      })
       @cli.heroku.should_receive(:create_complete?).with("buildpackapp").and_return(true)
       @cli.heroku.should_receive(:add_config_vars).with("buildpackapp", "BUILDPACK_URL" => "http://example.org/buildpack.git")
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:buildpackapp.git'})
       @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:buildpackapp.git')
       @cli.create
     end
@@ -90,9 +110,14 @@ module Heroku::Command
     it "creates with an alternate remote name" do
       @cli.stub!(:options).and_return(:remote => "alternate")
       @cli.stub!(:args).and_return([ 'alternate-remote' ])
-      @cli.heroku.should_receive(:create_request).and_return("alternate-remote")
+      @cli.heroku.should_receive(:create_app).with("alternate-remote", {:stack => nil}).and_return({
+        "create_status" => "creating",
+        "name"          => "alternate-remote",
+        "git_url"       => "git@heroku.com:alternate-remote.git",
+        "web_url"       => "http://alternate-remote.herokuapp.com",
+        "stack"         => "bamboo-mri-1.9.2"
+      })
       @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:alternate-remote.git'})
       @cli.should_receive(:create_git_remote).with('alternate', 'git@heroku.com:alternate-remote.git')
       @cli.create
     end
@@ -147,9 +172,14 @@ module Heroku::Command
 
       it "creates adding heroku to git remote" do
         with_blank_git_repository do
-          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
+            "create_status" => "creating",
+            "name"          => "myapp",
+            "git_url"       => "git@heroku.com:myapp.git",
+            "web_url"       => "http://myapp.herokuapp.com",
+            "stack"         => "bamboo-mri-1.9.2"
+          })
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-          @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           @cli.create
           bash("git remote").strip.should match(/^heroku$/)
         end
@@ -159,9 +189,14 @@ module Heroku::Command
         with_blank_git_repository do
           @cli.stub!(:args).and_return([ 'myapp' ])
           @cli.stub!(:options).and_return(:remote => "myremote")
-          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_app).with("myapp", {:stack => nil}).and_return({
+            "create_status" => "creating",
+            "name"          => "myapp",
+            "git_url"       => "git@heroku.com:myapp.git",
+            "web_url"       => "http://myapp.herokuapp.com",
+            "stack"         => "bamboo-mri-1.9.2"
+          })
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-          @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           @cli.create
           bash("git remote").strip.should match(/^myremote$/)
         end
@@ -169,9 +204,14 @@ module Heroku::Command
 
       it "doesn't add a git remote if it already exists" do
         with_blank_git_repository do
-          @cli.heroku.should_receive(:create_request).and_return('myapp')
+          @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
+            "create_status" => "creating",
+            "name"          => "myapp",
+            "git_url"       => "git@heroku.com:myapp.git",
+            "web_url"       => "http://myapp.herokuapp.com",
+            "stack"         => "bamboo-mri-1.9.2"
+          })
           @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-          @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
           bash "git remote add heroku #{@git}"
           @cli.create
         end
