@@ -31,6 +31,19 @@ module Heroku::Command
       @pg.reset
     end
 
+    context "index" do
+      it "requests the info from the server" do
+        fake_client = mock("heroku_postgresql_client")
+        fake_client.should_receive("get_database").and_return(:info => [
+          {'name' => "State", 'value' => "available"},
+          {'name' => "whatever", 'values' => ['one', 'eh']}
+        ])
+
+        @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
+        @pg.index
+      end
+    end
+
     context "info" do
       it "requests the info from the server" do
         fake_client = mock("heroku_postgresql_client")

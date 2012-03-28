@@ -11,6 +11,14 @@ module Heroku::Command
     include PgUtils
     include PGResolver
 
+    # pg
+    #
+    # list databases for an app
+    #
+    def index
+      PGResolver::Resolver.all(config_vars).each {|db| display_db_info(db)}
+    end
+
     # pg:info [DATABASE]
     #
     # Display database information
