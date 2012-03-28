@@ -69,7 +69,7 @@ module Heroku::Command
           display(", #{release["name"]}", false) if release
         rescue RestClient::RequestFailed => e
         end
-        display ".\n"
+        display
       end
     end
 
