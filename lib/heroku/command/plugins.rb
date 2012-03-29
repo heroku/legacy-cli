@@ -39,8 +39,11 @@ module Heroku::Command
     #
     def uninstall
       plugin = Heroku::Plugin.new(args.shift)
-      plugin.uninstall
-      display "#{plugin} uninstalled"
+      if plugin.uninstall
+        display("#{plugin.name} uninstalled")
+      else
+        error(%{Plugin "#{plugin.name}" not found.})
+      end
     end
 
     protected

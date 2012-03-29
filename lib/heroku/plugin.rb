@@ -112,7 +112,12 @@ module Heroku
     end
 
     def uninstall
-      FileUtils.rm_r path if File.directory?(path)
+      if File.directory?(path)
+        FileUtils.rm_r(path)
+        true
+      else
+        false
+      end
     end
 
     private
