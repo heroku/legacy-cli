@@ -107,7 +107,7 @@ module Heroku::Command
       end
 
       it "aborts if no database addon is present" do
-        @pgbackups.should_receive(:abort).and_raise(SystemExit)
+        STDOUT.should_receive(:puts).with(" !     Your app has no databases.")
         lambda { @pgbackups.capture }.should raise_error SystemExit
       end
 

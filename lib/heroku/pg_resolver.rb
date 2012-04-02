@@ -156,6 +156,10 @@ module PGResolver
       url_deprecation_check
       default_database_check
       color_only_check
+      if @dbs.empty?
+        puts(" !     Your app has no databases.")
+        exit(1)
+      end
       @url = @dbs[@db_id] unless @url
     end
 
