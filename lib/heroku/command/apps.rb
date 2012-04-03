@@ -11,12 +11,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def index
     list = heroku.list
     if list.size > 0
-      hputs(list.map {|name, owner|
-        if heroku.user == owner
-          name
-        else
-          "#{name.ljust(25)} #{owner}"
-        end
+      hputs(list.map {|name, owner, domain|
+        owner = "" if heroku.user == owner
+        "#{"#{name.ljust(25)} #{owner}".ljust(50)} #{domain}"
       }.join("\n"))
     else
       hputs("You have no apps.")
