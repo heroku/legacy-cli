@@ -80,7 +80,11 @@ module Heroku::Command
     #
     # downgrade an existing addon
     #
-    alias_method :downgrade, :upgrade
+    def downgrade
+      configure_addon('Downgrading') do |addon, config|
+        heroku.upgrade_addon(app, addon, config)
+      end
+    end
 
     # addons:remove ADDON
     #
