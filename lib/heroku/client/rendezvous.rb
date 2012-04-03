@@ -60,7 +60,7 @@ class Heroku::Client::Rendezvous
             rescue EOFError
               break
             end
-            output.write(data.gsub(/\cM/,""))
+            output.write(fixup(data))
           end
         else
           raise(Timeout::Error.new)
@@ -72,5 +72,11 @@ class Heroku::Client::Rendezvous
       retry
     rescue Errno::EIO
     end
+  end
+
+  private
+
+  def fixup(data)
+    output.isatty ? data : data.gsub(/\cM/,"")
   end
 end
