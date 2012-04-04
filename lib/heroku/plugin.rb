@@ -50,7 +50,7 @@ module Heroku
         # setup netrc to match the default, if one exists
         if default_account = %x{ git config heroku.account }.chomp
           account = Heroku::Auth.extract_account rescue nil
-          if account
+          if account && Heroku::Auth.read_credentials != [Heroku::Auth.user, Heroku::Auth.password]
             Heroku::Auth.credentials = [Heroku::Auth.user, Heroku::Auth.password]
             Heroku::Auth.write_credentials
             load("#{File.dirname(__FILE__)}/command/accounts.rb")
