@@ -41,14 +41,14 @@ class Heroku::Command::Base
 protected
 
   def self.inherited(klass)
-    return if klass == Heroku::Command::Base
+    unless klass == Heroku::Command::Base
+      help = extract_help_from_caller(caller.first)
 
-    help = extract_help_from_caller(caller.first)
-
-    Heroku::Command.register_namespace(
-      :name => klass.namespace,
-      :description => help.split("\n").first
-    )
+      Heroku::Command.register_namespace(
+        :name => klass.namespace,
+        :description => help.first
+      )
+    end
   end
 
   def self.method_added(method)
@@ -69,7 +69,7 @@ protected
       :namespace   => self.namespace,
       :command     => command,
       :banner      => banner,
-      :help        => help,
+      :help        => help.join("\n"),
       :summary     => extract_summary(help),
       :description => extract_description(help),
       :options     => extract_options(help),
@@ -103,33 +103,32 @@ protected
   def self.extract_help_from_caller(line)
     # pull out of the caller the information for the file path and line number
     if line =~ /^(.+?):(\d+)/
-      return extract_help($1, $2)
+      extract_help($1, $2)
+    else
+      raise("unable to extract help from caller: #{line}")
     end
-    raise "unable to extract help from caller: #{line}"
   end
 
-  def self.extract_help(file, line)
+  def self.extract_help(file, line_number)
     buffer = []
-    lines  = File.read(file).split("\n")
+    lines = Heroku::Command.files[file]
 
-    catch(:done) do
-      (line.to_i-2).downto(0) do |i|
-        case lines[i].strip[0..0]
-          when "", "#" then buffer << lines[i]
-          else throw(:done)
-        end
+    (line_number.to_i-2).downto(0) do |i|
+      line = lines[i]
+      case line[0..0]
+        when ""
+        when "#"
+          buffer.unshift(line[2..-1])
+        else
+          break
       end
     end
 
-    buffer.map! do |line|
-      line.strip.gsub(/^#/, "")
-    end
-
-    buffer.reverse.join("\n").strip
+    buffer
   end
 
   def self.extract_banner(help)
-    help.split("\n").first
+    help.first
   end
 
   def self.extract_summary(help)
@@ -137,18 +136,16 @@ protected
   end
 
   def self.extract_description(help)
-    lines = help.split("\n").map { |l| l.strip }
-    lines.shift
-    lines.reject do |line|
+    help.reject do |line|
       line =~ /^-(.+)#(.+)/
-    end.join("\n").strip
+    end.join("\n")
   end
 
   def self.extract_options(help)
-    help.split("\n").map { |l| l.strip }.select do |line|
+    help.select do |line|
       line =~ /^-(.+)#(.+)/
     end.inject({}) do |hash, line|
-      description = line.split("#", 2).last.strip
+      description = line.split("#", 2).last
       long  = line.match(/--([A-Za-z\- ]+)/)[1].strip
       short = line.match(/-([A-Za-z ])/)[1].strip
       hash.update(long.split(" ").first => { :desc => description, :short => short, :long => long })

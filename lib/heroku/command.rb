@@ -25,6 +25,10 @@ module Heroku
       @@command_aliases ||= {}
     end
 
+    def self.files
+      @@files ||= Hash.new {|hash,key| hash[key] = File.readlines(key).map {|line| line.strip}}
+    end
+
     def self.namespaces
       @@namespaces ||= {}
     end
