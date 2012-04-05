@@ -1,3 +1,19 @@
+2.24.0 04/05/2012
+=================
+
+toolbelt related cleanup/fixes
+remove redundant API calls in apps:create
+make config:remove messaging more consistent
+add `pg` command to list all databases for an app
+raise error on plugins:uninstall for non-existent plugins
+better error messaging from pg resolver when there are no databases
+properly label add-on downgrading
+fix heroku run output to only remove ^M for non-tty
+remove hardcoding of bundler usage in specs
+avoid redundant Auth.write_credentials for heroku-accounts users
+optimizations around help parsing
+fixes around ssl setup for logplex to allow using against dev/test logplexes
+
 2.23.0 03/26/2012
 =================
 
