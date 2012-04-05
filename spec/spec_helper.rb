@@ -122,6 +122,15 @@ ensure
   Dir.chdir(old_dir)
 end
 
+def taps_available?
+  begin
+    require "taps/operation"
+    true
+  rescue LoadError
+    false
+  end
+end
+
 module SandboxHelper
   def bash(cmd)
     `#{cmd}`
