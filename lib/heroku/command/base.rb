@@ -66,7 +66,7 @@ protected
       :method      => method,
       :namespace   => self.namespace,
       :command     => command,
-      :banner      => banner,
+      :banner      => banner.strip,
       :help        => help.join("\n"),
       :summary     => extract_summary(help),
       :description => extract_description(help),
@@ -115,7 +115,7 @@ protected
       case line[0..0]
         when ""
         when "#"
-          buffer.unshift(line[2..-1])
+          buffer.unshift(line[1..-1])
         else
           break
       end
@@ -134,13 +134,13 @@ protected
 
   def self.extract_description(help)
     help.reject do |line|
-      line =~ /^-(.+)#(.+)/
+      line =~ /^ -(.+)#(.+)/
     end.join("\n")
   end
 
   def self.extract_options(help)
     help.select do |line|
-      line =~ /^-(.+)#(.+)/
+      line =~ /^ -(.+)#(.+)/
     end.inject({}) do |hash, line|
       description = line.split("#", 2).last
       long  = line.match(/--([A-Za-z\- ]+)/)[1].strip
