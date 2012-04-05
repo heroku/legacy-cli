@@ -13,6 +13,7 @@ end
 
 group :test do
   gem "fakefs"
+  gem "jruby-openssl", :platform => :jruby
   gem "json"
   gem "rake",  ">= 0.8.7"
   gem "rr",    "~> 1.0.2"
