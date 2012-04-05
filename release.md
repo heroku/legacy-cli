@@ -14,4 +14,9 @@ Heroku CLI Release Process
 * Move to the components/heroku directory, `git fetch` and `git reset --hard HASH` where HASH is commit hash of vX.Y.Z
 * Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
 * Ask in #dx for toolbelt releases
-* Update [devcenter changelog](http://devcenter.heroku.com/changelog)
+* Create a [new changelog](http://devcenter.heroku.com/admin/changelog_items/new)
+* Set the title to "Heroku CLI vX.Y.Z released with #{highlights}"
+* Set the description to:
+    A new version of the Heroku CLI is available with #{details}.
+
+    See the [CLI changelog](https://github.com/heroku/heroku/blob/master/changelog.txt) for details and update by using `heroku update`."
