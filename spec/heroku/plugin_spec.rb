@@ -97,10 +97,13 @@ module Heroku
           FileUtils.rm_rf(@sandbox + '/heroku-releases/lib')
         end
 
-        it "should show confirmation to remove deprecated plugins" do
+        it "should show confirmation to remove deprecated plugins if in an interactive shell" do
+          old_stdin_isatty = STDIN.isatty
+          STDIN.stub!(:isatty).and_return(true)
           Plugin.should_receive(:confirm).with("The plugin heroku-releases has been deprecated. Would you like to remove it? (y/N)").and_return(true)
           Plugin.should_receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
+          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
         end
 
         it "should not prompt for deprecation if not in an interactive shell" do
