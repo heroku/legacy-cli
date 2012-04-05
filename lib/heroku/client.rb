@@ -396,7 +396,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
         http = Net::HTTP.new(uri.host, uri.port)
       end
 
-      if url =~ %r|^https://logplex.heroku.com|
+      if uri.scheme == 'https'
         http.use_ssl = true
         if ENV["HEROKU_SSL_VERIFY"] == "disable"
           http.verify_mode = OpenSSL::SSL::VERIFY_NONE
