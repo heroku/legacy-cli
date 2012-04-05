@@ -60,8 +60,6 @@ protected
     resolved_method = (method.to_s == "index") ? nil : method.to_s
     command = [ self.namespace, resolved_method ].compact.join(":")
     banner = extract_banner(help) || command
-    permute = !banner.index("*")
-    banner.gsub!("*", "")
 
     Heroku::Command.register_command(
       :klass       => self,
@@ -72,8 +70,7 @@ protected
       :help        => help.join("\n"),
       :summary     => extract_summary(help),
       :description => extract_description(help),
-      :options     => extract_options(help),
-      :permute     => permute
+      :options     => extract_options(help)
     )
   end
 
