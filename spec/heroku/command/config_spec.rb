@@ -31,14 +31,14 @@ module Heroku::Command
     it "sets config vars" do
       @config.stub!(:args).and_return(['a=1', 'b=2'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'1','b'=>'2'})
-      @config.heroku.should_receive(:releases).and_return([])
+      @config.heroku.should_receive(:release)
       @config.add
     end
 
     it "allows config vars with = in the value" do
       @config.stub!(:args).and_return(['a=b=c'])
       @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'b=c'})
-      @config.heroku.should_receive(:releases).and_return([])
+      @config.heroku.should_receive(:release)
       @config.add
     end
 
@@ -50,7 +50,7 @@ module Heroku::Command
 
         it "exits with a help notice" do
           @config.heroku.should_not_receive(:remove_config_var)
-          @config.heroku.should_not_receive(:releases)
+          @config.heroku.should_not_receive(:release)
           lambda { @config.remove }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
         end
       end
@@ -60,7 +60,7 @@ module Heroku::Command
 
         it "removes one key" do
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
-          @config.heroku.should_receive(:releases).and_return([])
+          @config.heroku.should_receive(:release)
           @config.remove
         end
       end
@@ -71,7 +71,7 @@ module Heroku::Command
         it "removes all given keys" do
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
           @config.heroku.should_receive(:remove_config_var).with('myapp', 'b')
-          @config.heroku.should_receive(:releases).at_least(:once).and_return([])
+          @config.heroku.should_receive(:release).at_least(:once)
           @config.remove
         end
       end
