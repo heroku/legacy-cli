@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     before do
-      stub_core.releases("myapp").returns([ "name" => "v99" ])
+      stub_core.release("myapp", "current").returns( "name" => "v99" )
     end
 
     describe "index" do
@@ -65,7 +65,7 @@ module Heroku::Command
         @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
-      
+
       it "gives a deprecation notice with an example" do
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => {:foo => 'bar', :extra => "XXX"}})

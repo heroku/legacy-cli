@@ -41,7 +41,7 @@ module Heroku::Command
       display " done", false
 
       begin
-        release = heroku.releases(detected_app).last
+        release = heroku.release(detected_app, 'current')
         display(", #{release["name"]}", false) if release
       rescue RestClient::RequestFailed => e
       end
@@ -65,7 +65,7 @@ module Heroku::Command
 
         display " done", false
         begin
-          release = heroku.releases(app).last
+          release = heroku.release(app, 'current')
           display(", #{release["name"]}", false) if release
         rescue RestClient::RequestFailed => e
         end
