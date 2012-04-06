@@ -21,4 +21,4 @@ Heroku CLI Release Process
 
         A new version of the Heroku CLI is available with #{details}.
 
-        See the [CLI changelog](https://github.com/heroku/heroku/blob/master/changelog.txt) for details and update by using `heroku update`."
+        See the [CLI changelog](https://github.com/heroku/heroku/blob/master/changelog.txt) for details and update by using `heroku update`.
