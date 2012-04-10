@@ -156,7 +156,7 @@ module Heroku
       retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e
       error extract_error(e.http_body) {
-        e.http_body =~ /^[\w\s]+ not found.?$/ ? e.http_body : "Resource not found"
+        e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
     rescue RestClient::Locked => e
       app = e.response.headers[:x_confirmation_required]
