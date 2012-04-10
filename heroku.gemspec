@@ -11,8 +11,9 @@ Gem::Specification.new do |gem|
   gem.summary     = "Client library and CLI to deploy apps on Heroku."
   gem.description = "Client library and command-line tool to deploy and manage apps on Heroku."
   gem.executables = "heroku"
+  gem.license     = "MIT"
 
-  gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(README|bin/|data/|ext/|lib/|spec/|test/)} }
+  gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|spec/|test/)} }
 
   gem.add_dependency "netrc",           "~> 0.7.1"
   gem.add_dependency "rest-client",     "~> 1.6.1"
