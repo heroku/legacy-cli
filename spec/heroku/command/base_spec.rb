@@ -43,6 +43,7 @@ module Heroku::Command
 
       it "read remotes from git config" do
         Dir.stub(:chdir)
+        File.should_receive(:exists?).with(".git").and_return(true)
         @base.should_receive(:git).with('remote -v').and_return(<<-REMOTES)
 staging\tgit@heroku.com:myapp-staging.git (fetch)
 staging\tgit@heroku.com:myapp-staging.git (push)
