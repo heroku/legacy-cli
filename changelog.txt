@@ -1,3 +1,12 @@
+2.24.1 04/11/2012
+=================
+
+mark taps tests pending when taps is unavailable
+use releases current API in addons/config instead of getting last from list
+fix license inclusion for gem
+more consistent error messaging (removes trailing periods)
+fix for argument parsing where argument only has a long option
+
 2.24.0 04/05/2012
 =================
 
