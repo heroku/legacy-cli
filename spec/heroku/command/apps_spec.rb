@@ -17,144 +17,172 @@ module Heroku::Command
       }
     end
 
-    it "shows app info, converting bytes to kbs/mbs" do
-      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
-      @cli.should_receive(:hputs).with('=== myapp')
-      @cli.should_receive(:hputs).with('Database Size: 5M')
-      @cli.should_receive(:hputs).with('Git URL:       git@heroku.com/myapp.git')
-      @cli.should_receive(:hputs).with('Repo Size:     2k')
-      @cli.should_receive(:hputs).with('Web URL:       http://myapp.heroku.com/')
-      @cli.info
+    context("info") do
+
+      it "displays app info, converts bytes to kbs/mbs" do
+        @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
+        @cli.should_receive(:hputs).with('=== myapp')
+        @cli.should_receive(:hputs).with('Database Size: 5M')
+        @cli.should_receive(:hputs).with('Git URL:       git@heroku.com/myapp.git')
+        @cli.should_receive(:hputs).with('Repo Size:     2k')
+        @cli.should_receive(:hputs).with('Web URL:       http://myapp.heroku.com/')
+        @cli.info
+      end
+
+      it "gets explicit app from --app" do
+        @cli.stub!(:options).and_return(:app => "myapp")
+        @cli.heroku.should_receive(:info).and_return(@data)
+        @cli.info
+      end
+
+      it "gets implied app from current git dir" do
+        @cli.stub!(:options).and_return({})
+        @cli.stub!(:extract_app_in_dir).and_return('myapp')
+        @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
+        @cli.info
+      end
+
+      it "shows raw app info when --raw option is used" do
+        @cli.stub(:options).and_return(:app => "myapp", :raw => true)
+        @cli.heroku.should_receive(:info).with("myapp").and_return({ :foo => "bar" })
+        @cli.should_receive(:hputs).with("foo=bar")
+        @cli.info
+      end
+
     end
 
-    it "shows app info using the --app syntax" do
-      @cli.stub!(:options).and_return(:app => "myapp")
-      @cli.heroku.should_receive(:info).and_return(@data)
-      @cli.info
+    context("create") do
+
+      it "without a name" do
+        @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
+          "create_status" => "creating",
+          "name"          => "untitled-123",
+          "git_url"       => "git@heroku.com:untitled-123.git",
+          "web_url"       => "http://untitled-123.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
+        @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:untitled-123.git')
+        @cli.create
+      end
+
+      it "with a name" do
+        @cli.stub!(:args).and_return(["myapp"])
+        @cli.heroku.should_receive(:create_app).with('myapp', {:stack => nil}).and_return({
+          "create_status" => "creating",
+          "name"          => "myapp",
+          "git_url"       => "git@heroku.com:myapp.git",
+          "web_url"       => "http://myapp.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
+        @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:myapp.git')
+        @cli.create
+      end
+
+      it "with addons" do
+        @cli.stub!(:args).and_return(["addonapp"])
+        @cli.stub!(:options).and_return(:addons => "foo:bar,fred:barney")
+        @cli.heroku.should_receive(:create_app).with('addonapp', {:stack => nil}).and_return({
+          "create_status" => "creating",
+          "name"          => "addonapp",
+          "git_url"       => "git@heroku.com:addonapp.git",
+          "web_url"       => "http://addonapp.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
+        @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
+        @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
+        @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:addonapp.git')
+        @cli.create
+      end
+
+      it "with a buildpack" do
+        @cli.stub!(:args).and_return(["buildpackapp"])
+        @cli.stub!(:options).and_return(:buildpack => "http://example.org/buildpack.git")
+        @cli.heroku.should_receive(:create_app).with('buildpackapp', {:stack => nil}).and_return({
+          "create_status" => "creating",
+          "name"          => "buildpackapp",
+          "git_url"       => "git@heroku.com:buildpackapp.git",
+          "web_url"       => "http://buildpackapp.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        @cli.heroku.should_receive(:create_complete?).with("buildpackapp").and_return(true)
+        @cli.heroku.should_receive(:add_config_vars).with("buildpackapp", "BUILDPACK_URL" => "http://example.org/buildpack.git")
+        @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:buildpackapp.git')
+        @cli.create
+      end
+
+      it "with an alternate remote name" do
+        @cli.stub!(:options).and_return(:remote => "alternate")
+        @cli.stub!(:args).and_return([ 'alternate-remote' ])
+        @cli.heroku.should_receive(:create_app).with("alternate-remote", {:stack => nil}).and_return({
+          "create_status" => "creating",
+          "name"          => "alternate-remote",
+          "git_url"       => "git@heroku.com:alternate-remote.git",
+          "web_url"       => "http://alternate-remote.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
+        @cli.should_receive(:create_git_remote).with('alternate', 'git@heroku.com:alternate-remote.git')
+        @cli.create
+      end
+
     end
 
-    it "shows app info reading app from current git dir" do
-      @cli.stub!(:options).and_return({})
-      @cli.stub!(:extract_app_in_dir).and_return('myapp')
-      @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
-      @cli.info
+    context("index") do
+
+      it "succeeds" do
+        @cli.stub!(:options).and_return({})
+        @cli.stub!(:extract_app_in_dir).and_return('myapp')
+        @cli.heroku.stub!(:user).and_return("email@example.com")
+        @cli.heroku.should_receive(:list).and_return([["myapp", "email@example.com"]])
+        @cli.index
+      end
+
     end
 
-    it "shows raw app info when --raw option is used" do
-      @cli.stub(:options).and_return(:app => "myapp", :raw => true)
-      @cli.heroku.should_receive(:info).with("myapp").and_return({ :foo => "bar" })
-      @cli.should_receive(:hputs).with("foo=bar")
-      @cli.info
+    context("rename") do
+
+      it "succeeds" do
+        @cli.stub!(:args).and_return([ 'myapp2' ])
+        @cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
+        @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp2.git'})
+        @cli.rename
+      end
+
+      it "displays an error if no name is specified" do
+        Heroku::Command.should_receive(:error).with(/Must specify a new name/)
+        run "rename --app bar"
+      end
+
     end
 
-    it "creates without a name" do
-      @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
-        "create_status" => "creating",
-        "name"          => "untitled-123",
-        "git_url"       => "git@heroku.com:untitled-123.git",
-        "web_url"       => "http://untitled-123.herokuapp.com",
-        "stack"         => "bamboo-mri-1.9.2"
-      })
-      @cli.heroku.should_receive(:create_complete?).with("untitled-123").and_return(true)
-      @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:untitled-123.git')
-      @cli.create
-    end
+    context("destroy") do
 
-    it "creates with a name" do
-      @cli.stub!(:args).and_return(["myapp"])
-      @cli.heroku.should_receive(:create_app).with('myapp', {:stack => nil}).and_return({
-        "create_status" => "creating",
-        "name"          => "myapp",
-        "git_url"       => "git@heroku.com:myapp.git",
-        "web_url"       => "http://myapp.herokuapp.com",
-        "stack"         => "bamboo-mri-1.9.2"
-      })
-      @cli.heroku.should_receive(:create_complete?).with("myapp").and_return(true)
-      @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:myapp.git')
-      @cli.create
-    end
+      it "with app explicitly specified with --app and user confirmation" do
+        @cli.stub!(:options).and_return(:app => "myapp")
+        @cli.should_receive(:confirm_command).and_return(true)
+        @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
+        @cli.heroku.should_receive(:destroy).with('myapp')
+        @cli.destroy
+      end
 
-    it "creates with addons" do
-      @cli.stub!(:args).and_return(["addonapp"])
-      @cli.stub!(:options).and_return(:addons => "foo:bar,fred:barney")
-      @cli.heroku.should_receive(:create_app).with('addonapp', {:stack => nil}).and_return({
-        "create_status" => "creating",
-        "name"          => "addonapp",
-        "git_url"       => "git@heroku.com:addonapp.git",
-        "web_url"       => "http://addonapp.herokuapp.com",
-        "stack"         => "bamboo-mri-1.9.2"
-      })
-      @cli.heroku.should_receive(:create_complete?).with("addonapp").and_return(true)
-      @cli.heroku.should_receive(:install_addon).with("addonapp", "foo:bar")
-      @cli.heroku.should_receive(:install_addon).with("addonapp", "fred:barney")
-      @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:addonapp.git')
-      @cli.create
-    end
+      it "fails with explicit app but no confirmation" do
+        @cli.stub!(:options).and_return(:app => "myapp")
+        @cli.should_receive(:confirm_command).and_return(false)
+        @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
+        @cli.heroku.should_not_receive(:destroy)
+        @cli.destroy
+      end
 
-    it "creates with a buildpack" do
-      @cli.stub!(:args).and_return(["buildpackapp"])
-      @cli.stub!(:options).and_return(:buildpack => "http://example.org/buildpack.git")
-      @cli.heroku.should_receive(:create_app).with('buildpackapp', {:stack => nil}).and_return({
-        "create_status" => "creating",
-        "name"          => "buildpackapp",
-        "git_url"       => "git@heroku.com:buildpackapp.git",
-        "web_url"       => "http://buildpackapp.herokuapp.com",
-        "stack"         => "bamboo-mri-1.9.2"
-      })
-      @cli.heroku.should_receive(:create_complete?).with("buildpackapp").and_return(true)
-      @cli.heroku.should_receive(:add_config_vars).with("buildpackapp", "BUILDPACK_URL" => "http://example.org/buildpack.git")
-      @cli.should_receive(:create_git_remote).with('heroku', 'git@heroku.com:buildpackapp.git')
-      @cli.create
-    end
+      it "fails with implicit app but no confirmation" do
+        @cli.stub!(:app).and_return('myapp')
+        @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
+        @cli.heroku.should_not_receive(:destroy)
+        @cli.destroy
+      end
 
-    it "creates with an alternate remote name" do
-      @cli.stub!(:options).and_return(:remote => "alternate")
-      @cli.stub!(:args).and_return([ 'alternate-remote' ])
-      @cli.heroku.should_receive(:create_app).with("alternate-remote", {:stack => nil}).and_return({
-        "create_status" => "creating",
-        "name"          => "alternate-remote",
-        "git_url"       => "git@heroku.com:alternate-remote.git",
-        "web_url"       => "http://alternate-remote.herokuapp.com",
-        "stack"         => "bamboo-mri-1.9.2"
-      })
-      @cli.heroku.should_receive(:create_complete?).with("alternate-remote").and_return(true)
-      @cli.should_receive(:create_git_remote).with('alternate', 'git@heroku.com:alternate-remote.git')
-      @cli.create
-    end
-
-    it "renames an app" do
-      @cli.stub!(:args).and_return([ 'myapp2' ])
-      @cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp2.git'})
-      @cli.rename
-    end
-
-    it "displays an error if no name is specified on rename" do
-      Heroku::Command.should_receive(:error).with(/Must specify a new name/)
-      run "rename --app bar"
-    end
-
-    it "destroys the app specified with --app if user confirms" do
-      @cli.stub!(:options).and_return(:app => "myapp")
-      @cli.should_receive(:confirm_command).and_return(true)
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
-      @cli.heroku.should_receive(:destroy).with('myapp')
-      @cli.destroy
-    end
-
-    it "doesn't destroy the app if the user doesn't confirms" do
-      @cli.stub!(:options).and_return(:app => "myapp")
-      @cli.should_receive(:confirm_command).and_return(false)
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
-      @cli.heroku.should_not_receive(:destroy)
-      @cli.destroy
-    end
-
-    it "doesn't destroy the app in the current dir" do
-      @cli.stub!(:app).and_return('myapp')
-      @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
-      @cli.heroku.should_not_receive(:destroy)
-      @cli.destroy
     end
 
     context "Git Integration" do
