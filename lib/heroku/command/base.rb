@@ -134,13 +134,13 @@ protected
 
   def self.extract_description(help)
     help.reject do |line|
-      line =~ /^ -(.+)#(.+)/
+      line =~ /^\s+-(.+)#(.+)/
     end.join("\n")
   end
 
   def self.extract_options(help)
     help.select do |line|
-      line =~ /^ -(.+)#(.+)/
+      line =~ /^\s+-(.+)#(.+)/
     end.inject({}) do |hash, line|
       description = line.split("#", 2).last
       long  = line.match(/--([A-Za-z\- ]+)/)[1].strip
