@@ -216,6 +216,7 @@ private
     def wait_for(db)
       ticking do |ticks|
         wait_status = heroku_postgresql_client(db[:url]).get_wait_status
+        raise CommandFailed.new(wait_status[:message]) if wait_status[:error?]
         break if !wait_status[:waiting?] && ticks == 0
         redisplay("Waiting for database %s... %s%s" % [
                     db[:pretty_name],
