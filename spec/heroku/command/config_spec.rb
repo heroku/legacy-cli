@@ -8,60 +8,82 @@ module Heroku::Command
     end
 
     it "shows all configs" do
-      @config.heroku.should_receive(:config_vars).and_return({ 'A' => 'one', 'B' => 'two' })
-      @config.should_receive(:display).with('A => one')
-      @config.should_receive(:display).with('B => two')
-      @config.index
+      stub_core.config_vars("myapp").returns({ 'A' => 'one', 'B' => 'two' })
+      stderr, stdout = execute("config")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+A => one
+B => two
+STDOUT
     end
 
     it "does not trim long values" do
-      @config.heroku.should_receive(:config_vars).and_return({ 'LONG' => 'A' * 60 })
-      @config.should_receive(:display).with('LONG => AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-      @config.index
+      stub_core.config_vars("myapp").returns({ 'LONG' => 'A' * 60 })
+      stderr, stdout = execute("config")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+LONG => AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+STDOUT
     end
 
     it "shows configs in a shell compatible format" do
-      @config.stub!(:options).and_return({:shell => true})
-      @config.heroku.should_receive(:config_vars).and_return({ 'A' => 'one', 'B' => 'two' })
-      @config.should_receive(:display).with('A=one')
-      @config.should_receive(:display).with('B=two')
-      @config.index
+      stub_core.config_vars("myapp").returns({ 'A' => 'one', 'B' => 'two' })
+      stderr, stdout = execute("config --shell")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+A=one
+B=two
+STDOUT
     end
 
-    it "sets config vars" do
-      @config.stub!(:args).and_return(['a=1', 'b=2'])
-      @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'1','b'=>'2'})
-      @config.heroku.should_receive(:release)
-      @config.add
-    end
+    context("add") do
 
-    it "allows config vars with = in the value" do
-      @config.stub!(:args).and_return(['a=b=c'])
-      @config.heroku.should_receive(:add_config_vars).with('myapp', {'a'=>'b=c'})
-      @config.heroku.should_receive(:release)
-      @config.add
+      before do
+        stub_core.release("myapp", "current").returns({"name" => "v123"})
+      end
+
+      it "sets config vars" do
+        stub_core.add_config_vars("myapp", {"a" => "1", "b" => "2"})
+        stderr, stdout = execute("config:add a=1 b=2")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Adding config vars and restarting app... done, v123
+  a => 1
+  b => 2
+      STDOUT
+      end
+
+      it "allows config vars with = in the value" do
+        stub_core.add_config_vars("myapp", {"a" => "b=c"})
+        stderr, stdout = execute("config:add a=b=c")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Adding config vars and restarting app... done, v123
+  a => b=c
+STDOUT
+      end
+
     end
 
     describe "config:remove" do
-      before { @config.stub!(:args).and_return(args) }
 
-      context "when no key provided" do
-        let(:args) { [] }
+      before do
+        stub_core.release("myapp", "current").returns({"name" => "v123"})
+      end
 
-        it "exits with a help notice" do
-          @config.heroku.should_not_receive(:remove_config_var)
-          @config.heroku.should_not_receive(:release)
-          lambda { @config.remove }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
-        end
+      it "exits with a help notice when no keys are provides" do
+        lambda { execute("config:remove") }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
       end
 
       context "when one key is provided" do
-        let(:args) { ['a'] }
 
-        it "removes one key" do
-          @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
-          @config.heroku.should_receive(:release)
-          @config.remove
+        it "removes a single key" do
+          stub_core.remove_config_var("myapp", "a")
+          stderr, stdout = execute("config:remove a")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Removing a and restarting app... done, v123
+STDOUT
         end
       end
 
@@ -69,10 +91,14 @@ module Heroku::Command
         let(:args) { ['a', 'b'] }
 
         it "removes all given keys" do
-          @config.heroku.should_receive(:remove_config_var).with('myapp', 'a')
-          @config.heroku.should_receive(:remove_config_var).with('myapp', 'b')
-          @config.heroku.should_receive(:release).at_least(:once)
-          @config.remove
+          stub_core.remove_config_var("myapp", "a")
+          stub_core.remove_config_var("myapp", "b")
+          stderr, stdout = execute("config:remove a b")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Removing a and restarting app... done, v123
+Removing b and restarting app... done, v123
+STDOUT
         end
       end
     end
