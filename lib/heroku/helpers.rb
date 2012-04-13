@@ -19,7 +19,7 @@ module Heroku
         puts(msg)
       else
         print(msg)
-        STDOUT.flush
+        $stdout.flush
       end
     end
 
@@ -33,7 +33,7 @@ module Heroku
     end
 
     def error(msg)
-      STDERR.puts(format_with_bang(msg))
+      $stderr.puts(format_with_bang(msg))
       exit(1)
     end
 
@@ -262,7 +262,7 @@ module Heroku
 
     def error_with_failure(message)
       display "failed"
-      STDERR.puts(format_with_bang(message))
+      $stderr.puts(format_with_bang(message))
       exit(1)
     end
 
@@ -340,7 +340,7 @@ module Heroku
 
     def hprint(string='')
       Kernel.print(string)
-      STDOUT.flush
+      $stdout.flush
     end
 
     def string_distance(first, last)

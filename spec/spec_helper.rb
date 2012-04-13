@@ -58,7 +58,15 @@ def execute(command_line)
     stub(base).app.returns("myapp")
   end
 
-  object.send(method)
+  original_stderr, original_stdout = $stderr, $stdout
+  $stderr = captured_stderr = StringIO.new
+  $stdout = captured_stdout = StringIO.new
+  begin
+    object.send(method)
+  ensure
+    $stderr, $stdout = original_stderr, original_stdout
+  end
+  [captured_stderr.string, captured_stdout.string]
 end
 
 def output

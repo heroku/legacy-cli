@@ -133,11 +133,12 @@ module Heroku::Command
     context("index") do
 
       it "succeeds" do
-        @cli.stub!(:options).and_return({})
-        @cli.stub!(:extract_app_in_dir).and_return('myapp')
-        @cli.heroku.stub!(:user).and_return("email@example.com")
-        @cli.heroku.should_receive(:list).and_return([["myapp", "email@example.com"]])
-        @cli.index
+        stub_core.list.returns([["myapp", "user"]])
+        stderr, stdout = execute("apps")
+        stderr.should be_empty
+        stdout.should == <<-STDOUT
+myapp
+STDOUT
       end
 
     end
