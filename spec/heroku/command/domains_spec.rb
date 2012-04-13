@@ -3,51 +3,58 @@ require "heroku/command/domains"
 
 module Heroku::Command
   describe Domains do
-    before do
-      @domains = prepare_command(Domains)
-      @domains.heroku.stub!(:info).and_return({})
-    end
 
     it "lists domains" do
-      @domains.heroku.should_receive(:list_domains).and_return([])
-      @domains.index
+      stub_core.info("myapp").returns({:web_url => "http://myapp.herokuapp.com"})
+      stub_core.list_domains("myapp").returns([])
+      stderr, stdout = execute("domains")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+No domain names for myapp.herokuapp.com
+STDOUT
     end
 
     it "adds domain names" do
-      @domains.stub!(:args).and_return(['example.com'])
-      @domains.heroku.should_receive(:add_domain).with('myapp', 'example.com')
-      @domains.add
+      stub_core.add_domain("myapp", "example.com")
+      stderr, stdout = execute("domains:add example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Added example.com as a custom domain name for myapp
+STDOUT
     end
 
     it "shows usage if no domain specified for add" do
-      @domains.stub!(:args).and_return([])
-      lambda { @domains.add }.should raise_error(CommandFailed, /Usage:/)
+      lambda { execute("domains:add") }.should raise_error(CommandFailed, /Usage:/)
     end
 
     it "shows usage if blank domain specified for add" do
-      @domains.stub!(:args).and_return(['  '])
-      lambda { @domains.add }.should raise_error(CommandFailed, /Usage:/)
+      lambda { execute("domains:add  ") }.should raise_error(CommandFailed, /Usage:/)
     end
 
     it "removes domain names" do
-      @domains.stub!(:args).and_return(['example.com'])
-      @domains.heroku.should_receive(:remove_domain).with('myapp', 'example.com')
-      @domains.remove
+      stub_core.remove_domain("myapp", "example.com")
+      stderr, stdout = execute("domains:remove example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Removed example.com as a custom domain name for myapp
+STDOUT
     end
 
     it "shows usage if no domain specified for remove" do
-      @domains.stub!(:args).and_return([])
-      lambda { @domains.remove }.should raise_error(CommandFailed, /Usage:/)
+      lambda { execute("domains:remove") }.should raise_error(CommandFailed, /Usage:/)
     end
 
     it "shows usage if blank domain specified for remove" do
-      @domains.stub!(:args).and_return(['  '])
-      lambda { @domains.remove }.should raise_error(CommandFailed, /Usage:/)
+      lambda { execute("domains:remove  ") }.should raise_error(CommandFailed, /Usage:/)
     end
 
     it "removes all domain names" do
-      @domains.heroku.should_receive(:remove_domains).with('myapp')
-      @domains.clear
+      stub_core.remove_domains("myapp")
+      stderr, stdout = execute("domains:clear")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Removed all domain names for myapp
+STDOUT
     end
   end
 end
