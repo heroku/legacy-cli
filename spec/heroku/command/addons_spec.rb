@@ -19,7 +19,7 @@ module Heroku::Command
           @addons.index
         end
       end
-      context "when workign with addons and attachments" do
+      context "when working with addons and attachments" do
         it "should list attachments" do
           c = [{"configured"=>true, "name"=>"heroku-postgresql:ronin", "attachment_name"=>"HEROKU_POSTGRESQL_RED"}]
           @addons.heroku.should_receive(:installed_addons).with('myapp').and_return(c)
@@ -43,10 +43,10 @@ module Heroku::Command
 
       it "lists available addons" do
         @addons.heroku.should_receive(:addons).and_return(@available_addons)
-        @addons.should_receive(:hputs).with("cloudcounter:basic".ljust(34))
-        @addons.should_receive(:hputs).with("cloudcounter:gold, pro".ljust(34))
-        @addons.should_receive(:hputs).with("cloudcounter:platinum".ljust(34))
-        @addons.should_receive(:hputs).with("cloudcounter:old".ljust(34))
+        @addons.should_receive(:hputs).with("cloudcounter:basic")
+        @addons.should_receive(:hputs).with("cloudcounter:gold, pro")
+        @addons.should_receive(:hputs).with("cloudcounter:platinum")
+        @addons.should_receive(:hputs).with("cloudcounter:old")
         @addons.list
       end
 

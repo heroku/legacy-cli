@@ -159,7 +159,7 @@ module Heroku::Command
             end.compact.join(', ')
             row << '...' if stop
           end
-          row.ljust(34)
+          row
         end
       end
 
