@@ -5,57 +5,60 @@ module Heroku::Command
   describe Addons do
     before do
       @addons = prepare_command(Addons)
-      @addons.heroku.stub!(:releases).and_raise(RestClient::RequestFailed.new) # stub as if Releases not enabled
-    end
-
-    before do
       stub_core.release("myapp", "current").returns( "name" => "v99" )
     end
 
     describe "index" do
       context "when working with addons" do
         it "lists installed addons" do
-          @addons.heroku.should_receive(:installed_addons).with('myapp').and_return([])
-          @addons.index
+          stub_core.installed_addons('myapp').returns([])
+          stderr, stdout = execute("addons")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+No addons installed
+STDOUT
         end
       end
       context "when working with addons and attachments" do
         it "should list attachments" do
-          c = [{"configured"=>true, "name"=>"heroku-postgresql:ronin", "attachment_name"=>"HEROKU_POSTGRESQL_RED"}]
-          @addons.heroku.should_receive(:installed_addons).with('myapp').and_return(c)
-          @addons.should_receive(:display).with("heroku-postgresql:ronin => HEROKU_POSTGRESQL_RED")
-          @addons.index
+          stub_core.installed_addons('myapp').returns([{"configured"=>true, "name"=>"heroku-postgresql:ronin", "attachment_name"=>"HEROKU_POSTGRESQL_RED"}])
+          stderr, stdout = execute("addons")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+heroku-postgresql:ronin => HEROKU_POSTGRESQL_RED
+STDOUT
         end
       end
     end
 
     describe "list" do
       before do
-        @available_addons = [
+        stub_core.addons.returns([
           { "name" => "cloudcounter:basic", "state" => "alpha" },
           { "name" => "cloudcounter:pro", "state" => "public" },
           { "name" => "cloudcounter:gold", "state" => "public" },
           { "name" => "cloudcounter:old", "state" => "disabled" },
           { "name" => "cloudcounter:platinum", "state" => "beta" }
-        ]
-        @addons.heroku.stub!(:addons).and_return(@available_addons)
+        ])
       end
 
       it "lists available addons" do
-        @addons.heroku.should_receive(:addons).and_return(@available_addons)
-        @addons.should_receive(:hputs).with("cloudcounter:basic")
-        @addons.should_receive(:hputs).with("cloudcounter:gold, pro")
-        @addons.should_receive(:hputs).with("cloudcounter:platinum")
-        @addons.should_receive(:hputs).with("cloudcounter:old")
-        @addons.list
-      end
+        stderr, stdout = execute("addons:list")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== alpha
+cloudcounter:basic
 
-      it "partitions addons by state" do
-        @addons.should_receive(:display).with("=== alpha", true)
-        @addons.should_receive(:display).with("=== beta", true)
-        @addons.should_receive(:display).with("=== disabled", true)
-        @addons.should_receive(:display).with("=== available", true)
-        @addons.list
+=== available
+cloudcounter:gold, pro
+
+=== beta
+cloudcounter:platinum
+
+=== disabled
+cloudcounter:old
+
+STDOUT
       end
     end
 
