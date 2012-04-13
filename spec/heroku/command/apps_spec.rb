@@ -19,14 +19,20 @@ module Heroku::Command
 
     context("info") do
 
+      before(:each) do
+        stub_core.info('myapp').returns(@data)
+      end
+
       it "displays app info, converts bytes to kbs/mbs" do
-        @cli.heroku.should_receive(:info).with('myapp').and_return(@data)
-        @cli.should_receive(:hputs).with('=== myapp')
-        @cli.should_receive(:hputs).with('Database Size: 5M')
-        @cli.should_receive(:hputs).with('Git URL:       git@heroku.com/myapp.git')
-        @cli.should_receive(:hputs).with('Repo Size:     2k')
-        @cli.should_receive(:hputs).with('Web URL:       http://myapp.heroku.com/')
-        @cli.info
+        stderr, stdout = execute("apps:info")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== myapp
+Database Size: 5M
+Git URL:       git@heroku.com/myapp.git
+Repo Size:     2k
+Web URL:       http://myapp.heroku.com/
+STDOUT
       end
 
       it "gets explicit app from --app" do
@@ -43,10 +49,12 @@ module Heroku::Command
       end
 
       it "shows raw app info when --raw option is used" do
-        @cli.stub(:options).and_return(:app => "myapp", :raw => true)
-        @cli.heroku.should_receive(:info).with("myapp").and_return({ :foo => "bar" })
-        @cli.should_receive(:hputs).with("foo=bar")
-        @cli.info
+        stub_core.info('myapp').returns({ :foo => "bar" })
+        stderr, stdout = execute("apps:info --raw")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+foo=bar
+STDOUT
       end
 
     end
@@ -203,50 +211,52 @@ STDOUT
         FileUtils.rm_rf(@git)
       end
 
+      before(:each) do
+        stub_core.create_app(nil, {:stack => nil}).returns({
+          "create_status" => "creating",
+          "name"          => "myapp",
+          "git_url"       => "git@heroku.com:myapp.git",
+          "web_url"       => "http://myapp.herokuapp.com",
+          "stack"         => "bamboo-mri-1.9.2"
+        })
+        stub_core.create_complete?('myapp').returns(true)
+      end
+
       it "creates adding heroku to git remote" do
         with_blank_git_repository do
-          @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
-            "create_status" => "creating",
-            "name"          => "myapp",
-            "git_url"       => "git@heroku.com:myapp.git",
-            "web_url"       => "http://myapp.herokuapp.com",
-            "stack"         => "bamboo-mri-1.9.2"
-          })
-          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-          @cli.create
+          stderr, stdout = execute("apps:create")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Creating myapp... done, stack is bamboo-mri-1.9.2
+http://myapp.herokuapp.com | git@heroku.com:myapp.git
+Git remote heroku added
+STDOUT
           bash("git remote").strip.should match(/^heroku$/)
         end
       end
 
       it "creates adding a custom git remote" do
         with_blank_git_repository do
-          @cli.stub!(:args).and_return([ 'myapp' ])
-          @cli.stub!(:options).and_return(:remote => "myremote")
-          @cli.heroku.should_receive(:create_app).with("myapp", {:stack => nil}).and_return({
-            "create_status" => "creating",
-            "name"          => "myapp",
-            "git_url"       => "git@heroku.com:myapp.git",
-            "web_url"       => "http://myapp.herokuapp.com",
-            "stack"         => "bamboo-mri-1.9.2"
-          })
-          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
-          @cli.create
+          stderr, stdout = execute("apps:create --remote myremote")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Creating myapp... done, stack is bamboo-mri-1.9.2
+http://myapp.herokuapp.com | git@heroku.com:myapp.git
+Git remote myremote added
+STDOUT
           bash("git remote").strip.should match(/^myremote$/)
         end
       end
 
       it "doesn't add a git remote if it already exists" do
         with_blank_git_repository do
-          @cli.heroku.should_receive(:create_app).with(nil, {:stack => nil}).and_return({
-            "create_status" => "creating",
-            "name"          => "myapp",
-            "git_url"       => "git@heroku.com:myapp.git",
-            "web_url"       => "http://myapp.herokuapp.com",
-            "stack"         => "bamboo-mri-1.9.2"
-          })
-          @cli.heroku.should_receive(:create_complete?).with('myapp').and_return(true)
           bash "git remote add heroku #{@git}"
-          @cli.create
+          stderr, stdout = execute("apps:create")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Creating myapp... done, stack is bamboo-mri-1.9.2
+http://myapp.herokuapp.com | git@heroku.com:myapp.git
+STDOUT
         end
       end
 
@@ -256,10 +266,10 @@ STDOUT
           bash "git remote add production git@heroku.com:myapp.git"
           bash "git remote add staging    git@heroku.com:myapp-staging.git"
 
-          @cli.heroku.stub!(:update)
-          @cli.stub!(:args).and_return([ 'myapp2' ])
-          @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp2.git'})
-          @cli.rename
+          stub_core.update
+          stub_core.info('myapp2').returns({:git_url => 'git@heroku.com:myapp2.git', :web_url => 'http://myapp2.herokuapp.com/'})
+          stderr, stdout = execute("apps:rename myapp2")
+
           remotes = bash("git remote -v")
           remotes.should include('git@github.com:test/test.git')
           remotes.should include('git@heroku.com:myapp-staging.git')
@@ -271,11 +281,11 @@ STDOUT
       it "destroys removing any remotes pointing to the app" do
         with_blank_git_repository do
           bash("git remote add heroku git@heroku.com:myapp.git")
-          @cli.stub!(:args).and_return(['--app', 'myapp'])
-          @cli.stub!(:confirm_command).and_return(true)
-          @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp.git'})
-          @cli.heroku.should_receive(:destroy)
-          @cli.destroy
+
+          stub_core.info('myapp').returns({:git_url => 'git@heroku.com:myapp2.git', :web_url => 'http://myapp2.herokuapp.com/'})
+          stub_core.destroy
+          stderr, stdout = execute("apps:destroy --confirm myapp")
+
           bash("git remote").strip.should_not include('heroku')
         end
       end
