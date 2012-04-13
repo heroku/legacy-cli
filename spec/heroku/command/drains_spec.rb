@@ -6,20 +6,29 @@ describe Heroku::Command::Drains do
   describe "drains" do
     it "can list drains" do
       stub_core.list_drains("myapp").returns("drains")
-      execute "drains"
-      output.should == "drains"
+      stderr, stdout = execute("drains")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+drains
+STDOUT
     end
 
     it "can add drains" do
       stub_core.add_drain("myapp", "syslog://localhost/add").returns("added")
-      execute "drains:add syslog://localhost/add"
-      output.should == "added"
+      stderr, stdout = execute("drains:add syslog://localhost/add")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+added
+STDOUT
     end
 
     it "can remove drains" do
       stub_core.remove_drain("myapp", "syslog://localhost/remove").returns("removed")
-      execute "drains:remove syslog://localhost/remove"
-      output.should == "removed"
+      stderr, stdout = execute("drains:remove syslog://localhost/remove")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+removed
+STDOUT
     end
   end
 end

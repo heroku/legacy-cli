@@ -135,7 +135,7 @@ module Heroku::Command
       it "succeeds" do
         stub_core.list.returns([["myapp", "user"]])
         stderr, stdout = execute("apps")
-        stderr.should be_empty
+        stderr.should == ""
         stdout.should == <<-STDOUT
 myapp
 STDOUT
@@ -146,10 +146,14 @@ STDOUT
     context("rename") do
 
       it "succeeds" do
-        @cli.stub!(:args).and_return([ 'myapp2' ])
-        @cli.heroku.should_receive(:update).with('myapp', { :name => 'myapp2' })
-        @cli.heroku.stub!(:info).and_return({:git_url => 'git@heroku.com:myapp2.git'})
-        @cli.rename
+        stub_core.update('myapp', { :name => 'myapp2' })
+        stub_core.info.returns({:git_url => 'git@heroku.com:myapp2.git', :web_url => 'http://myapp2.herokuapp.com'})
+        stderr, stdout = execute("apps:rename myapp2")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+http://myapp2.herokuapp.com | git@heroku.com:myapp2.git
+Don't forget to update your Git remotes on any local checkouts.
+STDOUT
       end
 
       it "displays an error if no name is specified" do

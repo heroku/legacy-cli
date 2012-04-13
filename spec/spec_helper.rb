@@ -40,20 +40,6 @@ def execute(command_line)
   Heroku::Command.load
   object, method = Heroku::Command.prepare_run(command, args)
 
-  $command_output = ""
-
-  def object.print(line=nil)
-    $command_output << "#{line}"
-  end
-
-  def object.puts(line=nil)
-    print("#{line}\n")
-  end
-
-  def object.error(line=nil)
-    puts(line)
-  end
-
   any_instance_of(Heroku::Command::Base) do |base|
     stub(base).app.returns("myapp")
   end
@@ -63,15 +49,13 @@ def execute(command_line)
   $stdout = captured_stdout = StringIO.new
   begin
     object.send(method)
+  rescue SystemExit
   ensure
     $stderr, $stdout = original_stderr, original_stdout
   end
   [captured_stderr.string, captured_stdout.string]
 end
 
-def output
-  $command_output.gsub(/\n$/, '')
-end
 
 def any_instance_of(klass, &block)
   extend RR::Adapters::RRMethods
@@ -142,13 +126,6 @@ end
 module SandboxHelper
   def bash(cmd)
     `#{cmd}`
-  end
-end
-
-class String
-  def undent
-    indent = self.match(/^( *)/)[1].length
-    self.split("\n").map { |l| l[indent..-1] }.join("\n")
   end
 end
 

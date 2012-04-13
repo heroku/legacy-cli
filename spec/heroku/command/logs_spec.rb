@@ -24,25 +24,34 @@ describe Heroku::Command::Logs do
       end
 
       it "prettifies tty output" do
-        old_stdout_isatty = STDOUT.isatty
-        stub(STDOUT).isatty.returns(true)
-        execute "logs"
-        output.should == "\e[36m2011-01-01T00:00:00+00:00 app[web.1]:\e[0m test"
-        stub(STDOUT).isatty.returns(old_stdout_isatty)
+        old_stdout_isatty = $stdout.isatty
+        stub($stdout).isatty.returns(true)
+        stderr, stdout = execute("logs")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+\e[36m2011-01-01T00:00:00+00:00 app[web.1]:\e[0m test
+STDOUT
+        stub($stdout).isatty.returns(old_stdout_isatty)
       end
 
       it "does not use ansi if stdout is not a tty" do
-        old_stdout_isatty = STDOUT.isatty
-        stub(STDOUT).isatty.returns(false)
-        execute "logs"
-        output.should == "2011-01-01T00:00:00+00:00 app[web.1]: test"
-        stub(STDOUT).isatty.returns(old_stdout_isatty)
+        old_stdout_isatty = $stdout.isatty
+        stub($stdout).isatty.returns(false)
+        stderr, stdout = execute("logs")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+2011-01-01T00:00:00+00:00 app[web.1]: test
+STDOUT
+        stub($stdout).isatty.returns(old_stdout_isatty)
       end
 
       it "does not use ansi if TERM is not set" do
         term = ENV.delete("TERM")
-        execute "logs"
-        output.should == "2011-01-01T00:00:00+00:00 app[web.1]: test"
+        stderr, stdout = execute("logs")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+2011-01-01T00:00:00+00:00 app[web.1]: test
+STDOUT
         ENV["TERM"] = term
       end
     end
@@ -51,8 +60,9 @@ describe Heroku::Command::Logs do
   describe "deprecated logs:cron" do
     it "can view cron logs" do
       stub_core.cron_logs("myapp").returns("the_cron_logs")
-      execute "logs:cron"
-      output.should =~ /the_cron_logs/
+      stderr, stdout = execute("logs:cron")
+      stderr.should == ""
+      stdout.should =~ /the_cron_logs/
     end
   end
 

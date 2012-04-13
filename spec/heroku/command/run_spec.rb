@@ -5,8 +5,9 @@ describe Heroku::Command::Run do
   describe "run:rake" do
     it "runs a rake command" do
       stub_core.start("myapp", "rake foo", :attached).returns(["rake_output"])
-      execute "run:rake foo"
-      output.should =~ /rake_output/
+      stderr, stdout = execute("run:rake foo")
+      stderr.should == ""
+      stdout.should =~ /rake_output/
     end
 
     it "requires a command" do
@@ -15,8 +16,13 @@ describe Heroku::Command::Run do
 
     it "gets an http APP_CRASHED" do
       stub_core.start("myapp", "rake foo", :attached) { raise(Heroku::Client::AppCrashed, "error_page") }
-      execute "run:rake foo"
-      output.should =~ /Couldn't run rake\nerror_page/
+      stderr, stdout = execute("run:rake foo")
+      stderr.should == <<-STDERR
+ !    Couldn't run rake
+ !    error_page
+STDERR
+      # FIXME: sometimes contains "failed\n"
+      # stdout.should == ""
     end
   end
 
@@ -24,13 +30,14 @@ describe Heroku::Command::Run do
     it "runs a console session" do
       console = stub(Heroku::Client::ConsoleSession)
       stub_core.console.returns(console)
-      execute "run:console"
+      stderr, stdout = execute("run:console")
     end
 
     it "runs a console command" do
       stub_core.console("myapp", "bash foo").returns("foo_output")
-      execute "run:console bash foo"
-      output.should =~ /foo_output/
+      stderr, stdout = execute("run:console bash foo")
+      stderr.should == ""
+      stdout.should =~ /foo_output/
     end
   end
 end

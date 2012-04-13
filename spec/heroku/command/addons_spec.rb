@@ -69,15 +69,17 @@ module Heroku::Command
       it "gives a deprecation notice with an example" do
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => {:foo => 'bar', :extra => "XXX"}})
-        execute "addons:add my_addon --foo=bar extra=XXX"
-        output.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
+        stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
+        stderr.should == ""
+        stdout.should include("Warning: non-unix style params have been deprecated, use --extra=XXX instead")
       end
 
       it "includes a complete example" do
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => {:foo => 'bar', :extra => "XXX"}})
-        execute "addons:add my_addon foo=bar extra=XXX"
-        output.should include("Warning: non-unix style params have been deprecated, use --foo=bar --extra=XXX instead")
+        stderr, stdout = execute("addons:add my_addon foo=bar extra=XXX")
+        stderr.should == ""
+        stdout.should include("Warning: non-unix style params have been deprecated, use --foo=bar --extra=XXX instead")
       end
     end
 
@@ -115,7 +117,8 @@ module Heroku::Command
       it "sends the variables to the server" do
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => 'true', 'bob' => 'true' }})
-        execute "addons:add my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true"
+        stderr, stdout = execute("addons:add my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true")
+        stderr.should == ""
       end
 
       it "raises an error for spurious arguments" do
@@ -134,8 +137,9 @@ module Heroku::Command
       it "sends the variables to the server" do
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => { 'foo' => 'baz', 'baz' => 'bar', 'bar' => 'true', 'bob' => 'true' }})
-        execute "addons:add my_addon foo=baz --baz=bar bob=true --bar"
-        output.should include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
+        stderr, stdout = execute("addons:add my_addon foo=baz --baz=bar bob=true --bar")
+        stderr.should == ""
+        stdout.should include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
       end
     end
 
@@ -175,32 +179,35 @@ module Heroku::Command
 
       it "adds an addon with a price" do
         stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
-        execute "addons:add my_addon"
-        output.should =~ /\(free\)/
+        stderr, stdout = execute("addons:add my_addon")
+        stderr.should == ""
+        stdout.should =~ /\(free\)/
       end
 
       it "adds an addon with a price and message" do
         stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "foo" })
-        execute "addons:add my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Adding my_addon to myapp... done, v99 (free)
-                foo
-        OUTPUT
+        stderr, stdout = execute("addons:add my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Adding my_addon to myapp... done, v99 (free)
+      foo
+OUTPUT
       end
 
       it "adds an addon with a price and multiline message" do
         stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
-        execute "addons:add my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Adding my_addon to myapp... done, v99 ($200/mo)
-                foo
-                bar
-        OUTPUT
+        stderr, stdout = execute("addons:add my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Adding my_addon to myapp... done, v99 ($200/mo)
+      foo
+      bar
+OUTPUT
       end
 
       it "displays an error with unexpected options" do
         Heroku::Command.should_receive(:error).with("Unexpected arguments: bar")
-        run "addons:add redistogo -a foo bar"
+        run("addons:add redistogo -a foo bar")
       end
     end
 
@@ -226,19 +233,21 @@ module Heroku::Command
 
       it "adds an addon with a price" do
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
-        execute "addons:upgrade my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Upgrading my_addon to myapp... done, v99 (free)
-        OUTPUT
+        stderr, stdout = execute("addons:upgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Upgrading my_addon to myapp... done, v99 (free)
+OUTPUT
       end
 
       it "adds an addon with a price and message" do
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
-        execute "addons:upgrade my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Upgrading my_addon to myapp... done, v99 (free)
-                Don't Panic
-        OUTPUT
+        stderr, stdout = execute("addons:upgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Upgrading my_addon to myapp... done, v99 (free)
+      Don't Panic
+OUTPUT
       end
     end
 
@@ -264,19 +273,21 @@ module Heroku::Command
 
       it "downgrades an addon with a price" do
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
-        execute "addons:downgrade my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Downgrading my_addon to myapp... done, v99 (free)
-        OUTPUT
+        stderr, stdout = execute("addons:downgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Downgrading my_addon to myapp... done, v99 (free)
+OUTPUT
       end
 
       it "downgrades an addon with a price and message" do
         stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
-        execute "addons:downgrade my_addon"
-        output.should == <<-OUTPUT.undent
-          ----> Downgrading my_addon to myapp... done, v99 (free)
-                Don't Panic
-        OUTPUT
+        stderr, stdout = execute("addons:downgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+----> Downgrading my_addon to myapp... done, v99 (free)
+      Don't Panic
+OUTPUT
       end
     end
 

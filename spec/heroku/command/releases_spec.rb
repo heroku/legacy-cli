@@ -12,19 +12,21 @@ describe Heroku::Command::Releases do
         { "name" => "v4", "descr" => "Description4", "user" => "User4", "created_at" => (Time.now - 305).to_s },
         { "name" => "v6", "descr" => "Description5", "user" => "User6", "created_at" => (Time.now - 18005).to_s }
       ])
-      execute "releases"
+      @stderr, @stdout = execute("releases")
     end
 
     it "should list releases" do
-      output.should =~ /v1\s+Description1\s+User1\s+2011-01-01/
-      output.should =~ /v2\s+Description2\s+User2\s+2011-02-02/
+      @stderr.should == ""
+      @stdout.should =~ /v1\s+Description1\s+User1\s+2011-01-01/
+      @stdout.should =~ /v2\s+Description2\s+User2\s+2011-02-02/
     end
 
     it "should calculate time deltas" do
-      output.should =~ /2011-01-01/
-      output.should =~ /\d seconds ago/
-      output.should =~ /\d minutes ago/
-      output.should =~ /\d hours ago/
+      @stderr.should == ""
+      @stdout.should =~ /2011-01-01/
+      @stdout.should =~ /\d seconds ago/
+      @stdout.should =~ /\d minutes ago/
+      @stdout.should =~ /\d hours ago/
     end
   end
 
@@ -45,27 +47,30 @@ describe Heroku::Command::Releases do
     end
 
     it "shows info for a single release" do
-      execute "releases:info v1"
-      output.should =~ /=== Release v1/
-      output.should =~ /Change:      Description1/
-      output.should =~ /By:          User1/
-      output.should =~ /When:        2011-01-01/
-      output.should =~ /Addons:      addon:one, addon:two/
-      output.should =~ /Config:      foo => bar/
+      stderr, stdout = execute("releases:info v1")
+      stderr.should == ""
+      stdout.should =~ /=== Release v1/
+      stdout.should =~ /Change:      Description1/
+      stdout.should =~ /By:          User1/
+      stdout.should =~ /When:        2011-01-01/
+      stdout.should =~ /Addons:      addon:one, addon:two/
+      stdout.should =~ /Config:      foo => bar/
     end
   end
 
   describe "rollback" do
     it "rolls back to the latest release with no argument" do
       stub_core.rollback("myapp", nil).returns("v10")
-      execute "releases:rollback"
-      output.should =~ /Rolled back to v10/
+      stderr, stdout = execute("releases:rollback")
+      stderr.should == ""
+      stdout.should =~ /Rolled back to v10/
     end
 
     it "rolls back to the specified release" do
       stub_core.rollback("myapp", "v11").returns("v11")
-      execute "releases:rollback v11"
-      output.should =~ /Rolled back to v11/
+      stderr, stdout = execute("releases:rollback v11")
+      stderr.should == ""
+      stdout.should =~ /Rolled back to v11/
     end
   end
 
