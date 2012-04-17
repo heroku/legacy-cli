@@ -168,19 +168,22 @@ module Heroku
         header = headers[index]
         lengths << longest([header].concat(objects.map { |o| o[column].to_s }))
       end
+      lines = lengths.map {|length| "-" * length}
+      lengths[-1] = 0 # remove padding from last column
       display_row headers, lengths
-      display_row lengths.map { |length| "-" * length }, lengths
+      display_row lines, lengths
       objects.each do |row|
         display_row columns.map { |column| row[column] }, lengths
       end
     end
 
     def display_row(row, lengths)
+      row_data = []
       row.zip(lengths).each do |column, length|
-        format = column.is_a?(Fixnum) ? "%#{length}s  " : "%-#{length}s  "
-        display format % column, false
+        format = column.is_a?(Fixnum) ? "%#{length}s" : "%-#{length}s"
+        row_data << format % column
       end
-      display
+      display(row_data.join("  "))
     end
 
     def json_encode(object)

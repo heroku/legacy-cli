@@ -115,7 +115,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     error "Usage: heroku ps:scale web=2 worker+1" if changes.empty?
 
-    changes.each do |process, amount|
+    changes.keys.sort.each do |process|
+      amount = changes[process]
       display "Scaling #{process} processes... ", false
       amount.gsub!("=", "")
       new_qty = heroku.ps_scale(app, :type => process, :qty => amount)

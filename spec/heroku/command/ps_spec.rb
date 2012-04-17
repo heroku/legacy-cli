@@ -7,14 +7,20 @@ describe Heroku::Command::Ps do
       stub_core.info("myapp").returns(:dynos => 5)
       stderr, stdout = execute("ps:dynos")
       stderr.should == ""
-      stdout.should =~ /myapp is running 5 dynos/
+      stdout.should == <<-STDOUT
+~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`
+myapp is running 5 dynos
+STDOUT
     end
 
     it "sets the number of dynos" do
       stub_core.set_dynos("myapp", "5").returns(5)
       stderr, stdout = execute("ps:dynos 5")
       stderr.should == ""
-      stdout.should =~ /myapp now running 5 dynos/
+      stdout.should == <<-STDOUT
+~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`
+myapp now running 5 dynos
+STDOUT
     end
 
     it "errors out on cedar apps" do
@@ -28,14 +34,20 @@ describe Heroku::Command::Ps do
       stub_core.info("myapp").returns(:workers => 5)
       stderr, stdout = execute("ps:workers")
       stderr.should == ""
-      stdout.should =~ /myapp is running 5 workers/
+      stdout.should == <<-STDOUT
+~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`
+myapp is running 5 workers
+STDOUT
     end
 
     it "sets the number of workers" do
       stub_core.set_workers("myapp", "5").returns(5)
       stderr, stdout = execute("ps:workers 5")
       stderr.should == ""
-      stdout.should =~ /myapp now running 5 workers/
+      stdout.should == <<-STDOUT
+~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`
+myapp now running 5 workers
+STDOUT
     end
 
     it "errors out on cedar apps" do
@@ -55,7 +67,12 @@ describe Heroku::Command::Ps do
     it "displays processes" do
       stderr, stdout = execute("ps")
       stderr.should == ""
-      stdout.should =~ /ps\.1\s+running for 10m\s+bin\/bash ps1/
+      stdout.should == <<-STDOUT
+Process  State            Command
+-------  ---------------  ------------
+ps.1     running for 10m  bin/bash ps1
+ps.2     running for 10m  bin/bash ps2
+STDOUT
     end
   end
 
@@ -64,43 +81,60 @@ describe Heroku::Command::Ps do
       stub_core.ps_restart("myapp", {})
       stderr, stdout = execute("ps:restart")
       stderr.should == ""
-      stdout.should =~ /Restarting processes/
+      stdout.should == <<-STDOUT
+Restarting processes... done
+STDOUT
     end
 
     it "restarts one process" do
       stub_core.ps_restart("myapp", :ps => "ps.1")
       stderr, stdout = execute("ps:restart ps.1")
       stderr.should == ""
-      stdout.should =~ /Restarting ps.1 process/
+      stdout.should == <<-STDOUT
+Restarting ps.1 process... done
+STDOUT
     end
 
     it "restarts a type of process" do
       stub_core.ps_restart("myapp", :type => "ps")
       stderr, stdout = execute("ps:restart ps")
       stderr.should == ""
-      stdout.should =~ /Restarting ps processes/
+      stdout.should == <<-STDOUT
+Restarting ps processes... done
+STDOUT
     end
   end
 
   describe "ps:scale" do
     it "can scale using key/value format" do
-      stub_core.ps_scale("myapp", :type => "ps", :qty => "5")
+      stub_core.ps_scale("myapp", :type => "ps", :qty => "5").returns(5)
       stderr, stdout = execute("ps:scale ps=5")
       stderr.should == ""
+      stdout.should == <<-STDOUT
+Scaling ps processes... done, now running 5
+STDOUT
     end
 
     it "can scale relative amounts" do
-      stub_core.ps_scale("myapp", :type => "ps", :qty => "+2")
-      stub_core.ps_scale("myapp", :type => "sp", :qty => "-2")
-      stub_core.ps_scale("myapp", :type => "ot", :qty => "7")
+      stub_core.ps_scale("myapp", :type => "ps", :qty => "+2").returns(5)
+      stub_core.ps_scale("myapp", :type => "sp", :qty => "-2").returns(1)
+      stub_core.ps_scale("myapp", :type => "ot", :qty => "7").returns(10)
       stderr, stdout = execute("ps:scale ps+2 sp-2 ot=7")
       stderr.should == ""
+      stdout.should == <<-STDOUT
+Scaling ot processes... done, now running 10
+Scaling ps processes... done, now running 5
+Scaling sp processes... done, now running 1
+STDOUT
     end
 
     it "can scale a process with a number in its name" do
-      stub_core.ps_scale("myapp", :type => "ps2web", :qty => "5")
+      stub_core.ps_scale("myapp", :type => "ps2web", :qty => "5").returns(5)
       stderr, stdout = execute("ps:scale ps2web=5")
       stderr.should == ""
+      stdout.should == <<-STDOUT
+Scaling ps2web processes... done, now running 5
+STDOUT
     end
   end
 end
