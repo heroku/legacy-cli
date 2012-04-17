@@ -3,20 +3,24 @@ require "heroku/command/maintenance"
 
 module Heroku::Command
   describe Maintenance do
-    before do
-      @m = prepare_command(Maintenance)
-    end
 
     it "turns on maintenance mode for the app" do
-      @m.heroku.should_receive(:maintenance).with('myapp', :on)
-      @m.should_receive(:display).with('Maintenance mode enabled.')
-      @m.on
+      stub_core.maintenance("myapp", :on)
+      stderr, stdout = execute("maintenance:on")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Maintenance mode enabled.
+STDOUT
     end
 
     it "turns off maintenance mode for the app" do
-      @m.heroku.should_receive(:maintenance).with('myapp', :off)
-      @m.should_receive(:display).with('Maintenance mode disabled.')
-      @m.off
+      stub_core.maintenance("myapp", :off)
+      stderr, stdout = execute("maintenance:off")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Maintenance mode disabled.
+STDOUT
     end
+
   end
 end
