@@ -5,6 +5,7 @@ require 'time'
 require 'heroku/auth'
 require 'heroku/helpers'
 require 'heroku/version'
+require 'heroku/client/ssl_endpoint'
 
 # A Ruby class to call the Heroku REST API.  You might use this if you want to
 # manage your Heroku apps from within a Ruby program, such as Capistrano.
