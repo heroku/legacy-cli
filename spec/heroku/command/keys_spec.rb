@@ -3,10 +3,6 @@ require "heroku/command/keys"
 
 module Heroku::Command
   describe Keys do
-    before do
-      @keys = prepare_command(Keys)
-      @keys.heroku.stub!(:user).and_return('joe')
-    end
 
     context("add") do
 
