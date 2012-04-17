@@ -1,6 +1,5 @@
 class Heroku::Client
   def ssl_endpoint_add(app, pem, key)
-    raise RestClient::RequestTimeout
     json_decode(post("v3/apps/#{app}/ssl_endpoints", :accept => :json, :pem => pem, :key => key).to_s)
   end
 
