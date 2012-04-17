@@ -27,9 +27,9 @@ module Heroku::Command
         rescue Exception => ex
           installation_failed(plugin, ex.message)
         end
-        display "#{plugin} installed"
+        display "#{plugin.name} installed"
       else
-        error "Could not install #{plugin}. Please check the URL and try again"
+        error "Could not install #{plugin.name}. Please check the URL and try again"
       end
     end
 
@@ -51,7 +51,7 @@ module Heroku::Command
       def installation_failed(plugin, message)
         plugin.uninstall
         error <<-ERROR
-Could not initialize #{plugin}: #{message}
+Could not initialize #{plugin.name}: #{message}
 
 Are you attempting to install a Rails plugin? If so, use the following:
 
