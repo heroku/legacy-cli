@@ -233,7 +233,11 @@ class Heroku::Auth
           display "#{index+1}) #{File.basename(key)}"
         end
         display "Which would you like to use with your Heroku account? ", false
-        chosen = public_keys[ask.to_i-1] rescue error("Invalid choice")
+        choice = ask.to_i - 1
+        chosen = public_keys[choice]
+        if choice == -1 || chosen.nil?
+          error("Invalid choice")
+        end
         associate_key(chosen)
       end
     end
