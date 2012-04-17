@@ -164,10 +164,10 @@ module Heroku
         arguments << '--confirm' << app
         retry
       end
-    rescue RestClient::RequestFailed => e
-      error extract_error(e.http_body)
     rescue RestClient::RequestTimeout
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
+    rescue RestClient::RequestFailed => e
+      error extract_error(e.http_body)
     rescue CommandFailed => e
       error e.message
     rescue OptionParser::ParseError => ex
