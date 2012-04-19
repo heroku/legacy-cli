@@ -11,8 +11,12 @@ module Heroku::Command
     # list collaborators on an app
     #
     def index
-      list = heroku.list_collaborators(app)
-      display list.map { |c| c[:email] }.join("\n")
+      collaborators = heroku.list_collaborators(app)
+      if collaborators.empty?
+        display("#{app} has no collaborators")
+      else
+        display(collaborators.map { |c| c[:email] }.join("\n"))
+      end
     end
 
     # sharing:add EMAIL
@@ -22,7 +26,8 @@ module Heroku::Command
     def add
       email = args.shift.downcase rescue ''
       raise(CommandFailed, "Specify an email address to share the app with.") if email == ''
-      display heroku.add_collaborator(app, email)
+      heroku.add_collaborator(app, email)
+      display "#{email} added to #{app} collaborators"
     end
 
     # sharing:remove EMAIL
@@ -33,7 +38,7 @@ module Heroku::Command
       email = args.shift.downcase rescue ''
       raise(CommandFailed, "Specify an email address to remove from the app.") if email == ''
       heroku.remove_collaborator(app, email)
-      display "Collaborator removed."
+      display "#{email} removed from #{app} collaborators"
     end
 
     # sharing:transfer EMAIL
@@ -44,7 +49,7 @@ module Heroku::Command
       email = args.shift.downcase rescue ''
       raise(CommandFailed, "Specify the email address of the new owner") if email == ''
       heroku.update(app, :transfer_owner => email)
-      display "App ownership transfered. New owner is #{email}"
+      display "#{app} ownership transfered. New owner is #{email}"
     end
   end
 end

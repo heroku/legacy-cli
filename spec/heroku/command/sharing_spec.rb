@@ -3,31 +3,55 @@ require "heroku/command/sharing"
 
 module Heroku::Command
   describe Sharing do
-    before do
-      @cli = prepare_command(Sharing)
-    end
 
-    it "lists collaborators" do
-      @cli.heroku.should_receive(:list_collaborators).and_return([])
-      @cli.index
+    context("list") do
+
+      it "lists message with no collaborators" do
+        stub_core.list_collaborators.returns([])
+        stderr, stdout = execute("sharing")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+myapp has no collaborators
+STDOUT
+      end
+
+      it "lists collaborators" do
+        stub_core.list_collaborators.returns([{:email => "joe@example.com"}])
+        stderr, stdout = execute("sharing")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+joe@example.com
+STDOUT
+      end
+
     end
 
     it "adds collaborators with default access to view only" do
-      @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:add_collaborator).with('myapp', 'joe@example.com')
-      @cli.add
+      stub_core.add_collaborator("myapp", "joe@example.com")
+      stderr, stdout = execute("sharing:add joe@example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+joe@example.com added to myapp collaborators
+STDOUT
     end
 
     it "removes collaborators" do
-      @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:remove_collaborator).with('myapp', 'joe@example.com')
-      @cli.remove
+      stub_core.remove_collaborator("myapp", "joe@example.com")
+      stderr, stdout = execute("sharing:remove joe@example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+joe@example.com removed from myapp collaborators
+STDOUT
     end
 
     it "transfers ownership" do
-      @cli.stub!(:args).and_return(['joe@example.com'])
-      @cli.heroku.should_receive(:update).with('myapp', :transfer_owner => 'joe@example.com')
-      @cli.transfer
+      stub_core.update("myapp", :transfer_owner => "joe@example.com")
+      stderr, stdout = execute("sharing:transfer joe@example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+myapp ownership transfered. New owner is joe@example.com
+STDOUT
     end
   end
+
 end
