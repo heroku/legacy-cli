@@ -13,19 +13,23 @@ module Heroku::Command
     def index
       releases = heroku.releases(app)
 
-      output = []
-      output << "Rel   Change                          By                    When"
-      output << "----  ----------------------          ----------            ----------"
-
-      releases.reverse.slice(0, 15).each do |r|
-        name = r["name"]
-        descr = truncate(r["descr"], 30)
-        user = truncate(r["user"], 20)
-        time_ago = delta_format(Time.parse(r["created_at"]))
-        output << "%-4s  %-30s  %-20s  %-25s" % [name, descr, user, time_ago]
+      objects = []
+      releases.reverse.slice(0, 15).sort_by do |release|
+        release["name"]
+      end.reverse.each do |release|
+        objects << {
+          "by"      => truncate(release["user"], 20),
+          "change"  => truncate(release["descr"], 30),
+          "rel"     => release["name"],
+          "when"    => time_ago(Time.now.to_i - Time.parse(release["created_at"]).to_i)
+        }
       end
 
-      display output.join("\n")
+      display_table(
+        objects,
+        ["rel", "change", "by", "when"],
+        ["Rel", "Change", "By", "When"]
+      )
     end
 
     # releases:info RELEASE
@@ -41,7 +45,7 @@ module Heroku::Command
       display "=== Release #{release['name']}"
       display_info("Change",  release["descr"])
       display_info("By",      release["user"])
-      display_info("When",    delta_format(Time.parse(release["created_at"])))
+      display_info("When",    time_ago(Time.now.to_i - Time.parse(release["created_at"]).to_i))
       display_info("Addons",  release["addons"].join(", "))
       display_vars(release["env"])
     end
@@ -64,22 +68,6 @@ module Heroku::Command
 
     def pluralize(str, n)
       n == 1 ? str : "#{str}s"
-    end
-
-    def delta_format(start, finish = Time.now)
-      secs  = (finish.to_i - start.to_i).abs
-      mins  = (secs/60).round
-      hours = (mins/60).round
-      days  = (hours/24).round
-      if days > 0
-        start.strftime("%Y-%m-%d %H:%M:%S %z")
-      elsif hours > 0
-        "#{hours} #{pluralize("hour", hours)} ago"
-      elsif mins > 0
-        "#{mins} #{pluralize("minute", mins)} ago"
-      else
-        "#{secs} #{pluralize("second", secs)} ago"
-      end
     end
 
     def display_info(label, info)
