@@ -3,24 +3,29 @@ require "heroku/command/ssl"
 
 module Heroku::Command
   describe Ssl do
-    before do
-      @ssl = prepare_command(Ssl)
-    end
 
     it "adds ssl certificates to domains" do
-      @ssl.stub!(:args).and_return(['my.crt', 'my.key'])
       File.should_receive(:exists?).with('my.crt').and_return(true)
       File.should_receive(:read).with('my.crt').and_return('crt contents')
       File.should_receive(:exists?).with('my.key').and_return(true)
       File.should_receive(:read).with('my.key').and_return('key contents')
-      @ssl.heroku.should_receive(:add_ssl).with('myapp', 'crt contents', 'key contents').and_return({})
-      @ssl.add
+      expires_at = Time.now + 60 * 60 * 24 * 365
+      stub_core.add_ssl('myapp', 'crt contents', 'key contents').returns({"domain" => "example.com", "expires_at" => expires_at})
+      stderr, stdout = execute("ssl:add my.crt my.key")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Added certificate to example.com, expiring at #{expires_at}
+STDOUT
     end
 
     it "removes certificates" do
-      @ssl.stub!(:args).and_return(['example.com'])
-      @ssl.heroku.should_receive(:remove_ssl).with('myapp', 'example.com')
-      @ssl.remove
+      stub_core.remove_ssl('myapp', 'example.com')
+      stderr, stdout = execute("ssl:remove example.com")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Removed certificate from example.com
+STDOUT
     end
+
   end
 end

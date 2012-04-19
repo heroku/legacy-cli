@@ -36,7 +36,7 @@ module Heroku::Command
       pem  = File.read(pem_file)
       key  = File.read(key_file)
       info = heroku.add_ssl(app, pem, key)
-      display "Added certificate to #{info['domain']}, expiring in #{info['expires_at']}"
+      display "Added certificate to #{info['domain']}, expiring at #{info['expires_at']}"
     end
 
     # ssl:remove DOMAIN
