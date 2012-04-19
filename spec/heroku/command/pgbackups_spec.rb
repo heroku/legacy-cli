@@ -25,6 +25,7 @@ module Heroku::Command
         latest_backup_url= "http://latest/backup.dump"
         fake_client = mock("pgbackups_client")
         fake_client.should_receive(:get_latest_backup).and_return({'public_url' => latest_backup_url })
+        @pgbackups.stub!(:args).and_return([])
         @pgbackups.should_receive(:pgbackup_client).and_return(fake_client)
         @pgbackups.should_receive(:display).with('"'+latest_backup_url+'"')
 
@@ -56,6 +57,7 @@ module Heroku::Command
         from_name = "FROM_NAME"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
+        @pgbackups.stub!(:args).and_return([])
         @pgbackups.stub!(:resolve_db).and_return( {:url => from_url, :name => from_name} )
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
 
@@ -107,6 +109,8 @@ module Heroku::Command
       end
 
       it "aborts if no database addon is present" do
+        # FIXME: occasionally outputs failed, depending on test run order
+        STDOUT.stub!(:puts)
         STDERR.should_receive(:puts).with(" !    Your app has no databases.")
         lambda { @pgbackups.capture }.should raise_error SystemExit
       end
