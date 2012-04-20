@@ -25,7 +25,7 @@ module HerokuPostgresql
     end
 
     def rotate_credentials
-      http_put "#{@database_sha}/rotate_credentials"
+      http_post "#{@database_sha}/credentials_rotation"
     end
 
     def get_database
