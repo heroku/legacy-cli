@@ -12,20 +12,28 @@ module Heroku::Command
       })
       @pg.stub!(:args).and_return ["DATABASE_URL"]
       @pg.heroku.stub!(:info).and_return({})
+
+      stub_core.config_vars("myapp").returns({
+        "DATABASE_URL" => "postgres://database_url",
+        "SHARED_DATABASE_URL" => "postgres://other_database_url",
+        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://database_url"
+      })
+      stub_core.info("myapp").returns({:database_size => 1024})
     end
 
     it "resets the app's database if user confirms" do
-      @pg.stub!(:confirm_command).and_return(true)
+      stub_pg.reset
 
-      fake_client = mock("heroku_postgresql_client")
-      fake_client.should_receive("reset")
-
-      @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
-
-      @pg.reset
+      stderr, stdout = execute("pg:reset DATABASE --confirm myapp")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+----> Resetting HEROKU_POSTGRESQL_RONIN (DATABASE_URL)
+\r\e[0KResetting...\r\e[0KResetting... done
+STDOUT
     end
 
     it "doesn't reset the app's database if the user doesn't confirm" do
+      # FIXME: how to stub confirm_command
       @pg.stub!(:confirm_command).and_return(false)
       @pg.should_not_receive(:heroku_postgresql_client)
       @pg.reset
@@ -33,75 +41,88 @@ module Heroku::Command
 
     context "index" do
       it "requests the info from the server" do
-        fake_client = mock("heroku_postgresql_client")
-        fake_client.should_receive("get_database").and_return(:info => [
+        stub_pg.get_database.returns(:info => [
           {'name' => "State", 'value' => "available"},
           {'name' => "whatever", 'values' => ['one', 'eh']}
         ])
 
-        @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
-        @pg.index
+        stderr, stdout = execute("pg")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== HEROKU_POSTGRESQL_RONIN (DATABASE_URL)
+State        available
+whatever     one
+             eh
+=== SHARED_DATABASE
+Data Size    1k
+STDOUT
       end
     end
 
     context "info" do
       it "requests the info from the server" do
-        fake_client = mock("heroku_postgresql_client")
-        fake_client.should_receive("get_database").and_return(:info => [
+        stub_pg.get_database.returns(:info => [
           {'name' => "State", 'value' => "available"},
           {'name' => "whatever", 'values' => ['one', 'eh']}
         ])
 
-        @pg.should_receive(:heroku_postgresql_client).with("postgres://database_url").and_return(fake_client)
-        @pg.info
+        stderr, stdout = execute("pg:info DATABASE")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== HEROKU_POSTGRESQL_RONIN (DATABASE_URL)
+State        available
+whatever     one
+             eh
+STDOUT
       end
     end
 
     context "promotion" do
       it "promotes the specified database" do
-        @pg.stub!(:args).and_return ["SHARED_DATABASE_URL"]
-        @pg.stub!(:confirm_command).and_return(true)
-        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => "postgres://other_database_url"})
+        stub_core.add_config_vars("myapp", {"DATABASE_URL" => "postgres://other_database_url"})
 
-        @pg.promote
+        stderr, stdout = execute("pg:promote SHARED_DATABASE --confirm myapp")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+\r\e[0K-----> Promoting SHARED_DATABASE to DATABASE_URL...\r\e[0K-----> Promoting SHARED_DATABASE to DATABASE_URL... done
+STDOUT
       end
 
       it "promotes the specified database url case-sensitively" do
-        @pg.stub!(:args).and_return ["postgres://john:S3nsit1ve@my.example.com/db_name"]
-        @pg.stub!(:confirm_command).and_return(true)
-        @pg.heroku.should_receive(:add_config_vars).with("myapp", {"DATABASE_URL" => "postgres://john:S3nsit1ve@my.example.com/db_name"})
+        stub_core.add_config_vars("myapp", {"DATABASE_URL" => "postgres://john:S3nsit1ve@my.example.com/db_name"})
 
-        @pg.promote
+        stderr, stdout = execute("pg:promote postgres://john:S3nsit1ve@my.example.com/db_name --confirm=myapp")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+\r\e[0K-----> Promoting Database on my.example.com to DATABASE_URL...\r\e[0K-----> Promoting Database on my.example.com to DATABASE_URL... done
+STDOUT
       end
 
       it "fails if no database is specified" do
-        @pg.stub(:args).and_return []
-        @pg.stub!(:confirm_command).and_return(true)
-
-        @pg.heroku.should_not_receive(:add_config_vars)
-        @pg.should_receive(:error).with("Usage: heroku pg:promote <DATABASE>").and_raise(SystemExit)
-
-        lambda { @pg.promote }.should raise_error SystemExit
+        stderr, stdout = execute("pg:promote")
+        stderr.should == <<-STDERR
+ !    Usage: heroku pg:promote <DATABASE>
+STDERR
+        # FIXME: sometimes contains 'failed'
+        #stdout.should == ""
       end
 
       it "does not repromote the current DATABASE_URL" do
-        @pg.stub(:options).and_return(:db => "HEROKU_POSTGRESQL_RONIN")
-        @pg.stub!(:confirm_command).and_return(true)
-
-        @pg.heroku.should_not_receive(:add_config_vars)
-        @pg.should_receive(:error).with("DATABASE_URL is already set to HEROKU_POSTGRESQL_RONIN").and_raise(SystemExit)
-
-        lambda { @pg.promote }.should raise_error SystemExit
+        stderr, stdout = execute("pg:promote HEROKU_POSTGRESQL_RONIN")
+        stderr.should == <<-STDERR
+ !    DATABASE_URL is already set to HEROKU_POSTGRESQL_RONIN
+STDERR
+        # FIXME: sometimes contains 'failed'
+        #stdout.should == ""
       end
 
       it "does not promote DATABASE_URL" do
-        @pg.stub(:args).and_return(['DATABASE_URL'])
-        @pg.stub!(:confirm_command).and_return(true)
-
-        @pg.heroku.should_not_receive(:add_config_vars)
-        @pg.should_receive(:error).with("DATABASE_URL is already set to HEROKU_POSTGRESQL_RONIN").and_raise(SystemExit)
-
-        lambda { @pg.promote }.should raise_error SystemExit
+        stderr, stdout = execute("pg:promote DATABASE_URL")
+        stderr.should == <<-STDERR
+ !    DATABASE_URL is already set to HEROKU_POSTGRESQL_RONIN
+STDERR
+        # FIXME: sometimes contains 'failed'
+        #stdout.should == ""
       end
     end
   end

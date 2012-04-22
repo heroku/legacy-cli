@@ -89,14 +89,26 @@ def fail_command(message)
 end
 
 def stub_core
-  stubbed_core = nil
-  any_instance_of(Heroku::Client) do |core|
-    stubbed_core = stub(core)
+  @stubbed_core ||= begin
+    stubbed_core = nil
+    any_instance_of(Heroku::Client) do |core|
+      stubbed_core = stub(core)
+    end
+    stub(Heroku::Auth).user.returns("user")
+    stub(Heroku::Auth).password.returns("pass")
+    stub(Heroku::Client).auth.returns("apikey01")
+    stubbed_core
   end
-  stub(Heroku::Auth).user.returns("user")
-  stub(Heroku::Auth).password.returns("pass")
-  stub(Heroku::Client).auth.returns("apikey01")
-  stubbed_core
+end
+
+def stub_pg
+  @stubbed_pg ||= begin
+    stubbed_pg = nil
+    any_instance_of(HerokuPostgresql::Client) do |pg|
+      stubbed_pg = stub(pg)
+    end
+    stubbed_pg
+  end
 end
 
 def with_blank_git_repository(&block)
