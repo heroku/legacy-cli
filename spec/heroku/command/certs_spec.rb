@@ -9,7 +9,7 @@ module Heroku::Command
           'ca_signed?'   => false,
           'cert_domains' => [ 'example.org' ],
           'starts_at'    => Time.now.to_s,
-          'expires_at'   => (Time.now + 30 * 365 * 24 * 3600).to_s,
+          'expires_at'   => (Time.now + 365 * 24 * 3600).to_s,
           'issuer'       => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
           'subject'      => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
         }
@@ -21,7 +21,7 @@ module Heroku::Command
           'ca_signed?'   => true,
           'cert_domains' => [ 'heroku.com' ],
           'starts_at'    => Time.now.to_s,
-          'expires_at'   => (Time.now + 30 * 365 * 24 * 3600).to_s,
+          'expires_at'   => (Time.now + 365 * 24 * 3600).to_s,
           'issuer'       => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
           'subject'      => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
         }
