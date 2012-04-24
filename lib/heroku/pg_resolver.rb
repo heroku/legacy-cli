@@ -36,7 +36,7 @@ module PGResolver
     end
 
     resolver = Resolver.new(db_id, config_vars)
-    display resolver.message
+    display(resolver.message) if resolver.message
     abort_with_database_list(db_id) unless resolver.url
 
     return resolver
@@ -65,10 +65,6 @@ module PGResolver
     else
       Resolver.all(config_vars).each { |db| yield db }
     end
-  end
-
-  def display(message='', newline=true)
-    super if message
   end
 
   class Resolver
