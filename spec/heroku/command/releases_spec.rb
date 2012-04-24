@@ -16,6 +16,8 @@ describe Heroku::Command::Releases do
     end
 
     it "should list releases" do
+      time = Time.now
+      Time.should_receive(:now).exactly(12).times.and_return(time)
       @stderr, @stdout = execute("releases")
       @stderr.should == ""
       @stdout.should == <<-STDOUT
