@@ -1,3 +1,12 @@
+2.25.0 04/24/2012
+=================
+
+tests cleanup/consistency updates
+add initial certs commands
+fix to properly recognize/message timeouts
+fix for keys:add where -1 would sometimes erroneously be used
+update for pg credentials rotation endpoint
+
 2.24.1 04/11/2012
 =================
 
