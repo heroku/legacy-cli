@@ -13,7 +13,7 @@ STDOUT
     end
 
     it "requires a command" do
-      lambda { execute "run:rake" }.should fail_command("Usage: heroku run:rake COMMAND")
+      lambda { execute "run:rake" }.should fail_command("Usage: heroku rake COMMAND")
     end
 
     it "gets an http APP_CRASHED" do
