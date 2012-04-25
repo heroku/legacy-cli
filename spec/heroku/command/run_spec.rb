@@ -15,17 +15,6 @@ STDOUT
     it "requires a command" do
       lambda { execute "run:rake" }.should fail_command("Usage: heroku rake COMMAND")
     end
-
-    it "gets an http APP_CRASHED" do
-      stub_core.start("myapp", "rake foo", :attached) { raise(Heroku::Client::AppCrashed, "error_page") }
-      stderr, stdout = execute("run:rake foo")
-      stderr.should == <<-STDERR
- !    Couldn't run rake
- !    error_page
-STDERR
-      # FIXME: sometimes contains "failed\n"
-      # stdout.should == ""
-    end
   end
 
   describe "run:console" do
