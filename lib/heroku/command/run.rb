@@ -14,33 +14,13 @@ class Heroku::Command::Run < Heroku::Command::Base
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
     display "Running #{command} attached to terminal... ", false
-
     begin
       ps = heroku.ps_run(app, opts)
     rescue
       puts "failed"
       raise
     end
-
-    begin
-      set_buffer(false)
-      $stdin.sync = $stdout.sync = true
-      rendezvous = Heroku::Client::Rendezvous.new(
-        :rendezvous_url => ps["rendezvous_url"],
-        :connect_timeout => (ENV['HEROKU_CONNECT_TIMEOUT'] || 120).to_i,
-        :activity_timeout => nil,
-        :input => $stdin,
-        :output => $stdout)
-      rendezvous.on_connect { display "up, #{ps["process"]}" }
-      rendezvous.start
-    rescue Timeout::Error
-      error "\nTimeout awaiting process"
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError
-      error "\nError connecting to process"
-    rescue Interrupt
-    ensure
-      set_buffer(true)
-    end
+    rendezvous_session(ps["rendezvous_url"]) { display "up, #{ps["process"]}" }
   end
 
   # run:detached COMMAND
@@ -67,14 +47,11 @@ class Heroku::Command::Run < Heroku::Command::Base
   # remotely execute a rake command
   #
   def rake
-    cmd = args.join(' ')
-    if cmd.length == 0
-      raise Heroku::Command::CommandFailed, "Usage: heroku run:rake COMMAND"
-    else
-      heroku.start(app, "rake #{cmd}", :attached).each { |chunk| display(chunk, false) }
-    end
-  rescue Heroku::Client::AppCrashed => e
-    error "Couldn't run rake\n#{e.message}"
+    command = "rake " + args.join(" ")
+    fail "Usage: heroku rake COMMAND" if (command == "rake ")
+    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment, :type => "rake" }
+    ps = heroku.ps_run(app, opts)
+    rendezvous_session(ps["rendezvous_url"]) { }
   end
 
   alias_command "rake", "run:rake"
@@ -101,6 +78,28 @@ class Heroku::Command::Run < Heroku::Command::Base
   alias_command "console", "run:console"
 
 protected
+
+  def rendezvous_session(rendezvous_url, &on_connect)
+    begin
+      set_buffer(false)
+      $stdin.sync = $stdout.sync = true
+      rendezvous = Heroku::Client::Rendezvous.new(
+        :rendezvous_url => rendezvous_url,
+        :connect_timeout => (ENV["HEROKU_CONNECT_TIMEOUT"] || 120).to_i,
+        :activity_timeout => nil,
+        :input => $stdin,
+        :output => $stdout)
+      rendezvous.on_connect(&on_connect)
+      rendezvous.start
+    rescue Timeout::Error
+      error "\nTimeout awaiting process"
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError
+      error "\nError connecting to process"
+    rescue Interrupt
+    ensure
+      set_buffer(true)
+    end
+  end
 
   def console_history_dir
     FileUtils.mkdir_p(path = "#{home_directory}/.heroku/console_history")
