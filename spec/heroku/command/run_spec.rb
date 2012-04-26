@@ -4,7 +4,10 @@ require "heroku/command/run"
 describe Heroku::Command::Run do
   describe "run:rake" do
     it "runs a rake command" do
-      stub_core.start("myapp", "rake foo", :attached).returns(["rake_output\n"])
+      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment, :type => "rake").returns("rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+      stub_rendezvous.start do
+        $stdout.puts("rake_output")
+      end
       stderr, stdout = execute("run:rake foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
