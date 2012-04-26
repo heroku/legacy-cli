@@ -7,6 +7,7 @@ module Heroku
 
     DEPRECATED_PLUGINS = %w(
       heroku-cedar
+      heroku-certs
       heroku-releases
       heroku-postgresql
       heroku-shared-postgresql
