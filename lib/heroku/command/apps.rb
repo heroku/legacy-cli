@@ -46,46 +46,52 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      data = {
-        'Addons:'           => !attrs[:addons].empty? && attrs[:addons].map {|addon| addon['description']}.join(', '),
-        'Create Status:'    => (attrs[:create_status] != 'complete') && attrs[:create_status],
-        'Cron Finished At:' => attrs[:cron_finished_at] && format_date(attrs[:cron_finished_at]),
-        'Cron Next Run:'    => attrs[:cron_next_run] && format_date(attrs[:cron_next_run]),
-        'Database Size:'    => attrs[:database_size] && format_bytes(attrs[:database_size]),
-        'Domain Name:'      => attrs[:domain_name],
-        'Dynos:'            => (attrs[:stack] != 'cedar') && attrs[:dynos],
-        'Git URL:'          => attrs[:git_url],
-        'Owner:'            => attrs[:owner],
-        'Repo Size:'        => attrs[:repo_size] && format_bytes(attrs[:repo_size]),
-        'Slug Size:'        => attrs[:slug_size] && format_bytes(attrs[:slug_size]),
-        'Stack:'            => attrs[:stack],
-        'Web URL:'          => attrs[:web_url],
-        'Workers:'          => (attrs[:stack] != 'cedar') && attrs[:workers],
-      }
-      data.reject! {|key,value| !value}
-      length = (data.keys + ['Collaborators:']).map {|key| key.to_s.length}.max
+      data = attrs.reject do |key, value|
+        ![:domain_name, :owner, :stack].include?(key)
+      end
 
-      collaborators = attrs[:collaborators].delete_if { |c| c[:email] == attrs[:owner] }
-      unless collaborators.empty?
-        attrs[:collaborators].reject! {|collaborator| collaborator[:email] == attrs[:owner]}
-        data['Collaborators:'] = attrs[:collaborators].map {|collaborator| collaborator[:email]}.join("\n#{' ' * length} ")
+      data[:addons] = attrs[:addons].map {|addon| addon["description"]}
+
+      attrs[:collaborators].reject! {|collaborator| collaborator[:email] == attrs[:owner]}
+      data[:collaborators] = attrs[:collaborators].map {|collaborator| collaborator[:email]}
+
+      if attrs[:create_status] && attrs[:create_status] != "complete"
+        data[:create_status] = attrs[:create_status]
+      end
+
+      [:cron_finished_at, :cron_next_run].each do |key|
+        if value = attrs[key]
+          data[key] = format_date(value)
+        end
+      end
+
+      [:database_size, :repo_size, :slug_size].each do |key|
+        if value = attrs[key]
+          data[key] = format_bytes(value)
+        end
+      end
+
+      [:git_url, :web_url].each do |key|
+        upcased_key = key.to_s.gsub("url","URL").to_sym
+        data[upcased_key] = attrs[key]
+      end
+
+      if data[:stack] != "cedar"
+        data.merge!(:dynos => attrs[:dynos], :workers => attrs[:workers])
       end
 
       if attrs[:database_tables]
-        data['Database Size:'].gsub!('(empty)', '0K') + " in #{quantify("table", attrs[:database_tables])}"
+        data['Database Size'].gsub!('(empty)', '0K') + " in #{quantify("table", attrs[:database_tables])}"
       end
 
       if attrs[:dyno_hours].is_a?(Hash)
-        data['Dyno Hours:'] = attrs[:dyno_hours].keys.map do |type|
+        data['Dyno Hours'] = attrs[:dyno_hours].keys.map do |type|
           "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, attrs[:dyno_hours][type] ]
-        end.join("\n".ljust(length + 1))
+        end
       end
 
-      hputs("=== #{attrs[:name]}")
-
-      data.keys.sort_by {|key| key.to_s}.each do |key|
-        hputs("#{key.ljust(length)} #{data[key]}")
-      end
+      styled_header(attrs[:name])
+      styled_hash(data)
     end
   end
 

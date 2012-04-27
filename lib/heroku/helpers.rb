@@ -348,6 +348,38 @@ module Heroku
       $stdout.flush
     end
 
+    def styled_header(header)
+      display("=== #{header}")
+    end
+
+    def styled_hash(data)
+      max_key_length = data.keys.map {|key| key.to_s.length}.max + 2
+      data.keys.sort {|x,y| x.to_s <=> y.to_s}.each do |key|
+        title_cased_key = key.to_s.gsub("_", " ").split(" ").map do |word|
+          word[0...1].upcase + word[1..-1]
+        end.join(" ")
+        case value = data[key]
+        when Array
+          if value.empty?
+            next
+          else
+            elements = value.sort {|x,y| x.to_s <=> y.to_s}
+            display("#{title_cased_key}: ".ljust(max_key_length), false)
+            display(elements[0])
+            elements[1..-1].each do |element|
+              display("#{' ' * max_key_length}#{element}")
+            end
+            display
+          end
+        when nil
+          next
+        else
+          display("#{title_cased_key}: ".ljust(max_key_length), false)
+          display(value)
+        end
+      end
+    end
+
     def string_distance(first, last)
       distances = [] # 0x0s
       0.upto(first.length) do |index|
