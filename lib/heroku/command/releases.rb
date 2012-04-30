@@ -16,7 +16,7 @@ module Heroku::Command
       objects = []
       releases.reverse.slice(0, 15).sort_by do |release|
         release["name"]
-      end.reverse.each do |release|
+      end.sort_by {|release| release["name"][1..-1].to_i}.reverse.each do |release|
         objects << {
           "by"      => truncate(release["user"], 20),
           "change"  => truncate(release["descr"], 30),
