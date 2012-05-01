@@ -49,7 +49,8 @@ class Heroku::Client
     doc.elements.to_a("//apps/app").map do |a|
       name = a.elements.to_a("name").first
       owner = a.elements.to_a("owner").first
-      [name.text, owner.text]
+      domain = a.elements.to_a("domain_name").first
+      [name.text, owner.text, domain.text]
     end
   end
 
