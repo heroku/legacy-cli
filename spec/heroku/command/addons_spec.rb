@@ -192,8 +192,8 @@ STDOUT
         stderr, stdout = execute("addons:add my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Adding my_addon to myapp... done, v99 (free)
-      foo
+Adding my_addon to myapp... done, v99 (free)
+foo
 OUTPUT
       end
 
@@ -202,9 +202,9 @@ OUTPUT
         stderr, stdout = execute("addons:add my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Adding my_addon to myapp... done, v99 ($200/mo)
-      foo
-      bar
+Adding my_addon to myapp... done, v99 ($200/mo)
+foo
+bar
 OUTPUT
       end
 
@@ -239,7 +239,7 @@ OUTPUT
         stderr, stdout = execute("addons:upgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Upgrading my_addon to myapp... done, v99 (free)
+Upgrading my_addon to myapp... done, v99 (free)
 OUTPUT
       end
 
@@ -248,8 +248,8 @@ OUTPUT
         stderr, stdout = execute("addons:upgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Upgrading my_addon to myapp... done, v99 (free)
-      Don't Panic
+Upgrading my_addon to myapp... done, v99 (free)
+Don't Panic
 OUTPUT
       end
     end
@@ -279,7 +279,7 @@ OUTPUT
         stderr, stdout = execute("addons:downgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Downgrading my_addon to myapp... done, v99 (free)
+Downgrading my_addon to myapp... done, v99 (free)
 OUTPUT
       end
 
@@ -288,8 +288,8 @@ OUTPUT
         stderr, stdout = execute("addons:downgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-----> Downgrading my_addon to myapp... done, v99 (free)
-      Don't Panic
+Downgrading my_addon to myapp... done, v99 (free)
+Don't Panic
 OUTPUT
       end
     end

@@ -79,21 +79,19 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # if PROCESS is not specified, restarts all processes on the app
   #
   def restart
-    opts = case args.first
+    message, options = case args.first
     when NilClass then
-      display "Restarting processes... ", false
-      {}
+      ["Restarting processes", {}]
     when /.+\..+/
       ps = args.first
-      display "Restarting #{ps} process... ", false
-      { :ps => ps }
+      ["Restarting #{ps} process", { :ps => ps }]
     else
       type = args.first
-      display "Restarting #{type} processes... ", false
-      { :type => type }
+      ["Restarting #{type} processes", { :type => type }]
     end
-    heroku.ps_restart(app, opts)
-    display "done"
+    action(message) do
+      heroku.ps_restart(app, options)
+    end
   end
 
   alias_command "restart", "ps:restart"
@@ -117,10 +115,11 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     changes.keys.sort.each do |process|
       amount = changes[process]
-      display "Scaling #{process} processes... ", false
-      amount.gsub!("=", "")
-      new_qty = heroku.ps_scale(app, :type => process, :qty => amount)
-      display "done, now running #{new_qty}"
+      action("Scaling #{process} processes") do
+        amount.gsub!("=", "")
+        new_qty = heroku.ps_scale(app, :type => process, :qty => amount)
+        status("now running #{new_qty}")
+      end
     end
   end
 
@@ -133,21 +132,20 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Example: heroku stop run.3
   #
   def stop
-    opt =
-      if (args.first =~ /.+\..+/)
-        ps = args.first
-        display "Stopping #{ps} process... ", false
-        {:ps => ps}
-      elsif args.first
-        type = args.first
-        display "Stopping #{type} processes... ", false
-        {:type => type}
-      else
-        error "Usage: heroku ps:stop PROCESS"
-      end
+    message, options =
+    if (args.first =~ /.+\..+/)
+      ps = args.first
+      ["Stopping #{ps} process", { :ps => ps }]
+    elsif args.first
+      type = args.first
+      ["Stopping #{type} processes", { :type => type }]
+    else
+      error "Usage: heroku ps:stop PROCESS"
+    end
 
-    heroku.ps_stop(app, opt)
-    display "done"
+    action(message) do
+      heroku.ps_stop(app, options)
+    end
   end
 
   alias_command "stop", "ps:stop"

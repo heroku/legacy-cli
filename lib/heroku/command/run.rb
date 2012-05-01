@@ -13,12 +13,8 @@ class Heroku::Command::Run < Heroku::Command::Base
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
-    display "Running #{command} attached to terminal... ", false
-    begin
+    action("Running #{command} attached to terminal") do
       ps = heroku.ps_run(app, opts)
-    rescue
-      puts "failed"
-      raise
     end
     rendezvous_session(ps["rendezvous_url"]) { display "up, #{ps["process"]}" }
   end
@@ -31,15 +27,11 @@ class Heroku::Command::Run < Heroku::Command::Base
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :command => command }
-    display "Running #{command}... ", false
-    begin
+    action("Running #{command}") do
       ps = heroku.ps_run(app, opts)
-      puts "up, #{ps["process"]}"
-      puts "Use 'heroku logs -p #{ps["process"]}' to view the log output."
-    rescue
-      puts "failed"
-      raise
+      status("up, #{ps["process"]}")
     end
+    puts "Use 'heroku logs -p #{ps["process"]}' to view the log output."
   end
 
   # run:rake COMMAND

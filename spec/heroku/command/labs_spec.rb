@@ -55,7 +55,7 @@ STDERR
       stderr, stdout = execute("labs:enable example")
       stderr.should == ""
       stdout.should == <<-STDOUT
-----> Enabling example for myapp... done
+Enabling example for myapp... done
 WARNING: This feature is experimental and may change or be removed without notice.
 STDOUT
     end
@@ -74,7 +74,7 @@ STDERR
       stderr, stdout = execute("labs:disable example")
       stderr.should == ""
       stdout.should == <<-STDOUT
-----> Disabling example for myapp... done
+Disabling example for myapp... done
 STDOUT
     end
 

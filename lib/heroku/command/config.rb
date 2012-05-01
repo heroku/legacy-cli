@@ -36,17 +36,16 @@ module Heroku::Command
       # try to get the app to fail fast
       detected_app = app
 
-      display "Adding config vars and restarting app...", false
-      heroku.add_config_vars(detected_app, vars)
-      display " done", false
+      action("Adding config vars and restarting app") do
+        heroku.add_config_vars(detected_app, vars)
 
-      begin
-        release = heroku.release(detected_app, 'current')
-        display(", #{release["name"]}", false) if release
-      rescue RestClient::RequestFailed => e
+        @status = begin
+          release = heroku.release(detected_app, 'current')
+          release["name"] if release
+        rescue RestClient::RequestFailed => e
+        end
       end
 
-      display
       display_vars(vars, :indent => 2)
     end
 
@@ -60,16 +59,15 @@ module Heroku::Command
       raise CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]" if args.empty?
 
       args.each do |key|
-        display "Removing #{key} and restarting app...", false
-        heroku.remove_config_var(app, key)
+        action("Removing #{key} and restarting app") do
+          heroku.remove_config_var(app, key)
 
-        display " done", false
-        begin
-          release = heroku.release(app, 'current')
-          display(", #{release["name"]}", false) if release
-        rescue RestClient::RequestFailed => e
+          @status = begin
+            release = heroku.release(app, 'current')
+            release["name"] if release
+          rescue RestClient::RequestFailed => e
+          end
         end
-        display
       end
     end
 

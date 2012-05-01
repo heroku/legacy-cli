@@ -30,8 +30,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
     key = File.read(args[1]) rescue error("Unable to read KEY")
     app = self.app
 
-    endpoint = run_with_status "Adding SSL endpoint to #{app}..." do
-      heroku.ssl_endpoint_add(app, pem, key)
+    endpoint = nil
+    action("Adding SSL endpoint to #{app}") do
+      endpoint = heroku.ssl_endpoint_add(app, pem, key)
     end
 
     display_warnings(endpoint)
@@ -46,8 +47,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def info
     cname = options[:endpoint] || current_endpoint
-    endpoint = run_with_status "Fetching information on SSL endpoint #{cname}..." do
-      heroku.ssl_endpoint_info(app, cname)
+    endpoint = nil
+    action("Fetching information on SSL endpoint #{cname}") do
+      endpoint = heroku.ssl_endpoint_info(app, cname)
     end
 
     display "Certificate details:"
@@ -60,7 +62,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def remove
     cname = options[:endpoint] || current_endpoint
-    run_with_status "Removing SSL endpoint #{cname} from #{app}..." do
+    action("Removing SSL endpoint #{cname} from #{app}") do
       heroku.ssl_endpoint_remove(app, cname)
     end
     display "De-provisioned endpoint #{cname}."
@@ -78,8 +80,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
     app = self.app
     cname = options[:endpoint] || current_endpoint
 
-    endpoint = run_with_status "Updating SSL endpoint #{cname} for #{app}..." do
-      heroku.ssl_endpoint_update(app, cname, pem, key)
+    endpoint = nil
+    action("Updating SSL endpoint #{cname} for #{app}") do
+      endpoint = heroku.ssl_endpoint_update(app, cname, pem, key)
     end
 
     display_warnings(endpoint)
@@ -94,8 +97,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def rollback
     cname = options[:endpoint] || current_endpoint
 
-    endpoint = run_with_status "Rolling back SSL endpoint #{cname} on #{app}..." do
-      heroku.ssl_endpoint_rollback(app, cname)
+    endpoint = nil
+    action("Rolling back SSL endpoint #{cname} on #{app}") do
+      endpoint = heroku.ssl_endpoint_rollback(app, cname)
     end
 
     display "New active certificate details:"
@@ -158,17 +162,5 @@ class Heroku::Command::Certs < Heroku::Command::Base
     @num_spaces += spaces
     yield
     @num_spaces -= spaces
-  end
-
-  def run_with_status(status)
-    display status, false
-    begin
-      out = yield
-      display " done"
-      out
-    rescue
-      display " failed"
-      raise
-    end
   end
 end

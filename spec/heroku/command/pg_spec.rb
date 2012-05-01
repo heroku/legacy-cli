@@ -27,7 +27,7 @@ module Heroku::Command
       stderr, stdout = execute("pg:reset DATABASE --confirm myapp")
       stderr.should == ""
       stdout.should == <<-STDOUT
-----> Resetting HEROKU_POSTGRESQL_RONIN (DATABASE_URL)
+Resetting HEROKU_POSTGRESQL_RONIN (DATABASE_URL)
 \r\e[0KResetting...\r\e[0KResetting... done
 STDOUT
     end
@@ -84,7 +84,7 @@ STDOUT
         stderr, stdout = execute("pg:promote SHARED_DATABASE --confirm myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
-\r\e[0K-----> Promoting SHARED_DATABASE to DATABASE_URL...\r\e[0K-----> Promoting SHARED_DATABASE to DATABASE_URL... done
+\r\e[0KPromoting SHARED_DATABASE to DATABASE_URL...\r\e[0KPromoting SHARED_DATABASE to DATABASE_URL... done
 STDOUT
       end
 
@@ -94,7 +94,7 @@ STDOUT
         stderr, stdout = execute("pg:promote postgres://john:S3nsit1ve@my.example.com/db_name --confirm=myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
-\r\e[0K-----> Promoting Database on my.example.com to DATABASE_URL...\r\e[0K-----> Promoting Database on my.example.com to DATABASE_URL... done
+\r\e[0KPromoting Database on my.example.com to DATABASE_URL...\r\e[0KPromoting Database on my.example.com to DATABASE_URL... done
 STDOUT
       end
 

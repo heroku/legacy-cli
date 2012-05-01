@@ -232,7 +232,7 @@ module Heroku
     ## DISPLAY HELPERS
 
     def action(message)
-      output_with_arrow("#{message}... ", false)
+      display("#{message}... ", false)
       Heroku::Helpers.enable_error_capture
       yield
       Heroku::Helpers.disable_error_capture
@@ -243,16 +243,6 @@ module Heroku
 
     def status(message)
       @status = message
-    end
-
-    def output(message="", new_line=true)
-      return if message.to_s.strip == ""
-      display("      " + message.split("\n").join("\n      "), new_line)
-    end
-
-    def output_with_arrow(message="", new_line=true)
-      return if message.to_s.strip == ""
-      display("----> " + message.split("\n").join("\n      "), new_line)
     end
 
     def format_with_bang(message)

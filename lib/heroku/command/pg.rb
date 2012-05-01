@@ -38,7 +38,7 @@ module Heroku::Command
       follower_db = resolve_db(:required => 'pg:promote')
       error("DATABASE_URL is already set to #{follower_db[:name]}") if follower_db[:default]
 
-      working_display "-----> Promoting #{follower_db[:name]} to DATABASE_URL" do
+      working_display "Promoting #{follower_db[:name]} to DATABASE_URL" do
         heroku.add_config_vars(app, {"DATABASE_URL" => follower_db[:url]})
       end
     end
@@ -52,7 +52,7 @@ module Heroku::Command
     #
     def psql
       deprecate_dash_dash_db("pg:psql")
-      uri = generate_ingress_uri("-----> Connecting")
+      uri = generate_ingress_uri("Connecting")
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
       begin
@@ -72,7 +72,7 @@ module Heroku::Command
       deprecate_dash_dash_db("pg:reset")
       db = resolve_db(:required => 'pg:reset')
 
-      output_with_arrow("Resetting #{db[:pretty_name]}")
+      display("Resetting #{db[:pretty_name]}")
       return unless confirm_command
 
       working_display 'Resetting' do
@@ -168,21 +168,21 @@ module Heroku::Command
         when /\A#{Resolver.postgres_addon_prefix}\w+/
           working_display 'Resetting' do
             return unless confirm_command
-            output_with_arrow("Resetting password for #{db[:pretty_name]}")
+            display("Resetting password for #{db[:pretty_name]}")
             response = heroku_postgres_addon_client(db[:url]).reset_password
             heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
           end
         when /\A#{Resolver.shared_addon_prefix}\w+/
           working_display 'Resetting' do
             return unless confirm_command
-            output_with_arrow("Resetting password for #{db[:pretty_name]}")
+            display("Resetting password for #{db[:pretty_name]}")
             response = heroku_shared_postgresql_client(db[:url]).reset_password
             heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
           end
         else
           working_display 'Resetting' do
             return unless confirm_command
-            output_with_arrow("Resetting password for #{db[:pretty_name]}")
+            display("Resetting password for #{db[:pretty_name]}")
             heroku_postgresql_client(db[:url]).rotate_credentials
           end
         end

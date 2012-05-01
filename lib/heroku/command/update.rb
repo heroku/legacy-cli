@@ -15,13 +15,8 @@ module Heroku::Command
         error message
       end
 
-      begin
-        output_with_arrow("Updating to latest client... ", false)
+      action("Updating to latest client") do
         Heroku::Updater.update
-        display "done"
-      rescue Exception => ex
-        display "failed"
-        display "   !   #{ex.message}"
       end
     end
 
@@ -30,12 +25,9 @@ module Heroku::Command
     # update to the latest beta client
     #
     def beta
-      output_with_arrow("Updating to latest beta client... ", false)
-      Heroku::Updater.update(true)
-      display "done"
-    rescue Exception => ex
-      display "failed"
-      display "   !   #{ex.message}"
+      action("Updating to latest beta client") do
+        Heroku::Updater.update(true)
+      end
     end
   end
 end

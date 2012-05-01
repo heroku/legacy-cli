@@ -127,9 +127,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       (options[:addons] || "").split(",").each do |addon|
         addon.strip!
-        hprint("Adding #{addon} to #{info["name"]}... ")
-        heroku.install_addon(info["name"], addon)
-        hputs("done")
+        action("Adding #{addon} to #{info["name"]}") do
+          heroku.install_addon(info["name"], addon)
+        end
       end
 
       if buildpack = options[:buildpack]
@@ -200,15 +200,15 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
     message = "WARNING: Potentially Destructive Action\nThis command will destroy #{app} (including all add-ons)."
     if confirm_command(app, message)
-      hprint "Destroying #{app} (including all add-ons)... "
-      heroku.destroy(app)
-      if remotes = git_remotes(Dir.pwd)
-        remotes.each do |remote_name, remote_app|
-          next if app != remote_app
-          git "remote rm #{remote_name}"
+      action("Destroying #{app} (including all add-ons)") do
+        heroku.destroy(app)
+        if remotes = git_remotes(Dir.pwd)
+          remotes.each do |remote_name, remote_app|
+            next if app != remote_app
+            git "remote rm #{remote_name}"
+          end
         end
       end
-      hputs("done")
     end
   end
 

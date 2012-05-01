@@ -99,8 +99,8 @@ module Heroku::Command
         action("Removing #{name} from #{app}") do
           messages = addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
         end
-        output messages[:attachment] if messages[:attachment]
-        output messages[:message]
+        display(messages[:attachment]) if messages[:attachment]
+        display(messages[:message])
       end
     end
 
@@ -122,8 +122,9 @@ module Heroku::Command
         end
       when 1 then
         addon_to_open = matches.first
-        display "Opening #{addon_to_open} for #{app}..."
-        Launchy.open "https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}"
+        action("Opening #{addon_to_open} for #{app}") do
+          Launchy.open("https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}")
+        end
       else
         error "Ambiguous addon name: #{addon}"
       end
@@ -210,8 +211,8 @@ module Heroku::Command
         action("#{label} #{addon} to #{app}") do
           messages = addon_run { install_or_upgrade.call(addon, config) }
         end
-        output messages[:attachment] unless messages[:attachment].to_s.strip == ""
-        output messages[:message]
+        display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
+        display(messages[:message]) unless messages[:message].to_s.strip == ""
       end
 
       #this will clean up when we officially deprecate
@@ -240,7 +241,7 @@ module Heroku::Command
 
           if !deprecated_args.empty?
             out_string = deprecated_args.map{|a| "--#{a}"}.join(' ')
-            output "Warning: non-unix style params have been deprecated, use #{out_string} instead"
+            display("Warning: non-unix style params have been deprecated, use #{out_string} instead")
           end
         end
 
