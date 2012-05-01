@@ -33,6 +33,9 @@ class Heroku::Command::Base
     end
   end
 
+  def api
+    Heroku::Auth.api
+  end
 
   def heroku
     Heroku::Auth.client

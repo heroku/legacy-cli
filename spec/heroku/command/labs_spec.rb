@@ -15,7 +15,7 @@ module Heroku::Command
       stdout.should == <<-STDOUT
 === App Features (myapp)
 
-=== User Features (user)
+=== User Features (email@example.com)
 STDOUT
     end
 
@@ -26,7 +26,7 @@ STDOUT
       stdout.should == <<-STDOUT
 === App Features (myapp)
 
-=== User Features (user)
+=== User Features (email@example.com)
 STDOUT
     end
 

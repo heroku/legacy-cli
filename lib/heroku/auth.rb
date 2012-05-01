@@ -1,6 +1,8 @@
 require "heroku"
 require "heroku/client"
 require "heroku/helpers"
+
+require "heroku-api"
 require "netrc"
 
 class Heroku::Auth
@@ -8,6 +10,16 @@ class Heroku::Auth
     include Heroku::Helpers
 
     attr_accessor :credentials
+
+    def api
+      @api ||= begin
+        full_host = (host =~ /^http/) ? host : "https://api.#{host}"
+        Heroku::API.new(
+          :api_key  => password,
+          :host     => URI.parse(full_host).host
+        )
+      end
+    end
 
     def client
       @client ||= begin
