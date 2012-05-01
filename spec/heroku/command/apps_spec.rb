@@ -5,16 +5,7 @@ module Heroku::Command
   describe Apps do
     before(:each) do
       @cli = prepare_command(Apps)
-      @cli.stub(:options).and_return(:app => "myapp")
-      @data = {
-        :addons         => [],
-        :collaborators  => [],
-        :database_size  => 5*1024*1024,
-        :git_url        => 'git@heroku.com/myapp.git',
-        :name           => 'myapp',
-        :repo_size      => 2*1024,
-        :web_url        => 'http://myapp.heroku.com/'
-      }
+
       stub_core
     end
 
@@ -71,7 +62,7 @@ STDOUT
         stderr.should == ""
         stdout.should match Regexp.new(<<-STDOUT)
 create_status=complete
-created_at=\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} -\\d{4}
+created_at=\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} [+-]\\d{4}
 dynos=0
 git_url=git@heroku.com:myapp.git
 id=\\d{1,5}
@@ -199,11 +190,14 @@ STDOUT
         end
 
         it "renames app" do
-          stderr, stdout = execute("apps:rename myapp2")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          with_blank_git_repository do
+            stderr, stdout = execute("apps:rename myapp2")
+            stderr.should == ""
+            stdout.should == <<-STDOUT
 http://myapp2.herokuapp.com/ | git@heroku.com:myapp2.git
+Don't forget to update your Git remotes on any local checkouts.
 STDOUT
+          end
         end
 
       end
@@ -242,10 +236,9 @@ STDOUT
           @cli.destroy
         end
 
-        it "fails with implicit app but no confirmation" do
-          @cli.stub!(:app).and_return('myapp')
+        it "fails without explicit app" do
           @cli.heroku.should_not_receive(:destroy)
-          @cli.destroy
+          lambda { @cli.destroy }.should raise_error(Heroku::Command::CommandFailed)
         end
 
       end
