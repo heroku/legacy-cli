@@ -19,6 +19,8 @@ require "webmock/rspec"
 
 include WebMock::API
 
+WebMock::HttpLibAdapters::ExconAdapter.disable!
+
 def api
   Heroku::API.new(:api_key => "pass", :mock => true)
 end

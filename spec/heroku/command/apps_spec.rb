@@ -9,14 +9,6 @@ module Heroku::Command
       stub_core
     end
 
-    before(:each) do
-      WebMock.disable!
-    end
-
-    after(:each) do
-      WebMock.enable!
-    end
-
     context("info") do
 
       before(:each) do
