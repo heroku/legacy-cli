@@ -163,6 +163,10 @@ protected
     Heroku::Command.invalid_arguments
   end
 
+  def shift_argument
+    Heroku::Command.shift_argument
+  end
+
   def validate_arguments!
     Heroku::Command.validate_arguments!
   end
