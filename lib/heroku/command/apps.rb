@@ -127,7 +127,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
-    name    = invalid_arguments.shift.downcase.strip rescue nil
+    name    = shift_argument.downcase.strip rescue nil
     validate_arguments!
 
     info    = api.post_app({ "name" => name, "stack" => stack }).body
@@ -213,8 +213,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # permanently destroy an app
   #
   def destroy
+    @app = shift_argument || options[:app] || options[:confirm]
     validate_arguments!
-    @app = args.first || options[:app] || options[:confirm]
+
     unless @app
       raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP")
     end
