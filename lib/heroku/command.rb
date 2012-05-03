@@ -76,11 +76,14 @@ module Heroku
       end
     end
 
-    def self.global_option(name, *args)
-      global_options << { :name => name, :args => args }
+    def self.global_option(name, *args, &blk)
+      global_options << { :name => name, :args => args, :proc => blk }
     end
 
-    global_option :app,     "--app APP", "-a"
+    global_option :app, "--app APP", "-a" do |app|
+      raise OptionParser::InvalidOption.new(app) if app == "pp"
+    end
+
     global_option :confirm, "--confirm APP"
     global_option :help,    "--help", "-h"
     global_option :remote,  "--remote REMOTE"
@@ -129,6 +132,7 @@ module Heroku
         end
         global_options.each do |global_option|
           parser.on(*global_option[:args]) do |value|
+            global_option[:proc].call(value) if global_option[:proc]
             opts[global_option[:name]] = value
           end
         end
