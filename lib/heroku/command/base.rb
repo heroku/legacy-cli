@@ -33,6 +33,9 @@ class Heroku::Command::Base
     end
   end
 
+  def api
+    Heroku::Auth.api
+  end
 
   def heroku
     Heroku::Auth.client
@@ -154,6 +157,18 @@ protected
     return unless options[key]
     value = options[key] || default
     block_given? ? yield(value) : value
+  end
+
+  def invalid_arguments
+    Heroku::Command.invalid_arguments
+  end
+
+  def shift_argument
+    Heroku::Command.shift_argument
+  end
+
+  def validate_arguments!
+    Heroku::Command.validate_arguments!
   end
 
   def confirm_mismatch?

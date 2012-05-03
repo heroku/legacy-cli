@@ -235,10 +235,11 @@ module Heroku
       display("#{message}... ", false)
       Heroku::Helpers.enable_error_capture
       yield
-      Heroku::Helpers.disable_error_capture
       display "done", false
       display(", #{@status}", false) if @status
       display
+    ensure
+      Heroku::Helpers.disable_error_capture
     end
 
     def status(message)
@@ -338,17 +339,45 @@ module Heroku
       $stdout.flush
     end
 
+    # produces a printf formatter line for an array of items
+    # if an individual line item is an array, it will create columns
+    # that are lined-up
+    #
+    # line_formatter(["foo", "barbaz"])                 # => "%-6s"
+    # line_formatter(["foo", "barbaz"], ["bar", "qux"]) # => "%-3s   %-6s"
+    #
+    def line_formatter(array)
+      cols = []
+      array.each do |item|
+        case item
+        when Array then
+          item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, val.length].max }
+        else
+          cols[0] = item.to_s.length
+        end
+      end
+      cols.map { |col| "%-#{col}s" }.join("   ")
+    end
+
+    def styled_array(array)
+      fmt = line_formatter(array)
+      array.each do |element|
+        display(fmt % element)
+      end
+      display
+    end
+
     def styled_header(header)
       display("=== #{header}")
     end
 
-    def styled_hash(data)
-      max_key_length = data.keys.map {|key| key.to_s.length}.max + 2
-      data.keys.sort {|x,y| x.to_s <=> y.to_s}.each do |key|
+    def styled_hash(hash)
+      max_key_length = hash.keys.map {|key| key.to_s.length}.max + 2
+      hash.keys.sort {|x,y| x.to_s <=> y.to_s}.each do |key|
         title_cased_key = key.to_s.gsub("_", " ").split(" ").map do |word|
           word[0...1].upcase + word[1..-1]
         end.join(" ")
-        case value = data[key]
+        case value = hash[key]
         when Array
           if value.empty?
             next
@@ -359,7 +388,9 @@ module Heroku
             elements[1..-1].each do |element|
               display("#{' ' * max_key_length}#{element}")
             end
-            display
+            if elements.length > 1
+              display
+            end
           end
         when nil
           next

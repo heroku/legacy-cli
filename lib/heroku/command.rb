@@ -57,11 +57,37 @@ module Heroku
       @global_options ||= []
     end
 
-    def self.global_option(name, *args)
-      global_options << { :name => name, :args => args }
+    def self.invalid_arguments
+      @invalid_arguments
     end
 
-    global_option :app,     "--app APP", "-a"
+    def self.shift_argument
+      @invalid_arguments.shift
+    end
+
+    def self.validate_arguments!
+      unless invalid_arguments.empty?
+        arguments = invalid_arguments.map {|arg| "\"#{arg}\""}
+        if arguments.length == 1
+          message = "Invalid argument: #{arguments.first}"
+        elsif arguments.length > 1
+          message = "Invalid arguments: "
+          message << arguments[0...-1].join(", ")
+          message << " and "
+          message << arguments[-1]
+        end
+        error(message)
+      end
+    end
+
+    def self.global_option(name, *args, &blk)
+      global_options << { :name => name, :args => args, :proc => blk }
+    end
+
+    global_option :app, "--app APP", "-a" do |app|
+      raise OptionParser::InvalidOption.new(app) if app == "pp"
+    end
+
     global_option :confirm, "--confirm APP"
     global_option :help,    "--help", "-h"
     global_option :remote,  "--remote REMOTE"
@@ -110,6 +136,7 @@ module Heroku
         end
         global_options.each do |global_option|
           parser.on(*global_option[:args]) do |value|
+            global_option[:proc].call(value) if global_option[:proc]
             opts[global_option[:name]] = value
           end
         end
@@ -139,6 +166,7 @@ module Heroku
 
       @current_args = args
       @current_options = opts
+      @invalid_arguments = invalid_options
 
       [ command[:klass].new(args.dup, opts.dup), command[:method] ]
     end
@@ -146,28 +174,34 @@ module Heroku
     def self.run(cmd, arguments=[])
       object, method = prepare_run(cmd, arguments.dup)
       object.send(method)
-    rescue RestClient::Unauthorized
+    rescue RestClient::Unauthorized, Heroku::API::Errors::Unauthorized
       puts "Authentication failure"
       unless ENV['HEROKU_API_KEY']
         run "login"
         retry
       end
-    rescue RestClient::PaymentRequired => e
+    rescue RestClient::PaymentRequired, Heroku::API::Errors::VerificationRequired => e
       retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e
       error extract_error(e.http_body) {
         e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
-    rescue RestClient::Locked => e
+    rescue Heroku::API::Errors::NotFound => e
+      error extract_error(e.response.body) {
+        e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
+      }
+    rescue RestClient::Locked, Heroku::API::Errors::Locked => e
       app = e.response.headers[:x_confirmation_required]
       if confirm_command(app, extract_error(e.response.body))
         arguments << '--confirm' << app
         retry
       end
-    rescue RestClient::RequestTimeout
+    rescue RestClient::RequestTimeout, Heroku::API::Errors::Timeout
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
     rescue RestClient::RequestFailed => e
       error extract_error(e.http_body)
+    rescue Heroku::API::Errors::ErrorWithResponse => e
+      error extract_error(e.response.body)
     rescue CommandFailed => e
       error e.message
     rescue OptionParser::ParseError => ex

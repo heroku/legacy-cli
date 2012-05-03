@@ -2,6 +2,9 @@ $stdin = File.new("/dev/null")
 
 require "rubygems"
 
+require "excon"
+Excon.defaults[:mock] = true
+
 require "simplecov"
 SimpleCov.start do
   add_filter "/spec/"
@@ -15,6 +18,12 @@ require 'tmpdir'
 require "webmock/rspec"
 
 include WebMock::API
+
+WebMock::HttpLibAdapters::ExconAdapter.disable!
+
+def api
+  Heroku::API.new(:api_key => "pass", :mock => true)
+end
 
 def stub_api_request(method, path)
   stub_request(method, "https://api.heroku.com#{path}")
@@ -94,7 +103,7 @@ def stub_core
     any_instance_of(Heroku::Client) do |core|
       stubbed_core = stub(core)
     end
-    stub(Heroku::Auth).user.returns("user")
+    stub(Heroku::Auth).user.returns("email@example.com")
     stub(Heroku::Auth).password.returns("pass")
     stub(Heroku::Client).auth.returns("apikey01")
     stubbed_core
@@ -128,7 +137,7 @@ def with_blank_git_repository(&block)
   old_dir = Dir.pwd
   Dir.chdir(sandbox)
 
-  bash "git init"
+  `git init`
   block.call
 
   FileUtils.rm_rf(sandbox)
