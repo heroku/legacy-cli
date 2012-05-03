@@ -57,16 +57,20 @@ module Heroku
       @global_options ||= []
     end
 
+    def self.invalid_arguments
+      @invalid_arguments
+    end
+
     def self.validate_arguments!
-      unless @invalid_arguments.empty?
-        arguments = @invalid_arguments.map {|arg| %w{"#{arg}"}}
+      unless invalid_arguments.empty?
+        arguments = invalid_arguments.map {|arg| "\"#{arg}\""}
         if arguments.length == 1
           message = "Invalid argument: #{arguments.first}"
         elsif arguments.length > 1
           message = "Invalid arguments: "
-          message << @invalid_arguments[0...-1].join(", ")
+          message << arguments[0...-1].join(", ")
           message << " and "
-          message << @invalid_arguments[-1]
+          message << arguments[-1]
         end
         error(message)
       end

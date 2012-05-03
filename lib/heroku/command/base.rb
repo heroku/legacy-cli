@@ -159,6 +159,10 @@ protected
     block_given? ? yield(value) : value
   end
 
+  def invalid_arguments
+    Heroku::Command.invalid_arguments
+  end
+
   def validate_arguments!
     Heroku::Command.validate_arguments!
   end

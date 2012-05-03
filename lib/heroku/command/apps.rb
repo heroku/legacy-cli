@@ -121,11 +121,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -s, --stack STACK          # the stack on which to create the app
   #
   def create
-    validate_arguments!
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
-    name    = args.shift.downcase.strip rescue nil
+    name    = invalid_arguments.shift.downcase.strip rescue nil
+    validate_arguments!
+
     info    = api.post_app({ "name" => name, "stack" => stack }).body
     hprint("Creating #{info["name"]}...")
     begin
@@ -167,9 +168,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # rename the app
   #
   def rename
-    validate_arguments!
-    newname = args.shift.downcase.strip rescue ''
+    newname = invalid_arguments.shift.downcase.strip rescue ''
     raise(Heroku::Command::CommandFailed, "Must specify a new name.") if newname == ''
+    validate_arguments!
 
     api.put_app(app, "name" => newname)
 
