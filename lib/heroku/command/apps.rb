@@ -12,15 +12,18 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
     apps = api.get_apps.body
     if apps.length > 0
-      apps_by_owner = Hash.new {|hash,key| hash[key] = []}
-      apps.each do |app|
-        apps_by_owner[app["owner_email"]] << app["name"]
+      my_apps, collaborated_apps = apps.partition do |app|
+        app["owner_email"] == heroku.user
       end
-      ([heroku.user] + (apps_by_owner.keys.sort - [heroku.user])).each do |owner|
-        unless (apps = apps_by_owner[owner]).empty?
-          styled_header("#{owner} Apps")
-          styled_array(apps)
-        end
+
+      if my_apps.length > 0
+        styled_header "My Apps"
+        styled_array my_apps.map { |app| app["name"] }.sort
+      end
+
+      if collaborated_apps.length > 0
+        styled_header "Collaborated Apps"
+        styled_array collaborated_apps.map { |app| [app["name"], "<#{app["owner_email"]}>"] }.sort
       end
     else
       display("You have no apps.")

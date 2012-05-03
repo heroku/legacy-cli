@@ -161,7 +161,7 @@ STDOUT
         stderr, stdout = execute("apps")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== email@example.com Apps
+=== My Apps
 myapp
 
 STDOUT
