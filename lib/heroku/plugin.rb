@@ -83,7 +83,7 @@ module Heroku
     end
 
     def self.skip_plugins
-      @skip_plugins ||= ENV["SKIP_PLUGINS"].to_s.split(/ ,/)
+      @skip_plugins ||= ENV["SKIP_PLUGINS"].to_s.split(/[ ,]/)
     end
 
     def initialize(uri)
