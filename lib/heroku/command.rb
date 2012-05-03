@@ -170,28 +170,34 @@ module Heroku
     def self.run(cmd, arguments=[])
       object, method = prepare_run(cmd, arguments.dup)
       object.send(method)
-    rescue RestClient::Unauthorized
+    rescue RestClient::Unauthorized, Heroku::API::Errors::Unauthorized
       puts "Authentication failure"
       unless ENV['HEROKU_API_KEY']
         run "login"
         retry
       end
-    rescue RestClient::PaymentRequired => e
+    rescue RestClient::PaymentRequired, Heroku::API::Errors::VerificationRequired => e
       retry if run('account:confirm_billing', arguments.dup)
     rescue RestClient::ResourceNotFound => e
       error extract_error(e.http_body) {
         e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
-    rescue RestClient::Locked => e
+    rescue Heroku::API::Errors::NotFound => e
+      error extract_error(e.response.body) {
+        e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
+      }
+    rescue RestClient::Locked, Heroku::API::Errors::Locked => e
       app = e.response.headers[:x_confirmation_required]
       if confirm_command(app, extract_error(e.response.body))
         arguments << '--confirm' << app
         retry
       end
-    rescue RestClient::RequestTimeout
+    rescue RestClient::RequestTimeout, Heroku::API::Errors::Timeout
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
     rescue RestClient::RequestFailed => e
       error extract_error(e.http_body)
+    rescue Heroku::API::Errors::ErrorWithResponse => e
+      error extract_error(e.response.body)
     rescue CommandFailed => e
       error e.message
     rescue OptionParser::ParseError => ex
