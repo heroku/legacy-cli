@@ -159,6 +159,10 @@ protected
     block_given? ? yield(value) : value
   end
 
+  def validate_arguments!
+    Heroku::Command.validate_arguments!
+  end
+
   def confirm_mismatch?
     options[:confirm] && (options[:confirm] != options[:app])
   end

@@ -57,6 +57,21 @@ module Heroku
       @global_options ||= []
     end
 
+    def self.validate_arguments!
+      unless @invalid_arguments.empty?
+        arguments = @invalid_arguments.map {|arg| %w{"#{arg}"}}
+        if arguments.length == 1
+          message = "Invalid argument: #{arguments.first}"
+        elsif arguments.length > 1
+          message = "Invalid arguments: "
+          message << @invalid_arguments[0...-1].join(", ")
+          message << " and "
+          message << @invalid_arguments[-1]
+        end
+        error(message)
+      end
+    end
+
     def self.global_option(name, *args)
       global_options << { :name => name, :args => args }
     end
@@ -139,6 +154,7 @@ module Heroku
 
       @current_args = args
       @current_options = opts
+      @invalid_arguments = invalid_options
 
       [ command[:klass].new(args.dup, opts.dup), command[:method] ]
     end

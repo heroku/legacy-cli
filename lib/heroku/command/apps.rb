@@ -9,6 +9,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # list your apps
   #
   def index
+    validate_arguments!
     apps = api.get_apps.body
     if apps.length > 0
       apps_by_owner = Hash.new {|hash,key| hash[key] = []}
@@ -35,6 +36,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --raw  # output info as raw key/value pairs
   #
   def info
+    validate_arguments!
     app_data = api.get_app(app).body
 
     unless options[:raw]
@@ -119,6 +121,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -s, --stack STACK          # the stack on which to create the app
   #
   def create
+    validate_arguments!
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
@@ -164,6 +167,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # rename the app
   #
   def rename
+    validate_arguments!
     newname = args.shift.downcase.strip rescue ''
     raise(Heroku::Command::CommandFailed, "Must specify a new name.") if newname == ''
 
@@ -191,6 +195,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # open the app in a web browser
   #
   def open
+    validate_arguments!
     app_data = api.get_app(app).body
     url = app_data["web_url"]
     hputs("Opening #{url}")
@@ -204,6 +209,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # permanently destroy an app
   #
   def destroy
+    validate_arguments!
     @app = args.first || options[:app] || options[:confirm]
     unless @app
       raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP")
