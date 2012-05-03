@@ -8,6 +8,16 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # list your apps
   #
+  #Example:
+  #
+  # $ heroku apps
+  # === My Apps
+  # myapp1
+  # myapp2
+  #
+  # === Collaborated Apps
+  # theirapp1   other@owner.name
+  #
   def index
     validate_arguments!
     apps = api.get_apps.body
@@ -37,6 +47,19 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # show detailed app information
   #
   # -r, --raw  # output info as raw key/value pairs
+  #
+  #Examples:
+  #
+  # $ heroku info
+  # === myapp
+  # Git URL:   git@heroku.com:myapp.git
+  # Repo Size: 5M
+  # ...
+  #
+  # $ heroku info --raw
+  # git_url=git@heroku.com:myapp.git
+  # repo_size=5000000
+  # ...
   #
   def info
     validate_arguments!
@@ -123,6 +146,24 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
   #
+  #Examples:
+  #
+  # $ heroku apps:create
+  # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
+  # http://floating-dragon-42.heroku.com/ | git@heroku.com:floating-dragon-42.git
+  #
+  # $ heroku apps:create -s cedar
+  # Creating floating-dragon-42... done, stack is cedar
+  # http://floating-dragon-42.herokuapp.com/ | git@heroku.com:floating-dragon-42.git
+  #
+  # # specify a name
+  # $ heroku apps:create myapp
+  # Creating myapp... done, stack is bamboo-mri-1.9.2
+  # http://myapp.heroku.com/ | git@heroku.com:myapp.git
+  #
+  # # create a staging app
+  # $ heroku apps:create myapp-staging --remote staging
+  #
   def create
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
@@ -170,6 +211,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # rename the app
   #
+  #Example:
+  #
+  # $ heroku apps:rename myapp-newname
+  # http://myapp-newname.herokuapp.com/ | git@heroku.com:myapp-newname.git
+  # Git remote heroku updated
+  #
   def rename
     newname = invalid_arguments.shift.downcase.strip rescue ''
     raise(Heroku::Command::CommandFailed, "Must specify a new name.") if newname == ''
@@ -198,6 +245,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # open the app in a web browser
   #
+  #Example:
+  #
+  # # opens newrelic in a browser
+  # $ heroku addons:open newrelic
+  #
   def open
     validate_arguments!
     app_data = api.get_app(app).body
@@ -211,6 +263,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # apps:destroy
   #
   # permanently destroy an app
+  #
+  #Example:
+  #
+  # $ heroku destroy -a myapp
   #
   def destroy
     @app = shift_argument || options[:app] || options[:confirm]
