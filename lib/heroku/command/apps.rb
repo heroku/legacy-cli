@@ -50,13 +50,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Examples:
   #
-  # $ heroku info
+  # $ heroku apps:info
   # === myapp
   # Git URL:   git@heroku.com:myapp.git
   # Repo Size: 5M
   # ...
   #
-  # $ heroku info --raw
+  # $ heroku apps:info --raw
   # git_url=git@heroku.com:myapp.git
   # repo_size=5000000
   # ...
@@ -247,8 +247,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # # opens newrelic in a browser
-  # $ heroku addons:open newrelic
+  # # opens the app in a browser
+  # $ heroku apps:open
   #
   def open
     validate_arguments!
@@ -266,7 +266,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku destroy -a myapp
+  # $ heroku apps:destroy -a myapp
   #
   def destroy
     @app = shift_argument || options[:app] || options[:confirm]
