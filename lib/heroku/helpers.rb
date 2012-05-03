@@ -349,9 +349,30 @@ module Heroku
       $stdout.flush
     end
 
+    # produces a printf formatter line for an array of items
+    # if an individual line item is an array, it will create columns
+    # that are lined-up
+    #
+    # line_formatter(["foo", "barbaz"])                 # => "%-6s"
+    # line_formatter(["foo", "barbaz"], ["bar", "qux"]) # => "%-3s   %-6s"
+    #
+    def line_formatter(array)
+      cols = []
+      array.each do |item|
+        case item
+        when Array then
+          item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, val.length].max }
+        else
+          cols[0] = item.to_s.length
+        end
+      end
+      cols.map { |col| "%-#{col}s" }.join("   ")
+    end
+
     def styled_array(array)
+      fmt = line_formatter(array)
       array.each do |element|
-        display(element)
+        display(fmt % element)
       end
       display
     end
