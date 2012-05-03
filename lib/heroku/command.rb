@@ -61,6 +61,10 @@ module Heroku
       @invalid_arguments
     end
 
+    def self.shift_argument
+      @invalid_arguments.shift
+    end
+
     def self.validate_arguments!
       unless invalid_arguments.empty?
         arguments = invalid_arguments.map {|arg| "\"#{arg}\""}
