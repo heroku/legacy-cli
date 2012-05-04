@@ -10,13 +10,20 @@ module Heroku::Command
     #
     # list custom domains for an app
     #
+    #Examples:
+    #
+    # $ heroku domains
+    # === Domain names for myapp
+    # example.com
+    #
     def index
-      domains = heroku.list_domains(app)
-      if domains.empty?
-        display "No domain names for #{app_url}"
+      validate_arguments!
+      domains = api.get_domains(app).body
+      if domains.length > 0
+        styled_header("Domain names for #{app}")
+        styled_array domains.map {|domain| domain["domain"]}
       else
-        display "Domain names for #{app_url}:"
-        display domains.map { |d| d[:domain] }.join("\n")
+        display("No domain names for #{app}")
       end
     end
 
@@ -24,37 +31,53 @@ module Heroku::Command
     #
     # add a custom domain to an app
     #
+    #Examples:
+    #
+    # $ heroku domains:add example.com
+    # Adding example.com to myapp... done
+    #
     def add
-      domain = args.shift.downcase rescue nil
+      domain = shift_argument
+      validate_arguments!
       fail("Usage: heroku domains:add DOMAIN") if domain.to_s.strip.empty?
-      heroku.add_domain(app, domain)
-      display "Added #{domain} as a custom domain name for #{app}"
+      action("Adding #{domain} to #{app}") do
+        api.post_domain(app, domain)
+      end
     end
 
     # domains:remove DOMAIN
     #
     # remove a custom domain from an app
     #
+    #Examples:
+    #
+    # $ heroku domains:remove example.com
+    # Removing example.com from myapp... done
+    #
     def remove
-      domain = args.shift.downcase rescue nil
+      domain = shift_argument
+      validate_arguments!
       fail("Usage: heroku domains:remove DOMAIN") if domain.to_s.strip.empty?
-      heroku.remove_domain(app, domain)
-      display "Removed #{domain} as a custom domain name for #{app}"
+      action("Removing #{domain} from #{app}") do
+        api.delete_domain(app, domain)
+      end
     end
 
     # domains:clear
     #
     # remove all custom domains from an app
     #
+    #Examples:
+    #
+    # $ heroku domains:clear
+    # Removing all domain names for myapp... done
+    #
     def clear
-      heroku.remove_domains(app)
-      display "Removed all domain names for #{app}"
+      validate_arguments!
+      action("Removing all domain names for #{app}") do
+        api.delete_domains(app)
+      end
     end
 
-    protected
-      def app_url
-        url = heroku.info(app)[:web_url]
-        url.to_s.gsub('http://', '').gsub(/\/$/, '')
-      end
   end
 end
