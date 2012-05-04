@@ -28,12 +28,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       if my_apps.length > 0
         styled_header "My Apps"
-        styled_array my_apps.map { |app| app["name"] }.sort
+        styled_array my_apps.map { |app| app["name"] }
       end
 
       if collaborated_apps.length > 0
         styled_header "Collaborated Apps"
-        styled_array collaborated_apps.map { |app| [app["name"], app["owner_email"]] }.sort
+        styled_array collaborated_apps.map { |app| [app["name"], app["owner_email"]] }
       end
     else
       display("You have no apps.")

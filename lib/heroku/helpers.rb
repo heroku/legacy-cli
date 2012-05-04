@@ -361,7 +361,7 @@ module Heroku
 
     def styled_array(array)
       fmt = line_formatter(array)
-      array.each do |element|
+      array.sort.each do |element|
         display(fmt % element)
       end
       display
