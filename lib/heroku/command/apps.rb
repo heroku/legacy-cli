@@ -168,7 +168,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     remote  = extract_option('--remote', 'heroku')
     stack   = extract_option('--stack', 'aspen-mri-1.8.6')
     timeout = extract_option('--timeout', 30).to_i
-    name    = shift_argument.downcase.strip rescue nil
+    name    = shift_argument
     validate_arguments!
 
     info    = api.post_app({ "name" => name, "stack" => stack }).body

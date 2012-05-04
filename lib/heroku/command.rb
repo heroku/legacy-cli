@@ -62,7 +62,7 @@ module Heroku
     end
 
     def self.shift_argument
-      @invalid_arguments.shift
+      @invalid_arguments.shift.downcase rescue nil
     end
 
     def self.validate_arguments!

@@ -3,6 +3,7 @@ require "heroku/command/apps"
 
 module Heroku::Command
   describe Apps do
+
     before(:each) do
       @cli = prepare_command(Apps)
 
