@@ -44,7 +44,7 @@ describe Heroku::Command::Help do
     it "should show command help with --help" do
       stderr, stdout = execute("apps:create --help")
       stderr.should == ""
-      stdout.should include "heroku apps:create"
+      stdout.should include "Usage: heroku apps:create"
       stdout.should include "create a new app"
       stdout.should_not include "Additional commands"
     end
@@ -52,7 +52,10 @@ describe Heroku::Command::Help do
     it "should redirect if the command is an alias" do
       stderr, stdout = execute("help create")
       stderr.should == ""
-      stdout.should include "See `heroku apps:create --help`."
+      stdout.should include "Alias: create redirects to apps:create"
+      stdout.should include "Usage: heroku apps:create"
+      stdout.should include "create a new app"
+      stdout.should_not include "Additional commands"
     end
 
     it "should show if the command does not exist" do
