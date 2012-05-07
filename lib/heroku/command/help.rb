@@ -109,6 +109,10 @@ private
   end
 
   def help_for_command(name)
+    if command_alias = Heroku::Command.command_aliases[name]
+      display("Alias: #{name} redirects to #{command_alias}")
+      name = command_alias
+    end
     if command = commands[name]
       puts "Usage: heroku #{command[:banner]}"
 
@@ -119,8 +123,6 @@ private
         puts " " + legacy_help_for_command(name).to_s
       end
       puts
-    elsif command = Heroku::Command.command_aliases[name]
-      display("See `heroku #{command} --help`.")
     end
 
     if commands_for_namespace(name).size > 0
