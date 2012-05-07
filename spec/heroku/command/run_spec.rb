@@ -38,6 +38,19 @@ STDOUT
       stderr, stdout = execute("run:rake foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
+WARNING: `heroku run:rake` has been deprecated. Please use `heroku run rake` instead.
+Running `rake foo` attached to terminal... up, run.1
+rake_output
+STDOUT
+    end
+
+    it "shows the proper command in the deprecation warning" do
+      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+      stub_rendezvous.start { $stdout.puts("rake_output") }
+
+      stderr, stdout = execute("rake foo")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
 WARNING: `heroku rake` has been deprecated. Please use `heroku run rake` instead.
 Running `rake foo` attached to terminal... up, run.1
 rake_output

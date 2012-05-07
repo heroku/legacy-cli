@@ -57,7 +57,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   # rake test  # run tests
   #
   def rake
-    deprecate "`heroku rake` has been deprecated. Please use `heroku run rake` instead."
+    deprecate "`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead."
     command = "rake #{args.join(" ")}"
     run_attached command
   end
