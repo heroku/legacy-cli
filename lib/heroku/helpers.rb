@@ -2,6 +2,9 @@ require "vendor/heroku/okjson"
 
 module Heroku
   module Helpers
+
+    extend self
+
     def home_directory
       running_on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
     end

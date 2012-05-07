@@ -1,13 +1,14 @@
 require "launchy"
 require "heroku/command/base"
-require "heroku/pgutils"
+require "heroku/helpers/heroku_postgresql"
 
 module Heroku::Command
 
   # manage addon resources
   #
   class Addons < Base
-    include PgUtils
+
+    include Heroku::Helpers::HerokuPostgresql
 
     # addons
     #
