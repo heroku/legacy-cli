@@ -231,13 +231,14 @@ module Heroku
 
     ## DISPLAY HELPERS
 
-    def action(message)
+    def action(message, options={})
       display("#{message}... ", false)
       Heroku::Helpers.enable_error_capture
-      yield
-      display "done", false
+      ret = yield
+      display((options[:success] || "done"), false)
       display(", #{@status}", false) if @status
       display
+      ret
     ensure
       Heroku::Helpers.disable_error_capture
     end

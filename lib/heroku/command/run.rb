@@ -13,10 +13,12 @@ class Heroku::Command::Run < Heroku::Command::Base
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
-    action("Running #{command} attached to terminal") do
+    ps = action("Running #{command} attached to terminal", :success => "up") do
       ps = heroku.ps_run(app, opts)
+      status ps["process"]
+      ps
     end
-    rendezvous_session(ps["rendezvous_url"]) { display "up, #{ps["process"]}" }
+    rendezvous_session(ps["rendezvous_url"])
   end
 
   # run:detached COMMAND
@@ -26,12 +28,13 @@ class Heroku::Command::Run < Heroku::Command::Base
   def detached
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
-    opts = { :command => command }
-    action("Running #{command}") do
+    opts = { :attach => false, :command => command }
+    ps = action("Running #{command}", :success => "up") do
       ps = heroku.ps_run(app, opts)
-      status("up, #{ps["process"]}")
+      status ps["process"]
+      ps
     end
-    puts "Use 'heroku logs -p #{ps["process"]}' to view the log output."
+    puts "Use `heroku logs -p #{ps["process"]}` to view the output."
   end
 
   # run:rake COMMAND
