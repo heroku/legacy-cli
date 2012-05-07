@@ -113,7 +113,7 @@ end
 def stub_pg
   @stubbed_pg ||= begin
     stubbed_pg = nil
-    any_instance_of(HerokuPostgresql::Client) do |pg|
+    any_instance_of(Heroku::Client::HerokuPostgresql) do |pg|
       stubbed_pg = stub(pg)
     end
     stubbed_pg

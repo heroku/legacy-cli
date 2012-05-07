@@ -1,22 +1,19 @@
+require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
-require "heroku/pgutils"
-require "heroku/pg_resolver"
-require "heroku-postgresql/client"
-require "heroku-postgres-addon/client"
-require "heroku-shared-postgresql/client"
+require "heroku/helpers/heroku_postgresql"
 
 module Heroku::Command
   # manage heroku postgresql databases
   class Pg < BaseWithApp
-    include PgUtils
-    include PGResolver
+
+    include Heroku::Helpers::HerokuPostgresql
 
     # pg
     #
     # list databases for an app
     #
     def index
-      PGResolver::Resolver.all(config_vars).each {|db| display_db_info(db)}
+      Heroku::Helpers::HerokuPostgresql::Resolver.all(config_vars).each {|db| display_db_info(db)}
     end
 
     # pg:info [DATABASE]
@@ -77,12 +74,6 @@ module Heroku::Command
 
       working_display 'Resetting' do
         case db[:name]
-        when /\A#{Resolver.postgres_addon_prefix}\w+/
-          display " database, related tables and functions...", false
-          response = heroku_postgres_addon_client(db[:url]).reset_database
-        when /\A#{Resolver.shared_addon_prefix}\w+/
-          display " database, related tables and functions...", false
-          response = heroku_shared_postgresql_client(db[:url]).reset_database
         when "SHARED_DATABASE"
           heroku.database_reset(app)
         else
@@ -100,12 +91,6 @@ module Heroku::Command
 
       case follower_db[:name]
       when 'SHARED_DATABASE'
-        output_with_bang "#{follower_db[:name]} does not support forking and following."
-        return
-      when /\A#{Resolver.postgres_addon_prefix}\w+/
-        output_with_bang "#{follower_db[:name]} does not support forking and following."
-        return
-      when /\A#{Resolver.shared_addon_prefix}\w+/
         output_with_bang "#{follower_db[:name]} does not support forking and following."
         return
       else
@@ -141,10 +126,6 @@ module Heroku::Command
         case db[:name]
         when 'SHARED_DATABASE'
           next
-        when /\A#{Resolver.postgres_addon_prefix}\w+/
-          next
-        when /\A#{Resolver.shared_addon_prefix}\w+/
-          next
         else
           wait_for db
         end
@@ -165,20 +146,6 @@ module Heroku::Command
         case db[:name]
         when "SHARED_DATABASE"
           output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
-        when /\A#{Resolver.postgres_addon_prefix}\w+/
-          working_display 'Resetting' do
-            return unless confirm_command
-            display("Resetting password for #{db[:pretty_name]}")
-            response = heroku_postgres_addon_client(db[:url]).reset_password
-            heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
-          end
-        when /\A#{Resolver.shared_addon_prefix}\w+/
-          working_display 'Resetting' do
-            return unless confirm_command
-            display("Resetting password for #{db[:pretty_name]}")
-            response = heroku_shared_postgresql_client(db[:url]).reset_password
-            heroku.add_config_vars(app, {"DATABASE_URL" => response["url"]}) if db[:default]
-          end
         else
           working_display 'Resetting' do
             return unless confirm_command
@@ -202,15 +169,7 @@ private
     end
 
     def heroku_postgresql_client(url)
-      HerokuPostgresql::Client.new(url)
-    end
-
-    def heroku_shared_postgresql_client(url)
-      HerokuSharedPostgresql::Client.new(url)
-    end
-
-    def heroku_postgres_addon_client(url)
-      HerokuPostgresAddon::Client.new(url)
+      Heroku::Client::HerokuPostgresql.new(url)
     end
 
     def wait_for(db)
@@ -232,10 +191,6 @@ private
       case db[:name]
       when "SHARED_DATABASE"
         display_info_shared
-      when /\A#{Resolver.postgres_addon_prefix}\w+/
-        display_info_postgres_addon(db)
-      when /\A#{Resolver.shared_addon_prefix}\w+/
-        display_info_shared_postgresql(db)
       else
         display_info_dedicated(db)
       end
@@ -244,30 +199,6 @@ private
     def display_info_shared
       attrs = heroku.info(app)
       display_info("Data Size", "#{format_bytes(attrs[:database_size].to_i)}")
-    end
-
-    def display_info_postgres_addon(db)
-      db_info = heroku_postgres_addon_client(db[:url]).show_info
-
-      db_info["info"].each do |i|
-        if i['value']
-          val = i['resolve_db_name'] ? name_from_url(i['value']) : i['value']
-          display_info i['name'], val
-        elsif i['values']
-          i['values'].each_with_index do |val,idx|
-            name = idx.zero? ? i['name'] : nil
-            val = i['resolve_db_name'] ? name_from_url(val) : val
-            display_info name, val
-          end
-        end
-      end
-    end
-
-    def display_info_shared_postgresql(db)
-      response = heroku_shared_postgresql_client(db[:url]).show_info
-      response.each do |key, value|
-        display " #{key.gsub('_', ' ').capitalize}: #{value ? value : 0}"
-      end
     end
 
     def display_info_dedicated(db)
@@ -292,12 +223,6 @@ private
       case db[:name]
       when "SHARED_DATABASE"
         error "Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
-      when /\A#{Resolver.postgres_addon_prefix}\w+/
-        working_display("#{action} to #{db[:name]}") if action
-        return URI.parse(db[:url])
-      when /\A#{Resolver.shared_addon_prefix}\w+/
-        working_display("#{action} to #{db[:name]}") if action
-        return URI.parse(db[:url])
       else
         hpc      = heroku_postgresql_client(db[:url])
         database = hpc.get_database

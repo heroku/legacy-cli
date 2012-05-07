@@ -1,14 +1,13 @@
+require "heroku/client/pgbackups"
 require "heroku/command/base"
-require "heroku/pg_resolver"
-require "heroku/pgutils"
-require "pgbackups/client"
+require "heroku/helpers/heroku_postgresql"
 
 module Heroku::Command
 
   # manage backups of heroku postgresql databases
   class Pgbackups < Base
-    include PGResolver
-    include PgUtils
+
+    include Heroku::Helpers::HerokuPostgresql
 
     # pgbackups
     #
@@ -174,7 +173,7 @@ module Heroku::Command
     def pgbackup_client
       pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
       error("Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
-      @pgbackup_client ||= PGBackups::Client.new(pgbackups_url)
+      @pgbackup_client ||= Heroku::Client::Pgbackups.new(pgbackups_url)
     end
 
     def backup_name(to_url)

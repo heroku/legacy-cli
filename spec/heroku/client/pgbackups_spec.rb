@@ -1,12 +1,13 @@
 require "spec_helper"
+require "heroku/client/pgbackups"
 require "heroku/helpers"
-require "heroku/command/pgbackups"
-require "pgbackups/client"
 
-describe PGBackups::Client do
+describe Heroku::Client::Pgbackups do
+
   include Heroku::Helpers
+
   let(:path)   { "http://id:password@pgbackups.heroku.com" }
-  let(:client) { PGBackups::Client.new path+'/api' }
+  let(:client) { Heroku::Client::Pgbackups.new path+'/api' }
   let(:transfer_path) { path + '/client/transfers' }
 
   describe "api" do
