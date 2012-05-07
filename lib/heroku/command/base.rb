@@ -152,6 +152,10 @@ protected
     end
   end
 
+  def current_command
+    Heroku::Command.current_command
+  end
+
   def extract_option(name, default=true)
     key = name.gsub("--", "").to_sym
     return unless options[key]
