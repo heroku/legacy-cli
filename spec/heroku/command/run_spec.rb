@@ -2,6 +2,34 @@ require "spec_helper"
 require "heroku/command/run"
 
 describe Heroku::Command::Run do
+  describe "run" do
+    it "runs a command" do
+      stub_core.ps_run("myapp", :attach => true, :command => "bin/foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+      stub_rendezvous.start { $stdout.puts "output" }
+
+      stderr, stdout = execute("run bin/foo")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Running bin/foo attached to terminal... up, run.1
+output
+STDOUT
+    end
+  end
+
+  describe "run:detached" do
+    it "runs a command detached" do
+      stub_core.ps_run("myapp", :attach => false, :command => "bin/foo").returns("process" => "run.1")
+      stub_rendezvous.start { $stdout.puts "output" }
+
+      stderr, stdout = execute("run:detached bin/foo")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+Running bin/foo... up, run.1
+Use `heroku logs -p run.1` to view the output.
+STDOUT
+    end
+  end
+
   describe "run:rake" do
     it "runs a rake command" do
       stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment, :type => "rake").returns("rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
