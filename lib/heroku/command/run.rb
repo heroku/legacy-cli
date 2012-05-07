@@ -9,6 +9,12 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   # run an attached process
   #
+  #Example:
+  #
+  # $ heroku run bash
+  # Running `bash` attached to terminal... up, run.1
+  # ~ $
+  #
   def index
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
@@ -18,6 +24,12 @@ class Heroku::Command::Run < Heroku::Command::Base
   # run:detached COMMAND
   #
   # run a detached process, where output is sent to your logs
+  #
+  #Example:
+  #
+  # $ heroku run:detached ls
+  # Running `ls` detached... up, run.1
+  # Use `heroku logs -p run.1` to view the output.
   #
   def detached
     command = args.join(" ")
@@ -33,7 +45,16 @@ class Heroku::Command::Run < Heroku::Command::Base
 
   # run:rake COMMAND
   #
+  # WARNING: `heroku run:rake` has been deprecated. Please use `heroku run rake` instead."
+  #
   # remotely execute a rake command
+  #
+  #Example:
+  #
+  # $ heroku run:rake -T
+  # Running `rake -T` attached to terminal... up, run.1
+  # (in /app)
+  # rake test  # run tests
   #
   def rake
     deprecate "`heroku rake` has been deprecated. Please use `heroku run rake` instead."
@@ -48,6 +69,14 @@ class Heroku::Command::Run < Heroku::Command::Base
   # open a remote console session
   #
   # if COMMAND is specified, run the command and exit
+  #
+  # NOTE: For Cedar apps, use `heroku run console`
+  #
+  #Examples:
+  #
+  # $ heroku console
+  # Ruby console for myapp.heroku.com
+  # >>
   #
   def console
     cmd = args.join(' ').strip
