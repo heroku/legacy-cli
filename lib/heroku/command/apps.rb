@@ -275,7 +275,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
 
     unless @app
-      raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP")
+      raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
     end
 
     api.get_app(app) # fail fast if no access or doesn't exist
