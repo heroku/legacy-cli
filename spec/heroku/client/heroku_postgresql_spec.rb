@@ -1,13 +1,14 @@
 require "spec_helper"
-require "heroku/helpers"
-require "heroku-postgresql/client"
-require 'digest'
+require "heroku/client/heroku_postgresql"
+require "digest"
 
-describe HerokuPostgresql::Client do
+describe Heroku::Client::HerokuPostgresql do
+
   include Heroku::Helpers
+
   let(:url)     { 'postgres://somewhere/somedb' }
   let(:url_sha) { Digest::SHA2.hexdigest url }
-  let(:client)  { HerokuPostgresql::Client.new(url) }
+  let(:client)  { Heroku::Client::HerokuPostgresql.new(url) }
 
   it "sends an ingress request to the client" do
     url = "https://shogun.heroku.com/client/v10/databases/#{url_sha}/ingress"

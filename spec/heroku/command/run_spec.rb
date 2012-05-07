@@ -1,7 +1,11 @@
 require "spec_helper"
 require "heroku/command/run"
+require "heroku/helpers"
 
 describe Heroku::Command::Run do
+
+  include Heroku::Helpers
+
   describe "run" do
     it "runs a command" do
       stub_core.ps_run("myapp", :attach => true, :command => "bin/foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")

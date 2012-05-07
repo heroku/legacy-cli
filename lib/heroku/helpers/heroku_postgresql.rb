@@ -1,6 +1,7 @@
-require 'heroku/helpers'
+require "heroku/helpers"
 
-module PGResolver
+module Heroku::Helpers::HerokuPostgresql
+
   include Heroku::Helpers
 
   private
@@ -67,8 +68,57 @@ module PGResolver
     end
   end
 
+  def self.addon_name
+    ENV['HEROKU_POSTGRESQL_ADDON_NAME'] || 'heroku-postgresql'
+  end
+
+  def deprecate_dash_dash_db(name)
+    return unless args.include? "--db"
+    output_with_bang "The --db option has been deprecated"
+    usage = Heroku::Command::Help.usage_for_command(name)
+    error "#{usage}"
+  end
+
+  def spinner(ticks)
+    %w(/ - \\ |)[ticks % 4]
+  end
+
+  def ticking
+    ticks = 0
+    loop do
+      yield(ticks)
+      ticks +=1
+      sleep 1
+    end
+  end
+
+  def display_info(label, info)
+    display(format("%-12s %s", label, info))
+  end
+
+  def translate_fork_and_follow(addon, config)
+    if addon =~ /^#{Heroku::Helpers::HerokuPostgresql.addon_name}/
+      %w[fork follow].each do |opt|
+        if val = config[opt]
+          unless val.is_a?(String)
+            error("--#{opt} requires a database argument")
+          end
+          resolved = Resolver.new(val, config_vars)
+          display resolved.message if resolved.message
+          abort_with_database_list(val) unless resolved[:url]
+          config[opt] = resolved[:url]
+        end
+      end
+    end
+  end
+
+  #
+  # Resolver class
+  #
   class Resolver
-    include PGResolver
+
+    include Heroku::Helpers::HerokuPostgresql
+
     attr_reader :url, :db_id
 
     def initialize(db_id, config_vars)
@@ -120,14 +170,6 @@ module PGResolver
       ENV["HEROKU_POSTGRESQL_ADDON_PREFIX"] || "HEROKU_POSTGRESQL"
     end
 
-    def self.postgres_addon_prefix
-      ENV["HEROKU_POSTGRES_ADDON_PREFIX"] || "POSTGRES"
-    end
-
-    def self.shared_addon_prefix
-      ENV["HEROKU_SHARED_POSTGRESQL_ADDON_PREFIX"] || "HEROKU_SHARED_POSTGRESQL"
-    end
-
     def self.parse_config(config_vars)
       dbs = {}
       config_vars.each do |key,val|
@@ -136,10 +178,6 @@ module PGResolver
           dbs['DATABASE'] = val
         when 'SHARED_DATABASE_URL'
           dbs['SHARED_DATABASE'] = val
-        when /\A(#{postgres_addon_prefix}\w+)_URL\Z/
-          dbs[$1] = val
-        when /\A(#{shared_addon_prefix}\w+)_URL\Z/
-          dbs[$1] = val
         when /^(#{addon_prefix}\w+)_URL$/
           dbs[$1] = val
         end
