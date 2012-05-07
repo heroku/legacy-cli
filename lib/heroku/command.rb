@@ -76,7 +76,9 @@ module Heroku
           message << " and "
           message << arguments[-1]
         end
-        error(message)
+        $stderr.puts(format_with_bang(message))
+        run(current_command, ["--help"])
+        exit(1)
       end
     end
 
