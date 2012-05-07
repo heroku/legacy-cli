@@ -9,27 +9,33 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   # run an attached process
   #
+  #Example:
+  #
+  # $ heroku run bash
+  # Running `bash` attached to terminal... up, run.1
+  # ~ $
+  #
   def index
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
-    ps = action("Running #{command} attached to terminal", :success => "up") do
-      ps = heroku.ps_run(app, opts)
-      status ps["process"]
-      ps
-    end
-    rendezvous_session(ps["rendezvous_url"])
+    run_attached command
   end
 
   # run:detached COMMAND
   #
   # run a detached process, where output is sent to your logs
   #
+  #Example:
+  #
+  # $ heroku run:detached ls
+  # Running `ls` detached... up, run.1
+  # Use `heroku logs -p run.1` to view the output.
+  #
   def detached
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => false, :command => command }
-    ps = action("Running #{command}", :success => "up") do
+    ps = action("Running `#{command}` detached", :success => "up") do
       ps = heroku.ps_run(app, opts)
       status ps["process"]
       ps
@@ -39,14 +45,21 @@ class Heroku::Command::Run < Heroku::Command::Base
 
   # run:rake COMMAND
   #
+  # WARNING: `heroku run:rake` has been deprecated. Please use `heroku run rake` instead."
+  #
   # remotely execute a rake command
   #
+  #Example:
+  #
+  # $ heroku run:rake -T
+  # Running `rake -T` attached to terminal... up, run.1
+  # (in /app)
+  # rake test  # run tests
+  #
   def rake
-    command = "rake " + args.join(" ")
-    fail "Usage: heroku rake COMMAND" if (command == "rake ")
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment, :type => "rake" }
-    ps = heroku.ps_run(app, opts)
-    rendezvous_session(ps["rendezvous_url"]) { }
+    deprecate "`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead."
+    command = "rake #{args.join(" ")}"
+    run_attached command
   end
 
   alias_command "rake", "run:rake"
@@ -56,6 +69,14 @@ class Heroku::Command::Run < Heroku::Command::Base
   # open a remote console session
   #
   # if COMMAND is specified, run the command and exit
+  #
+  # NOTE: For Cedar apps, use `heroku run console`
+  #
+  #Examples:
+  #
+  # $ heroku console
+  # Ruby console for myapp.heroku.com
+  # >>
   #
   def console
     cmd = args.join(' ').strip
@@ -73,6 +94,16 @@ class Heroku::Command::Run < Heroku::Command::Base
   alias_command "console", "run:console"
 
 protected
+
+  def run_attached(command)
+    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
+    ps = action("Running `#{command}` attached to terminal", :success => "up") do
+      ps = heroku.ps_run(app, opts)
+      status ps["process"]
+      ps
+    end
+    rendezvous_session(ps["rendezvous_url"])
+  end
 
   def rendezvous_session(rendezvous_url, &on_connect)
     begin

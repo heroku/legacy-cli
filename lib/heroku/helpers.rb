@@ -27,9 +27,8 @@ module Heroku
       display("\r\e[0K#{line}", line_break)
     end
 
-    def deprecate(version)
-      display "!!! DEPRECATION WARNING: This command will be removed in version #{version}"
-      display
+    def deprecate(message)
+      display "WARNING: #{message}"
     end
 
     def error(msg)
