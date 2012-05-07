@@ -12,13 +12,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   def index
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
-    ps = action("Running #{command} attached to terminal", :success => "up") do
-      ps = heroku.ps_run(app, opts)
-      status ps["process"]
-      ps
-    end
-    rendezvous_session(ps["rendezvous_url"])
+    run_attached command
   end
 
   # run:detached COMMAND
@@ -29,7 +23,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     command = args.join(" ")
     fail "Usage: heroku run COMMAND" if command.empty?
     opts = { :attach => false, :command => command }
-    ps = action("Running #{command}", :success => "up") do
+    ps = action("Running `#{command}` detached", :success => "up") do
       ps = heroku.ps_run(app, opts)
       status ps["process"]
       ps
@@ -42,11 +36,9 @@ class Heroku::Command::Run < Heroku::Command::Base
   # remotely execute a rake command
   #
   def rake
-    command = "rake " + args.join(" ")
-    fail "Usage: heroku rake COMMAND" if (command == "rake ")
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment, :type => "rake" }
-    ps = heroku.ps_run(app, opts)
-    rendezvous_session(ps["rendezvous_url"]) { }
+    deprecate "`heroku rake` has been deprecated. Please use `heroku run rake` instead."
+    command = "rake #{args.join(" ")}"
+    run_attached command
   end
 
   alias_command "rake", "run:rake"
@@ -73,6 +65,16 @@ class Heroku::Command::Run < Heroku::Command::Base
   alias_command "console", "run:console"
 
 protected
+
+  def run_attached(command)
+    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
+    ps = action("Running `#{command}` attached to terminal", :success => "up") do
+      ps = heroku.ps_run(app, opts)
+      status ps["process"]
+      ps
+    end
+    rendezvous_session(ps["rendezvous_url"])
+  end
 
   def rendezvous_session(rendezvous_url, &on_connect)
     begin

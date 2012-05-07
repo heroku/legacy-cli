@@ -10,7 +10,7 @@ describe Heroku::Command::Run do
       stderr, stdout = execute("run bin/foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Running bin/foo attached to terminal... up, run.1
+Running `bin/foo` attached to terminal... up, run.1
 output
 STDOUT
     end
@@ -24,7 +24,7 @@ STDOUT
       stderr, stdout = execute("run:detached bin/foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Running bin/foo... up, run.1
+Running `bin/foo` detached... up, run.1
 Use `heroku logs -p run.1` to view the output.
 STDOUT
     end
@@ -32,19 +32,16 @@ STDOUT
 
   describe "run:rake" do
     it "runs a rake command" do
-      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment, :type => "rake").returns("rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-      stub_rendezvous.start do
-        $stdout.puts("rake_output")
-      end
+      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+      stub_rendezvous.start { $stdout.puts("rake_output") }
+
       stderr, stdout = execute("run:rake foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
+WARNING: `heroku rake` has been deprecated. Please use `heroku run rake` instead.
+Running `rake foo` attached to terminal... up, run.1
 rake_output
 STDOUT
-    end
-
-    it "requires a command" do
-      lambda { execute "run:rake" }.should fail_command("Usage: heroku rake COMMAND")
     end
   end
 
