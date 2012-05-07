@@ -12,16 +12,29 @@ module Heroku::Command
     #
     # -l, --long  # display extended information for each key
     #
+    #Examples:
+    #
+    # $ heroku keys
+    # === email@example.com Keys
+    # ssh-rsa ABCDEFGHIJK...OPQRSTUV== email@example.com
+    #
+    # $ heroku keys --long
+    # === email@example.com Keys
+    # ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAp9AJD5QABmOcrkHm6SINuQkDefaR0MUrfgZ1Pxir3a4fM1fwa00dsUwbUaRuR7FEFD8n1E9WwDf8SwQTHtyZsJg09G9myNqUzkYXCmydN7oGr5IdVhRyv5ixcdiE0hj7dRnOJg2poSQ3Qi+Ka8SVJzF7nIw1YhuicHPSbNIFKi5s0D5a+nZb/E6MNGvhxoFCQX2IcNxaJMqhzy1ESwlixz45aT72mXYq0LIxTTpoTqma1HuKdRY8HxoREiivjmMQulYP+CxXFcMyV9kxTKIUZ/FXqlC6G5vSm3J4YScSatPOj9ID5HowpdlIx8F6y4p1/28r2tTl4CY40FFyoke4MQ== email@example.com
+    #
     def index
-      long = options[:long]
-      keys = heroku.keys
-      if keys.empty?
-        display "No keys for #{heroku.user}"
-      else
-        display "=== #{keys.size} key#{'s' if keys.size > 1} for #{heroku.user}"
-        keys.each do |key|
-          display long ? key.strip : format_key_for_display(key)
+      validate_arguments!
+      keys = api.get_keys.body
+      if keys.length > 0
+        styled_header("#{heroku.user} Keys")
+        keys = if options[:long]
+          keys.map {|key| key["contents"].strip}
+        else
+          keys.map {|key| format_key_for_display(key["contents"])}
         end
+        styled_array(keys)
+      else
+        display("You have no keys.")
       end
     end
 
@@ -31,10 +44,23 @@ module Heroku::Command
     #
     # if no KEY is specified, will try to find ~/.ssh/id_[rd]sa.pub
     #
+    #Examples:
+    #
+    # $ heroku keys:add
+    # Could not find an existing public key.
+    # Would you like to generate one? [Yn] y
+    # Generating new SSH public key.
+    # Uploading SSH public key /.ssh/id_rsa.pub... done
+    #
+    # $ heroku keys:add /my/key.pub
+    # Uploading SSH public key /my/key.pub... done
+    #
     def add
-      if keyfile = args.first
-        display "Uploading SSH public key #{keyfile}"
-        heroku.add_key(File.read(keyfile))
+      keyfile = shift_argument
+      validate_arguments!
+
+      if keyfile
+        Heroku::Auth.associate_key(keyfile)
       else
         # make sure we have credentials
         Heroku::Auth.get_credentials
@@ -46,18 +72,38 @@ module Heroku::Command
     #
     # remove a key from the current user
     #
+    #Examples:
+    #
+    # $ heroku keys:remove email@example.com
+    # Removing email@example.com SSH key... done
+    #
     def remove
-      heroku.remove_key(args.first)
-      display "Key #{args.first} removed."
+      key = shift_argument
+      if key.nil? || key.empty?
+        raise(Heroku::Command::CommandFailed, "Usage: heroku keys:remove KEY\nMust specify KEY to remove.")
+      end
+      validate_arguments!
+
+      action("Removing #{key} SSH key") do
+        api.delete_key(key)
+      end
     end
 
     # keys:clear
     #
     # remove all authentication keys from the current user
     #
+    #Examples:
+    #
+    # $ heroku keys:cleare
+    # Removing all SSH keys... done
+    #
     def clear
-      heroku.remove_all_keys
-      display "All keys removed."
+      validate_arguments!
+
+      action("Removing all SSH keys") do
+        api.delete_keys
+      end
     end
 
     protected

@@ -218,8 +218,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # Git remote heroku updated
   #
   def rename
-    newname = invalid_arguments.shift.downcase.strip rescue ''
-    raise(Heroku::Command::CommandFailed, "Must specify a new name.") if newname == ''
+    newname = shift_argument
+    if newname.nil? || newname.empty?
+      raise(Heroku::Command::CommandFailed, "Must specify a new name.")
+    end
     validate_arguments!
 
     api.put_app(app, "name" => newname)

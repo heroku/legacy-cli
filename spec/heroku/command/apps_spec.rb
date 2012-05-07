@@ -231,7 +231,7 @@ STDOUT
 
         it "fails without explicit app" do
           @cli.heroku.should_not_receive(:destroy)
-          lambda { @cli.destroy }.should raise_error(Heroku::Command::CommandFailed)
+          lambda { @cli.destroy }.should raise_error(Heroku::Command::CommandFailed, "Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
         end
 
       end

@@ -266,8 +266,9 @@ class Heroku::Auth
     end
 
     def associate_key(key)
-      display "Uploading SSH public key #{key}"
-      client.add_key(File.read(key))
+      action("Uploading SSH public key #{key}") do
+        api.post_key(File.read(key))
+      end
     end
 
     def retry_login?
