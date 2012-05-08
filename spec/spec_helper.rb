@@ -53,15 +53,19 @@ def execute(command_line)
     stub(base).app.returns("myapp")
   end
 
-  original_stderr, original_stdout = $stderr, $stdout
+  original_stdin, original_stderr, original_stdout = $stdin, $stderr, $stdout
+
+  $stdin  = captured_stdin  = StringIO.new
   $stderr = captured_stderr = StringIO.new
   $stdout = captured_stdout = StringIO.new
+
   begin
     object.send(method)
   rescue SystemExit
   ensure
-    $stderr, $stdout = original_stderr, original_stdout
+    $stdin, $stderr, $stdout = original_stdin, original_stderr, original_stdout
   end
+
   [captured_stderr.string, captured_stdout.string]
 end
 

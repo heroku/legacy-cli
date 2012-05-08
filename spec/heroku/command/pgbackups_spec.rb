@@ -5,7 +5,8 @@ module Heroku::Command
   describe Pgbackups do
     before do
       @pgbackups = prepare_command(Pgbackups)
-      @pgbackups.stub!(:config_vars).and_return({
+      @pgbackups.stub!(:app_config_vars).and_return({
+        "DATABASE_URL"  => "postgres://database",
         "PGBACKUPS_URL" => "https://ip:password@pgbackups.heroku.com/client"
       })
       @pgbackups.heroku.stub!(:info).and_return({})
@@ -201,10 +202,11 @@ module Heroku::Command
 
         it "should restore the named backup" do
           name = "backupname"
-          args = ['db_name_gets_shifted_out_in_resove_db', name]
+          args = ['DATABASE', name]
           @pgbackups.stub(:args).and_return(args)
           @pgbackups.stub(:resolve_db) { args.shift; {:name => 'name', :url => 'url'} }
           @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
+          @pgbackups.should_receive(:error).with("foo")
           @pgbackups.restore
         end
 

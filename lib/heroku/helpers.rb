@@ -65,7 +65,7 @@ module Heroku
         return true
       else
         display
-        message ||= "WARNING: Potentially Destructive Action\nThis command will affect the app: #{app_to_confirm}"
+        message ||= "WARNING: Destructive Action\nThis command will affect the app: #{app_to_confirm}"
         message << "\nTo proceed, type \"#{app_to_confirm}\" or re-run this command with --confirm #{app_to_confirm}"
         output_with_bang(message)
         display
@@ -85,7 +85,7 @@ module Heroku
     end
 
     def ask
-      STDIN.gets.strip
+      $stdin.gets.to_s.strip
     end
 
     def shell(cmd)

@@ -54,12 +54,8 @@ module Heroku::Command
     # -e, --expire  # if no slots are available to capture, destroy the oldest backup to make room
     #
     def capture
-      deprecate_dash_dash_db("pgbackups:capture")
+      from_name, from_url = hpg_resolve(shift_argument, "DATABASE_URL")
 
-      db = resolve_db(:allow_default => true)
-
-      from_url  = db[:url]
-      from_name = db[:name]
       to_url    = nil # server will assign
       to_name   = "BACKUP"
       opts      = {:expire => extract_option("--expire")}
@@ -88,21 +84,16 @@ module Heroku::Command
     # if DATABASE is specified, but no BACKUP_ID, defaults to latest backup
     #
     def restore
-      deprecate_dash_dash_db("pgbackups:restore")
-
       if 0 == args.size
-        db = resolve_db(:allow_default => true)
+        to_name, to_url = hpg_resolve(nil, "DATABASE_URL")
         backup_id = :latest
       elsif 1 == args.size
-        db = resolve_db
+        to_name, to_url = hpg_resolve(shift_argument)
         backup_id = :latest
       else
-        db = resolve_db
-        backup_id = args.shift
+        to_name, to_url = hpg_resolve(shift_argument)
+        backup_id = shift_argument
       end
-
-      to_name = db[:name]
-      to_url  = db[:url]
 
       if :latest == backup_id
         backup = pgbackup_client.get_latest_backup
@@ -125,7 +116,7 @@ module Heroku::Command
         from_name = "BACKUP"
       end
 
-      message = "#{db[:pretty_name]}  <---restore---  "
+      message = "#{from_name}  <---restore---  "
       padding = " " * message.length
       display "\n#{message}#{backup_id}"
       if backup
