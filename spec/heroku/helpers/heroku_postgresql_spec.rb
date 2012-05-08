@@ -26,14 +26,14 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   it "throws an error if it doesnt exist" do
-    subject.should_receive(:error).with("Unknown database: VIOLET. Valid options are: HEROKU_POSTGRESQL_BLACK")
+    subject.should_receive(:error).with("Unknown database: VIOLET. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK")
     subject.hpg_resolve("violet")
   end
 
   context "default" do
 
     it "errors if there is no default" do
-      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK")
+      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK")
       subject.hpg_resolve(nil)
     end
 
