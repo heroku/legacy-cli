@@ -194,10 +194,6 @@ private
     end
   end
 
-  def spinner(ticks)
-    %w(/ - \\ |)[ticks % 4]
-  end
-
   def ticking
     ticks = 0
     loop do

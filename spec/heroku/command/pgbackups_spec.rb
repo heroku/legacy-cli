@@ -5,6 +5,7 @@ module Heroku::Command
   describe Pgbackups do
     before do
       @pgbackups = prepare_command(Pgbackups)
+      @pgbackups.heroku.stub!(:info).and_return({})
 
       api.post_app("name" => "myapp")
       api.put_config_vars(
@@ -14,8 +15,6 @@ module Heroku::Command
           "PGBACKUPS_URL" => "https://ip:password@pgbackups.heroku.com/client"
         }
       )
-
-      @pgbackups.heroku.stub!(:info).and_return({})
     end
 
     after do
@@ -129,44 +128,66 @@ STDERR
 
       context "on errors" do
         def stub_failed_capture(log)
-          backup_obj = {
-            "error_at" => Time.now.to_s,
-            "log" => log,
-            'to_url' => 'postgres://from/bar'
+          @backup_obj = {
+            "error_at"    => Time.now.to_s,
+            "finished_at" => Time.now.to_s,
+            "log"         => log,
+            'to_url'      => 'postgres://from/bar'
           }
-          @pgbackups.stub!(:transfer!).and_return(backup_obj)
-          @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
+          stub_core
+          stub_pgbackups.create_transfer.returns(@backup_obj)
+          stub_pgbackups.get_transfer.returns(@backup_obj)
         end
 
         it 'aborts on a generic error' do
           stub_failed_capture "something generic"
-          @pgbackups.should_receive(:error).with("An error occurred and your backup did not finish.")
-          @pgbackups.capture
+          stderr, stdout = execute("pgbackups:capture")
+          stderr.should == <<-STDERR
+ !    An error occurred and your backup did not finish.
+STDERR
+          stdout.should == <<-STDOUT
+
+BACKUP  ----backup--->  bar
+
+\r\e[0K... 0 -
+STDOUT
         end
 
         it 'aborts and informs when the database isnt up yet' do
           stub_failed_capture 'could not translate host name "ec2-42-42-42-42.compute-1.amazonaws.com" to address: Name or service not known'
-          @pgbackups.should_receive(:error) do |message|
-            message.should =~ /The database is not yet online/
-            message.should =~ /Please try again/
-          end
-          @pgbackups.capture
+          stderr, stdout = execute("pgbackups:capture")
+          stderr.should == <<-STDERR
+ !    An error occurred and your backup did not finish.
+ !    The database is not yet online. Please try again.
+STDERR
+          stdout.should == <<-STDOUT
+
+BACKUP  ----backup--->  bar
+
+\r\e[0K... 0 -
+STDOUT
         end
 
         it 'aborts and informs when the credentials are incorrect' do
           stub_failed_capture 'psql: FATAL:  database "randomname" does not exist'
-          @pgbackups.should_receive(:error) do |message|
-            message.should =~ /The database credentials are incorrect/
-          end
-          @pgbackups.capture
+          stderr, stdout = execute("pgbackups:capture")
+          stderr.should == <<-STDERR
+ !    An error occurred and your backup did not finish.
+ !    The database credentials are incorrect.
+STDERR
+          stdout.should == <<-STDOUT
+
+BACKUP  ----backup--->  bar
+
+\r\e[0K... 0 -
+STDOUT
         end
       end
     end
 
     context "restore" do
       before do
-        from_url = "postgres://fromhost/database"
-        from_name = "FROM_NAME"
+        from_name, from_url = "FROM_NAME", "postgres://fromhost/database"
 
         @pgbackups_client = mock("pgbackups_client")
         @pgbackups.stub!(:pgbackup_client).and_return(@pgbackups_client)

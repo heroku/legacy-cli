@@ -342,6 +342,10 @@ module Heroku
       $stdout.flush
     end
 
+    def spinner(ticks)
+      %w(/ - \\ |)[ticks % 4]
+    end
+
     # produces a printf formatter line for an array of items
     # if an individual line item is an array, it will create columns
     # that are lined-up
