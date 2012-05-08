@@ -36,9 +36,6 @@ module Heroku::Helpers::HerokuPostgresql
     return ["HEROKU_POSTGRESQL_#{name}", dbs["HEROKU_POSTGRESQL_#{name}"]] if dbs["HEROKU_POSTGRESQL_#{name}"]
     return [default, app_config_vars[default]] if (default && name.empty? && app_config_vars[default])
 
-    uri = URI.parse(name)
-    return [nil, name] if uri.scheme
-
     if name.empty?
       error "Unknown database. Valid options are: #{dbs.keys.sort.join(", ")}"
     else

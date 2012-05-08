@@ -41,9 +41,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
   def promote
     db = shift_argument
     error "Usage: heroku pg:promote DATABASE" unless db
-    name, url = hpg_resolve(db)
 
-    display_name = name ? "#{name}_URL" : "custom URL"
+    if URI.parse(db).scheme
+      url = db
+      display_name = "custom URL"
+    else
+      name, url = hpg_resolve(db)
+      display_name = "#{name}_URL"
+    end
 
     action "Promoting #{display_name} to DATABASE_URL" do
       api.put_config_vars(app, "DATABASE_URL" => url)
