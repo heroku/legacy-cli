@@ -2,255 +2,218 @@ require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
-module Heroku::Command
-  # manage heroku postgresql databases
-  class Pg < BaseWithApp
+# manage heroku-postgresql databases
+class Heroku::Command::Pg < Heroku::Command::Base
 
-    include Heroku::Helpers::HerokuPostgresql
+  include Heroku::Helpers::HerokuPostgresql
 
-    # pg
-    #
-    # list databases for an app
-    #
-    def index
-      Heroku::Helpers::HerokuPostgresql::Resolver.all(config_vars).each {|db| display_db_info(db)}
+  # pg
+  #
+  # List databases for an app
+  #
+  def index
+    hpg_databases_with_info.keys.sort.each do |name|
+      display_db name, hpg_databases_with_info[name]
     end
+  end
 
-    # pg:info [DATABASE]
-    #
-    # Display database information
-    #
-    # defaults to all databases if no DATABASE is specified
-    #
-    def info
-      specified_db_or_all { |db| display_db_info db }
-    end
-
-    # pg:promote [DATABASE]
-    #
-    # Sets DATABASE as your DATABASE_URL
-    #
-    def promote
-      deprecate_dash_dash_db("pg:promote")
-      follower_db = resolve_db(:required => 'pg:promote')
-      error("DATABASE_URL is already set to #{follower_db[:name]}") if follower_db[:default]
-
-      working_display "Promoting #{follower_db[:name]} to DATABASE_URL" do
-        heroku.add_config_vars(app, {"DATABASE_URL" => follower_db[:url]})
+  # pg:info [DATABASE]
+  #
+  # Display database information
+  #
+  # If DATABASE is not specified, displays all databases
+  #
+  def info
+    if db = shift_argument
+      name, url = hpg_resolve(db)
+      display_db name, hpg_info(url)
+    else
+      hpg_databases_with_info.keys.sort.each do |name|
+        display_db name, hpg_databases_with_info[name]
       end
     end
+  end
 
-    # pg:psql [DATABASE]
-    #
-    # Open a psql shell to the database
-    #
-    # (dedicated only)
-    # defaults to DATABASE_URL databases if no DATABASE is specified
-    #
-    def psql
-      deprecate_dash_dash_db("pg:psql")
-      uri = generate_ingress_uri("Connecting")
+  # pg:promote DATABASE
+  #
+  # Sets DATABASE as your DATABASE_URL
+  #
+  def promote
+    db = shift_argument
+    error "Usage: heroku pg:promote DATABASE" unless db
+    name, url = hpg_resolve(db)
+
+    display_name = name ? "#{name}_URL" : "custom URL"
+
+    action "Promoting #{display_name} to DATABASE_URL" do
+      api.put_config_vars(app, "DATABASE_URL" => url)
+    end
+  end
+
+  # pg:psql [DATABASE]
+  #
+  # Open a psql shell to the database
+  #
+  # defaults to DATABASE_URL databases if no DATABASE is specified
+  #
+  def psql
+    name, url = hpg_resolve(shift_argument, "DATABASE_URL")
+    uri = URI.parse(url)
+    begin
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
-      begin
-        exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}"
-      rescue Errno::ENOENT
-        output_with_bang "The local psql command could not be located"
-        output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
-        abort
+      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}"
+    rescue Errno::ENOENT
+      output_with_bang "The local psql command could not be located"
+      output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
+      abort
+    end
+  end
+
+  # pg:reset DATABASE
+  #
+  # Delete all data in DATABASE
+  #
+  def reset
+    db = shift_argument
+    error "Usage: pg:reset DATABASE" unless db
+    name, url = hpg_resolve(db)
+    return unless confirm_command
+
+    action "Resetting #{name}" do
+      hpg_client(url).reset
+    end
+  end
+
+  # pg:unfollow REPLICA
+  #
+  # stop a replica from following and make it a read/write database
+  #
+  def unfollow
+    db = shift_argument
+    error "Usage: heroku pg:unfollow REPLICATE" unless db
+    replica_name, replica_url = hpg_resolve(db)
+    replica = hpg_info(replica_url)
+
+    error "#{replica_name} is not following another database." unless replica[:following]
+    origin_url = replica[:following]
+    origin_name = database_name_from_url(origin_url)
+
+    output_with_bang "#{replica_name} will become writable and no longer"
+    output_with_bang "follow #{origin_name}. This cannot be undone."
+    return unless confirm_command
+
+    action "Unfollowing" do
+      hpg_client(origin_url).unfollow
+    end
+  end
+
+  # pg:wait [DATABASE]
+  #
+  # monitor database creation, exit when complete
+  #
+  # defaults to all databases if no DATABASE is specified
+  #
+  def wait
+    if db = shift_argument
+      wait_for hpg_info(hpg_resolve(db).last)
+    else
+      hpg_databases_with_info.keys.sort.each do |name|
+        wait_for hpg_databases_with_info[name]
       end
     end
+  end
 
-    # pg:reset [DATABASE]
-    #
-    # Delete all data in DATABASE
-    #
-    def reset
-      deprecate_dash_dash_db("pg:reset")
-      db = resolve_db(:required => 'pg:reset')
+  # pg:credentials DATABASE
+  #
+  # Display the DATABASE credentials.
+  #
+  #   --reset  # Reset credentials on the specified database.
+  #
+  def credentials
+    db = shift_argument
+    error "Usage: heroku pg:credentials DATABASE" unless db
+    name, url = hpg_resolve(db)
 
-      display("Resetting #{db[:pretty_name]}")
-      return unless confirm_command
-
-      working_display 'Resetting' do
-        case db[:name]
-        when "SHARED_DATABASE"
-          heroku.database_reset(app)
-        else
-          heroku_postgresql_client(db[:url]).reset
-        end
+    if options[:reset]
+      action "Resetting credentials for #{name}" do
+        hpg_client(url).rotate_credentials
       end
+    else
+      uri = URI.parse(url)
+      display "Connection info string:"
+      display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
     end
-
-    # pg:unfollow <REPLICA>
-    #
-    # stop a replica from following and make it a read/write database
-    #
-    def unfollow
-      follower_db = resolve_db(:required => 'pg:unfollow')
-
-      case follower_db[:name]
-      when 'SHARED_DATABASE'
-        output_with_bang "#{follower_db[:name]} does not support forking and following."
-        return
-      else
-        follower_name = follower_db[:pretty_name]
-        follower_db_info = heroku_postgresql_client(follower_db[:url]).get_database
-        origin_db_url = follower_db_info[:following]
-
-        unless origin_db_url
-          output_with_bang "#{follower_name} is not following another database"
-          return
-        end
-
-        origin_name = name_from_url(origin_db_url)
-
-        output_with_bang "#{follower_name} will become writable and no longer"
-        output_with_bang "follow #{origin_name}. This cannot be undone."
-        return unless confirm_command
-
-        working_display "Unfollowing" do
-          heroku_postgresql_client(follower_db[:url]).unfollow
-        end
-      end
-    end
-
-    # pg:wait [DATABASE]
-    #
-    # monitor database creation, exit when complete
-    #
-    # defaults to all databases if no DATABASE is specified
-    #
-    def wait
-      specified_db_or_all do |db|
-        case db[:name]
-        when 'SHARED_DATABASE'
-          next
-        else
-          wait_for db
-        end
-      end
-    end
-
-    # pg:credentials [DATABASE]
-    #
-    # Display the DATABASE credentials.
-    #
-    #   --reset       # Reset credentials on the specified database.
-    def credentials
-      deprecate_dash_dash_db("pg:ingress")
-      reset = extract_option("--reset", false)
-      case reset
-      when true
-        db = resolve_db(:required => 'pg:reset')
-        case db[:name]
-        when "SHARED_DATABASE"
-          output_with_bang "Resetting password not currently supported for #{db[:pretty_name]}"
-        else
-          working_display 'Resetting' do
-            return unless confirm_command
-            display("Resetting password for #{db[:pretty_name]}")
-            heroku_postgresql_client(db[:url]).rotate_credentials
-          end
-        end
-      else
-        uri = generate_ingress_uri
-        display "Connection info string:"
-        display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
-      end
-    end
+  end
 
 private
 
-    def working_display(msg)
-      redisplay "#{msg}..."
-      yield if block_given?
-      redisplay "#{msg}... done\n"
-    end
+  def database_name_from_url(url)
+    vars = app_config_vars
+    vars.delete "DATABASE_URL"
+    (vars.invert[url] || url).gsub(/_URL$/, "")
+  end
 
-    def heroku_postgresql_client(url)
-      Heroku::Client::HerokuPostgresql.new(url)
-    end
+  def display_db(name, db)
+    pretty_name = name
+    pretty_name += " (DATABASE_URL)" if db[:url] == app_config_vars["DATABASE_URL"]
 
-    def wait_for(db)
-      ticking do |ticks|
-        wait_status = heroku_postgresql_client(db[:url]).get_wait_status
-        raise CommandFailed.new(wait_status[:message]) if wait_status[:error?]
-        break if !wait_status[:waiting?] && ticks == 0
-        redisplay("Waiting for database %s... %s%s" % [
-                    db[:pretty_name],
-                    wait_status[:waiting?] ? "#{spinner(ticks)} " : "",
-                    wait_status[:message]],
-                  !wait_status[:waiting?]) # only display a newline on the last tick
-        break unless wait_status[:waiting?]
-      end
-    end
+    styled_header pretty_name
+    styled_hash(db[:info].inject({}) do |hash, item|
+      hash.update(item["name"] => hpg_info_display(item))
+    end)
 
-    def display_db_info(db)
-      display("=== #{db[:pretty_name]}")
-      case db[:name]
-      when "SHARED_DATABASE"
-        display_info_shared
-      else
-        display_info_dedicated(db)
-      end
-    end
+    display
+  end
 
-    def display_info_shared
-      attrs = heroku.info(app)
-      display_info("Data Size", "#{format_bytes(attrs[:database_size].to_i)}")
-    end
+  def hpg_client(url)
+    Heroku::Client::HerokuPostgresql.new(url)
+  end
 
-    def display_info_dedicated(db)
-      db_info = heroku_postgresql_client(db[:url]).get_database
-
-      db_info[:info].each do |i|
-        if i['value']
-          val = i['resolve_db_name'] ? name_from_url(i['value']) : i['value']
-          display_info i['name'], val
-        elsif i['values']
-          i['values'].each_with_index do |val,idx|
-            name = idx.zero? ? i['name'] : nil
-            val = i['resolve_db_name'] ? name_from_url(val) : val
-            display_info name, val
-          end
-        end
-      end
-    end
-
-    def generate_ingress_uri(action=nil)
-      db = resolve_db(:allow_default => true)
-      case db[:name]
-      when "SHARED_DATABASE"
-        error "Cannot ingress to a shared database" if "SHARED_DATABASE" == db[:name]
-      else
-        hpc      = heroku_postgresql_client(db[:url])
-        database = hpc.get_database
-        if !database[:available_for_ingress]
-          if Time.parse(database[:created_at]) < (Time.now - 20)
-            error "#{database[:database_name]} is not accepting connections."
-          else
-            error "#{database[:database_name]} is not yet accepting connections."
-          end
-        end
-        if action
-          working_display("#{action} to #{db[:name]}") { hpc.ingress }
-        else
-          hpc.ingress
-        end
-        return URI.parse(db[:url])
-      end
-    end
-
-    def display_progress(progress, ticks)
-      progress ||= []
-      new_progress = ((progress || []) - (@seen_progress || []))
-      if !new_progress.empty?
-        new_progress.each { |p| display_progress_part(p, ticks) }
-      elsif !progress.empty? && progress.last[0] != "finish"
-        display_progress_part(progress.last, ticks)
-      end
-      @seen_progress = progress
+  def hpg_databases_with_info
+    @hpg_databases_with_info ||= hpg_databases.inject({}) do |hash, (name, url)|
+      hash.update(name => hpg_info(url))
     end
   end
+
+  def hpg_info(url)
+    info = hpg_client(url).get_database
+    info[:url] = url
+    info
+  end
+
+  def hpg_info_display(item)
+    item["values"] = [item["value"]] if item["value"]
+    item["values"].map do |value|
+      item["resolve_db_name"] ? database_name_from_url(value) : value
+    end
+  end
+
+  def spinner(ticks)
+    %w(/ - \\ |)[ticks % 4]
+  end
+
+  def ticking
+    ticks = 0
+    loop do
+      yield(ticks)
+      ticks +=1
+      sleep 1
+    end
+  end
+
+  def wait_for(db)
+    ticking do |ticks|
+      status = hpg_client(db[:url]).get_wait_status
+      error status[:message] if status[:error?]
+      break if !status[:waiting?] && ticks.zero?
+      redisplay("Waiting for database %s... %s%s" % [
+                  db[:pretty_name],
+                  status[:waiting?] ? "#{spinner(ticks)} " : "",
+                  status[:message]],
+                  !status[:waiting?]) # only display a newline on the last tick
+      break unless status[:waiting?]
+    end
+  end
+
 end
