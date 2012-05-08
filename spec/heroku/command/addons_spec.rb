@@ -158,7 +158,7 @@ STDOUT
 
       it "should translate --fork and --follow" do
         %w{fork follow}.each do |switch|
-          @addons.heroku.stub!(:config_vars => { 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
+          @addons.stub!(:app_config_vars).and_return({ 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
           @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
           @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'foo'})
           @addons.add

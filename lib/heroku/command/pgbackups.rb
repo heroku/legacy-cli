@@ -38,7 +38,7 @@ module Heroku::Command
         b = pgbackup_client.get_latest_backup
       end
       abort("No backup found.") unless b['public_url']
-      if STDOUT.isatty
+      if $stdout.isatty
         display '"'+b['public_url']+'"'
       else
         display b['public_url']
@@ -54,21 +54,18 @@ module Heroku::Command
     # -e, --expire  # if no slots are available to capture, destroy the oldest backup to make room
     #
     def capture
-      deprecate_dash_dash_db("pgbackups:capture")
+      from_name, from_url = hpg_resolve(shift_argument, "DATABASE_URL")
 
-      db = resolve_db(:allow_default => true)
-
-      from_url  = db[:url]
-      from_name = db[:name]
       to_url    = nil # server will assign
       to_name   = "BACKUP"
+      opts      = {:expire => extract_option("--expire")}
       opts      = {:expire => extract_option("--expire")}
 
       backup = transfer!(from_url, from_name, to_url, to_name, opts)
 
       to_uri = URI.parse backup["to_url"]
       backup_id = to_uri.path.empty? ? "error" : File.basename(to_uri.path, '.*')
-      display "\n#{db[:pretty_name]}  ----backup--->  #{backup_id}"
+      display "\n#{to_name}  ----backup--->  #{backup_id}"
 
       backup = poll_transfer!(backup)
 
@@ -88,21 +85,16 @@ module Heroku::Command
     # if DATABASE is specified, but no BACKUP_ID, defaults to latest backup
     #
     def restore
-      deprecate_dash_dash_db("pgbackups:restore")
-
       if 0 == args.size
-        db = resolve_db(:allow_default => true)
+        to_name, to_url = hpg_resolve(nil, "DATABASE_URL")
         backup_id = :latest
       elsif 1 == args.size
-        db = resolve_db
+        to_name, to_url = hpg_resolve(shift_argument)
         backup_id = :latest
       else
-        db = resolve_db
-        backup_id = args.shift
+        to_name, to_url = hpg_resolve(shift_argument)
+        backup_id = shift_argument
       end
-
-      to_name = db[:name]
-      to_url  = db[:url]
 
       if :latest == backup_id
         backup = pgbackup_client.get_latest_backup
@@ -125,7 +117,7 @@ module Heroku::Command
         from_name = "BACKUP"
       end
 
-      message = "#{db[:pretty_name]}  <---restore---  "
+      message = "#{from_name}  <---restore---  "
       padding = " " * message.length
       display "\n#{message}#{backup_id}"
       if backup
@@ -167,7 +159,7 @@ module Heroku::Command
     protected
 
     def config_vars
-      @config_vars ||= heroku.config_vars(app)
+      @config_vars ||= api.get_config_vars(app).body
     end
 
     def pgbackup_client

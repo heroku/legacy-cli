@@ -53,15 +53,19 @@ def execute(command_line)
     stub(base).app.returns("myapp")
   end
 
-  original_stderr, original_stdout = $stderr, $stdout
+  original_stdin, original_stderr, original_stdout = $stdin, $stderr, $stdout
+
+  $stdin  = captured_stdin  = StringIO.new
   $stderr = captured_stderr = StringIO.new
   $stdout = captured_stdout = StringIO.new
+
   begin
     object.send(method)
   rescue SystemExit
   ensure
-    $stderr, $stdout = original_stderr, original_stdout
+    $stdin, $stderr, $stdout = original_stdin, original_stderr, original_stdout
   end
+
   [captured_stderr.string, captured_stdout.string]
 end
 
@@ -117,6 +121,16 @@ def stub_pg
       stubbed_pg = stub(pg)
     end
     stubbed_pg
+  end
+end
+
+def stub_pgbackups
+  @stubbed_pgbackups ||= begin
+    stubbed_pgbackups = nil
+    any_instance_of(Heroku::Client::Pgbackups) do |pgbackups|
+      stubbed_pgbackups = stub(pgbackups)
+    end
+    stubbed_pgbackups
   end
 end
 
