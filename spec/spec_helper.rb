@@ -124,6 +124,16 @@ def stub_pg
   end
 end
 
+def stub_pgbackups
+  @stubbed_pgbackups ||= begin
+    stubbed_pgbackups = nil
+    any_instance_of(Heroku::Client::Pgbackups) do |pgbackups|
+      stubbed_pgbackups = stub(pgbackups)
+    end
+    stubbed_pgbackups
+  end
+end
+
 def stub_rendezvous
   @stubbed_rendezvous ||= begin
     stubbed_rendezvous = nil

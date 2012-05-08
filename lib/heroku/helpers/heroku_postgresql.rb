@@ -26,8 +26,12 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def hpg_resolve(name, default=nil)
-    dbs  = hpg_databases
+    dbs = hpg_databases
     dbs["DATABASE"] = app_config_vars["DATABASE_URL"] if app_config_vars["DATABASE_URL"]
+    if dbs.empty?
+      error("Your app has no databases.")
+      exit(1)
+    end
 
     dbs_by_url = dbs.invert
     name = name.to_s.upcase.gsub(/_URL$/, "")

@@ -38,7 +38,7 @@ module Heroku::Command
         b = pgbackup_client.get_latest_backup
       end
       abort("No backup found.") unless b['public_url']
-      if STDOUT.isatty
+      if $stdout.isatty
         display '"'+b['public_url']+'"'
       else
         display b['public_url']
@@ -59,12 +59,13 @@ module Heroku::Command
       to_url    = nil # server will assign
       to_name   = "BACKUP"
       opts      = {:expire => extract_option("--expire")}
+      opts      = {:expire => extract_option("--expire")}
 
       backup = transfer!(from_url, from_name, to_url, to_name, opts)
 
       to_uri = URI.parse backup["to_url"]
       backup_id = to_uri.path.empty? ? "error" : File.basename(to_uri.path, '.*')
-      display "\n#{db[:pretty_name]}  ----backup--->  #{backup_id}"
+      display "\n#{to_name}  ----backup--->  #{backup_id}"
 
       backup = poll_transfer!(backup)
 
@@ -158,7 +159,7 @@ module Heroku::Command
     protected
 
     def config_vars
-      @config_vars ||= heroku.config_vars(app)
+      @config_vars ||= api.get_config_vars(app).body
     end
 
     def pgbackup_client
