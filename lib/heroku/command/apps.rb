@@ -220,7 +220,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def rename
     newname = shift_argument
     if newname.nil? || newname.empty?
-      raise(Heroku::Command::CommandFailed, "Must specify a new name.")
+      raise(Heroku::Command::CommandFailed, "Usage: heroku apps:rename NEWNAME\nMust specify a new name.")
     end
     validate_arguments!
 
