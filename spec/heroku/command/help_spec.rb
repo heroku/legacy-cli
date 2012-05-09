@@ -63,8 +63,7 @@ describe Heroku::Command::Help do
       stderr.should == <<-STDERR
  !    sudo:sandwich is not a heroku command. See `heroku help`.
 STDERR
-      # FIXME: sometimes contains "failed\n"
-      # stdout.should == ""
+      stdout.should == ""
     end
 
     it "should show help with naked -h" do

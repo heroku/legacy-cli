@@ -41,8 +41,7 @@ STDOUT
  !    Rails 3.x:
  !    rails plugin install git://github.com/heroku/plugin.git
 STDERR
-        # FIXME: sometimes stdout contains failed
-        #stdout.should == ""
+        stdout.should == ""
       end
 
     end
@@ -68,8 +67,7 @@ STDOUT
         stderr.should == <<-STDERR
  !    Plugin "plugin" not found.
 STDERR
-        # FIXME: sometimes stdout contains failed
-        #stdout.should == ""
+        stdout.should == ""
       end
 
     end

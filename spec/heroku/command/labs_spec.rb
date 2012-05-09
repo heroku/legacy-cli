@@ -46,8 +46,7 @@ STDOUT
       stderr.should == <<-STDERR
  !    Usage: heroku labs:info FEATURE
 STDERR
-      # FIXME: sometimes stdout is "failed"
-      #stdout.should == "failed"
+      stdout.should == ""
     end
 
     it "enables a feature" do
@@ -65,8 +64,7 @@ STDOUT
       stderr.should == <<-STDERR
  !    Usage: heroku labs:enable FEATURE
 STDERR
-      # FIXME: sometimes stdout is "failed"
-      #stdout.should == "failed"
+      stdout.should == ""
     end
 
     it "disables a feature" do
@@ -83,8 +81,7 @@ STDOUT
       stderr.should == <<-STDERR
  !    Usage: heroku labs:disable FEATURE
 STDERR
-      # FIXME: sometimes stdout is "failed"
-      #stdout.should == "failed"
+      stdout.should == ""
     end
   end
 end

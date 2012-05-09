@@ -106,8 +106,7 @@ STDOUT
         stderr.should == <<-STDERR
  !    Usage: heroku pg:promote DATABASE
 STDERR
-        # FIXME: sometimes contains 'failed'
-        #stdout.should == ""
+        stdout.should == ""
       end
     end
   end

@@ -34,11 +34,6 @@ module Heroku
       display "WARNING: #{message}"
     end
 
-    def error(msg)
-      $stderr.puts(format_with_bang(msg))
-      exit(1)
-    end
-
     def confirm_billing
       display
       display "This action will cause your account to be billed at the end of the month"
@@ -235,14 +230,14 @@ module Heroku
 
     def action(message, options={})
       display("#{message}... ", false)
-      Heroku::Helpers.enable_error_capture
+      Heroku::Helpers.error_with_failure = true
       ret = yield
       display((options[:success] || "done"), false)
       display(", #{@status}", false) if @status
       display
       ret
     ensure
-      Heroku::Helpers.disable_error_capture
+      Heroku::Helpers.error_with_failure = false
     end
 
     def status(message)
@@ -259,10 +254,20 @@ module Heroku
       display(format_with_bang(message), new_line)
     end
 
-    def error_with_failure(message)
-      display "failed"
+    def error(message)
+      if Heroku::Helpers.error_with_failure
+        display("failed")
+      end
       $stderr.puts(format_with_bang(message))
       exit(1)
+    end
+
+    def self.error_with_failure
+      @@capture_errors ||= false
+    end
+
+    def self.error_with_failure=(new_error_with_failure)
+      @@capture_errors = new_error_with_failure
     end
 
     def self.included_into
@@ -280,31 +285,6 @@ module Heroku
     def self.extended(base)
       extended_into << base
     end
-
-    def self.enable_error_capture
-      included_into.each do |base|
-        base.send(:alias_method, :error_without_failure, :error)
-        base.send(:alias_method, :error, :error_with_failure)
-      end
-      extended_into.each do |base|
-        class << base
-          alias_method :error_without_failure, :error
-          alias_method :error, :error_with_failure
-        end
-      end
-    end
-
-    def self.disable_error_capture
-      included_into.each do |base|
-        base.send(:alias_method, :error, :error_without_failure)
-      end
-      extended_into.each do |base|
-        class << base
-          alias_method :error, :error_without_failure
-        end
-      end
-    end
-
 
     def display_header(message="", new_line=true)
       return if message.to_s.strip == ""
