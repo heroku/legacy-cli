@@ -4,21 +4,27 @@ require "heroku/command/maintenance"
 module Heroku::Command
   describe Maintenance do
 
+    before(:each) do
+      api.post_app("name" => "myapp", "stack" => "cedar")
+    end
+
+    after(:each) do
+      api.delete_app("myapp")
+    end
+
     it "turns on maintenance mode for the app" do
-      stub_core.maintenance("myapp", :on)
       stderr, stdout = execute("maintenance:on")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Maintenance mode enabled.
+Enabling maintenance mode for myapp... done
 STDOUT
     end
 
     it "turns off maintenance mode for the app" do
-      stub_core.maintenance("myapp", :off)
       stderr, stdout = execute("maintenance:off")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Maintenance mode disabled.
+Disabling maintenance mode for myapp... done
 STDOUT
     end
 
