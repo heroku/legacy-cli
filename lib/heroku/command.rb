@@ -45,6 +45,10 @@ module Heroku
       @current_command
     end
 
+    def self.current_command=(new_current_command)
+      @current_command = new_current_command
+    end
+
     def self.current_args
       @current_args
     end

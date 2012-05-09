@@ -64,6 +64,7 @@ def execute(command_line)
   rescue SystemExit
   ensure
     $stdin, $stderr, $stdout = original_stdin, original_stderr, original_stdout
+    Heroku::Command.current_command = nil
   end
 
   [captured_stderr.string, captured_stdout.string]
