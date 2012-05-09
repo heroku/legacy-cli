@@ -224,7 +224,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
     validate_arguments!
 
-    api.put_app(app, "name" => newname)
+    action("Renaming #{app} to #{newname}") do
+      api.put_app(app, "name" => newname)
+    end
 
     app_data = api.get_app(newname).body
     hputs([ app_data["web_url"], app_data["git_url"] ].join(" | "))

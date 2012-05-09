@@ -187,6 +187,7 @@ STDOUT
             stderr, stdout = execute("apps:rename myapp2")
             stderr.should == ""
             stdout.should == <<-STDOUT
+Renaming myapp to myapp2... done
 http://myapp2.herokuapp.com/ | git@heroku.com:myapp2.git
 Don't forget to update your Git remotes on any local checkouts.
 STDOUT
