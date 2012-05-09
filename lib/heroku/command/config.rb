@@ -1,92 +1,113 @@
 require "heroku/command/base"
 
-module Heroku::Command
+# manage app config vars
+#
+class Heroku::Command::Config < Heroku::Command::Base
 
-  # manage app config vars
+  # config
   #
-  class Config < Base
+  # display the config vars for an app
+  #
+  # -s, --shell  # output config vars in shell format
+  #
+  #Examples:
+  #
+  # $ heroku config
+  # A: one
+  # B: two
+  #
+  # $ heroku config --shell
+  # A=one
+  # B=two
+  #
+  def index
+    validate_arguments!
 
-    # config
-    #
-    # display the config vars for an app
-    #
-    # -s, --shell  # output config vars in shell format
-    #
-    def index
-      shell = options[:shell]
-      vars  = heroku.config_vars(app)
-      display_vars(vars, :long => true, :shell => shell)
+    vars = api.get_config_vars(app).body
+    if vars.empty?
+      display("#{app} has no config vars.")
+    else
+      if options[:shell]
+        vars.keys.sort.each do |key|
+          display("#{key}=#{vars[key]}")
+        end
+      else
+        styled_header("Config Vars for #{app}")
+        styled_hash(vars)
+      end
+    end
+  end
+
+  # config:add KEY1=VALUE1 ...
+  #
+  # add one or more config vars
+  #
+  #Example:
+  #
+  # $ heroku config:add A=one
+  # Adding config vars and restarting myapp... done, v123
+  # A: one
+  #
+  # $ heroku config:add A=one B=two
+  # Adding config vars and restarting myapp... done, v123
+  # A: one
+  # B: two
+  #
+  def add
+    unless args.size > 0 and args.all? { |a| a.include?('=') }
+      raise(Heroku::Command::CommandFailed, "Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]")
     end
 
-    # config:add KEY1=VALUE1 ...
-    #
-    # add one or more config vars
-    #
-    def add
-      unless args.size > 0 and args.all? { |a| a.include?('=') }
-        raise CommandFailed, "Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]"
+    vars = args.inject({}) do |vars, arg|
+      key, value = arg.split('=', 2)
+      vars[key] = value
+      vars
+    end
+
+    action("Adding config vars and restarting #{app}") do
+      api.put_config_vars(app, vars)
+
+      @status = begin
+        if release = api.get_release(app, 'current').body
+          release['name']
+        end
+      rescue Heroku::API::Errors::RequestFailed => e
       end
+    end
 
-      vars = args.inject({}) do |vars, arg|
-        key, value = arg.split('=', 2)
-        vars[key] = value
-        vars
-      end
+    styled_hash(vars)
+  end
 
-      # try to get the app to fail fast
-      detected_app = app
+  alias_command "config:set", "config:add"
 
-      action("Adding config vars and restarting app") do
-        heroku.add_config_vars(detected_app, vars)
+  # config:remove KEY1 [KEY2 ...]
+  #
+  # remove a config var
+  #
+  # $ heroku config:add A=one
+  # Removing A and restarting myapp... done, v123
+  #
+  # $ heroku config:add A B
+  # Adding A and restarting myapp... done, v123
+  # Adding B and restarting myapp... done, v124
+  #
+  def remove
+    if args.empty?
+      raise(Heroku::Command::CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
+    end
+
+    args.each do |key|
+      action("Removing #{key} and restarting #{app}") do
+        api.delete_config_var(app, key)
 
         @status = begin
-          release = heroku.release(detected_app, 'current')
-          release["name"] if release
-        rescue RestClient::RequestFailed => e
-        end
-      end
-
-      display_vars(vars, :indent => 2)
-    end
-
-    alias_command "config:set", "config:add"
-
-    # config:remove KEY1 [KEY2 ...]
-    #
-    # remove a config var
-    #
-    def remove
-      raise CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]" if args.empty?
-
-      args.each do |key|
-        action("Removing #{key} and restarting app") do
-          heroku.remove_config_var(app, key)
-
-          @status = begin
-            release = heroku.release(app, 'current')
-            release["name"] if release
-          rescue RestClient::RequestFailed => e
+          if release = api.get_release(app, 'current').body
+            release['name']
           end
+        rescue Heroku::API::Errors::RequestFailed => e
         end
       end
     end
-
-    protected
-      def display_vars(vars, options={})
-        max_length = vars.map { |v| v[0].to_s.size }.max
-        vars.keys.sort.each do |key|
-          if options[:shell]
-            display "#{key}=#{vars[key]}"
-          else
-            spaces = ' ' * (max_length - key.to_s.size)
-            display "#{' ' * (options[:indent] || 0)}#{key}#{spaces} => #{format(vars[key], options)}"
-          end
-        end
-      end
-
-      def format(value, options)
-        return value if options[:long] || value.to_s.size < 36
-        value[0, 16] + '...' + value[-16, 16]
-      end
   end
+
 end
