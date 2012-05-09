@@ -5,6 +5,7 @@ module Heroku::Command
   describe Maintenance do
 
     before(:each) do
+      stub_core
       api.post_app("name" => "myapp", "stack" => "cedar")
     end
 
