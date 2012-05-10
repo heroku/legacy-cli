@@ -12,4 +12,25 @@ foo_token
 STDOUT
     end
   end
+  
+  describe "auth:whoami" do
+    it "displays the user's email address" do
+      Heroku::Auth.should_receive(:user).and_return("jebediah@heroku.com")
+      stderr, stdout = execute("auth:whoami")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+jebediah@heroku.com
+STDOUT
+    end
+
+    it "supports an alias" do
+      Heroku::Auth.should_receive(:user).and_return("quickie@heroku.com")
+      stderr, stdout = execute("whoami")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+quickie@heroku.com
+STDOUT
+    end
+  end
+
 end
