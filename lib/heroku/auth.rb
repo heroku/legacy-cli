@@ -40,7 +40,7 @@ class Heroku::Auth
 
     # just a stub; will raise if not authenticated
     def check
-      client.list
+      api.get_user
     end
 
     def default_host
@@ -63,8 +63,10 @@ class Heroku::Auth
       get_credentials[1]
     end
 
-    def api_key
-      Heroku::Client.auth(user, password)["api_key"]
+    def api_key(user = get_credentials[0], password = get_credentials[1])
+      full_host = (host =~ /^http/) ? host : "https://api.#{host}"
+      api = Heroku::API.new(:host => URI.parse(full_host).host)
+      api.post_login(user, password).body["api_key"]
     end
 
     def get_credentials    # :nodoc:
@@ -80,7 +82,7 @@ class Heroku::Auth
         netrc.delete("code.#{host}")
         netrc.save
       end
-      @client, @credentials = nil, nil
+      @api, @client, @credentials = nil, nil
     end
 
     def legacy_credentials_path
@@ -118,7 +120,7 @@ class Heroku::Auth
       else
         # convert legacy credentials to netrc
         if File.exists?(legacy_credentials_path)
-          @client = nil
+          @api, @client = nil
           @credentials = File.read(legacy_credentials_path).split("\n")
           write_credentials
           FileUtils.rm_f(legacy_credentials_path)
@@ -170,9 +172,8 @@ class Heroku::Auth
 
       print "Password (typing will be hidden): "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
-      api_key = Heroku::Client.auth(user, password)['api_key']
 
-      [user, api_key]
+      [user, api_key(user, password)]
     end
 
     def ask_for_password_on_windows
@@ -206,7 +207,7 @@ class Heroku::Auth
         @credentials = ask_for_credentials
         write_credentials
         check
-      rescue ::RestClient::Unauthorized, ::RestClient::ResourceNotFound => e
+      rescue Heroku::API::Errors::NotFound, Heroku::API::Errors::Unauthorized => e
         delete_credentials
         display "Authentication failed."
         retry if retry_login?

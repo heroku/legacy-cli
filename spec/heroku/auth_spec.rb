@@ -66,8 +66,6 @@ module Heroku
     context "API key is set via environment variable" do
       before do
         ENV['HEROKU_API_KEY'] = "secret"
-        user_info = { "api_key" => ENV['HEROKU_API_KEY'] }
-        stub_request(:post, "https://:secret@api.#{@cli.host}/login").to_return(:body => json_encode(user_info))
       end
 
       it "gets credentials from environment variables in preference to credentials file" do
@@ -80,10 +78,6 @@ module Heroku
 
       it "returns the api key as the password" do
         @cli.password.should == ENV['HEROKU_API_KEY']
-      end
-
-      it "returns the provided api key from api_key" do
-        @cli.api_key.should == ENV['HEROKU_API_KEY']
       end
 
       it "does not overwrite credentials file with environment variable credentials" do
@@ -138,7 +132,7 @@ module Heroku
       @cli.stub!(:write_credentials)
       @cli.stub!(:retry_login?).and_return(false)
       @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
-      @cli.stub!(:check) { raise RestClient::Unauthorized }
+      @cli.stub!(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       @cli.should_receive(:delete_credentials)
       lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
@@ -148,7 +142,7 @@ module Heroku
       @cli.stub!(:write_credentials)
       @cli.stub!(:delete_credentials)
       @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
-      @cli.stub!(:check) { raise RestClient::Unauthorized }
+      @cli.stub!(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       @cli.should_receive(:ask_for_credentials).exactly(3).times
       lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
