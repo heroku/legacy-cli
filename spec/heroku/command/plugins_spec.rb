@@ -22,7 +22,7 @@ module Heroku::Command
         stderr, stdout = execute("plugins:install git://github.com/heroku/plugin.git")
         stderr.should == ""
         stdout.should == <<-STDOUT
-plugin installed
+Installing plugin... done
 STDOUT
       end
 
@@ -41,7 +41,9 @@ STDOUT
  !    Rails 3.x:
  !    rails plugin install git://github.com/heroku/plugin.git
 STDERR
-        stdout.should == ""
+        stdout.should == <<-STDOUT
+Installing plugin... failed
+STDOUT
       end
 
     end
@@ -57,7 +59,7 @@ STDERR
         stderr, stdout = execute("plugins:uninstall plugin")
         stderr.should == ""
         stdout.should == <<-STDOUT
-plugin uninstalled
+Uninstalling plugin... done
 STDOUT
       end
 
@@ -67,7 +69,9 @@ STDOUT
         stderr.should == <<-STDERR
  !    Plugin "plugin" not found.
 STDERR
-        stdout.should == ""
+        stdout.should == <<-STDOUT
+Uninstalling plugin... failed
+STDOUT
       end
 
     end

@@ -9,9 +9,22 @@ module Heroku::Command
     #
     # list installed plugins
     #
+    #Example:
+    #
+    # $ heroku plugins
+    # === Installed Plugins
+    # heroku-accounts
+    #
     def index
-      ::Heroku::Plugin.list.each do |plugin|
-        display plugin
+      validate_arguments!
+
+      plugins = ::Heroku::Plugin.list
+
+      if plugins.length > 0
+        styled_header("Installed Plugins")
+        styled_array(plugins)
+      else
+        display("You have no installed plugins.")
       end
     end
 
@@ -19,17 +32,25 @@ module Heroku::Command
     #
     # install a plugin
     #
+    #Example:
+    #
+    # $ heroku plugins:install https://github.com/ddollar/heroku-accounts.git
+    # Installing heroku-accounts... done
+    #
     def install
-      plugin = Heroku::Plugin.new(args.shift)
-      if plugin.install
-        begin
-          Heroku::Plugin.load_plugin(plugin.name)
-        rescue Exception => ex
-          installation_failed(plugin, ex.message)
+      plugin = Heroku::Plugin.new(shift_argument)
+      validate_arguments!
+
+      action("Installing #{plugin.name}") do
+        if plugin.install
+          begin
+            Heroku::Plugin.load_plugin(plugin.name)
+          rescue Exception => ex
+            installation_failed(plugin, ex.message)
+          end
+        else
+          error("Could not install #{plugin.name}. Please check the URL and try again")
         end
-        display "#{plugin.name} installed"
-      else
-        error "Could not install #{plugin.name}. Please check the URL and try again"
       end
     end
 
@@ -37,12 +58,19 @@ module Heroku::Command
     #
     # uninstall a plugin
     #
+    #Example:
+    #
+    # $ heroku plugins:uninstall heroku-accounts
+    # Uninstalling heroku-accounts... done
+    #
     def uninstall
-      plugin = Heroku::Plugin.new(args.shift)
-      if plugin.uninstall
-        display("#{plugin.name} uninstalled")
-      else
-        error(%{Plugin "#{plugin.name}" not found.})
+      plugin = Heroku::Plugin.new(shift_argument)
+      validate_arguments!
+
+      action("Uninstalling #{plugin.name}") do
+        unless plugin.uninstall
+          error(%{Plugin "#{plugin.name}" not found.})
+        end
       end
     end
 
