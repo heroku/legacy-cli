@@ -6,10 +6,16 @@ if Heroku::Plugin.list.include?('heroku-accounts')
     # accounts:default
     # set a system-wide default account
     def default
-      name = args.shift
+      name = shift_argument
+      validate_arguments!
 
-      error("Please specify an account name.") unless name
-      error("That account does not exist.") unless account_exists?(name)
+      unless name
+        error("Please specify an account name.")
+      end
+
+      unless account_exists?(name)
+        error("That account does not exist.")
+      end
 
       result = %x{ git config --global heroku.account #{name} }
 
