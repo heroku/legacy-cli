@@ -12,16 +12,30 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # if QTY is not specified, display the number of web processes currently running
   #
+  #Example:
+  #
+  # $ heroku ps:dynos 3
+  # Scaling dynos... done, now running 3
+  #
   def dynos
     # deprecation notice added to v2.21.3 on 03/16/12
     display("~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`")
-    if dynos = args.shift
-      current = heroku.set_dynos(app, dynos)
-      display "#{app} now running #{quantify("dyno", current)}"
+
+    dynos = shift_argument
+    validate_arguments!
+
+    if dynos
+      action("Scaling dynos") do
+        new_dynos = api.put_dynos(app, dynos).body["dynos"]
+        status("now running #{new_dynos}")
+      end
     else
-      info = heroku.info(app)
-      raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")  if info[:stack] == "cedar"
-      display "#{app} is running #{quantify("dyno", info[:dynos])}"
+      app_data = api.get_app(app).body
+      if app_data["stack"] == "cedar"
+        raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
+      else
+        display("#{app} is running #{quantify("dyno", app_data["dynos"])}")
+      end
     end
   end
 
@@ -35,16 +49,30 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # if QTY is not specified, display the number of background processes currently running
   #
+  #Example:
+  #
+  # $ heroku ps:dynos 3
+  # Scaling workers... done, now running 3
+  #
   def workers
     # deprecation notice added to v2.21.3 on 03/16/12
     display("~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`")
-    if workers = args.shift
-      current = heroku.set_workers(app, workers)
-      display "#{app} now running #{quantify("worker", current)}"
+
+    workers = shift_argument
+    validate_arguments!
+
+    if workers
+      action("Scaling workers") do
+        new_workers = api.put_workers(app, workers).body["workers"]
+        status("now running #{new_workers}")
+      end
     else
-      info = heroku.info(app)
-      raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")  if info[:stack] == "cedar"
-      display "#{app} is running #{quantify("worker", info[:workers])}"
+      app_data = api.get_app(app).body
+      if app_data["stack"] == "cedar"
+        raise(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
+      else
+        display("#{app} is running #{quantify("worker", app_data["workers"])}")
+      end
     end
   end
 
@@ -54,22 +82,26 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # list processes for an app
   #
+  #Example:
+  #
+  # $ heroku ps
+  # === `bundle exec thin start -p $PORT`
+  # web.1: created for 30s
+  #
   def index
-    ps = heroku.ps(app)
+    validate_arguments!
+    processes = api.get_ps(app).body
 
-    objects = ps.sort_by do |p|
-      t,n = p['process'].split('.')
-      [t, n.to_i]
-    end.each do |p|
-      p['state'] << ' for ' << time_ago(p['elapsed']).gsub(/ ago/, '')
-      p['command'] = truncate(p['command'], 36)
+    processes_by_command = Hash.new {|hash,key| hash[key] = []}
+    processes.each do |process|
+      key = "`#{process["command"]}`"
+      processes_by_command[key] << "#{process["process"]}: #{process["state"]} for #{time_ago(process["elapsed"]).gsub(/ ago/, "")}"
     end
 
-    display_table(
-      objects,
-      ['process', 'state', 'command'],
-      ['Process', 'State', 'Command']
-    )
+    processes_by_command.keys.sort.each do |key|
+      styled_header(key)
+      styled_array(processes_by_command[key])
+    end
   end
 
   # ps:restart [PROCESS]
@@ -78,9 +110,23 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # if PROCESS is not specified, restarts all processes on the app
   #
+  #Examples:
+  #
+  # $ heroku ps:restart web.1
+  # Restarting web.1 process... done
+  #
+  # $ heroku ps:restart web
+  # Restarting web processes... done
+  #
+  # $ heroku ps:restart
+  # Restarting processes... done
+  #
   def restart
-    message, options = case args.first
-    when NilClass then
+    process = shift_argument
+    validate_arguments!
+
+    message, options = case process
+    when NilClass
       ["Restarting processes", {}]
     when /.+\..+/
       ps = args.first
@@ -89,8 +135,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
       type = args.first
       ["Restarting #{type} processes", { :type => type }]
     end
+
     action(message) do
-      heroku.ps_restart(app, options)
+      api.post_ps_restart(app, options)
     end
   end
 
@@ -100,24 +147,29 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # scale processes by the given amount
   #
-  # Example: heroku ps:scale web=3 worker+1
+  #Examples:
+  #
+  # $ heroku ps:scale web=3 worker+1
+  # Scaling web processes... done, now running 3
+  # Scaling worker processes... done, now running 1
   #
   def scale
-    current_process = nil
-    changes = args.inject({}) do |hash, process_amount|
-      if process_amount =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
-        hash[$1] = $2
+    changes = {}
+    args.each do |arg|
+      if arg =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
+        changes[$1] = $2
       end
-      hash
     end
 
-    error "Usage: heroku ps:scale web=2 worker+1" if changes.empty?
+    if changes.empty?
+      error("Usage: heroku ps:scale web=2 worker+1")
+    end
 
     changes.keys.sort.each do |process|
       amount = changes[process]
       action("Scaling #{process} processes") do
         amount.gsub!("=", "")
-        new_qty = heroku.ps_scale(app, :type => process, :qty => amount)
+        new_qty = api.post_ps_scale(app, process, amount).body
         status("now running #{new_qty}")
       end
     end
@@ -129,22 +181,31 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # stop an app process
   #
-  # Example: heroku stop run.3
+  # Examples:
+  #
+  # $ heroku stop run.3
+  # Stopping run.3 process... done
+  #
+  # $ heroku stop run
+  # Stopping run processes... done
   #
   def stop
-    message, options =
-    if (args.first =~ /.+\..+/)
+    process = shift_argument
+    validate_arguments!
+
+    message, options = case process
+    when NilClass
+      error("Usage: heroku ps:stop PROCESS")
+    when /.+\..+/
       ps = args.first
       ["Stopping #{ps} process", { :ps => ps }]
-    elsif args.first
+    else
       type = args.first
       ["Stopping #{type} processes", { :type => type }]
-    else
-      error "Usage: heroku ps:stop PROCESS"
     end
 
     action(message) do
-      heroku.ps_stop(app, options)
+      api.post_ps_stop(app, options)
     end
   end
 
