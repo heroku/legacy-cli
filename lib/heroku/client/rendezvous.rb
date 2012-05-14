@@ -67,9 +67,16 @@ class Heroku::Client::Rendezvous
         end
       end
     rescue Interrupt
-      ssl_socket.write("\003")
+      ssl_socket.write(3.chr)
       ssl_socket.flush
       retry
+    rescue SignalException => e
+      if Signal.list["QUIT"] == e.signo
+        ssl_socket.write(28.chr)
+        ssl_socket.flush
+        retry
+      end
+      raise
     rescue Errno::EIO
     end
   end
