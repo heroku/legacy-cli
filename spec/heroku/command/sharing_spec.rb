@@ -4,52 +4,54 @@ require "heroku/command/sharing"
 module Heroku::Command
   describe Sharing do
 
+    before(:each) do
+      stub_core
+      api.post_app("name" => "myapp")
+    end
+
+    after(:each) do
+      api.delete_app("myapp")
+    end
+
     context("list") do
 
-      it "lists message with no collaborators" do
-        stub_core.list_collaborators.returns([])
-        stderr, stdout = execute("sharing")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
-myapp has no collaborators
-STDOUT
-      end
-
       it "lists collaborators" do
-        stub_core.list_collaborators.returns([{:email => "joe@example.com"}])
+        api.post_collaborator("myapp", "collaborator@example.com")
         stderr, stdout = execute("sharing")
         stderr.should == ""
         stdout.should == <<-STDOUT
-joe@example.com
+=== myapp Collaborators
+collaborator@example.com
+email@example.com
+
 STDOUT
       end
 
     end
 
     it "adds collaborators with default access to view only" do
-      stub_core.add_collaborator("myapp", "joe@example.com")
-      stderr, stdout = execute("sharing:add joe@example.com")
+      stderr, stdout = execute("sharing:add collaborator@example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-joe@example.com added to myapp collaborators
+Adding collaborator@example.com to myapp collaborators... done
 STDOUT
     end
 
     it "removes collaborators" do
-      stub_core.remove_collaborator("myapp", "joe@example.com")
-      stderr, stdout = execute("sharing:remove joe@example.com")
+      api.post_collaborator("myapp", "collaborator@example.com")
+      stderr, stdout = execute("sharing:remove collaborator@example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-joe@example.com removed from myapp collaborators
+Removing collaborator@example.com from myapp collaborators... done
 STDOUT
     end
 
     it "transfers ownership" do
-      stub_core.update("myapp", :transfer_owner => "joe@example.com")
-      stderr, stdout = execute("sharing:transfer joe@example.com")
+      api.post_collaborator("myapp", "collaborator@example.com")
+      stderr, stdout = execute("sharing:transfer collaborator@example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-myapp ownership transfered. New owner is joe@example.com
+Transferring myapp to collaborator@example.com... done
 STDOUT
     end
   end

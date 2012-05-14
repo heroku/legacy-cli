@@ -334,16 +334,17 @@ module Heroku
     # line_formatter(["foo", "barbaz"], ["bar", "qux"]) # => "%-3s   %-6s"
     #
     def line_formatter(array)
-      cols = []
-      array.each do |item|
-        case item
-        when Array then
-          item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, val.length].max }
-        else
-          cols[0] = item.to_s.length
+      if array.any? {|item| item.is_a?(Array)}
+        cols = []
+        array.each do |item|
+          if item.is_a?(Array)
+            item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, val.length].max }
+          end
         end
+        cols.map { |col| "%-#{col}s" }.join("   ")
+      else
+        "%s"
       end
-      cols.map { |col| "%-#{col}s" }.join("   ")
     end
 
     def styled_array(array)
