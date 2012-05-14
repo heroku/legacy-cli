@@ -3,6 +3,11 @@ require "heroku/version"
 
 # display version
 #
+#Example:
+#
+# $ heroku version
+# v1.2.3
+#
 class Heroku::Command::Version < Heroku::Command::Base
 
   # version
@@ -10,7 +15,7 @@ class Heroku::Command::Version < Heroku::Command::Base
   # show heroku client version
   #
   def index
-    display Heroku::VERSION
+    display(Heroku::VERSION)
   end
 
 end
