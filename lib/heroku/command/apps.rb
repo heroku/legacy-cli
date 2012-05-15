@@ -256,6 +256,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def open
     validate_arguments!
+
     app_data = api.get_app(app).body
     url = app_data["web_url"]
     hputs("Opening #{url}")

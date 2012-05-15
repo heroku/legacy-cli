@@ -46,18 +46,35 @@ STDOUT
     context "index" do
       it "requests the info from the server" do
         stub_pg.get_database.returns(:info => [
-          {'name' => "State", 'value' => "available"},
-          {'name' => "whatever", 'values' => ['one', 'eh']}
+          {"name" => "Conn Info", "values"=>["\"host=ec2-012-34-567-890.compute-1.amazonaws.com", "port=5432 dbname=abcdefghijklmn", "user=abcdefghijklm sslmode=require", "password=abcdefghijklmnopqrstuvwxyz0\""]},
+          {"name"=>"Data Size", "values"=>["1 MB"]},
+          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Followers", "values"=>[], "resolve_db_name"=>true},
+          {"name"=>"Forks", "values"=>[], "resolve_db_name"=>true},
+          {"name"=>"Maintenance", "values"=>["not required"]},
+          {"name"=>"PG Version", "values"=>["9.0.0"]},
+          {"name"=>"Plan", "values"=>["Ronin"]},
+          {"name"=>"Status", "values"=>["available"]},
+          {"name"=>"Tables", "values"=>[1]}
         ])
 
         stderr, stdout = execute("pg")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === HEROKU_POSTGRESQL_RONIN
-State:    available
-Whatever: eh
-          one
+Conn Info:   
+  "host=ec2-012-34-567-890.compute-1.amazonaws.com
+  port=5432 dbname=abcdefghijklmn
+  user=abcdefghijklm sslmode=require
+  password=abcdefghijklmnopqrstuvwxyz0"
 
+Created:     2011-12-13 00:00 UTC
+Data Size:   1 MB
+Maintenance: not required
+PG Version:  9.0.0
+Plan:        Ronin
+Status:      available
+Tables:      1
 
 STDOUT
       end
@@ -66,18 +83,35 @@ STDOUT
     context "info" do
       it "requests the info from the server" do
         stub_pg.get_database.returns(:info => [
-          {'name' => "State", 'value' => "available"},
-          {'name' => "whatever", 'values' => ['one', 'eh']}
+          {"name" => "Conn Info", "values"=>["\"host=ec2-012-34-567-890.compute-1.amazonaws.com", "port=5432 dbname=abcdefghijklmn", "user=abcdefghijklm sslmode=require", "password=abcdefghijklmnopqrstuvwxyz0\""]},
+          {"name"=>"Data Size", "values"=>["1 MB"]},
+          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Followers", "values"=>[], "resolve_db_name"=>true},
+          {"name"=>"Forks", "values"=>[], "resolve_db_name"=>true},
+          {"name"=>"Maintenance", "values"=>["not required"]},
+          {"name"=>"PG Version", "values"=>["9.0.0"]},
+          {"name"=>"Plan", "values"=>["Ronin"]},
+          {"name"=>"Status", "values"=>["available"]},
+          {"name"=>"Tables", "values"=>[1]}
         ])
 
         stderr, stdout = execute("pg:info RONIN")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === HEROKU_POSTGRESQL_RONIN
-State:    available
-Whatever: eh
-          one
+Conn Info:   
+  "host=ec2-012-34-567-890.compute-1.amazonaws.com
+  port=5432 dbname=abcdefghijklmn
+  user=abcdefghijklm sslmode=require
+  password=abcdefghijklmnopqrstuvwxyz0"
 
+Created:     2011-12-13 00:00 UTC
+Data Size:   1 MB
+Maintenance: not required
+PG Version:  9.0.0
+Plan:        Ronin
+Status:      available
+Tables:      1
 
 STDOUT
       end

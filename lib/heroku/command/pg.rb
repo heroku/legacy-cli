@@ -3,6 +3,7 @@ require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
 # manage heroku-postgresql databases
+#
 class Heroku::Command::Pg < Heroku::Command::Base
 
   include Heroku::Helpers::HerokuPostgresql
@@ -12,6 +13,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # List databases for an app
   #
   def index
+    validate_arguments!
+
     hpg_databases_with_info.keys.sort.each do |name|
       display_db name, hpg_databases_with_info[name]
     end
@@ -24,7 +27,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # If DATABASE is not specified, displays all databases
   #
   def info
-    if db = shift_argument
+    db = shift_argument
+    validate_arguments!
+
+    if db
       name, url = hpg_resolve(db)
       display_db name, hpg_info(url)
     else
@@ -39,8 +45,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Sets DATABASE as your DATABASE_URL
   #
   def promote
-    db = shift_argument
-    error "Usage: heroku pg:promote DATABASE" unless db
+    unless db = shift_argument
+      error("Usage: heroku pg:promote DATABASE")
+    end
+    validate_arguments!
 
     if URI.parse(db).scheme
       url = db
@@ -63,6 +71,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def psql
     name, url = hpg_resolve(shift_argument, "DATABASE_URL")
+    validate_arguments!
+
     uri = URI.parse(url)
     begin
       ENV["PGPASSWORD"] = uri.password
@@ -80,12 +90,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Delete all data in DATABASE
   #
   def reset
-    db = shift_argument
-    error "Usage: pg:reset DATABASE" unless db
+    unless db = shift_argument
+      error("Usage: pg:reset DATABASE")
+    end
+    validate_arguments!
+
     name, url = hpg_resolve(db)
     return unless confirm_command
 
-    action "Resetting #{name}" do
+    action("Resetting #{name}") do
       hpg_client(url).reset
     end
   end
@@ -95,12 +108,17 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # stop a replica from following and make it a read/write database
   #
   def unfollow
-    db = shift_argument
-    error "Usage: heroku pg:unfollow REPLICATE" unless db
+    unless db = shift_argument
+      error("Usage: heroku pg:unfollow REPLICA")
+    end
+    validate_arguments!
+
     replica_name, replica_url = hpg_resolve(db)
     replica = hpg_info(replica_url)
 
-    error "#{replica_name} is not following another database." unless replica[:following]
+    unless replica[:following]
+      error("#{replica_name} is not following another database.")
+    end
     origin_url = replica[:following]
     origin_name = database_name_from_url(origin_url)
 
@@ -108,7 +126,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     output_with_bang "follow #{origin_name}. This cannot be undone."
     return unless confirm_command
 
-    action "Unfollowing" do
+    action "Unfollowing #{db}" do
       hpg_client(origin_url).unfollow
     end
   end
@@ -120,7 +138,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to all databases if no DATABASE is specified
   #
   def wait
-    if db = shift_argument
+    db = shift_argument
+    validate_arguments!
+
+    if db
       wait_for hpg_info(hpg_resolve(db).last)
     else
       hpg_databases_with_info.keys.sort.each do |name|
@@ -136,8 +157,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #   --reset  # Reset credentials on the specified database.
   #
   def credentials
-    db = shift_argument
-    error "Usage: heroku pg:credentials DATABASE" unless db
+    unless db = shift_argument
+      error("Usage: heroku pg:credentials DATABASE")
+    end
+    validate_arguments!
+
     name, url = hpg_resolve(db)
 
     if options[:reset]
@@ -161,9 +185,11 @@ private
 
   def display_db(name, db)
     pretty_name = name
-    pretty_name += " (DATABASE_URL)" if db[:url] == app_config_vars["DATABASE_URL"]
+    if db[:url] == app_config_vars["DATABASE_URL"]
+      pretty_name += " (DATABASE_URL)"
+    end
 
-    styled_header pretty_name
+    styled_header(pretty_name)
     styled_hash(db[:info].inject({}) do |hash, item|
       hash.update(item["name"] => hpg_info_display(item))
     end)
@@ -189,8 +215,16 @@ private
 
   def hpg_info_display(item)
     item["values"] = [item["value"]] if item["value"]
-    item["values"].map do |value|
-      item["resolve_db_name"] ? database_name_from_url(value) : value
+    if item["name"] == "Conn Info"
+      "\n  #{item["values"].join("\n  ")}\n\n"
+    else
+      item["values"].map do |value|
+        if item["resolve_db_name"]
+          database_name_from_url(value)
+        else
+          value
+        end
+      end
     end
   end
 
