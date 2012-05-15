@@ -54,6 +54,13 @@ API
 
 Heroku API documentation can be found at <https://api-docs.heroku.com>
 
+Development
+-----------
+
+If you're working on the CLI and you can smoke-test your changes:
+
+    $ bundle exec heroku
+
 Meta
 ----
 
