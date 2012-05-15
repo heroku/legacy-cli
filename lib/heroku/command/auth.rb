@@ -34,5 +34,13 @@ class Heroku::Command::Auth < Heroku::Command::Base
     display Heroku::Auth.api_key
   end
 
+  # auth:whoami
+  #
+  # display your heroku email address
+  #
+  def whoami
+    display Heroku::Auth.user
+  end
+
 end
 
