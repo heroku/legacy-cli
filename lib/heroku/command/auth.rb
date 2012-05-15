@@ -41,8 +41,6 @@ class Heroku::Command::Auth < Heroku::Command::Base
   def whoami
     display Heroku::Auth.user
   end
-  
-  alias_command "whoami", "auth:whoami"
 
 end
 
