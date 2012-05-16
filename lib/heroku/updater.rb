@@ -30,13 +30,13 @@ module Heroku
       Dir.mktmpdir do |dir|
         Dir.chdir(dir) do
           File.open("heroku.zip", "wb") do |file|
-            file.print RestClient.get zip_url
+            file.print(RestClient.get(zip_url))
           end
 
           Zip::ZipFile.open("heroku.zip") do |zip|
             zip.each do |entry|
               target = File.join(updated_client_path, entry.to_s)
-              FileUtils.mkdir_p File.dirname(target)
+              FileUtils.mkdir_p(File.dirname(target))
               zip.extract(entry, target) { true }
             end
           end

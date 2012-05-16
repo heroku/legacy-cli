@@ -15,8 +15,10 @@ module Heroku::Command
         error message
       end
 
-      action("Updating to latest client") do
+      action("Updating from #{Heroku::VERSION}") do
         Heroku::Updater.update
+        /VERSION = "([^"]+)"/ =~ File.read(File.join(Heroku::Updater.updated_client_path, "lib/heroku/version.rb"))
+        status("updated to #{$1}")
       end
     end
 
