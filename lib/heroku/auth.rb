@@ -16,6 +16,9 @@ class Heroku::Auth
         full_host = (host =~ /^http/) ? host : "https://api.#{host}"
         Heroku::API.new(
           :api_key  => password,
+          :headers  => {
+            'User-Agent' => "heroku-gem/#{Heroku::VERSION}"
+          },
           :host     => URI.parse(full_host).host
         )
       end
