@@ -130,29 +130,29 @@ module Heroku::Command
 
     def parse_taps_opts
       opts = {}
-      opts[:default_chunksize] = extract_option("--chunksize") || 1000
+      opts[:default_chunksize] = options[:chunksize] || 1000
       opts[:default_chunksize] = opts[:default_chunksize].to_i rescue 1000
 
-      if filter = extract_option("--filter")
+      if filter = options[:filter]
         opts[:table_filter] = filter
-      elsif tables = extract_option("--tables")
+      elsif tables = options[:tables]
         r_tables = tables.split(",").collect { |t| "^#{t.strip}$" }
         opts[:table_filter] = "(#{r_tables.join("|")})"
       end
 
-      if extract_option("--disable-compression")
+      if options[:'disable-compression']
         opts[:disable_compression] = true
       end
 
-      if excluded_tables = extract_option("--exclude")
+      if excluded_tables = options[:exclude]
         opts[:exclude_tables] = excluded_tables
       end
 
-      if resume_file = extract_option("--resume")
+      if resume_file = options[:resume]
         opts[:resume_filename] = resume_file
       end
 
-      opts[:indexes_first] = !extract_option("--indexes-last")
+      opts[:indexes_first] = !options[:'indexes-last']
 
       opts[:database_url] = args.detect { |a| URI.parse(a).scheme } rescue nil
 
@@ -162,7 +162,7 @@ module Heroku::Command
       end
       raise(CommandFailed, "Invalid database url") if opts[:database_url] == ''
 
-      if extract_option("--debug")
+      if options[:debug]
         Taps.log.level = Logger::DEBUG
       end
 

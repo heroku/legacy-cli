@@ -66,8 +66,8 @@ module Heroku::Command
 
       to_url    = nil # server will assign
       to_name   = "BACKUP"
-      opts      = {:expire => extract_option("--expire")}
-      opts      = {:expire => extract_option("--expire")}
+
+      opts      = {:expire => options[:expire]}
 
       backup = transfer!(from_url, from_name, to_url, to_name, opts)
 

@@ -53,7 +53,7 @@ module Heroku
     def confirm_command(app_to_confirm = app, message=nil)
       raise(Heroku::Command::CommandFailed, "No app specified.\nRun this command from app folder or set it adding --app <app name>") unless app_to_confirm
 
-      if respond_to?(:extract_option) && confirmed_app = extract_option('--confirm', false)
+      if confirmed_app = options[:confirm]
         unless confirmed_app == app_to_confirm
           raise(Heroku::Command::CommandFailed, "Confirmed app #{confirmed_app} did not match the selected app #{app_to_confirm}.")
         end

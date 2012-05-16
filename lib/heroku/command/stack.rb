@@ -12,7 +12,7 @@ module Heroku::Command
     # --all  # include deprecated stacks
     #
     def index
-      include_deprecated = true if extract_option("--all")
+      include_deprecated = true if options[:all]
 
       list = heroku.list_stacks(app, :include_deprecated => include_deprecated)
       lines = list.map do |stack|

@@ -156,13 +156,6 @@ protected
     Heroku::Command.current_command
   end
 
-  def extract_option(name, default=true)
-    key = name.gsub("--", "").to_sym
-    return unless options[key]
-    value = options[key] || default
-    block_given? ? yield(value) : value
-  end
-
   def invalid_arguments
     Heroku::Command.invalid_arguments
   end

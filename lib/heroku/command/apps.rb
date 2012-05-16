@@ -165,17 +165,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # $ heroku apps:create myapp-staging --remote staging
   #
   def create
-    remote  = extract_option('--remote', 'heroku')
-    stack   = extract_option('--stack', 'aspen-mri-1.8.6')
-    timeout = extract_option('--timeout', 30).to_i
     name    = shift_argument
     validate_arguments!
 
-    info    = api.post_app({ "name" => name, "stack" => stack }).body
+    info    = api.post_app({ "name" => name, "stack" => options[:stack] }).body
     hprint("Creating #{info["name"]}...")
     begin
       if info["create_status"] == "creating"
-        Timeout::timeout(timeout) do
+        Timeout::timeout(options[:timeout].to_i) do
           loop do
             break if heroku.create_complete?(info["name"])
             hprint(".")
@@ -202,7 +199,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       hputs("Timed Out! Check heroku status for known issues.")
     end
 
-    create_git_remote(remote || "heroku", info["git_url"])
+    create_git_remote(options[:remote] || "heroku", info["git_url"])
   end
 
   alias_command "create", "apps:create"

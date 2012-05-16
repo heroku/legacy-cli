@@ -84,7 +84,7 @@ STDOUT
         from_name, from_url = "FROM_NAME", "postgres://from/bar"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
-        @pgbackups.stub!(:extract_option).with("--expire").and_return(true)
+        @pgbackups.stub!(:options).and_return({:expire => true})
         @pgbackups.stub!(:hpg_resolve).and_return([from_name, from_url])
         @pgbackups.stub!(:transfer!).with(from_url, from_name, nil, "BACKUP", {:expire => true}).and_return(backup_obj)
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
