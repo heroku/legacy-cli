@@ -93,15 +93,12 @@ STDOUT
       end
 
       it "destroys no backup without a name" do
-        @pgbackups.stub!(:args).and_return([])
-
-        fake_client = mock("pgbackups_client")
-        fake_client.should_not_receive(:delete_backup)
-        @pgbackups.should_not_receive(:pgbackup_client).and_return(fake_client)
-
-        @pgbackups.stub!(:abort).and_raise(SystemExit)
-
-        lambda { @pgbackups.destroy }.should raise_error SystemExit
+        stub_core
+        stderr, stdout = execute("pgbackups:destroy")
+        stderr.should == <<-STDERR
+ !    Usage: heroku pgbackups:destroy BACKUP_ID
+STDERR
+        stdout.should == ""
       end
 
       it "destroys a backup" do
@@ -112,7 +109,7 @@ STDOUT
         stderr, stdout = execute("pgbackups:destroy b001")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Backup b001 destroyed.
+Destroying b001... done
 STDOUT
       end
 

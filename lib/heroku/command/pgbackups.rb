@@ -14,6 +14,8 @@ module Heroku::Command
     # list captured backups
     #
     def index
+      validate_arguments!
+
       backups = []
       pgbackup_client.get_transfers.each { |t|
         next unless backup_types.member?(t['to_name']) && !t['error_at'] && !t['destroyed_at']
@@ -32,12 +34,17 @@ module Heroku::Command
     # get a temporary URL for a backup
     #
     def url
-      if name = args.shift
+      name = shift_argument
+      validate_arguments!
+
+      if name
         b = pgbackup_client.get_backup(name)
       else
         b = pgbackup_client.get_latest_backup
       end
-      abort("No backup found.") unless b['public_url']
+      unless b['public_url']
+        error("No backup found.")
+      end
       if $stdout.isatty
         display '"'+b['public_url']+'"'
       else
@@ -55,6 +62,7 @@ module Heroku::Command
     #
     def capture
       from_name, from_url = hpg_resolve(shift_argument, "DATABASE_URL")
+      validate_arguments!
 
       to_url    = nil # server will assign
       to_name   = "BACKUP"
@@ -143,16 +151,16 @@ module Heroku::Command
     # destroys a backup
     #
     def destroy
-      name = args.shift
-      abort("Backup name required") unless name
+      unless name = shift_argument
+        error("Usage: heroku pgbackups:destroy BACKUP_ID")
+      end
       backup = pgbackup_client.get_backup(name)
-      abort("Backup #{name} already destroyed.") if backup["destroyed_at"]
+      if backup["destroyed_at"]
+        error("Backup #{name} already destroyed.")
+      end
 
-      result = pgbackup_client.delete_backup(name)
-      if result
-        display("Backup #{name} destroyed.")
-      else
-        abort("Error deleting backup #{name}.")
+      action("Destroying #{name}") do
+        pgbackup_client.delete_backup(name)
       end
     end
 
