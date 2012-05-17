@@ -1,3 +1,8 @@
+2.25.1 05/17/2012
+=================
+
+improved isolation of the windows toolbelt ruby install
+
 2.25.0 04/24/2012
 =================
 
