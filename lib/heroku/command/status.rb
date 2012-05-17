@@ -4,12 +4,15 @@ require "heroku/command/base"
 #
 class Heroku::Command::Status < Heroku::Command::Base
 
+
+
   # status
   #
   # display current status of Heroku platform
   #
   def index
-    status = json_decode(heroku.get("https://status.heroku.com/status.json"))
+    heroku_host = ENV['HEROKU_HOST'] || "heroku.com"
+    status = json_decode(heroku.get("https://status.#{heroku_host}/status.json"))
 
     display('')
     if status.values.all? {|value| value == 'green'}
@@ -18,7 +21,7 @@ class Heroku::Command::Status < Heroku::Command::Base
       status.each do |key, value|
         display("#{key}: #{value}")
       end
-      response = heroku.xml(heroku.get("https://status.heroku.com/feed"))
+      response = heroku.xml(heroku.get("https://status.#{heroku_host}/feed"))
       entry = response.elements.to_a("//entry").first
       display('')
       display(entry.elements['title'].text)
