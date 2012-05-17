@@ -8,6 +8,14 @@ class Heroku::Command::Auth < Heroku::Command::Base
   #
   # log in with your heroku credentials
   #
+  #Example:
+  #
+  # $ heroku auth:login
+  # Enter your Heroku credentials:
+  # Email: email@example.com
+  # Password (typing will be hidden):
+  # Authentication successful.
+  #
   def login
     Heroku::Auth.login
     display "Authentication successful."
@@ -18,6 +26,11 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # auth:logout
   #
   # clear local authentication credentials
+  #
+  #Example:
+  #
+  # $ heroku auth:logout
+  # Local credentials cleared.
   #
   def logout
     Heroku::Auth.logout
@@ -30,6 +43,11 @@ class Heroku::Command::Auth < Heroku::Command::Base
   #
   # display your api token
   #
+  #Example:
+  #
+  # $ heroku auth:token
+  # ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD
+  #
   def token
     display Heroku::Auth.api_key
   end
@@ -37,6 +55,11 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # auth:whoami
   #
   # display your heroku email address
+  #
+  #Example:
+  #
+  # $ heroku auth:whoami
+  # email@example.com
   #
   def whoami
     display Heroku::Auth.user
