@@ -17,6 +17,8 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # Authentication successful.
   #
   def login
+    validate_arguments!
+
     Heroku::Auth.login
     display "Authentication successful."
   end
@@ -33,6 +35,8 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # Local credentials cleared.
   #
   def logout
+    validate_arguments!
+
     Heroku::Auth.logout
     display "Local credentials cleared."
   end
@@ -49,6 +53,8 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD
   #
   def token
+    validate_arguments!
+
     display Heroku::Auth.api_key
   end
 
@@ -62,6 +68,8 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # email@example.com
   #
   def whoami
+    validate_arguments!
+
     display Heroku::Auth.user
   end
 

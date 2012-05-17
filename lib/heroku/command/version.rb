@@ -15,6 +15,8 @@ class Heroku::Command::Version < Heroku::Command::Base
   # v1.2.3
   #
   def index
+    validate_arguments!
+
     display(Heroku::VERSION)
   end
 

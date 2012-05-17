@@ -15,6 +15,8 @@ class Heroku::Command::Update < Heroku::Command::Base
   # Updating from v1.2.3... done, updated to v2.3.4
   #
   def index
+    validate_arguments!
+
     if message = Heroku::Updater.disable
       error message
     end
@@ -34,6 +36,8 @@ class Heroku::Command::Update < Heroku::Command::Base
   # Updating from v1.2.3... done, updated to v2.3.4.pre
   #
   def beta
+    validate_arguments!
+
     action("Updating from #{Heroku::VERSION}") do
       Heroku::Updater.update(true)
       /VERSION = "([^"]+)"/ =~ File.read(File.join(Heroku::Updater.updated_client_path, "lib/heroku/version.rb"))
