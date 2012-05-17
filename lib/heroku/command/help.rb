@@ -13,6 +13,33 @@ class Heroku::Command::Help < Heroku::Command::Base
   #
   # list available commands or display help for a specific command
   #
+  #Examples:
+  #
+  # $ heroku help
+  # Usage: heroku COMMAND [--app APP] [command-specific-options]
+  #
+  # Primary help topics, type "heroku help TOPIC" for more details:
+  #
+  #   addons    #  manage addon resources
+  #   apps      #  manage apps (create, destroy)
+  #   ...
+  #
+  # Additional topics:
+  #
+  #   account      #  manage heroku account options
+  #   accounts     #  manage multiple heroku accounts
+  #   ...
+  #
+  # $ heroku help apps:create
+  # Usage: heroku apps:create [NAME]
+  #
+  #  create a new app
+  #
+  #      --addons ADDONS        # a comma-delimited list of addons to install
+  #  -b, --buildpack BUILDPACK  # a buildpack url to use for this app
+  #  -r, --remote REMOTE        # the git remote to create, default "heroku"
+  #  -s, --stack STACK          # the stack on which to create the app
+  #
   def index
     if command = args.shift
       help_for_command(command)
