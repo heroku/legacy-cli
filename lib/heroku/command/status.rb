@@ -16,7 +16,7 @@ class Heroku::Command::Status < Heroku::Command::Base
 
     display('')
     if status.values.all? {|value| value == 'green'}
-      display("All Systems Go: No known issues at this time.")
+      display("No known issues at this time.")
     else
       status.each do |key, value|
         display("#{key}: #{value}")
