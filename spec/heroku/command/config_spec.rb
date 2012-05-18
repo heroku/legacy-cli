@@ -13,13 +13,13 @@ module Heroku::Command
     end
 
     it "shows all configs" do
-      api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two' })
+      api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => 'two' })
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
 === Config Vars for myapp
-A: one
-B: two
+BAZ_QUX: two
+FOO_BAR: one
 STDOUT
     end
 
@@ -46,7 +46,7 @@ STDOUT
     context("add") do
 
       it "sets config vars" do
-        stderr, stdout = execute("config:add a=1 b=2")
+        stderr, stdout = execute("config:add A=1 B=2")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Adding config vars and restarting myapp... done, v2
@@ -56,7 +56,7 @@ B: 2
       end
 
       it "allows config vars with = in the value" do
-        stderr, stdout = execute("config:add a=b=c")
+        stderr, stdout = execute("config:add A=b=c")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Adding config vars and restarting myapp... done, v2
