@@ -1,4 +1,3 @@
-require "launchy"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
@@ -124,6 +123,7 @@ module Heroku::Command
       when 1 then
         addon_to_open = matches.first
         action("Opening #{addon_to_open} for #{app}") do
+          require("launchy")
           Launchy.open("https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}")
         end
       else
