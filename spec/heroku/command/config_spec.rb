@@ -49,7 +49,7 @@ STDOUT
         stderr, stdout = execute("config:add A=1 B=2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Adding config vars and restarting myapp... done, v2
+Adding config vars and restarting myapp... done, v1
 A: 1
 B: 2
       STDOUT
@@ -59,7 +59,7 @@ B: 2
         stderr, stdout = execute("config:add A=b=c")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Adding config vars and restarting myapp... done, v2
+Adding config vars and restarting myapp... done, v1
 A: b=c
 STDOUT
       end
@@ -75,23 +75,22 @@ STDOUT
       context "when one key is provided" do
 
         it "removes a single key" do
-          stderr, stdout = execute("config:remove a")
+          stderr, stdout = execute("config:remove A")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Removing a and restarting myapp... done, v2
+Removing A and restarting myapp... done, v1
 STDOUT
         end
       end
 
       context "when more than one key is provided" do
-        let(:args) { ['a', 'b'] }
 
         it "removes all given keys" do
-          stderr, stdout = execute("config:remove a b")
+          stderr, stdout = execute("config:remove A B")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Removing a and restarting myapp... done, v2
-Removing b and restarting myapp... done, v2
+Removing A and restarting myapp... done, v1
+Removing B and restarting myapp... done, v2
 STDOUT
         end
       end

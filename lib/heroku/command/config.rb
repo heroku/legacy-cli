@@ -55,7 +55,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   def add
     unless args.size > 0 and args.all? { |a| a.include?('=') }
-      raise(Heroku::Command::CommandFailed, "Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]")
+      error("Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]")
     end
 
     vars = args.inject({}) do |vars, arg|
