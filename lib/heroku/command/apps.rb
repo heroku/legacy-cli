@@ -21,19 +21,19 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def index
     validate_arguments!
     apps = api.get_apps.body
-    if apps.length > 0
+    unless apps.empty?
       my_apps, collaborated_apps = apps.partition do |app|
         app["owner_email"] == heroku.user
       end
 
-      if my_apps.length > 0
-        styled_header "My Apps"
-        styled_array my_apps.map { |app| app["name"] }
+      unless my_apps.empty?
+        styled_header("My Apps")
+        styled_array(my_apps.map { |app| app["name"] })
       end
 
-      if collaborated_apps.length > 0
-        styled_header "Collaborated Apps"
-        styled_array collaborated_apps.map { |app| [app["name"], app["owner_email"]] }
+      unless collaborated_apps.empty?
+        styled_header("Collaborated Apps")
+        styled_array(collaborated_apps.map { |app| [app["name"], app["owner_email"]] })
       end
     else
       display("You have no apps.")
@@ -91,7 +91,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
     else
       data = {}
 
-      data["Addons"] = addons_data
+      unless addons_data.empty?
+        data["Addons"] = addons_data
+      end
+
       data["Collaborators"] = collaborators_data
 
       if app_data["create_status"] && app_data["create_status"] != "complete"

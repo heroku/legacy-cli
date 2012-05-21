@@ -1,90 +1,123 @@
 require "heroku/command/base"
 
-module Heroku::Command
+class Heroku::Command::Releases < Heroku::Command::Base
 
-  # view release history of an app
+  # releases
   #
-  class Releases < Base
+  # list releases
+  #
+  #Example:
+  #
+  # $ heroku releases
+  # === myapp Releases
+  # v1 Config add FOO_BAR by email@example.com 0s ago
+  # v2 Config add BAR_BAZ by email@example.com 0s ago
+  # v3 Config add BAZ_QUX by email@example.com 0s ago
+  #
+  def index
+    validate_arguments!
 
-    # releases
-    #
-    # list releases
-    #
-    def index
-      releases = heroku.releases(app)
+    releases_data = api.get_releases(app).body.sort_by do |release|
+      release["name"][1..-1].to_i
+    end.slice(0, 15)
 
-      objects = []
-      releases.reverse.slice(0, 15).sort_by do |release|
-        release["name"]
-      end.sort_by {|release| release["name"][1..-1].to_i}.reverse.each do |release|
-        objects << {
-          "by"      => truncate(release["user"], 20),
-          "change"  => truncate(release["descr"], 30),
-          "rel"     => release["name"],
-          "when"    => time_ago(Time.now.to_i - Time.parse(release["created_at"]).to_i)
-        }
+    unless releases_data.empty?
+      releases = releases_data.map do |release|
+        datetime = time_ago((Time.now - Time.parse(release["created_at"])).to_i)
+        "#{release["name"]} #{release["descr"]} by #{release["user"]} #{datetime}"
       end
 
-      display_table(
-        objects,
-        ["rel", "change", "by", "when"],
-        ["Rel", "Change", "By", "When"]
-      )
+      styled_header("#{app} Releases")
+      styled_array(releases)
+    else
+      display("#{app} has no releases.")
+    end
+  end
+
+  # releases:info RELEASE
+  #
+  # view detailed information for a release
+  #
+  # -s, --shell  # output config vars in shell format
+  #
+  #Example:
+  #
+  # $ heroku releases:info v10
+  # === Release v10
+  # Addons: deployhooks:http
+  # By:     email@example.com
+  # Change: deploy ABCDEFG
+  # When:   2012-01-01 12:00:00
+  #
+  # === v10 Config Vars
+  # EXAMPLE: foo
+  #
+  def info
+    unless release = shift_argument
+      error("Usage: heroku releases:info RELEASE")
+    end
+    validate_arguments!
+
+    release_data = api.get_release(app, release).body
+
+    data = {
+      'By'     => release_data['user'],
+      'Change' => release_data['descr'],
+      'When'   => time_ago(Time.now.to_i - Time.parse(release_data["created_at"]).to_i)
+    }
+
+    unless release_data['addons'].empty?
+      data['Addons'] = release_data['addons']
     end
 
-    # releases:info RELEASE
-    #
-    # view detailed information for a release
-    #
-    def info
-      release = args.shift.downcase.strip rescue nil
-      raise(CommandFailed, "Specify a release") unless release
+    styled_header("Release #{release}")
+    styled_hash(data)
 
-      release = heroku.release(app, release)
+    display
 
-      display "=== Release #{release['name']}"
-      display_info("Change",  release["descr"])
-      display_info("By",      release["user"])
-      display_info("When",    time_ago(Time.now.to_i - Time.parse(release["created_at"]).to_i))
-      display_info("Addons",  release["addons"].join(", "))
-      display_vars(release["env"])
+    styled_header("#{release} Config Vars")
+    unless release_data['env'].empty?
+      if options[:shell]
+        release_data['env'].keys.sort.each do |key|
+          display("#{key}=#{release_data['env'][key]}")
+        end
+      else
+        styled_hash(release_data['env'])
+      end
+    else
+      display("#{release} has no config vars.")
     end
+  end
 
-    # releases:rollback [RELEASE]
-    #
-    # roll back to an older release
-    #
-    # if RELEASE is not specified, will roll back one step
-    #
-    def rollback
-      release = args.shift.downcase.strip rescue nil
-      rolled_back = heroku.rollback(app, release)
-      display "Rolled back to #{rolled_back}"
-    end
+  # releases:rollback [RELEASE]
+  #
+  # roll back to an older release
+  #
+  # if RELEASE is not specified, will roll back one step
+  #
+  #Example:
+  #
+  # $ heroku releases:rollback
+  # Rolling back myapp... done, v122
+  #
+  # $ heroku releases:rollback v42
+  # Rolling back myapp to v42... done
+  #
+  def rollback
+    release = shift_argument
+    validate_arguments!
 
-    alias_command "rollback", "releases:rollback"
-
-    private
-
-    def pluralize(str, n)
-      n == 1 ? str : "#{str}s"
-    end
-
-    def display_info(label, info)
-      display(format("%-12s %s", "#{label}:", info))
-    end
-
-    def display_vars(vars)
-      max_length = vars.map { |v| v[0].size }.max
-
-      first = true
-      lead = "Config:"
-
-      vars.keys.sort.each do |key|
-        spaces = ' ' * (max_length - key.size)
-        display "#{first ? lead : ' ' * lead.length}      #{key}#{spaces} => #{vars[key]}"
-        first = false
+    if release
+      action("Rolling back #{app} to #{release}") do
+        api.post_release(app, nil)
+      end
+    else
+      action("Rolling back #{app}") do
+        status(api.post_release(app, release).body)
       end
     end
   end
+
+  alias_command "rollback", "releases:rollback"
+
 end

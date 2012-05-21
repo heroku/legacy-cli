@@ -122,7 +122,7 @@ module Heroku
       elsif elapsed <= (60 * 60 * 24)
         "#{(elapsed / 60 / 60).floor}h ago"
       else
-        (Time.now - elapsed).strftime("%Y-%m-%d %H:%M:%S")
+        (Time.now - elapsed).strftime("%Y/%m/%d %H:%M:%S")
       end
     end
 

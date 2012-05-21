@@ -25,9 +25,6 @@ module Heroku::Command
         stderr.should == ""
         stdout.should == <<-STDOUT
 === myapp
-Addons:        Logging Basic
-               Release Management Basic
-
 Git URL:       git@heroku.com:myapp.git
 Owner Email:   email@example.com
 Stack:         cedar
@@ -40,9 +37,6 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 === myapp
-Addons:        Logging Basic
-               Release Management Basic
-
 Git URL:       git@heroku.com:myapp.git
 Owner Email:   email@example.com
 Stack:         cedar
