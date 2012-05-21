@@ -228,7 +228,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def rename
     newname = shift_argument
     if newname.nil? || newname.empty?
-      raise(Heroku::Command::CommandFailed, "Usage: heroku apps:rename NEWNAME\nMust specify a new name.")
+      error("Usage: heroku apps:rename NEWNAME\nMust specify a new name.")
     end
     validate_arguments!
 
@@ -287,7 +287,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
 
     unless @app
-      raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
+      error("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
     end
 
     api.get_app(app) # fail fast if no access or doesn't exist

@@ -32,15 +32,15 @@ STDOUT
       stub_pg.reset
 
       stderr, stdout = execute("pg:reset RONIN")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
-
+      stderr.should == <<-STDERR
+ !    Confirmation did not match myapp. Aborted.
+STDERR
+      stdout.should == "
  !    WARNING: Destructive Action
  !    This command will affect the app: myapp
- !    To proceed, type "myapp" or re-run this command with --confirm myapp
+ !    To proceed, type \"myapp\" or re-run this command with --confirm myapp
 
->  !    Input did not match myapp. Aborted.
-STDOUT
+> "
     end
 
     context "index" do

@@ -66,8 +66,7 @@ module Heroku
         display
         display "> ", false
         if ask.downcase != app_to_confirm
-          output_with_bang "Input did not match #{app_to_confirm}. Aborted."
-          false
+          error("Confirmation did not match #{app_to_confirm}. Aborted.")
         else
           true
         end

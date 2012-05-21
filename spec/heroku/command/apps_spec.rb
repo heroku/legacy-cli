@@ -5,8 +5,6 @@ module Heroku::Command
   describe Apps do
 
     before(:each) do
-      @cli = prepare_command(Apps)
-
       stub_core
     end
 
@@ -191,8 +189,12 @@ STDOUT
       end
 
       it "displays an error if no name is specified" do
-        Heroku::Command.should_receive(:error).with(/Must specify a new name/)
-        run "rename --app bar"
+        stderr, stdout = execute("apps:rename")
+        stderr.should == <<-STDERR
+ !    Usage: heroku apps:rename NEWNAME
+ !    Must specify a new name.
+STDERR
+        stdout.should == ""
       end
 
     end
@@ -218,15 +220,26 @@ STDOUT
         end
 
         it "fails with explicit app but no confirmation" do
-          @cli.stub!(:options).and_return(:app => "myapp")
-          @cli.should_receive(:confirm_command).and_return(false)
-          @cli.heroku.should_not_receive(:destroy)
-          @cli.destroy
+          stderr, stdout = execute("apps:destroy myapp")
+          stderr.should == <<-STDERR
+ !    Confirmation did not match myapp. Aborted.
+STDERR
+          stdout.should == "
+ !    WARNING: Potentially Destructive Action
+ !    This command will destroy myapp (including all add-ons).
+ !    To proceed, type \"myapp\" or re-run this command with --confirm myapp
+
+> "
+
         end
 
         it "fails without explicit app" do
-          @cli.heroku.should_not_receive(:destroy)
-          lambda { @cli.destroy }.should raise_error(Heroku::Command::CommandFailed, "Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
+          stderr, stdout = execute("apps:destroy")
+          stderr.should == <<-STDERR
+ !    Usage: heroku apps:destroy --app APP
+ !    Must specify APP to destroy.
+STDERR
+          stdout.should == ""
         end
 
       end

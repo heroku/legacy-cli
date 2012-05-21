@@ -69,7 +69,11 @@ STDOUT
     describe "config:remove" do
 
       it "exits with a help notice when no keys are provides" do
-        lambda { execute("config:remove") }.should raise_error(CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
+        stderr, stdout = execute("config:remove")
+        stderr.should == <<-STDERR
+ !    Usage: heroku config:remove KEY1 [KEY2 ...]
+STDERR
+        stdout.should == ""
       end
 
       context "when one key is provided" do

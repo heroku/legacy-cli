@@ -91,7 +91,12 @@ STDOUT
       end
 
       it "displays an error if no key is specified" do
-        lambda { execute("keys:remove") }.should raise_error(Heroku::Command::CommandFailed, "Usage: heroku keys:remove KEY\nMust specify KEY to remove.")
+        stderr, stdout = execute("keys:remove")
+        stderr.should == <<-STDERR
+ !    Usage: heroku keys:remove KEY
+ !    Must specify key to remove.
+STDERR
+        stdout.should == ""
       end
 
     end

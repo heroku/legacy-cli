@@ -93,7 +93,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   def remove
     if args.empty?
-      raise(Heroku::Command::CommandFailed, "Usage: heroku config:remove KEY1 [KEY2 ...]")
+      error("Usage: heroku config:remove KEY1 [KEY2 ...]")
     end
 
     args.each do |key|

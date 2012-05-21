@@ -31,7 +31,11 @@ module Heroku::Command
       it "fails if the interactive confirm doesn't match" do
         @base.stub(:app).and_return("myapp")
         @base.stub(:ask).and_return("badresponse")
-        @base.confirm_command.should be_false
+        capture_stderr do
+          lambda { @base.confirm_command }.should raise_error(SystemExit)
+        end.should == <<-STDERR
+ !    Confirmation did not match myapp. Aborted.
+STDERR
       end
     end
 
