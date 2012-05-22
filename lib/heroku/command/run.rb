@@ -17,8 +17,8 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def index
     command = args.join(" ")
-    fail "Usage: heroku run COMMAND" if command.empty?
-    run_attached command
+    error("Usage: heroku run COMMAND")if command.empty?
+    run_attached(command)
   end
 
   # run:detached COMMAND
@@ -33,14 +33,14 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def detached
     command = args.join(" ")
-    fail "Usage: heroku run COMMAND" if command.empty?
+    error("Usage: heroku run COMMAND")if command.empty?
     opts = { :attach => false, :command => command }
-    ps = action("Running `#{command}` detached", :success => "up") do
-      ps = heroku.ps_run(app, opts)
-      status ps["process"]
-      ps
+    process_data = action("Running `#{command}` detached", :success => "up") do
+      process_data = api.post_ps(app, command, { :attach => false }).body
+      status(process_data['process'])
+      process_data
     end
-    puts "Use `heroku logs -p #{ps["process"]}` to view the output."
+    display("Use `heroku logs -p #{process_data['process']}` to view the output.")
   end
 
   # run:rake COMMAND
@@ -57,9 +57,9 @@ class Heroku::Command::Run < Heroku::Command::Base
   # rake test  # run tests
   #
   def rake
-    deprecate "`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead."
+    deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead.")
     command = "rake #{args.join(" ")}"
-    run_attached command
+    run_attached(command)
   end
 
   alias_command "rake", "run:rake"
@@ -83,12 +83,12 @@ class Heroku::Command::Run < Heroku::Command::Base
     if cmd.empty?
       console_session(app)
     else
-      display heroku.console(app, cmd)
+      display(heroku.console(app, cmd))
     end
   rescue RestClient::RequestTimeout
-    error "Timed out. Long running requests are not supported on the console.\nPlease consider creating a rake task instead."
+    error("Timed out. Long running requests are not supported on the console.\nPlease consider creating a rake task instead.")
   rescue Heroku::Client::AppCrashed => e
-    error e.message
+    error(e.message)
   end
 
   alias_command "console", "run:console"
@@ -97,12 +97,12 @@ protected
 
   def run_attached(command)
     opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
-    ps = action("Running `#{command}` attached to terminal", :success => "up") do
-      ps = heroku.ps_run(app, opts)
-      status ps["process"]
-      ps
+    process_data = action("Running `#{command}` attached to terminal", :success => "up") do
+      process_data = api.post_ps(app, command, { :attach => true, :ps_env => get_terminal_environment }).body
+      status(process_data["process"])
+      process_data
     end
-    rendezvous_session(ps["rendezvous_url"])
+    rendezvous_session(process_data["rendezvous_url"])
   end
 
   def rendezvous_session(rendezvous_url, &on_connect)

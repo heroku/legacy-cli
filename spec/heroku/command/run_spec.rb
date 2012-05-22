@@ -6,9 +6,17 @@ describe Heroku::Command::Run do
 
   include Heroku::Helpers
 
+  before(:each) do
+    stub_core
+    api.post_app("name" => "myapp", "stack" => "cedar")
+  end
+
+  after(:each) do
+    api.delete_app("myapp")
+  end
+
   describe "run" do
     it "runs a command" do
-      stub_core.ps_run("myapp", :attach => true, :command => "bin/foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
       stub_rendezvous.start { $stdout.puts "output" }
 
       stderr, stdout = execute("run bin/foo")
@@ -22,9 +30,6 @@ STDOUT
 
   describe "run:detached" do
     it "runs a command detached" do
-      stub_core.ps_run("myapp", :attach => false, :command => "bin/foo").returns("process" => "run.1")
-      stub_rendezvous.start { $stdout.puts "output" }
-
       stderr, stdout = execute("run:detached bin/foo")
       stderr.should == ""
       stdout.should == <<-STDOUT
@@ -36,7 +41,6 @@ STDOUT
 
   describe "run:rake" do
     it "runs a rake command" do
-      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
       stub_rendezvous.start { $stdout.puts("rake_output") }
 
       stderr, stdout = execute("run:rake foo")
@@ -49,7 +53,6 @@ STDOUT
     end
 
     it "shows the proper command in the deprecation warning" do
-      stub_core.ps_run("myapp", :attach => true, :command => "rake foo", :ps_env => get_terminal_environment).returns("process" => "run.1", "rendezvous_url" => "rendezvous://s1.runtime.heroku.com:5000/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
       stub_rendezvous.start { $stdout.puts("rake_output") }
 
       stderr, stdout = execute("rake foo")
