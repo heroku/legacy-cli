@@ -18,7 +18,7 @@ class Heroku::Command::Status < Heroku::Command::Base
   def index
     validate_arguments!
 
-    heroku_status_host = ENV['HEROKU_STATUS_HOST'] || "status-beta.heroku.com"
+    heroku_status_host = ENV['HEROKU_STATUS_HOST'] || "status.heroku.com"
     status = json_decode(Excon.get("https://#{heroku_status_host}/api/v3/current-status.json").body)
 
     styled_header("Heroku Status")
