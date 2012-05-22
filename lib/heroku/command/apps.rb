@@ -21,19 +21,19 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def index
     validate_arguments!
     apps = api.get_apps.body
-    if apps.length > 0
+    unless apps.empty?
       my_apps, collaborated_apps = apps.partition do |app|
         app["owner_email"] == heroku.user
       end
 
-      if my_apps.length > 0
-        styled_header "My Apps"
-        styled_array my_apps.map { |app| app["name"] }
+      unless my_apps.empty?
+        styled_header("My Apps")
+        styled_array(my_apps.map { |app| app["name"] })
       end
 
-      if collaborated_apps.length > 0
-        styled_header "Collaborated Apps"
-        styled_array collaborated_apps.map { |app| [app["name"], app["owner_email"]] }
+      unless collaborated_apps.empty?
+        styled_header("Collaborated Apps")
+        styled_array(collaborated_apps.map { |app| [app["name"], app["owner_email"]] })
       end
     else
       display("You have no apps.")
@@ -89,37 +89,31 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      data = app_data.reject do |key, value|
-        !["owner_email", "stack"].include?(key)
+      data = {}
+
+      unless addons_data.empty?
+        data["Addons"] = addons_data
       end
 
-      data["addons"] = addons_data
-      data["collaborators"] = collaborators_data
+      data["Collaborators"] = collaborators_data
 
       if app_data["create_status"] && app_data["create_status"] != "complete"
-        data["create_status"] = app_data["create_status"]
+        data["Create Status"] = app_data["create_status"]
       end
 
-      ["cron_finished_at", "cron_next_run"].each do |key|
-        if value = app_data[key]
-          data[key] = format_date(value)
-        end
+      if app_data["cron_finished_at"]
+        data["Cron Finished At"] = format_date(app_data["cron_finished_at"])
       end
 
-      ["database_size", "repo_size", "slug_size"].each do |key|
-        if value = app_data[key]
-          data[key] = format_bytes(value)
-        end
+      if app_data["cron_next_run"]
+        data["Cron Next Run"] = format_date(app_data["cron_next_run"])
       end
 
-      ["git_url", "web_url"].each do |key|
-        upcased_key = key.to_s.gsub("url","URL").to_sym
-        data[upcased_key] = app_data[key]
+      if app_data["database_size"]
+        data["Database Size"] = format_bytes(app_data["database_size"])
       end
 
-      if data["stack"] != "cedar"
-        data.merge!("dynos" => app_data["dynos"], "workers" => app_data["workers"])
-      end
+      data["Git URL"] = app_data["git_url"]
 
       if app_data["database_tables"]
         data["Database Size"].gsub!('(empty)', '0K') + " in #{quantify("table", app_data["database_tables"])}"
@@ -130,6 +124,23 @@ class Heroku::Command::Apps < Heroku::Command::Base
           "%s - %0.2f dyno-hours" % [ type.to_s.capitalize, app_data["dyno_hours"][type] ]
         end
       end
+
+      data["Owner Email"] = app_data["owner_email"]
+
+      if app_data["repo_size"]
+        data["Repo Size"] = format_bytes(app_data["repo_size"])
+      end
+
+      if app_data["slug_size"]
+        data["Slug Size"] = format_bytes(app_data["slug_size"])
+      end
+
+      data["Stack"] = app_data["stack"]
+      if data["Stack"] != "cedar"
+        data.merge!("Dynos" => app_data["dynos"], "Workers" => app_data["workers"])
+      end
+
+      data["Web URL"] = app_data["web_url"]
 
       styled_hash(data)
     end
@@ -217,7 +228,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def rename
     newname = shift_argument
     if newname.nil? || newname.empty?
-      raise(Heroku::Command::CommandFailed, "Usage: heroku apps:rename NEWNAME\nMust specify a new name.")
+      error("Usage: heroku apps:rename NEWNAME\nMust specify a new name.")
     end
     validate_arguments!
 
@@ -257,7 +268,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
     app_data = api.get_app(app).body
     url = app_data["web_url"]
     hputs("Opening #{url}")
-    Launchy.open url
+    require("launchy")
+    Launchy.open(url)
   end
 
   alias_command "open", "apps:open"
@@ -275,7 +287,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
 
     unless @app
-      raise Heroku::Command::CommandFailed.new("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
+      error("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
     end
 
     api.get_app(app) # fail fast if no access or doesn't exist

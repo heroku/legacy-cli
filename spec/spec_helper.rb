@@ -87,15 +87,26 @@ end
 
 alias heroku run
 
+def capture_stderr(&block)
+  original_stderr = $stderr
+  $stderr = captured_stderr = StringIO.new
+  begin
+    yield
+  ensure
+    $stderr = original_stderr
+  end
+  captured_stderr.string
+end
+
 def capture_stdout(&block)
   original_stdout = $stdout
-  $stdout = fake = StringIO.new
+  $stdout = captured_stdout = StringIO.new
   begin
     yield
   ensure
     $stdout = original_stdout
   end
-  fake.string
+  captured_stdout.string
 end
 
 def fail_command(message)

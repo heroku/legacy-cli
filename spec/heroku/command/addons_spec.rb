@@ -333,6 +333,7 @@ OUTPUT
         @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
           { "name" => "redistogo:basic" }
         ])
+        require("launchy")
         Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:basic")
         @addons.open
       end

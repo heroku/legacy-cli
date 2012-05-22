@@ -66,8 +66,7 @@ module Heroku
         display
         display "> ", false
         if ask.downcase != app_to_confirm
-          output_with_bang "Input did not match #{app_to_confirm}. Aborted."
-          false
+          error("Confirmation did not match #{app_to_confirm}. Aborted.")
         else
           true
         end
@@ -122,7 +121,7 @@ module Heroku
       elsif elapsed <= (60 * 60 * 24)
         "#{(elapsed / 60 / 60).floor}h ago"
       else
-        (Time.now - elapsed).strftime("%Y-%m-%d %H:%M:%S")
+        (Time.now - elapsed).strftime("%Y/%m/%d %H:%M:%S")
       end
     end
 
@@ -362,16 +361,13 @@ module Heroku
     def styled_hash(hash)
       max_key_length = hash.keys.map {|key| key.to_s.length}.max + 2
       hash.keys.sort {|x,y| x.to_s <=> y.to_s}.each do |key|
-        title_cased_key = key.to_s.gsub("_", " ").split(" ").map do |word|
-          word[0...1].upcase + word[1..-1]
-        end.join(" ")
         case value = hash[key]
         when Array
           if value.empty?
             next
           else
             elements = value.sort {|x,y| x.to_s <=> y.to_s}
-            display("#{title_cased_key}: ".ljust(max_key_length), false)
+            display("#{key}: ".ljust(max_key_length), false)
             display(elements[0])
             elements[1..-1].each do |element|
               display("#{' ' * max_key_length}#{element}")
@@ -383,7 +379,7 @@ module Heroku
         when nil
           next
         else
-          display("#{title_cased_key}: ".ljust(max_key_length), false)
+          display("#{key}: ".ljust(max_key_length), false)
           display(value)
         end
       end
