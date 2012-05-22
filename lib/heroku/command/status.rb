@@ -22,13 +22,15 @@ class Heroku::Command::Status < Heroku::Command::Base
     status = json_decode(Excon.get("https://#{heroku_status_host}/api/v3/current-status.json").body)
 
     styled_header("Heroku Status")
-    if status['status'].values.all? {|value| value == 'green'}
-      styled_hash(
-        'Development' => 'No known issues at this time.',
-        'Production'  => 'No known issues at this time.'
-      )
-    else
-      styled_hash(status['status'])
+
+    status['status'].each do |key, value|
+      if value == 'green'
+        status['status'][key] = 'No known issues at this time.'
+      end
+    end
+    styled_hash(status['status'])
+
+    unless status['issues'].empty?
       display
       status['issues'].each do |issue|
         duration = time_ago(Time.now - Time.parse(issue['updated_at'])).gsub(" ago", "")
@@ -39,7 +41,6 @@ class Heroku::Command::Status < Heroku::Command::Base
         styled_array(changes)
       end
     end
-
   end
 
 end
