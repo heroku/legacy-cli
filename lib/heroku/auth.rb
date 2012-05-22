@@ -14,12 +14,14 @@ class Heroku::Auth
     def api
       @api ||= begin
         full_host = (host =~ /^http/) ? host : "https://api.#{host}"
+        verify_ssl = ENV['HEROKU_SSL_VERIFY'] == 'disable' || full_host =~ %r|^https://api.heroku.com|
         Heroku::API.new(
-          :api_key  => password,
-          :headers  => {
-            'User-Agent' => "heroku-gem/#{Heroku::VERSION}"
+          :api_key          => password,
+          :headers          => {
+            'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
           },
-          :host     => URI.parse(full_host).host
+          :host             => URI.parse(full_host).host,
+          :ssl_verify_peer  => verify_ssl
         )
       end
     end
