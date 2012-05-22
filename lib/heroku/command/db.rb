@@ -1,10 +1,5 @@
 require "heroku/command/base"
 
-require 'erb'
-require 'yaml'
-require 'logger'
-require 'uri'
-
 module Heroku::Command
 
   # manage the database for an app
@@ -65,6 +60,8 @@ module Heroku::Command
 
     def parse_database_yml
       return "" unless File.exists?(Dir.pwd + '/config/database.yml')
+      require 'erb'
+      require 'yaml'
 
       environment = ENV['RAILS_ENV'] || ENV['MERB_ENV'] || ENV['RACK_ENV']
       environment = 'development' if environment.nil? or environment.empty?
@@ -163,6 +160,7 @@ module Heroku::Command
       raise(CommandFailed, "Invalid database url") if opts[:database_url] == ''
 
       if options[:debug]
+        require 'logger'
         Taps.log.level = Logger::DEBUG
       end
 
