@@ -12,8 +12,8 @@ class Heroku::Command::Status < Heroku::Command::Base
   #
   # $ heroku status
   # === Heroku Status
-  # Development: green
-  # Production:  green
+  # Development: No known issues at this time.
+  # Production:  No known issues at this time.
   #
   def index
     validate_arguments!
