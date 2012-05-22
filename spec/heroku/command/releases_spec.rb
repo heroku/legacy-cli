@@ -48,6 +48,8 @@ STDOUT
   describe "releases:info" do
     before(:each) do
       api.post_app("name" => "myapp", "stack" => "cedar")
+      @now = Time.now
+      Time.should_receive(:now).any_number_of_times.and_return(@now)
       api.put_config_vars("myapp", { 'FOO_BAR' => 'BAZ' })
     end
 
