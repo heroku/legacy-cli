@@ -9,29 +9,54 @@ module Heroku::Command
     #
     # show the list of available stacks
     #
-    # --all  # include deprecated stacks
+    #Example:
+    #
+    # $ heroku stack
+    # === myapp Available Stacks
+    #   aspen-mri-1.8.6
+    #   bamboo-mri-1.9.2
+    #   bamboo-ree-1.8.7
+    # * cedar (beta)
     #
     def index
-      include_deprecated = true if options[:all]
+      validate_arguments!
 
-      list = heroku.list_stacks(app, :include_deprecated => include_deprecated)
-      lines = list.map do |stack|
+      stacks_data = api.get_stack(app).body
+
+      styled_header("#{app} Available Stacks")
+      stacks = stacks_data.map do |stack|
         row = [stack['current'] ? '*' : ' ', stack['name']]
         row << '(beta)' if stack['beta']
         row << '(prepared, will migrate on next git push)' if stack['requested']
         row.join(' ')
       end
-      display lines.join("\n")
+      styled_array(stacks)
     end
 
     # stack:migrate STACK
     #
     # prepare migration of this app to a new stack
     #
+    #Example:
+    #
+    # $ heroku stack:migrate cedar
+    # -----> Preparing to migrate evening-warrior-2345
+    #        bamboo-mri-1.9.2 -> bamboo-ree-1.8.7
+    #
+    #        NOTE: You must specify ALL gems (including Rails) in manifest
+    #
+    #        Please read the migration guide:
+    #        http://devcenter.heroku.com/articles/bamboo
+    #
+    # -----> Migration prepared.
+    #        Run 'git push heroku master' to execute migration.
+    #
     def migrate
-      stack = args.shift.downcase.strip rescue nil
-      error "No target stack specified." unless stack
-      display heroku.migrate_to_stack(app, stack)
+      unless stack = shift_argument
+        error("Usage: heroku stack:migrate STACK.\nMust specify target stack.")
+      end
+
+      display(api.put_stack(app, stack).body)
     end
   end
 end

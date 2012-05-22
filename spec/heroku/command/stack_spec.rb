@@ -4,18 +4,43 @@ require "heroku/command/stack"
 module Heroku::Command
   describe Stack do
     describe "index" do
-      context "when --all is specified" do
-        describe "heroku" do
-          it "should receive list_stacks with show_deprecated = true" do
-            stub_core.list_stacks('myapp', { :include_deprecated => true }).returns([{"beta" => true, "current" => true, "name" => "cedar"}])
-            stderr, stdout = execute("stack --all")
-            stderr.should == ""
-            stdout.should == <<-STDOUT
-* cedar (beta)
-STDOUT
-          end
-        end
+      before(:each) do
+        stub_core
+        api.post_app("name" => "myapp", "stack" => "bamboo-mri-1.9.2")
       end
+
+      after(:each) do
+        api.delete_app("myapp")
+      end
+
+      it "index should provide list" do
+        stderr, stdout = execute("stack")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== myapp Available Stacks
+  aspen-mri-1.8.6
+  bamboo-ree-1.8.7
+  cedar (beta)
+* bamboo-mri-1.9.2
+
+STDOUT
+      end
+
+      it "migrate should succeed" do
+        stderr, stdout = execute("stack:migrate bamboo-ree-1.8.7")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+-----> Preparing to migrate myapp
+       bamboo-mri-1.9.2 -> bamboo-ree-1.8.7
+
+       NOTE: Additional details here
+
+       -----> Migration prepared.
+       Run 'git push heroku master' to execute migration.
+STDOUT
+      end
+
+
     end
   end
 end
