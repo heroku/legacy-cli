@@ -10,6 +10,8 @@ describe Heroku::Command::Ps do
   context("cedar") do
 
     before(:each) do
+      now = Time.now
+      Time.should_receive(:now).any_number_of_times.and_return(now)
       api.post_app("name" => "myapp", "stack" => "cedar")
     end
 
