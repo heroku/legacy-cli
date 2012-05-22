@@ -4,30 +4,41 @@ require "heroku/command/base"
 #
 class Heroku::Command::Status < Heroku::Command::Base
 
-
-
   # status
   #
   # display current status of Heroku platform
   #
+  #Example:
+  #
+  # $ heroku status
+  # === Heroku Status
+  # Development: green
+  # Production:  green
+  #
   def index
-    heroku_status_host = ENV['HEROKU_STATUS_HOST'] || "status.heroku.com"
-    status = json_decode(heroku.get("https://#{heroku_status_host}/status.json"))
+    validate_arguments!
 
-    display('')
-    if status.values.all? {|value| value == 'green'}
-      display("No known issues at this time.")
+    heroku_status_host = ENV['HEROKU_STATUS_HOST'] || "status-beta.heroku.com"
+    status = json_decode(Excon.get("https://#{heroku_status_host}/api/v3/current-status.json").body)
+
+    styled_header("Heroku Status")
+    if status['status'].values.all? {|value| value == 'green'}
+      styled_hash(
+        'Development' => 'No known issues at this time.',
+        'Production'  => 'No known issues at this time.'
+      )
     else
-      status.each do |key, value|
-        display("#{key}: #{value}")
+      styled_hash(status['status'])
+      display
+      status['issues'].each do |issue|
+        duration = time_ago(Time.now - Time.parse(issue['updated_at'])).gsub(" ago", "")
+        styled_header("#{issue['title']} (#{duration})")
+        changes = issue['updates'].map do |change|
+          change['contents']
+        end
+        styled_array(changes)
       end
-      response = heroku.xml(heroku.get("https://#{heroku_status_host}/feed"))
-      entry = response.elements.to_a("//entry").first
-      display('')
-      display(entry.elements['title'].text)
-      display(entry.elements['content'].text.gsub(/\n\n/, "\n  ").gsub(/<[^>]*>/, ''))
     end
-    display('')
 
   end
 
