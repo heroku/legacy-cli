@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|spec/|test/)} }
 
   gem.add_dependency "heroku-api",  "~> 0.2.0"
-  gem.add_dependency "netrc",       "~> 0.7.1"
+  gem.add_dependency "netrc",       "~> 0.7.2"
   gem.add_dependency "rest-client", "~> 1.6.1"
   gem.add_dependency "launchy",     ">= 0.3.2"
   gem.add_dependency "rubyzip"
