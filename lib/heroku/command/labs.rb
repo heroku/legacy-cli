@@ -8,6 +8,18 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # lists available features for an app
   #
+  #Example:
+  #
+  # $ heroku labs
+  # === myapp Available Features
+  # user_env_compile: Add user config vars to the environment during slug compilation
+  #
+  # === myapp Enabled Features
+  # sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+  #
+  # === email@example.com Available Features
+  # sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+  #
   def index
     validate_arguments!
 
@@ -15,16 +27,6 @@ class Heroku::Command::Labs < Heroku::Command::Base
     app_features, user_features = features_data.partition do |feature|
       feature["kind"] == "app"
     end
-
-#  def display_features(features, longest)
-#    features.each do |feature|
-#      display "[%s] %-#{longest}s  # %s" % [
-#        feature["enabled"] ? "+" : " ",
-#        feature["name"],
-#        feature["summary"]
-#      ]
-#    end
-#  end
 
     if app
       enabled_app_features, available_app_features = app_features.partition do |feature|
@@ -45,6 +47,13 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # displays additional information about FEATURE
   #
+  #Example:
+  #
+  # $ heroku labs:info user_env_compile
+  # === user_env_compile
+  # Docs:    http://devcenter.heroku.com/articles/labs-user-env-compile
+  # Summary: Add user config vars to the environment during slug compilation
+  #
   def info
     unless feature_name = shift_argument
       error("Usage: heroku labs:info FEATURE")
@@ -63,6 +72,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # enables FEATURE on an app
   #
+  #Example:
+  #
+  # $ heroku labs:enable user_env_compile
+  # Enabling user_env_compile for myapp... done
+  #
   def enable
     unless feature_name = shift_argument
       error("Usage: heroku labs:enable FEATURE")
@@ -80,6 +94,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # labs:disable FEATURE
   #
   # disables FEATURE on an app
+  #
+  #Example:
+  #
+  # $ heroku labs:disable user_env_compile
+  # Disabling user_env_compile for myapp... done
   #
   def disable
     unless feature_name = shift_argument
