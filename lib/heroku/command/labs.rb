@@ -9,18 +9,36 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # lists available features for an app
   #
   def index
-    features = heroku.list_features(app)
-    longest = features.map { |f| f["name"].length }.sort.last
-    app_features, user_features = features.partition { |f| f["kind"] == "app" }
+    validate_arguments!
 
-    if app
-      display "=== App Features (%s)" % app
-      display_features app_features, longest
-      display
+    features_data = api.get_features(app).body
+    app_features, user_features = features_data.partition do |feature|
+      feature["kind"] == "app"
     end
 
-    display "=== User Features (%s)" % Heroku::Auth.user
-    display_features user_features, longest
+#  def display_features(features, longest)
+#    features.each do |feature|
+#      display "[%s] %-#{longest}s  # %s" % [
+#        feature["enabled"] ? "+" : " ",
+#        feature["name"],
+#        feature["summary"]
+#      ]
+#    end
+#  end
+
+    if app
+      enabled_app_features, available_app_features = app_features.partition do |feature|
+        feature['enabled'] == true
+      end
+      display_features("#{app} Available Features", available_app_features)
+      display_features("#{app} Enabled Features", enabled_app_features)
+    end
+
+    enabled_user_features, available_user_features = user_features.partition do |feature|
+      feature['enabled'] == true
+    end
+    display_features("#{Heroku::Auth.user} Available Features", available_user_features)
+    display_features("#{Heroku::Auth.user} Enabled Features", enabled_user_features)
   end
 
   # labs:info FEATURE
@@ -28,15 +46,17 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # displays additional information about FEATURE
   #
   def info
-    if feature_name = args.shift
-      feature_name = feature_name.downcase.strip
-    else
+    unless feature_name = shift_argument
       error("Usage: heroku labs:info FEATURE")
     end
-    feature = heroku.get_feature(app, feature_name)
-    display "=== #{feature['name']}"
-    display "Summary: %s" % feature["summary"]
-    display "Docs:    %s" % feature["docs"]
+    validate_arguments!
+
+    feature_data = api.get_feature(feature_name, app).body
+    styled_header(feature_data['name'])
+    styled_hash({
+      'Summary' => feature_data['summary'],
+      'Docs'    => feature_data['docs']
+    })
   end
 
   # labs:enable FEATURE
@@ -44,17 +64,17 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # enables FEATURE on an app
   #
   def enable
-    if feature_name = args.shift
-      feature_name = feature_name.downcase.strip
-    else
+    unless feature_name = shift_argument
       error("Usage: heroku labs:enable FEATURE")
     end
+    validate_arguments!
+
     message = "Enabling #{feature_name}"
     message += " for #{app}" if app
     action(message) do
-      heroku.enable_feature(app, feature_name)
+      api.post_feature(feature_name, app)
     end
-    display "WARNING: This feature is experimental and may change or be removed without notice."
+    display("WARNING: This feature is experimental and may change or be removed without notice.")
   end
 
   # labs:disable FEATURE
@@ -62,33 +82,36 @@ class Heroku::Command::Labs < Heroku::Command::Base
   # disables FEATURE on an app
   #
   def disable
-    if feature_name = args.shift
-      feature_name = feature_name.downcase.strip
-    else
+    unless feature_name = shift_argument
       error("Usage: heroku labs:disable FEATURE")
     end
+    validate_arguments!
+
     message = "Disabling #{feature_name}"
     message += " for #{app}" if app
     action(message) do
-      heroku.disable_feature(app, feature_name)
+      api.delete_feature(feature_name, app)
     end
   end
 
 private
 
   def app
+    # app is not required for these commands, so rescue if there is none
     super
   rescue Heroku::Command::CommandFailed
     nil
   end
 
-  def display_features(features, longest)
-    features.each do |feature|
-      display "[%s] %-#{longest}s  # %s" % [
-        feature["enabled"] ? "+" : " ",
-        feature["name"],
-        feature["summary"]
-      ]
+  def display_features(header, features)
+    unless features.empty?
+      styled_header(header)
+      feature_data = {}
+      features.each do |feature|
+        feature_data[feature['name']] = feature['summary']
+      end
+      styled_hash(feature_data)
+      display
     end
   end
 

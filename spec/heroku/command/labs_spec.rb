@@ -3,41 +3,40 @@ require "heroku/command/labs"
 
 module Heroku::Command
   describe Labs do
-    before do
-      @labs = prepare_command(Labs)
-      @labs.heroku.stub!(:info).and_return({})
+
+    before(:each) do
+      stub_core
+      api.post_app("name" => "myapp", "stack" => "cedar")
     end
 
-    it "lists no features if developer is not enrolled" do
+    after(:each) do
+      api.delete_app("myapp")
+    end
+
+    it "lists features" do
       stub_core.list_features("myapp").returns([])
       stderr, stdout = execute("labs")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== App Features (myapp)
+=== myapp Available Features
+user_env_compile: Add user config vars to the environment during slug compilation
 
-=== User Features (email@example.com)
-STDOUT
-    end
+=== myapp Enabled Features
+sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
 
-    it "lists features if developer is enrolled" do
-      stub_core.list_features("myapp").returns([])
-      stderr, stdout = execute("labs")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
-=== App Features (myapp)
+=== email@example.com Available Features
+sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
-=== User Features (email@example.com)
 STDOUT
     end
 
     it "displays details of a feature" do
-      stub_core.get_feature('myapp', 'example').returns({'docs' => 'http://devcenter.heroku.com/labs-example', 'name' => 'example', 'summary' => 'example feature'})
-      stderr, stdout = execute("labs:info example")
+      stderr, stdout = execute("labs:info user_env_compile")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== example
-Summary: example feature
-Docs:    http://devcenter.heroku.com/labs-example
+=== user_env_compile
+Docs:    http://devcenter.heroku.com/articles/labs-user-env-compile
+Summary: Add user config vars to the environment during slug compilation
 STDOUT
     end
 
@@ -50,11 +49,10 @@ STDERR
     end
 
     it "enables a feature" do
-      stub_core.enable_feature('myapp', 'example')
-      stderr, stdout = execute("labs:enable example")
+      stderr, stdout = execute("labs:enable user_env_compile")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Enabling example for myapp... done
+Enabling user_env_compile for myapp... done
 WARNING: This feature is experimental and may change or be removed without notice.
 STDOUT
     end
@@ -68,11 +66,11 @@ STDERR
     end
 
     it "disables a feature" do
-      stub_core.disable_feature('myapp', 'example')
-      stderr, stdout = execute("labs:disable example")
+      api.post_feature('user_env_compile', 'myapp')
+      stderr, stdout = execute("labs:disable user_env_compile")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Disabling example for myapp... done
+Disabling user_env_compile for myapp... done
 STDOUT
     end
 
