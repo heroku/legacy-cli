@@ -1,3 +1,59 @@
+2.26.0 05/23/2012
+=================
+
+use new ssl endpoints API namespace
+reimplement `heroku rake` to use modern attached process API
+allow running rake commands even with crashed web processes
+consolidate rendezvous_session code
+deprecate heroku-certs (now in mainline)
+fix rendezvous mocks
+test consistency fixes
+more consistent apps:info output
+fix sort order for releases
+standardize "message... done" action formatting
+update apps to use heroku-api, validate options, have examples and standardized output
+better argument validation and warnings on invalid arguments
+explictly error on the 'pp' app caused by passing '-app'
+use new heroku.rb exceptions
+use explicit shift_argument to consolidate and interface with validation
+fix SKIP_PLUGINS to use either ' ' or ',' delineators, not ' ,'
+add examples to help
+add magic UTF-8 comment to bin/heroku
+update domains to use heroku-api, validate options, have examples and standardized output
+cleanup error and display formatting
+update run to use heroku-api, validate options, have examples and standardized output
+updates for pg/pgbackup to simplify and make more consistent
+update keys to use heroku-api, validate options, have examples and standardized output
+provide better messaging when asking for help of an aliased command
+automatically display help when invalid options are passed
+simplify error_with_failure
+update maintenance to use heroku-api, validate options, have examples and standardized output
+more consistent USAGE error messaging
+update config to use heroku-api, validate options, have examples and standardized output
+use heroku.rb for login
+add auth:whoami
+update plugins to use heroku-api, validate options, have examples and standardized output
+update ps to use heroku-api, validate options, have examples and standardized output
+update accounts to use heroku-api, validate options, have examples and standardized output
+update sharing to use heroku-api, validate options, have examples and standardized output
+update version to use heroku-api, validate options, have examples and standardized output
+display current and new versions during update
+ensure heroku.rb user-agent is overridden
+update auth to use heroku-api, validate options, have examples and standardized output
+update account to use heroku-api, validate options, have examples and standardized output
+update help to use heroku-api, validate options, have examples and standardized output
+allow HEROKU_STATUS_HOST to override default status location
+forward SIGQUIT (^\) signal
+lazily require launchy
+updates to status to better reflect new status site
+update releases to use heroku-api, validate options, have examples and standardized output
+fix heroku.rb to properly respect existing ssl verification settings
+update logs to use heroku-api, validate options, have examples and standardized output
+update run to use heroku-api, validate options, have examples and standardized output
+lazily require db/taps related stuff
+fix short argument parsing to avoid implied short arguments
+update labs to use heroku-api, validate options, have examples and standardized output
+
 2.25.0 04/24/2012
 =================
 
