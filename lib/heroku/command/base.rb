@@ -132,7 +132,7 @@ protected
   end
 
   def self.extract_summary(help)
-    extract_description(help).split("\n")[1].to_s.split("\n").first
+    extract_description(help).split("\n")[2].to_s.split("\n").first
   end
 
   def self.extract_description(help)
