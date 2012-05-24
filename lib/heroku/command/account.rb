@@ -11,9 +11,9 @@ class Heroku::Command::Account < Heroku::Command::Base
   #Example:
   #
   # $ heroku account:confirm_billing
-  #  This action will cause your account to be billed at the end of the month
-  #  For more information, see http://docs.heroku.com/billing
-  #  Are you sure you want to do this? (y/n) y
+  # This action will cause your account to be billed at the end of the month
+  # For more information, see http://docs.heroku.com/billing
+  # Are you sure you want to do this? (y/n)
   #
   def confirm_billing
     validate_arguments!
