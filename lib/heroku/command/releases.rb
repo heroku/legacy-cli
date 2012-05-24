@@ -1,5 +1,7 @@
 require "heroku/command/base"
 
+# manage app releases
+#
 class Heroku::Command::Releases < Heroku::Command::Base
 
   # releases
