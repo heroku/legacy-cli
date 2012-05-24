@@ -107,7 +107,7 @@ module Heroku
           exit
         end
 
-        output_with_bang("`#{cmd}` is not a heroku command.")
+        message = "`#{cmd}` is not a heroku command.\n"
 
         distances = {}
         (commands.keys + command_aliases.keys).each do |suggestion|
@@ -119,14 +119,13 @@ module Heroku
         if distances.keys.min < 4
           suggestions = distances[distances.keys.min].sort
           if suggestions.length == 1
-            output_with_bang("Perhaps you meant `#{suggestions.first}`.")
+            message << "Perhaps you meant `#{suggestions.first}`.\n"
           else
-            output_with_bang("Perhaps you meant #{suggestions[0...-1].map {|suggestion| "`#{suggestion}`"}.join(', ')} or `#{suggestions.last}`.")
+            message << "Perhaps you meant #{suggestions[0...-1].map {|suggestion| "`#{suggestion}`"}.join(', ')} or `#{suggestions.last}`.\n"
           end
         end
 
-        output_with_bang("See `heroku help` for additional details.")
-        exit(1)
+        error(message << "See `heroku help` for additional details.")
       end
 
       @current_command = cmd

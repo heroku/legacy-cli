@@ -70,7 +70,6 @@ def execute(command_line)
   [captured_stderr.string, captured_stdout.string]
 end
 
-
 def any_instance_of(klass, &block)
   extend RR::Adapters::RRMethods
   any_instance_of(klass, &block)

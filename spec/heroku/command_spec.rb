@@ -165,26 +165,36 @@ describe Heroku::Command do
     end
 
     it "suggests similar commands if there are any" do
-      original_stdout = $stdout
-      $stdout = fake = StringIO.new
-      lambda { Heroku::Command.run('aps', []) }.should raise_error(SystemExit)
-      $stdout = original_stdout
-      fake.string.should == <<-SUGGEST
+      original_stderr, original_stdout = $stderr, $stdout
+      $stderr = captured_stderr = StringIO.new
+      $stdout = captured_stdout = StringIO.new
+      begin
+        execute("aps")
+      rescue SystemExit
+      end
+      captured_stderr.string.should == <<-STDERR
  !    `aps` is not a heroku command.
  !    Perhaps you meant `apps` or `ps`.
  !    See `heroku help` for additional details.
-SUGGEST
+STDERR
+      captured_stdout.string.should == ""
+      $stderr, $stdout = original_stderr, original_stdout
     end
 
     it "does not suggest similar commands if there are none" do
-      original_stdout = $stdout
-      $stdout = fake = StringIO.new
-      lambda { Heroku::Command.run('sandwich', []) }.should raise_error(SystemExit)
-      $stdout = original_stdout
-      fake.string.should == <<-NO_SUGGEST
+      original_stderr, original_stdout = $stderr, $stdout
+      $stderr = captured_stderr = StringIO.new
+      $stdout = captured_stdout = StringIO.new
+      begin
+        execute("sandwich")
+      rescue SystemExit
+      end
+      captured_stderr.string.should == <<-STDERR
  !    `sandwich` is not a heroku command.
  !    See `heroku help` for additional details.
-NO_SUGGEST
+STDERR
+      captured_stdout.string.should == ""
+      $stderr, $stdout = original_stderr, original_stdout
     end
 
   end
