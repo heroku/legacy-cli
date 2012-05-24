@@ -346,10 +346,11 @@ module Heroku
       end
     end
 
-    def styled_array(array)
+    def styled_array(array, options={})
       fmt = line_formatter(array)
-      array.sort.each do |element|
-        display(fmt % element)
+      array = array.sort unless options[:sort] == false
+      array.each do |element|
+        display((fmt % element).rstrip)
       end
       display
     end

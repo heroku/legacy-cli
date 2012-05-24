@@ -35,10 +35,10 @@ describe Heroku::Command::Releases do
       @stderr.should == ""
       @stdout.should == <<-STDOUT
 === myapp Releases
-v1 Config add FOO_BAR by email@example.com #{(@now - 60 * 60 * 24 * 2).strftime("%G/%m/%d %H:%M:%S")}
-v2 Config add BAR_BAZ by email@example.com 12h ago
-v3 Config add BAZ_QUX by email@example.com 30m ago
-v4 Config add QUX_QUUX by email@example.com 30s ago
+v4   Config add QUX_QUUX   email@example.com   30s ago
+v3   Config add BAZ_QUX    email@example.com   30m ago
+v2   Config add BAR_BAZ    email@example.com   12h ago
+v1   Config add FOO_BAR    email@example.com   #{(@now - 60 * 60 * 24 * 2).strftime("%G/%m/%d %H:%M:%S")}
 
 STDOUT
     end
