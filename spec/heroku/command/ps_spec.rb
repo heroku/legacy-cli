@@ -33,7 +33,22 @@ describe Heroku::Command::Ps do
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== `bundle exec thin start -p $PORT`
+=== web: `bundle exec thin start -p $PORT`
+web.1: created for 0s
+
+STDOUT
+      end
+
+      it "displays one-off processes" do
+        api.post_ps "myapp", "bash"
+
+        stderr, stdout = execute("ps")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== run: one-off processes
+run.1: created for 0s: `bash`
+
+=== web: `bundle exec thin start -p $PORT`
 web.1: created for 0s
 
 STDOUT
