@@ -216,7 +216,7 @@ module Heroku
     end
 
     def get_terminal_environment
-      { "TERM" => ENV["TERM"], "COLUMNS" => `tput cols`, "LINES" => `tput lines` }
+      { "TERM" => ENV["TERM"], "COLUMNS" => `tput cols`.strip, "LINES" => `tput lines`.strip }
     rescue
       { "TERM" => ENV["TERM"] }
     end

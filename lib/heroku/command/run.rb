@@ -96,7 +96,6 @@ class Heroku::Command::Run < Heroku::Command::Base
 protected
 
   def run_attached(command)
-    opts = { :attach => true, :command => command, :ps_env => get_terminal_environment }
     process_data = action("Running `#{command}` attached to terminal", :success => "up") do
       process_data = api.post_ps(app, command, { :attach => true, :ps_env => get_terminal_environment }).body
       status(process_data["process"])
