@@ -24,23 +24,16 @@ class Heroku::Command::Labs < Heroku::Command::Base
     validate_arguments!
 
     features_data = api.get_features(app).body
+
     app_features, user_features = features_data.partition do |feature|
       feature["kind"] == "app"
     end
 
     if app
-      enabled_app_features, available_app_features = app_features.partition do |feature|
-        feature['enabled'] == true
-      end
-      display_features("#{app} Available Features", available_app_features)
-      display_features("#{app} Enabled Features", enabled_app_features)
+      display_features "#{app} Features", app_features
     end
 
-    enabled_user_features, available_user_features = user_features.partition do |feature|
-      feature['enabled'] == true
-    end
-    display_features("#{Heroku::Auth.user} Available Features", available_user_features)
-    display_features("#{Heroku::Auth.user} Enabled Features", enabled_user_features)
+    display_features "#{Heroku::Auth.user} Features", user_features
   end
 
   # labs:info FEATURE
@@ -125,12 +118,12 @@ private
   def display_features(header, features)
     unless features.empty?
       styled_header(header)
-      feature_data = {}
-      features.each do |feature|
-        feature_data[feature['name']] = feature['summary']
+      feature_data = []
+      features.sort_by { |f| f["enabled"].to_s }.reverse.each do |feature|
+        toggle = feature["enabled"] ? "[+]" : "[ ]"
+        feature_data << [ "#{toggle} #{feature["name"]}", feature["summary"] ]
       end
-      styled_hash(feature_data)
-      display
+      styled_array feature_data, :sort => false
     end
   end
 
