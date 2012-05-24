@@ -21,16 +21,16 @@ class Heroku::Command::Releases < Heroku::Command::Base
 
     releases_data = api.get_releases(app).body.sort_by do |release|
       release["name"][1..-1].to_i
-    end.slice(0, 15)
+    end.reverse.slice(0, 15)
 
     unless releases_data.empty?
       releases = releases_data.map do |release|
         datetime = time_ago((Time.now - Time.parse(release["created_at"])).to_i)
-        "#{release["name"]} #{release["descr"]} by #{release["user"]} #{datetime}"
+        [ release["name"], release["descr"], release["user"], datetime ]
       end
 
       styled_header("#{app} Releases")
-      styled_array(releases)
+      styled_array(releases, :sort => false)
     else
       display("#{app} has no releases.")
     end
