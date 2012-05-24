@@ -85,7 +85,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #Example:
   #
   # $ heroku ps
-  # === `bundle exec thin start -p $PORT`
+  # === run: one-off processes
+  # run.1: up for 5m: `bash`
+  #
+  # === web: `bundle exec thin start -p $PORT`
   # web.1: created for 30s
   #
   def index
