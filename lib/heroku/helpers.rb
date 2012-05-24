@@ -231,12 +231,11 @@ module Heroku
       display("#{message}... ", false)
       Heroku::Helpers.error_with_failure = true
       ret = yield
+      Heroku::Helpers.error_with_failure = false
       display((options[:success] || "done"), false)
       display(", #{@status}", false) if @status
       display
       ret
-    ensure
-      Heroku::Helpers.error_with_failure = false
     end
 
     def status(message)
@@ -256,17 +255,18 @@ module Heroku
     def error(message)
       if Heroku::Helpers.error_with_failure
         display("failed")
+        Heroku::Helpers.error_with_failure = false
       end
       $stderr.puts(format_with_bang(message))
       exit(1)
     end
 
     def self.error_with_failure
-      @@capture_errors ||= false
+      @@error_with_failure ||= false
     end
 
     def self.error_with_failure=(new_error_with_failure)
-      @@capture_errors = new_error_with_failure
+      @@error_with_failure = new_error_with_failure
     end
 
     def self.included_into
