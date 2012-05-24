@@ -1,3 +1,13 @@
+2.26.1 05/24/2012
+=================
+
+report unknown commands on stderr
+fix running attached commands (they were hanging)
+tweak output formatting for ps and releases
+fixes for missing help and help formatting
+fix SSL_VERIFY setting logic error
+fix for intermitent test failure related to error_with failure
+
 2.26.0 05/23/2012
 =================
 
