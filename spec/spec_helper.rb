@@ -200,6 +200,7 @@ RSpec.configure do |config|
   config.color_enabled = true
   config.include DisplayMessageMatcher
   config.order = 'rand'
+  config.before { Heroku::Helpers.error_with_failure = false }
   config.after { RR.reset }
 end
 
