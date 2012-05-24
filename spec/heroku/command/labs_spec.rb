@@ -18,14 +18,12 @@ module Heroku::Command
       stderr, stdout = execute("labs")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Available Features
-user_env_compile: Add user config vars to the environment during slug compilation
+=== myapp Features
+[+] sigterm-all        When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+[ ] user_env_compile   Add user config vars to the environment during slug compilation
 
-=== myapp Enabled Features
-sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-
-=== email@example.com Available Features
-sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+=== email@example.com Features
+[ ] sumo-rankings   Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
 STDOUT
     end
