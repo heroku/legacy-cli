@@ -69,8 +69,6 @@ class Heroku::Auth
     end
 
     def api_key(user = get_credentials[0], password = get_credentials[1])
-      full_host = (host =~ /^http/) ? host : "https://api.#{host}"
-      api = Heroku::API.new(:host => URI.parse(full_host).host)
       api.post_login(user, password).body["api_key"]
     end
 
