@@ -70,7 +70,14 @@ class Heroku::Auth
 
     def api_key(user = get_credentials[0], password = get_credentials[1])
       full_host = (host =~ /^http/) ? host : "https://api.#{host}"
-      api = Heroku::API.new(:host => URI.parse(full_host).host)
+      verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
+      api = Heroku::API.new(
+        :headers          => {
+          'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
+        },
+        :host             => URI.parse(full_host).host,
+        :ssl_verify_peer  => verify_ssl
+      )
       api.post_login(user, password).body["api_key"]
     end
 
