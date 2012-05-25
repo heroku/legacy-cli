@@ -9,26 +9,52 @@ module Heroku::Command
     end
 
     describe "index" do
-      context "when working with addons" do
-        it "lists installed addons" do
-          stub_core.installed_addons('myapp').returns([])
-          stderr, stdout = execute("addons")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
-No addons installed
-STDOUT
-        end
+
+      before(:each) do
+        stub_core
+        api.post_app("name" => "myapp", "stack" => "cedar")
       end
-      context "when working with addons and attachments" do
-        it "should list attachments" do
-          stub_core.installed_addons('myapp').returns([{"configured"=>true, "name"=>"heroku-postgresql:ronin", "attachment_name"=>"HEROKU_POSTGRESQL_RED"}])
-          stderr, stdout = execute("addons")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
-heroku-postgresql:ronin => HEROKU_POSTGRESQL_RED
-STDOUT
-        end
+
+      after(:each) do
+        api.delete_app("myapp")
       end
+
+      it "should display no addons when none are configured" do
+        stderr, stdout = execute("addons")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+No addons for myapp
+STDOUT
+      end
+
+      it "should list addons and attachments" do
+        Excon.stubs.unshift([
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/addons$}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode([
+              { 'configured' => false, 'name' => 'deployhooks:email' },
+              { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' }
+            ]),
+            :status => 200,
+          }
+        ])
+        stderr, stdout = execute("addons")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== myapp Configured Add-ons
+heroku-postgresql:ronin   HEROKU_POSTGRESQL_RED
+
+=== myapp Add-ons to Configure
+deployhooks:email   https://api.heroku.com/myapps/myapp/addons/deployhooks:email
+
+STDOUT
+        Excon.stubs.shift
+      end
+
     end
 
     describe "list" do

@@ -14,27 +14,26 @@ module Heroku::Command
     # list installed addons
     #
     def index
-      installed = heroku.installed_addons(app)
+      validate_arguments!
+
+      installed = api.get_addons(app).body
       if installed.empty?
-        display "No addons installed"
+        display("No addons for #{app}")
       else
         available, pending = installed.partition { |a| a['configured'] }
 
-        available.map do |a|
-          if a['attachment_name']
-            a['name'] + ' => ' + a['attachment_name']
-          else
-            a['name']
-          end
-        end.sort.each do |addon|
-          display(addon)
+        unless available.empty?
+          styled_header("#{app} Configured Add-ons")
+          styled_array(available.map do |a|
+            [a['name'], a['attachment_name']].compact
+          end)
         end
 
         unless pending.empty?
-          display "\n--- not configured ---"
-          pending.map { |a| a['name'] }.sort.each do |addon|
-            display addon.ljust(24) + "http://#{heroku.host}/myapps/#{app}/addons/#{addon}"
-          end
+          styled_header("#{app} Add-ons to Configure")
+          styled_array(pending.map do |a|
+            [a['name'], app_addon_url(a['name'])].compact
+          end)
         end
       end
     end
