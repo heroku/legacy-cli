@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (2.26.1)
+    heroku (2.26.2.pre1)
       heroku-api (~> 0.2.1)
       launchy (>= 0.3.2)
       netrc (~> 0.7.2)
