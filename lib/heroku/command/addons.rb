@@ -109,16 +109,20 @@ module Heroku::Command
     # open an addon's dashboard in your browser
     #
     def open
-      addon = args.shift
-      app_addons = heroku.installed_addons(app).map { |a| a["name"] }
-      matches = app_addons.select { |a| a =~ /^#{addon}/ }
+      unless addon = shift_argument
+        error("Usage: heroku addons:open ADDON\nMust specify addon")
+      end
+      validate_arguments!
+
+      app_addons = api.get_addons(app).body.map {|a| a['name']}
+      matches = app_addons.select {|a| a =~ /^#{addon}/}
 
       case matches.length
       when 0 then
-        if heroku.addons.any? {|a| a['name'] =~ /^#{addon}/ }
-          error "Addon not installed: #{addon}"
+        if api.get_addons.body.any? {|a| a['name'] =~ /^#{addon}/}
+          error("Addon not installed: #{addon}")
         else
-          error "Unknown addon: #{addon}"
+          error("Unknown addon: #{addon}")
         end
       when 1 then
         addon_to_open = matches.first
@@ -127,7 +131,7 @@ module Heroku::Command
           Launchy.open("https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}")
         end
       else
-        error "Ambiguous addon name: #{addon}"
+        error("Ambiguous addon name: #{addon}")
       end
     end
 

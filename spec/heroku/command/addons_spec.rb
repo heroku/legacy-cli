@@ -327,40 +327,61 @@ OUTPUT
     end
 
     describe "opening an addon" do
-      before(:each) { @addons.stub!(:args).and_return(["red"]) }
+
+      before(:each) do
+        stub_core
+        api.post_app("name" => "myapp", "stack" => "cedar")
+      end
+
+      after(:each) do
+        api.delete_app("myapp")
+      end
+
+      it "displays usage when no argument is specified" do
+        stderr, stdout = execute('addons:open')
+        stderr.should == <<-STDERR
+ !    Usage: heroku addons:open ADDON
+ !    Must specify addon
+STDERR
+        stdout.should == ''
+      end
 
       it "opens the addon if only one matches" do
-        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
-          { "name" => "redistogo:basic" }
-        ])
+        api.post_addon('myapp', 'redistogo:nano')
         require("launchy")
-        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:basic")
-        @addons.open
+        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:nano")
+        stderr, stdout = execute('addons:open redistogo:nano')
+        stderr.should == ''
+        stdout.should == <<-STDOUT
+Opening redistogo:nano for myapp... done
+STDOUT
       end
 
       it "complains about ambiguity" do
-        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([
-          { "name" => "redistogo:basic" },
-          { "name" => "red:color" }
-        ])
-        @addons.should_receive(:error).with("Ambiguous addon name: red")
-        @addons.open
+        pending('heroku.rb not erroring on reinstalling a plugin of same type')
+        api.post_addon('myapp', 'deployhooks:email')
+        api.post_addon('myapp', 'deployhooks:http')
+        stderr, stdout = execute('addons:open redistogo')
+        stderr.should == <<-STDERR
+ !    Ambiguous addon name: redistogo
+STDERR
+        stdout.should == ''
       end
 
       it "complains if no such addon exists" do
-        @addons.heroku.should_receive(:addons).and_return([])
-        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([])
-        @addons.should_receive(:error).with("Unknown addon: red")
-        @addons.open
+        stderr, stdout = execute('addons:open unknown')
+        stderr.should == <<-STDERR
+ !    Unknown addon: unknown
+STDERR
+        stdout.should == ''
       end
 
       it "complains if addon is not installed" do
-        @addons.heroku.should_receive(:addons).and_return([
-          { 'name' => 'redistogo:basic' }
-        ])
-        @addons.heroku.should_receive(:installed_addons).with("myapp").and_return([])
-        @addons.should_receive(:error).with("Addon not installed: red")
-        @addons.open
+        stderr, stdout = execute('addons:open deployhooks:http')
+        stderr.should == <<-STDOUT
+ !    Addon not installed: deployhooks:http
+STDOUT
+        stdout.should == ''
       end
     end
   end
