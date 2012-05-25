@@ -420,5 +420,25 @@ module Heroku
       distances[first.length][last.length]
     end
 
+    def suggestion(actual, possibilities)
+      distances = Hash.new {|hash,key| hash[key] = []}
+
+      possibilities.each do |suggestion|
+        distances[string_distance(actual, suggestion)] << suggestion
+      end
+
+      minimum_distance = distances.keys.min
+      if minimum_distance < 4
+        suggestions = distances[minimum_distance].sort
+        if suggestions.length == 1
+          "Perhaps you meant `#{suggestions.first}`."
+        else
+          "Perhaps you meant #{suggestions[0...-1].map {|suggestion| "`#{suggestion}`"}.join(', ')} or `#{suggestions.last}`."
+        end
+      else
+        nil
+      end
+    end
+
   end
 end
