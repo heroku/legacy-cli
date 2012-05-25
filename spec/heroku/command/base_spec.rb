@@ -65,6 +65,24 @@ other\tgit@other.com:other.git (push)
         @base.send(:git_remotes, '/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp' }
       end
 
+      it "read remotes from git config when using custom subdomains" do
+        Dir.stub(:chdir)
+        File.should_receive(:exists?).with(".git").and_return(true)
+        @base.should_receive(:git).with('remote -v').and_return(<<-REMOTES)
+staging\tgit@myhost.heroku.com:myapp-staging.git (fetch)
+staging\tgit@myhost.heroku.com:myapp-staging.git (push)
+production\tgit@this-is-production.heroku.com:myapp-production.git (fetch)
+production\tgit@this-is-production.heroku.com:myapp-production.git (push)
+        REMOTES
+
+        @heroku = mock
+        @heroku.stub(:host).and_return('heroku.com')
+        @base.stub(:heroku).and_return(@heroku)
+
+        # need a better way to test internal functionality
+        @base.send(:git_remotes, '/home/dev/myapp').should == { 'staging' => 'myapp-staging', 'production' => 'myapp-production' }
+      end
+
       it "gets the app from remotes when there's only one app" do
         @base.stub!(:git_remotes).and_return({ 'heroku' => 'myapp' })
         @base.stub!(:git).with("config heroku.remote").and_return("")
