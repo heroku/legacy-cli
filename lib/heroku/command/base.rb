@@ -141,10 +141,6 @@ protected
     end.join("\n")
   end
 
-  def self.extract_option(key)
-    options[key]
-  end
-
   def self.extract_options(help)
     help.select do |line|
       line =~ /^\s+-(.+)#(.+)/
@@ -158,6 +154,10 @@ protected
 
   def current_command
     Heroku::Command.current_command
+  end
+
+  def extract_option(key)
+    options[key]
   end
 
   def invalid_arguments
