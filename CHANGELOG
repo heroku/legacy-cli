@@ -1,3 +1,9 @@
+2.26.2 05/25/2012
+=================
+
+fix ssl verification settings for the login special case
+fix extract_option definition for backwards compatibility
+
 2.26.1 05/24/2012
 =================
 
