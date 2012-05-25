@@ -375,6 +375,7 @@ STDOUT
         stderr, stdout = execute('addons:open deployhooks')
         stderr.should == <<-STDERR
  !    Ambiguous addon name: deployhooks
+ !    Perhaps you meant `deployhooks:email` or `deployhooks:http`.
 STDERR
         stdout.should == ''
         Excon.stubs.shift
@@ -383,7 +384,18 @@ STDERR
       it "complains if no such addon exists" do
         stderr, stdout = execute('addons:open unknown')
         stderr.should == <<-STDERR
- !    Unknown addon: unknown
+ !    `unknown` is not a heroku add-on.
+ !    See `heroku addons:list` for all available addons.
+STDERR
+        stdout.should == ''
+      end
+
+      it "suggests alternatives if addon has typo" do
+        stderr, stdout = execute('addons:open redisgoto')
+        stderr.should == <<-STDERR
+ !    `redisgoto` is not a heroku add-on.
+ !    Perhaps you meant `redistogo`.
+ !    See `heroku addons:list` for all available addons.
 STDERR
         stdout.should == ''
       end

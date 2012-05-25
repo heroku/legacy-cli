@@ -115,142 +115,153 @@ module Heroku::Command
       validate_arguments!
 
       app_addons = api.get_addons(app).body.map {|a| a['name']}
-      matches = app_addons.select {|a| a =~ /^#{addon}/}
+      matches = app_addons.select {|a| a =~ /^#{addon}/}.sort
 
       case matches.length
       when 0 then
-        if api.get_addons.body.any? {|a| a['name'] =~ /^#{addon}/}
+        addon_names = api.get_addons.body.map {|a| a['name']}
+        if addon_names.any? {|name| name =~ /^#{addon}/}
           error("Addon not installed: #{addon}")
         else
-          error("Unknown addon: #{addon}")
+          error([
+            "`#{addon}` is not a heroku add-on.",
+            suggestion(addon, addon_names + addon_names.map {|name| name.split(':').first}.uniq),
+            "See `heroku addons:list` for all available addons."
+          ].compact.join("\n"))
         end
       when 1 then
         addon_to_open = matches.first
         action("Opening #{addon_to_open} for #{app}") do
           require("launchy")
-          Launchy.open("https://api.#{heroku.host}/myapps/#{app}/addons/#{addon_to_open}")
+          Launchy.open(app_addon_url(addon_to_open))
         end
       else
-        error("Ambiguous addon name: #{addon}")
+        error("Ambiguous addon name: #{addon}\nPerhaps you meant #{matches[0...-1].map {|match| "`#{match}`"}.join(', ')} or `#{matches.last}`.\n")
       end
     end
 
     private
-      def partition_addons(addons)
-        addons.group_by{ |a| (a["state"] == "public" ? "available" : a["state"]) }
+
+    def app_addon_url(addon)
+      "https://api.#{heroku.host}/myapps/#{app}/addons/#{addon}"
+    end
+
+    def partition_addons(addons)
+      addons.group_by{ |a| (a["state"] == "public" ? "available" : a["state"]) }
+    end
+
+    def format_for_display(addons)
+      grouped = addons.inject({}) do |base, addon|
+        group, short = addon['name'].split(':')
+        base[group] ||= []
+        base[group] << addon.merge('short' => short)
+        base
       end
-
-      def format_for_display(addons)
-        grouped = addons.inject({}) do |base, addon|
-          group, short = addon['name'].split(':')
-          base[group] ||= []
-          base[group] << addon.merge('short' => short)
-          base
+      grouped.keys.sort.map do |name|
+        addons = grouped[name]
+        row = name.dup
+        if addons.any? { |a| a['short'] }
+          row << ':'
+          size = row.size
+          stop = false
+          row << addons.map { |a| a['short'] }.sort.map do |short|
+            size += short.size
+            if size < 31
+              short
+            else
+              stop = true
+              nil
+            end
+          end.compact.join(', ')
+          row << '...' if stop
         end
-        grouped.keys.sort.map do |name|
-          addons = grouped[name]
-          row = name.dup
-          if addons.any? { |a| a['short'] }
-            row << ':'
-            size = row.size
-            stop = false
-            row << addons.map { |a| a['short'] }.sort.map do |short|
-              size += short.size
-              if size < 31
-                short
-              else
-                stop = true
-                nil
-              end
-            end.compact.join(', ')
-            row << '...' if stop
-          end
-          row
-        end
+        row
       end
+    end
 
-      def addon_run
-        response = yield
+    def addon_run
+      response = yield
 
-        if response
-          price = "(#{ response['price'] })" if response['price']
+      if response
+        price = "(#{ response['price'] })" if response['price']
 
-          if response['message'] =~ /(Attached as [A-Z0-9_]+)\n(.*)/m
-            attachment = $1
-            message = $2
-          else
-            attachment = nil
-            message = response['message']
-          end
-
-          begin
-            release = heroku.release(app, 'current')
-            release = release['name'] if release
-          rescue RestClient::RequestFailed => e
-            release = nil
-          end
+        if response['message'] =~ /(Attached as [A-Z0-9_]+)\n(.*)/m
+          attachment = $1
+          message = $2
+        else
+          attachment = nil
+          message = response['message']
         end
 
-        status [ release, price ].compact.join(' ')
-        { :attachment => attachment, :message => message }
-      rescue RestClient::ResourceNotFound => e
-        error e.response.to_s
-      rescue RestClient::Locked => ex
-        raise
-      rescue RestClient::RequestFailed => e
-        retry if e.http_code == 402 && confirm_billing
-        error Heroku::Command.extract_error(e.http_body)
-      end
-
-      def configure_addon(label, &install_or_upgrade)
-        addon = args.shift
-        raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
-
-        config = parse_options(args)
-        config.merge!(:confirm => app) if app == options[:confirm]
-        raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
-
-        hpg_translate_fork_and_follow(addon, config)
-
-        messages = nil
-        action("#{label} #{addon} to #{app}") do
-          messages = addon_run { install_or_upgrade.call(addon, config) }
+        begin
+          release = heroku.release(app, 'current')
+          release = release['name'] if release
+        rescue RestClient::RequestFailed => e
+          release = nil
         end
-        display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
-        display(messages[:message]) unless messages[:message].to_s.strip == ""
       end
 
-      #this will clean up when we officially deprecate
-      def parse_options(args)
-        config = {}
-        deprecated_args = []
-        flag = /^--/
+      status [ release, price ].compact.join(' ')
+      { :attachment => attachment, :message => message }
+    rescue RestClient::ResourceNotFound => e
+      error e.response.to_s
+    rescue RestClient::Locked => ex
+      raise
+    rescue RestClient::RequestFailed => e
+      retry if e.http_code == 402 && confirm_billing
+      error Heroku::Command.extract_error(e.http_body)
+    end
 
-        args.size.times do
-          break if args.empty?
-          peek = args.first
-          next unless peek && (peek.match(flag) || peek.match(/=/))
-          arg  = args.shift
-          peek = args.first
-          key  = arg
-          if key.match(/=/)
-            deprecated_args << key unless key.match(flag)
-            key, value = key.split('=', 2)
-          elsif peek.nil? || peek.match(flag)
-            value = true
-          else
-            value = args.shift
-          end
-          value = true if value == 'true'
-          config[key.sub(flag, '')] = value
+    def configure_addon(label, &install_or_upgrade)
+      addon = args.shift
+      raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
 
-          if !deprecated_args.empty?
-            out_string = deprecated_args.map{|a| "--#{a}"}.join(' ')
-            display("Warning: non-unix style params have been deprecated, use #{out_string} instead")
-          end
+      config = parse_options(args)
+      config.merge!(:confirm => app) if app == options[:confirm]
+      raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
+
+      hpg_translate_fork_and_follow(addon, config)
+
+      messages = nil
+      action("#{label} #{addon} to #{app}") do
+        messages = addon_run { install_or_upgrade.call(addon, config) }
+      end
+      display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
+      display(messages[:message]) unless messages[:message].to_s.strip == ""
+    end
+
+    #this will clean up when we officially deprecate
+    def parse_options(args)
+      config = {}
+      deprecated_args = []
+      flag = /^--/
+
+      args.size.times do
+        break if args.empty?
+        peek = args.first
+        next unless peek && (peek.match(flag) || peek.match(/=/))
+        arg  = args.shift
+        peek = args.first
+        key  = arg
+        if key.match(/=/)
+          deprecated_args << key unless key.match(flag)
+          key, value = key.split('=', 2)
+        elsif peek.nil? || peek.match(flag)
+          value = true
+        else
+          value = args.shift
         end
+        value = true if value == 'true'
+        config[key.sub(flag, '')] = value
 
-        config
+        if !deprecated_args.empty?
+          out_string = deprecated_args.map{|a| "--#{a}"}.join(' ')
+          display("Warning: non-unix style params have been deprecated, use #{out_string} instead")
+        end
       end
+
+      config
+    end
+
   end
 end
