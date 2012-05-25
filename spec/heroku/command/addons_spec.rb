@@ -358,14 +358,26 @@ STDOUT
       end
 
       it "complains about ambiguity" do
-        pending('heroku.rb not erroring on reinstalling a plugin of same type')
-        api.post_addon('myapp', 'deployhooks:email')
-        api.post_addon('myapp', 'deployhooks:http')
-        stderr, stdout = execute('addons:open redistogo')
+        Excon.stubs.unshift([
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/addons$}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode([
+              { 'name' => 'deployhooks:email' },
+              { 'name' => 'deployhooks:http' }
+            ]),
+            :status => 200,
+          }
+        ])
+        stderr, stdout = execute('addons:open deployhooks')
         stderr.should == <<-STDERR
- !    Ambiguous addon name: redistogo
+ !    Ambiguous addon name: deployhooks
 STDERR
         stdout.should == ''
+        Excon.stubs.shift
       end
 
       it "complains if no such addon exists" do
