@@ -220,6 +220,7 @@ STDOUT
         stdout.should == <<-OUTPUT
 Adding my_addon to myapp... done, v99 (free)
 foo
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
 
@@ -231,6 +232,7 @@ OUTPUT
 Adding my_addon to myapp... done, v99 ($200/mo)
 foo
 bar
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
 
@@ -266,6 +268,7 @@ OUTPUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Upgrading my_addon to myapp... done, v99 (free)
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
 
@@ -276,6 +279,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Upgrading my_addon to myapp... done, v99 (free)
 Don't Panic
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
     end
@@ -306,6 +310,7 @@ OUTPUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Downgrading my_addon to myapp... done, v99 (free)
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
 
@@ -316,6 +321,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Downgrading my_addon to myapp... done, v99 (free)
 Don't Panic
+my_addon documentation available at: https://devcenter.heroku.com/articles/my_addon
 OUTPUT
       end
     end
