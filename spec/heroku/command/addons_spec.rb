@@ -352,6 +352,87 @@ OUTPUT
       @addons.remove
     end
 
+    describe "opening add-on docs" do
+
+      before(:each) do
+        stub_core
+        api.post_app("name" => "myapp", "stack" => "cedar")
+      end
+
+      after(:each) do
+        api.delete_app("myapp")
+      end
+
+      it "displays usage when no argument is specified" do
+        stderr, stdout = execute('addons:docs')
+        stderr.should == <<-STDERR
+ !    Usage: heroku addons:docs ADDON
+ !    Must specify addon.
+STDERR
+        stdout.should == ''
+      end
+
+      it "opens the addon if only one matches" do
+        require("launchy")
+        Launchy.should_receive(:open).with("https://devcenter.heroku.com/articles/redistogo")
+        stderr, stdout = execute('addons:docs redistogo:nano')
+        stderr.should == ''
+        stdout.should == <<-STDOUT
+Opening redistogo docs... done
+STDOUT
+      end
+
+      it "complains about ambiguity" do
+        Excon.stubs.unshift([
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/addons$}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode([
+              { 'name' => 'qux:foo' },
+              { 'name' => 'quux:bar' }
+            ]),
+            :status => 200,
+          }
+        ])
+        stderr, stdout = execute('addons:docs qu')
+        stderr.should == <<-STDERR
+ !    Ambiguous addon name: qu
+ !    Perhaps you meant `qux:foo` or `quux:bar`.
+STDERR
+        stdout.should == ''
+        Excon.stubs.shift
+      end
+
+      it "complains if no such addon exists" do
+        stderr, stdout = execute('addons:docs unknown')
+        stderr.should == <<-STDERR
+ !    `unknown` is not a heroku add-on.
+ !    See `heroku addons:list` for all available addons.
+STDERR
+        stdout.should == ''
+      end
+
+      it "suggests alternatives if addon has typo" do
+        stderr, stdout = execute('addons:docs redisgoto')
+        stderr.should == <<-STDERR
+ !    `redisgoto` is not a heroku add-on.
+ !    Perhaps you meant `redistogo`.
+ !    See `heroku addons:list` for all available addons.
+STDERR
+        stdout.should == ''
+      end
+
+      it "complains if addon is not installed" do
+        stderr, stdout = execute('addons:open deployhooks:http')
+        stderr.should == <<-STDOUT
+ !    Addon not installed: deployhooks:http
+STDOUT
+        stdout.should == ''
+      end
+    end
     describe "opening an addon" do
 
       before(:each) do
@@ -367,7 +448,7 @@ OUTPUT
         stderr, stdout = execute('addons:open')
         stderr.should == <<-STDERR
  !    Usage: heroku addons:open ADDON
- !    Must specify addon
+ !    Must specify addon.
 STDERR
         stdout.should == ''
       end

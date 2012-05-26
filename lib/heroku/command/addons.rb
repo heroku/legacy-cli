@@ -103,13 +103,47 @@ module Heroku::Command
       end
     end
 
+    # addons:docs ADDON
+    #
+    # open an addon's documentation in your browser
+    #
+    def docs
+      unless addon = shift_argument
+        error("Usage: heroku addons:docs ADDON\nMust specify addon.")
+      end
+      validate_arguments!
+
+      addon_names = api.get_addons.body.map {|a| a['name']}
+      addon_types = addon_names.map {|name| name.split(':').first}.uniq
+
+      name_matches = addon_names.select {|name| name =~ /^#{addon}/}
+      type_matches = name_matches.map {|name| name.split(':').first}.uniq
+
+      case type_matches.length
+      when 0 then
+        error([
+          "`#{addon}` is not a heroku add-on.",
+          suggestion(addon, addon_names + addon_types),
+          "See `heroku addons:list` for all available addons."
+        ].compact.join("\n"))
+      when 1
+        addon_type = type_matches.first
+        action("Opening #{addon_type} docs") do
+          require("launchy")
+          Launchy.open(addon_docs_url(addon_type))
+        end
+      else
+        error("Ambiguous addon name: #{addon}\nPerhaps you meant #{name_matches[0...-1].map {|match| "`#{match}`"}.join(', ')} or `#{name_matches.last}`.\n")
+      end
+    end
+
     # addons:open ADDON
     #
     # open an addon's dashboard in your browser
     #
     def open
       unless addon = shift_argument
-        error("Usage: heroku addons:open ADDON\nMust specify addon")
+        error("Usage: heroku addons:open ADDON\nMust specify addon.")
       end
       validate_arguments!
 
@@ -140,6 +174,10 @@ module Heroku::Command
     end
 
     private
+
+    def addon_docs_url(addon)
+      "https://devcenter.#{heroku.host}/articles/#{addon.split(':').first}"
+    end
 
     def app_addon_url(addon)
       "https://api.#{heroku.host}/myapps/#{app}/addons/#{addon}"
