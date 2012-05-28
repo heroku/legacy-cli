@@ -17,7 +17,7 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
     validate_arguments!
 
     action("Enabling maintenance mode for #{app}") do
-      api.post_app_maintenance(app, 'on')
+      api.post_app_maintenance(app, :on)
     end
 
     #heroku.maintenance(app, :on)
@@ -37,7 +37,7 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
     validate_arguments!
 
     action("Disabling maintenance mode for #{app}") do
-      api.post_app_maintenance(app, 'off')
+      api.post_app_maintenance(app, :off)
     end
 
     #heroku.maintenance(app, :off)
