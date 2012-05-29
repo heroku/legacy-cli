@@ -15,7 +15,8 @@ class Heroku::Auth
       @api ||= begin
         full_host = (host =~ /^http/) ? host : "https://api.#{host}"
         verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
-        Heroku::API.new(
+
+        api = Heroku::API.new(
           :api_key          => password,
           :headers          => {
             'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
@@ -23,6 +24,18 @@ class Heroku::Auth
           :host             => URI.parse(full_host).host,
           :ssl_verify_peer  => verify_ssl
         )
+
+        def api.request(params, &block)
+          response = super
+          if response.headers.has_key?('X-Heroku-Warning')
+            warning = response.headers['X-Heroku-Warning']
+            warning = warning.split("\n").map {|line| "\n !    #{line}"}
+            $stderr.puts(warning)
+          end
+          response
+        end
+
+        api
       end
     end
 
