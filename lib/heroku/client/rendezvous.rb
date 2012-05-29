@@ -60,7 +60,6 @@ class Heroku::Client::Rendezvous
             rescue EOFError
               break
             end
-            data.force_encoding("utf-8")
             output.write(fixup(data))
           end
         else
@@ -85,6 +84,7 @@ class Heroku::Client::Rendezvous
   private
 
   def fixup(data)
+    data.force_encoding('utf-8')
     output.isatty ? data : data.gsub(/\cM/,"")
   end
 end
