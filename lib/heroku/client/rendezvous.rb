@@ -60,6 +60,7 @@ class Heroku::Client::Rendezvous
             rescue EOFError
               break
             end
+            data.force_encoding("utf-8")
             output.write(fixup(data))
           end
         else
