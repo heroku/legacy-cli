@@ -1,3 +1,28 @@
+2.26.3 05/30/2012
+=================
+
+ideal updates for addons#open
+add ambiguous addons to excon to provide more accurate tests
+more reusable spellcheck/suggestion code
+add suggestions for addons#open
+ideal addons#index
+add addons#doc to open devcenter article
+add docs hint after addons changes
+fix maintenance mode handling
+force utf-8 encoding from rendezvous
+display X-Heroku-Warning messages via heroku.rb
+truncate release descriptions at 40 characters
+add spec to cover release truncation
+strip dashes in extract_option for better backwards compatibility
+convert to symbol for better extract_option compatibility
+add --no-remote to apps#create
+skip downcasing for url argument in pgbackups#restore
+fix reversed messaging in pgbackups capture/restore
+fix hpg_resolve to provide pretty names
+fix hpg_resolve to allow color shorthand
+more consistency around prettified pg names
+fix add-on not found error messaging
+
 2.26.2 05/25/2012
 =================
 
