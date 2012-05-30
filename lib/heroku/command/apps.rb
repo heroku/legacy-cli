@@ -154,6 +154,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #     --addons ADDONS        # a comma-delimited list of addons to install
   # -b, --buildpack BUILDPACK  # a buildpack url to use for this app
+  # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
   #
@@ -210,7 +211,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
       hputs("Timed Out! Check heroku status for known issues.")
     end
 
-    create_git_remote(options[:remote] || "heroku", info["git_url"])
+    unless options[:no_remote].is_a? FalseClass
+      create_git_remote(options[:remote] || "heroku", info["git_url"])
+    end
   end
 
   alias_command "create", "apps:create"
