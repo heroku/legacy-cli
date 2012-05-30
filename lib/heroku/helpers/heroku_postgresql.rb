@@ -37,6 +37,8 @@ module Heroku::Helpers::HerokuPostgresql
 
     if hpg_databases[name]
       [hpg_pretty_name(name), hpg_databases[name]]
+    elsif (config_var = "HEROKU_POSTGRESQL_#{name}") && hpg_databases[config_var]
+      [hpg_pretty_name(config_var), hpg_databases[config_var]]
     elsif default && name.empty? && app_config_vars[default]
       [hpg_pretty_name(default), app_config_vars[default]]
     elsif name.empty?
