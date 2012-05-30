@@ -157,7 +157,7 @@ protected
   end
 
   def extract_option(key)
-    options[key.dup.gsub('-','')]
+    options[key.dup.gsub('-','').to_sym]
   end
 
   def invalid_arguments
