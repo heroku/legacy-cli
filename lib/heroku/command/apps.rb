@@ -197,12 +197,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
       (options[:addons] || "").split(",").each do |addon|
         addon.strip!
         action("Adding #{addon} to #{info["name"]}") do
-          api.post_addon(name, addon)
+          api.post_addon(info["name"], addon)
         end
       end
 
       if buildpack = options[:buildpack]
-        api.put_config_vars(name, "BUILDPACK_URL" => buildpack)
+        api.put_config_vars(info["name"], "BUILDPACK_URL" => buildpack)
         display("BUILDPACK_URL=#{buildpack}")
       end
 
