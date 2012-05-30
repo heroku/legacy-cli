@@ -10,7 +10,7 @@ module Heroku::Command
       api.put_config_vars "myapp", {
         "DATABASE_URL" => "postgres://database_url",
         "SHARED_DATABASE_URL" => "postgres://other_database_url",
-        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url",
+        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
       }
     end
 
@@ -122,7 +122,7 @@ STDOUT
         stderr, stdout = execute("pg:promote RONIN --confirm myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Promoting HEROKU_POSTGRESQL_RONIN_URL to DATABASE_URL... done
+Promoting HEROKU_POSTGRESQL_RONIN to DATABASE_URL... done
 STDOUT
         api.get_config_vars("myapp").body["DATABASE_URL"].should == "postgres://ronin_database_url"
       end

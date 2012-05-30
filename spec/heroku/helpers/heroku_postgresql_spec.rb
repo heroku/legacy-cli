@@ -10,35 +10,72 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   let(:app_config_vars) do
-    { "DATABASE_URL" => "postgres://default", "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black" }
+    {
+      "DATABASE_URL" => "postgres://default",
+      "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
+      "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default"
+    }
   end
 
-  it "resolves using NAME" do
-    subject.hpg_resolve("BLACK").last.should == "postgres://black"
+  it "resolves default using NAME" do
+    subject.hpg_resolve("IVORY").should == [
+      "HEROKU_POSTGRESQL_IVORY (DATABASE_URL)",
+      "postgres://default"
+    ]
   end
 
-  it "resolves using NAME_URL" do
-    subject.hpg_resolve("BLACK_URL").last.should == "postgres://black"
+  it "resolves non-default using NAME" do
+    subject.hpg_resolve("BLACK").should == [
+      "HEROKU_POSTGRESQL_BLACK",
+      "postgres://black"
+    ]
   end
 
-  it "resolves using lowercase" do
-    subject.hpg_resolve("black").last.should == "postgres://black"
+  it "resolves default using NAME_URL" do
+    subject.hpg_resolve("IVORY_URL").should == [
+      "HEROKU_POSTGRESQL_IVORY (DATABASE_URL)",
+      "postgres://default"
+    ]
+  end
+
+  it "resolves non-default using NAME_URL" do
+    subject.hpg_resolve("BLACK_URL").should == [
+      "HEROKU_POSTGRESQL_BLACK",
+      "postgres://black"
+    ]
+  end
+
+  it "resolves default using lowercase" do
+    subject.hpg_resolve("ivory").should == [
+      "HEROKU_POSTGRESQL_IVORY (DATABASE_URL)",
+      "postgres://default"
+    ]
+  end
+
+  it "resolves non-default using lowercase" do
+    subject.hpg_resolve("black").should == [
+      "HEROKU_POSTGRESQL_BLACK",
+      "postgres://black"
+    ]
   end
 
   it "throws an error if it doesnt exist" do
-    subject.should_receive(:error).with("Unknown database: VIOLET. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK")
+    subject.should_receive(:error).with("Unknown database: VIOLET. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK, HEROKU_POSTGRESQL_IVORY")
     subject.hpg_resolve("violet")
   end
 
   context "default" do
 
     it "errors if there is no default" do
-      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK")
+      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE, HEROKU_POSTGRESQL_BLACK, HEROKU_POSTGRESQL_IVORY")
       subject.hpg_resolve(nil)
     end
 
     it "uses the default if nothing specified" do
-      subject.hpg_resolve(nil, "DATABASE_URL").last.should == "postgres://default"
+      subject.hpg_resolve(nil, "DATABASE_URL").should == [
+        "HEROKU_POSTGRESQL_IVORY (DATABASE_URL)",
+        "postgres://default"
+      ]
     end
 
   end

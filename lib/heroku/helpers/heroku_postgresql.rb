@@ -73,7 +73,7 @@ module Heroku::Helpers::HerokuPostgresql
           app_config_vars[key] == app_config_vars['DATABASE_URL']
         end
       end
-      "#{key} (DATABASE_URL)"
+      "#{key.gsub(/_URL$/, '')} (DATABASE_URL)"
     elsif hpg_databases[name] == hpg_databases['DATABASE']
       "#{name} (DATABASE_URL)"
     else

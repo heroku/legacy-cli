@@ -54,8 +54,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       url = db
       display_name = "custom URL"
     else
-      name, url = hpg_resolve(db)
-      display_name = "#{name}_URL"
+      display_name, url = hpg_resolve(db)
     end
 
     action "Promoting #{display_name} to DATABASE_URL" do
@@ -185,7 +184,7 @@ private
 
   def display_db(name, db)
     pretty_name = name
-    if db[:url] == app_config_vars["DATABASE_URL"]
+    if db[:url] == app_config_vars["DATABASE_URL"] && !pretty_name.include?(' (DATABASE_URL)')
       pretty_name += " (DATABASE_URL)"
     end
 
