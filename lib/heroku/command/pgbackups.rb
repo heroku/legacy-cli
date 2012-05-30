@@ -73,7 +73,7 @@ module Heroku::Command
 
       to_uri = URI.parse backup["to_url"]
       backup_id = to_uri.path.empty? ? "error" : File.basename(to_uri.path, '.*')
-      display "\n#{to_name}  ----backup--->  #{backup_id}"
+      display "\n#{from_name}  ----backup--->  #{backup_id}"
 
       backup = poll_transfer!(backup)
 
@@ -126,7 +126,7 @@ module Heroku::Command
         from_name = "BACKUP"
       end
 
-      message = "#{from_name}  <---restore---  "
+      message = "#{to_name}  <---restore---  "
       padding = " " * message.length
       display "\n#{message}#{backup_id}"
       if backup

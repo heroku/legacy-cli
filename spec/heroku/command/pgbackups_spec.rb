@@ -144,7 +144,7 @@ STDERR
 STDERR
           stdout.should == <<-STDOUT
 
-BACKUP  ----backup--->  bar
+DATABASE_URL  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT
@@ -159,7 +159,7 @@ STDOUT
 STDERR
           stdout.should == <<-STDOUT
 
-BACKUP  ----backup--->  bar
+DATABASE_URL  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT
@@ -174,7 +174,7 @@ STDOUT
 STDERR
           stdout.should == <<-STDOUT
 
-BACKUP  ----backup--->  bar
+DATABASE_URL  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT
