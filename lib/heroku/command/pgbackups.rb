@@ -101,7 +101,8 @@ module Heroku::Command
         backup_id = :latest
       else
         to_name, to_url = hpg_resolve(shift_argument)
-        backup_id = shift_argument
+        # skip shift_argument because urls are caps sensitive
+        backup_id = Heroku::Command.invalid_arguments.shift
       end
 
       if :latest == backup_id

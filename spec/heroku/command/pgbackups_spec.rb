@@ -226,18 +226,19 @@ STDOUT
 
         it "should restore the named backup" do
           name = "backupname"
-          args = ["DATABASE", name]
           @pgbackups.stub(:args).and_return(["DATABASE", name])
-          @pgbackups.stub(:shift_argument).and_return(*args)
+          @pgbackups.stub(:shift_argument).and_return('DATABASE')
+          Heroku::Command.stub(:invalid_arguments).and_return([name])
           @pgbackups.stub(:hpg_resolve).and_return([name])
           @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
           @pgbackups.restore
         end
 
         it "should handle external restores" do
-          args = ['db_name_gets_shifted_out_in_resolve_db', "http://external/file.dump"]
+          args = ['db_name_gets_shifted_out_in_resolve_db', 'http://external/file.dump']
           @pgbackups.stub(:args).and_return(args)
-          @pgbackups.stub(:shift_argument).and_return(*args)
+          @pgbackups.stub(:shift_argument).and_return(args.first)
+          Heroku::Command.stub(:invalid_arguments).and_return([args.last])
           @pgbackups.stub(:hpg_resolve).and_return(["name", "url"])
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
