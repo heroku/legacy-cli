@@ -11,8 +11,9 @@ module Heroku::Command
       api.put_config_vars(
         "myapp",
         {
-          "DATABASE_URL"  => "postgres://database",
-          "PGBACKUPS_URL" => "https://ip:password@pgbackups.heroku.com/client"
+          "DATABASE_URL"            => "postgres://database",
+          "HEROKU_POSTGRESQL_IVORY" => "postgres://database",
+          "PGBACKUPS_URL"           => "https://ip:password@pgbackups.heroku.com/client"
         }
       )
     end
@@ -144,7 +145,7 @@ STDERR
 STDERR
           stdout.should == <<-STDOUT
 
-DATABASE_URL  ----backup--->  bar
+HEROKU_POSTGRESQL_IVORY (DATABASE_URL)  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT
@@ -159,7 +160,7 @@ STDOUT
 STDERR
           stdout.should == <<-STDOUT
 
-DATABASE_URL  ----backup--->  bar
+HEROKU_POSTGRESQL_IVORY (DATABASE_URL)  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT
@@ -174,7 +175,7 @@ STDOUT
 STDERR
           stdout.should == <<-STDOUT
 
-DATABASE_URL  ----backup--->  bar
+HEROKU_POSTGRESQL_IVORY (DATABASE_URL)  ----backup--->  bar
 
 \r\e[0K... 0 -
 STDOUT

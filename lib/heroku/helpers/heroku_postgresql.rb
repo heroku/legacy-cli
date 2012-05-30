@@ -26,26 +26,23 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def hpg_resolve(name, default=nil)
-    dbs = hpg_databases
     if app_config_vars["DATABASE_URL"]
-      dbs["DATABASE"] = app_config_vars["DATABASE_URL"]
+      hpg_databases["DATABASE"] = app_config_vars["DATABASE_URL"]
     end
-    if dbs.empty?
+    if hpg_databases.empty?
       error("Your app has no databases.")
     end
 
     name = name.to_s.upcase.gsub(/_URL$/, "")
 
-    if dbs[name]
-      [name, dbs[name]]
-    elsif dbs["HEROKU_POSTGRESQL_#{name}"]
-      ["HEROKU_POSTGRESQL_#{name}", dbs["HEROKU_POSTGRESQL_#{name}"]]
-    elsif (default && name.empty? && app_config_vars[default])
-      [default, app_config_vars[default]]
+    if hpg_databases[name]
+      [hpg_pretty_name(name), hpg_databases[name]]
+    elsif default && name.empty? && app_config_vars[default]
+      [hpg_pretty_name(default), app_config_vars[default]]
     elsif name.empty?
-      error("Unknown database. Valid options are: #{dbs.keys.sort.join(", ")}")
+      error("Unknown database. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
     else
-      error("Unknown database: #{name}. Valid options are: #{dbs.keys.sort.join(", ")}")
+      error("Unknown database: #{name}. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
     end
   end
 
@@ -60,6 +57,25 @@ module Heroku::Helpers::HerokuPostgresql
           config[opt] = url
         end
       end
+    end
+  end
+
+  private
+
+  def hpg_pretty_name(name)
+    if ['DATABASE', 'DATABASE_URL'].include?(name)
+      key = app_config_vars.keys.detect do |key|
+        if key == 'DATABASE_URL'
+          next
+        else
+          app_config_vars[key] == app_config_vars['DATABASE_URL']
+        end
+      end
+      "#{key} (DATABASE_URL)"
+    elsif hpg_databases[name] == hpg_databases['DATABASE']
+      "#{name} (DATABASE_URL)"
+    else
+      name
     end
   end
 
