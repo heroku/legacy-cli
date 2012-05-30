@@ -241,7 +241,9 @@ module Heroku::Command
       status [ release, price ].compact.join(' ')
       { :attachment => attachment, :message => message }
     rescue RestClient::ResourceNotFound => e
-      error e.response.to_s
+      error Heroku::Command.extract_error(e.http_body) {
+        e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
+      }
     rescue RestClient::Locked => ex
       raise
     rescue RestClient::RequestFailed => e
