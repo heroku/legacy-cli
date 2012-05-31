@@ -28,7 +28,7 @@ STDOUT
       end
 
       it "should list addons and attachments" do
-        Excon.stubs.unshift([
+        Excon.stub(
           {
             :expects => 200,
             :method => :get,
@@ -42,7 +42,7 @@ STDOUT
             ]),
             :status => 200,
           }
-        ])
+        )
         stderr, stdout = execute("addons")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -391,7 +391,7 @@ STDOUT
       end
 
       it "complains about ambiguity" do
-        Excon.stubs.unshift([
+        Excon.stub(
           {
             :expects => 200,
             :method => :get,
@@ -404,7 +404,7 @@ STDOUT
             ]),
             :status => 200,
           }
-        ])
+        )
         stderr, stdout = execute('addons:docs qu')
         stderr.should == <<-STDERR
  !    Ambiguous addon name: qu
@@ -473,7 +473,7 @@ STDOUT
       end
 
       it "complains about ambiguity" do
-        Excon.stubs.unshift([
+        Excon.stub(
           {
             :expects => 200,
             :method => :get,
@@ -486,7 +486,7 @@ STDOUT
             ]),
             :status => 200,
           }
-        ])
+        )
         stderr, stdout = execute('addons:open deployhooks')
         stderr.should == <<-STDERR
  !    Ambiguous addon name: deployhooks
