@@ -181,9 +181,15 @@ module Heroku
       error extract_error(e.response.body) {
         e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
-    rescue RestClient::Locked, Heroku::API::Errors::Locked => e
+    rescue Heroku::API::Errors::Locked => e
       app = e.response.headers[:x_confirmation_required]
       if confirm_command(app, extract_error(e.response.body))
+        arguments << '--confirm' << app
+        retry
+      end
+    rescue RestClient::Locked => e
+      app = e.response.headers[:x_confirmation_required]
+      if confirm_command(app, extract_error(e.http_body))
         arguments << '--confirm' << app
         retry
       end
