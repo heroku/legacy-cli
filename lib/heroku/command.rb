@@ -113,15 +113,14 @@ module Heroku
 
       unless command
         if %w( -v --version ).include?(cmd)
-          display Heroku::VERSION
-          exit
+          command = parse('version')
+        else
+          error([
+            "`#{cmd}` is not a heroku command.",
+            suggestion(cmd, commands.keys + command_aliases.keys),
+            "See `heroku help` for additional details."
+          ].compact.join("\n"))
         end
-
-        error([
-          "`#{cmd}` is not a heroku command.",
-          suggestion(cmd, commands.keys + command_aliases.keys),
-          "See `heroku help` for additional details."
-        ].compact.join("\n"))
       end
 
       @current_command = cmd
