@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     heroku (2.26.3)
-      heroku-api (~> 0.2.2)
+      heroku-api (~> 0.2.3)
       launchy (>= 0.3.2)
       netrc (~> 0.7.2)
       rest-client (~> 1.6.1)
@@ -23,7 +23,7 @@ GEM
     fakefs (0.4.0)
     fpm (0.3.11)
       json
-    heroku-api (0.2.2)
+    heroku-api (0.2.3)
       excon (~> 0.14.0)
     json (1.6.5)
     launchy (2.1.0)
