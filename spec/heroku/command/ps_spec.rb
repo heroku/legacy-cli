@@ -34,7 +34,7 @@ describe Heroku::Command::Ps do
         stderr.should == ""
         stdout.should == <<-STDOUT
 === web: `bundle exec thin start -p $PORT`
-web.1: created for 0s
+web.1: created 0s ago
 
 STDOUT
       end
@@ -46,10 +46,10 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 === run: one-off processes
-run.1: created for 0s: `bash`
+run.1: created 0s ago: `bash`
 
 === web: `bundle exec thin start -p $PORT`
-web.1: created for 0s
+web.1: created 0s ago
 
 STDOUT
       end
