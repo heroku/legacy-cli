@@ -29,7 +29,7 @@ class Heroku::Auth
           response = super
           if response.headers.has_key?('X-Heroku-Warning')
             warning = response.headers['X-Heroku-Warning']
-            warning = warning.split("\n").map {|line| "\n !    #{line}"}
+            warning = warning.split("\n").map {|line| " !    #{line}"}.join("\n")
             $stderr.puts(warning)
           end
           response
