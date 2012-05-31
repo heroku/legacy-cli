@@ -86,6 +86,16 @@ module Heroku
       end
     end
 
+    def self.warnings
+      @warnings ||= []
+    end
+
+    def self.display_warnings
+      unless warnings.empty?
+        $stderr.puts(warnings.map {|warning| " !    #{warning}"}.join("\n"))
+      end
+    end
+
     def self.global_option(name, *args, &blk)
       global_options << { :name => name, :args => args, :proc => blk }
     end
@@ -203,6 +213,8 @@ module Heroku
       error e.message
     rescue OptionParser::ParseError => ex
       commands[cmd] ? run("help", [cmd]) : run("help")
+    ensure
+      display_warnings
     end
 
     def self.parse(cmd)

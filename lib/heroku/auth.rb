@@ -28,9 +28,7 @@ class Heroku::Auth
         def api.request(params, &block)
           response = super
           if response.headers.has_key?('X-Heroku-Warning')
-            warning = response.headers['X-Heroku-Warning']
-            warning = warning.split("\n").map {|line| " !    #{line}"}.join("\n")
-            $stderr.puts(warning)
+            Heroku::Command.warnings.concat(response.headers['X-Heroku-Warning'].split("\n"))
           end
           response
         end
