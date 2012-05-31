@@ -25,14 +25,14 @@ module Heroku::Command
         unless available.empty?
           styled_header("#{app} Configured Add-ons")
           styled_array(available.map do |a|
-            [a['name'], a['attachment_name']].compact
+            [a['name'], a['attachment_name'] || '']
           end)
         end
 
         unless pending.empty?
           styled_header("#{app} Add-ons to Configure")
           styled_array(pending.map do |a|
-            [a['name'], app_addon_url(a['name'])].compact
+            [a['name'], app_addon_url(a['name'])]
           end)
         end
       end

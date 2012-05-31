@@ -37,7 +37,8 @@ STDOUT
           {
             :body   => Heroku::API::OkJson.encode([
               { 'configured' => false, 'name' => 'deployhooks:email' },
-              { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' }
+              { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' },
+              { 'configured' => true, 'name' => 'deployhooks:http' }
             ]),
             :status => 200,
           }
@@ -46,6 +47,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 === myapp Configured Add-ons
+deployhooks:http
 heroku-postgresql:ronin   HEROKU_POSTGRESQL_RED
 
 === myapp Add-ons to Configure
