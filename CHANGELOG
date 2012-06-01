@@ -1,3 +1,17 @@
+2.26.4 06/01/2012
+=================
+
+fix addons index to account for mixed lists with/without attachments
+fix formatting for X-Heroku-Warning messages
+fix locked error handling to accomodate either heroku.rb or rest-client
+sort heroku.rb error handling above rest-client
+change -v to go all the way through the version command
+consolidate confirm logic and allow either 'y' or 'yes' to affirm
+fix time formatting in ps
+update excon and subsequently simplify stubbing
+only use force_encoding in rendezvous if it is defined
+fix a pg pretty name edge case (where no config vars match)
+
 2.26.3 05/30/2012
 =================
 
