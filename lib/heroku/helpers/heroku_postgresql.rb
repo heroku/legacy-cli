@@ -20,6 +20,8 @@ module Heroku::Helpers::HerokuPostgresql
     @hpg_databases ||= app_config_vars.inject({}) do |hash, (name, url)|
       if name =~ /^(#{hpg_addon_prefix}\w+)_URL$/
         hash.update($1 => url)
+      elsif name == 'SHARED_DATABASE_URL'
+        hash.update('SHARED_DATABASE' => url)
       end
       hash
     end
