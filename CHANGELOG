@@ -1,3 +1,8 @@
+2.26.5 06/01/2012
+=================
+
+cleanup/fix for force_encoding checks in rendezvous
+
 2.26.4 06/01/2012
 =================
 
