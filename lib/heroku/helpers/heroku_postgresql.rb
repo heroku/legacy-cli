@@ -66,14 +66,17 @@ module Heroku::Helpers::HerokuPostgresql
 
   def hpg_pretty_name(name)
     if ['DATABASE', 'DATABASE_URL'].include?(name)
-      key = app_config_vars.keys.detect do |key|
-        if key == 'DATABASE_URL'
-          next
-        else
-          app_config_vars[key] == app_config_vars['DATABASE_URL']
+      if key = app_config_vars.keys.detect do |key|
+          if key == 'DATABASE_URL'
+            next
+          else
+            app_config_vars[key] == app_config_vars['DATABASE_URL']
+          end
         end
+        "#{key.gsub(/_URL$/, '')} (DATABASE_URL)"
+      else
+        name.gsub(/_URL$/, '')
       end
-      "#{key.gsub(/_URL$/, '')} (DATABASE_URL)"
     elsif hpg_databases[name] == hpg_databases['DATABASE']
       "#{name} (DATABASE_URL)"
     else
