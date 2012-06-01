@@ -84,7 +84,7 @@ class Heroku::Client::Rendezvous
   private
 
   def fixup(data)
-    data.force_encoding('utf-8') if data.class.method_defined?(:force_encoding)
+    data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
     output.isatty ? data : data.gsub(/\cM/,"")
   end
 end
