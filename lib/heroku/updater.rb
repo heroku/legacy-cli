@@ -8,7 +8,7 @@ module Heroku
     extend Heroku::Helpers
 
     def self.installed_client_path
-      File.expand_path("../..", $0)
+      File.expand_path("../../..", __FILE__)
     end
 
     def self.updated_client_path
@@ -58,6 +58,7 @@ module Heroku
         new_version = client_version_from_path(download_dir)
 
         if old_version > new_version
+          return if @background_updating
           error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
         end
 
@@ -89,10 +90,13 @@ module Heroku
           latest_version = json_decode(RestClient.get("http://rubygems.org/api/v1/gems/heroku.json").body)["version"]
 
           if Gem::Version.new(latest_version) > latest_local_version
+            @background_updating = true
             update
           end
         rescue Exception => ex
           # trap all errors
+        ensure
+          @background_updating = false
         end
       end
       Process.detach pid
