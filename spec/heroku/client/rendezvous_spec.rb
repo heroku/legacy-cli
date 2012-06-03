@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 require "spec_helper"
 require "heroku/client/rendezvous"
+require "support/openssl_mock_helper"
 
 describe Heroku::Client, "rendezvous" do
   before do
     @rendezvous = Heroku::Client::Rendezvous.new({
+      :rendezvous_url => "https://heroku.local:1234/secret",
       :output => $stdout
     })
   end
-
   context "fixup" do
     it "null" do
       @rendezvous.send(:fixup, nil).should be_nil
@@ -29,6 +30,31 @@ describe Heroku::Client, "rendezvous" do
       it "ISO-8859-1 force-encoded data" do
         @rendezvous.send(:fixup, "Центр".force_encoding("ISO-8859-1")).should eq "Центр".force_encoding("UTF-8")
       end
+    end
+  end
+  context "with mock ssl" do
+    before :each do
+      mock_openssl
+      @ssl_socket_mock.should_receive(:puts).with("secret")
+      @ssl_socket_mock.should_receive(:readline).and_return(nil)
+    end
+    it "should connect to host:post" do
+      TCPSocket.should_receive(:open).with("heroku.local", 1234).and_return(@tcp_socket_mock)
+      IO.stub(:select).and_return(nil)
+      lambda { @rendezvous.start }.should raise_error(Timeout::Error)
+    end
+    it "should callback on_connect" do
+      @rendezvous.on_connect do 
+        raise "on_connect"
+      end
+      TCPSocket.should_receive(:open).and_return(@tcp_socket_mock)
+      lambda { @rendezvous.start }.should raise_error("on_connect")
+    end
+    it "should fixup received data" do
+      TCPSocket.should_receive(:open).and_return(@tcp_socket_mock)
+      @ssl_socket_mock.should_receive(:readpartial).and_return("The quick brown fox jumps over the lazy dog")
+      @rendezvous.stub(:fixup) { |data| raise "received: #{data}" }
+      lambda { @rendezvous.start }.should raise_error("received: The quick brown fox jumps over the lazy dog")
     end
   end
 end
