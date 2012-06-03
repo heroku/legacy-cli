@@ -21,14 +21,14 @@ describe Heroku::Client, "rendezvous" do
       @rendezvous.send(:fixup, { :x => :y }).should eq({ :x => :y })
     end
     it "default English UTF-8 data" do
-      @rendezvous.send(:fixup, "hello world").should eq "hello world"
+      @rendezvous.send(:fixup, "heroku").should eq "heroku"
     end
-    it "default Chinese UTF-8 encoded data" do
-      @rendezvous.send(:fixup, "“水／火”系列").should eq "“水／火”系列"
+    it "default Japanese UTF-8 encoded data" do
+      @rendezvous.send(:fixup, "愛しています").should eq "愛しています"
     end
     if RUBY_VERSION >= "1.9"
       it "ISO-8859-1 force-encoded data" do
-        @rendezvous.send(:fixup, "Центр".force_encoding("ISO-8859-1")).should eq "Центр".force_encoding("UTF-8")
+        @rendezvous.send(:fixup, "Хероку".force_encoding("ISO-8859-1")).should eq "Хероку".force_encoding("UTF-8")
       end
     end
   end
