@@ -41,6 +41,8 @@ describe Heroku::Client, "rendezvous" do
     it "should connect to host:post" do
       TCPSocket.should_receive(:open).with("heroku.local", 1234).and_return(@tcp_socket_mock)
       IO.stub(:select).and_return(nil)
+      @ssl_socket_mock.stub(:write)
+      @ssl_socket_mock.stub(:flush) { raise Timeout::Error }
       lambda { @rendezvous.start }.should raise_error(Timeout::Error)
     end
     it "should callback on_connect" do
