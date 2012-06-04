@@ -151,3 +151,23 @@ desc("Check current ci status and/or wait for build to finish.")
 task "ci" do
   poll_ci
 end
+
+desc("Create a new changelog article")
+task "changelog" do
+  changelog = <<-CHANGELOG
+Heroku CLI v#{version} released with 
+
+A new version of the Heroku CLI is available with 
+
+See the [CLI changelog](https://github.com/heroku/heroku/blob/master/CHANGELOG) for details and update by using \\`heroku update\\`.
+CHANGELOG
+
+  `echo "#{changelog}" | pbcopy`
+
+  `open http://devcenter.heroku.com/admin/changelog_items/new`
+end
+
+desc("Release the latest version")
+task "release" => ["gem:release", "tgz:release", "zip:release", "changelog"] do
+  puts("Released v#{version}")
+end
