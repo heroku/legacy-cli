@@ -117,10 +117,12 @@ class Heroku::Auth
     end
 
     def netrc_path
-      if running_on_windows?
-        "#{home_directory}/_netrc"
+      default = Netrc.default_path
+      encrypted = default + ".gpg"
+      if File.exists?(encrypted)
+        encrypted
       else
-        "#{home_directory}/.netrc"
+        default
       end
     end
 
