@@ -175,7 +175,7 @@ describe Heroku::Command do
       captured_stderr.string.should == <<-STDERR
  !    `aps` is not a heroku command.
  !    Perhaps you meant `apps` or `ps`.
- !    See `heroku help` for additional details.
+ !    See `heroku help` for a list of available commands.
 STDERR
       captured_stdout.string.should == ""
       $stderr, $stdout = original_stderr, original_stdout
@@ -191,7 +191,7 @@ STDERR
       end
       captured_stderr.string.should == <<-STDERR
  !    `sandwich` is not a heroku command.
- !    See `heroku help` for additional details.
+ !    See `heroku help` for a list of available commands.
 STDERR
       captured_stdout.string.should == ""
       $stderr, $stdout = original_stderr, original_stdout
