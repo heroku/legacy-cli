@@ -24,6 +24,12 @@ module Heroku
 
     before(:each) do
       @cli.credentials = nil
+
+      home_directory = @cli.netrc_path.split("/")[0..-2].join("/")
+      unless File.exists?(home_directory)
+        FileUtils.mkdir_p(home_directory)
+      end
+
       File.open(@cli.netrc_path, "w") do |file|
         file.puts("machine api.heroku.com\n  login user\n  password pass\n")
         file.puts("machine code.heroku.com\n  login user\n  password pass\n")
