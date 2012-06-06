@@ -158,5 +158,36 @@ STDERR
         stdout.should == ""
       end
     end
+
+    context "credential resets" do
+      before do
+        api.put_config_vars "myapp", {
+          "DATABASE_URL" => "postgres:///to_reset_credentials",
+          "HEROKU_POSTGRESQL_RESETME_URL" => "postgres:///to_reset_credentials"
+        }
+      end
+
+      it "resets credentials and promotes to DATABASE_URL if it's the main DB" do
+        stub_pg.rotate_credentials
+        stderr, stdout = execute("pg:credentials resetme --reset")
+        stderr.should be_empty
+        stdout.should == <<-STDOUT
+Resetting credentials for HEROKU_POSTGRESQL_RESETME (DATABASE_URL)... done
+Promoting custom URL to DATABASE_URL... done
+STDOUT
+      end
+
+      it "does not update DATABASE_URL if it's not the main db" do
+        stub_pg.rotate_credentials
+        api.put_config_vars "myapp", {
+          "DATABASE_URL" => "postgres://to_reset_credentials",
+          "HEROKU_POSTGRESQL_RESETME_URL" => "postgres://something_else"
+        }
+        stderr, stdout = execute("pg:credentials resetme --reset")
+        stderr.should be_empty
+        stdout.should_not include("Promoting")
+      end
+
+    end
   end
 end

@@ -44,8 +44,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   # Sets DATABASE as your DATABASE_URL
   #
-  def promote
-    unless db = shift_argument
+  def promote(db = shift_argument)
+    unless db
       error("Usage: heroku pg:promote DATABASE")
     end
     validate_arguments!
@@ -167,9 +167,16 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     name, url = hpg_resolve(db)
 
+    url_is_database_url = (url == app_config_vars["DATABASE_URL"])
+
     if options[:reset]
       action "Resetting credentials for #{name}" do
         hpg_client(url).rotate_credentials
+      end
+      if url_is_database_url
+        forget_config!
+        name, new_url = hpg_resolve(db)
+        promote(new_url)
       end
     else
       uri = URI.parse(url)
