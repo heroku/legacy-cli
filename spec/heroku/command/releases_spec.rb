@@ -11,21 +11,12 @@ describe Heroku::Command::Releases do
 
     before(:each) do
       api.post_app("name" => "myapp", "stack" => "cedar")
-      @now = Time.now
-      Time.should_receive(:now).exactly(11).times.and_return(@now)
-      times = [
-        @now - 60 * 60 * 24 * 2,
-        @now - 60 * 60 * 12,
-        @now - 60 * 30,
-        @now - 30,
-        @now - 30
-      ].map {|time| time.strftime("%G/%m/%d %H:%M:%S %z")}
-      Heroku::API::Mock.should_receive(:timestamp).exactly(5).times.and_return(*times)
       api.put_config_vars("myapp", { 'FOO_BAR'  => 'BAZ' })
       api.put_config_vars("myapp", { 'BAR_BAZ'  => 'QUX' })
       api.put_config_vars("myapp", { 'BAZ_QUX'  => 'QUUX' })
       api.put_config_vars("myapp", { 'QUX_QUUX' => 'XYZZY' })
       api.put_config_vars("myapp", { 'SUPER_LONG_CONFIG_VAR_TO_GET_PAST_THE_TRUNCATION_LIMIT' => 'VALUE' })
+      Heroku::Command::Releases.any_instance.should_receive(:time_ago).exactly(5).times.and_return('1s ago', '30s ago', '1m ago', '1h ago', '2012/01/02 12:34:56')
     end
 
     after(:each) do
@@ -37,11 +28,11 @@ describe Heroku::Command::Releases do
       @stderr.should == ""
       @stdout.should == <<-STDOUT
 === myapp Releases
-v5   Config add SUPER_LONG_CONFIG_VAR_TO_GE..   email@example.com   30s ago
+v5   Config add SUPER_LONG_CONFIG_VAR_TO_GE..   email@example.com   1s ago
 v4   Config add QUX_QUUX                        email@example.com   30s ago
-v3   Config add BAZ_QUX                         email@example.com   30m ago
-v2   Config add BAR_BAZ                         email@example.com   12h ago
-v1   Config add FOO_BAR                         email@example.com   #{(@now - 60 * 60 * 24 * 2).strftime("%G/%m/%d %H:%M:%S")}
+v3   Config add BAZ_QUX                         email@example.com   1m ago
+v2   Config add BAR_BAZ                         email@example.com   1h ago
+v1   Config add FOO_BAR                         email@example.com   2012/01/02 12:34:56
 
 STDOUT
     end
@@ -51,8 +42,6 @@ STDOUT
   describe "releases:info" do
     before(:each) do
       api.post_app("name" => "myapp", "stack" => "cedar")
-      @now = Time.now
-      Time.should_receive(:now).any_number_of_times.and_return(@now)
       api.put_config_vars("myapp", { 'FOO_BAR' => 'BAZ' })
     end
 
@@ -69,6 +58,7 @@ STDERR
     end
 
     it "shows info for a single release" do
+      Heroku::Command::Releases.any_instance.should_receive(:time_ago).and_return('0s ago')
       stderr, stdout = execute("releases:info v1")
       stderr.should == ""
       stdout.should == <<-STDOUT
@@ -87,6 +77,7 @@ STDOUT
     end
 
     it "shows info for a single release in shell compatible format" do
+      Heroku::Command::Releases.any_instance.should_receive(:time_ago).and_return('0s ago')
       stderr, stdout = execute("releases:info v1 --shell")
       stderr.should == ""
       stdout.should == <<-STDOUT

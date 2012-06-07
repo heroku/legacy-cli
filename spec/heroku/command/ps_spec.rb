@@ -10,8 +10,6 @@ describe Heroku::Command::Ps do
   context("cedar") do
 
     before(:each) do
-      now = Time.now
-      Time.should_receive(:now).any_number_of_times.and_return(now)
       api.post_app("name" => "myapp", "stack" => "cedar")
     end
 
@@ -30,6 +28,7 @@ describe Heroku::Command::Ps do
     describe "ps" do
 
       it "displays processes" do
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('0s ago')
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -40,6 +39,7 @@ STDOUT
       end
 
       it "displays one-off processes" do
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('0s ago', '0s ago')
         api.post_ps "myapp", "bash"
 
         stderr, stdout = execute("ps")
