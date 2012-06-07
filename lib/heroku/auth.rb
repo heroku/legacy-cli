@@ -13,17 +13,7 @@ class Heroku::Auth
 
     def api
       @api ||= begin
-        full_host = (host =~ /^http/) ? host : "https://api.#{host}"
-        verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
-
-        api = Heroku::API.new(
-          :api_key          => password,
-          :headers          => {
-            'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
-          },
-          :host             => URI.parse(full_host).host,
-          :ssl_verify_peer  => verify_ssl
-        )
+        api = Heroku::API.new(default_params.merge(:api_key => password))
 
         def api.request(params, &block)
           response = super
@@ -80,15 +70,7 @@ class Heroku::Auth
     end
 
     def api_key(user = get_credentials[0], password = get_credentials[1])
-      full_host = (host =~ /^http/) ? host : "https://api.#{host}"
-      verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
-      api = Heroku::API.new(
-        :headers          => {
-          'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
-        },
-        :host             => URI.parse(full_host).host,
-        :ssl_verify_peer  => verify_ssl
-      )
+      api = Heroku::API.new(default_params)
       api.post_login(user, password).body["api_key"]
     end
 
@@ -301,6 +283,23 @@ class Heroku::Auth
       @login_attempts ||= 0
       @login_attempts += 1
       @login_attempts < 3
+    end
+
+    protected
+
+    def default_params
+      full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+      verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
+      uri = URI(full_host)
+      {
+        :headers          => {
+          'User-Agent'    => "heroku-gem/#{Heroku::VERSION}"
+        },
+        :host             => uri.host,
+        :port             => uri.port.to_s,
+        :scheme           => uri.scheme,
+        :ssl_verify_peer  => verify_ssl
+      }
     end
   end
 end
