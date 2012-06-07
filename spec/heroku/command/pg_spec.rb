@@ -77,19 +77,7 @@ Status:      available
 Tables:      1
 
 === SHARED_DATABASE
-Conn Info:   
-  "host=ec2-012-34-567-890.compute-1.amazonaws.com
-  port=5432 dbname=abcdefghijklmn
-  user=abcdefghijklm sslmode=require
-  password=abcdefghijklmnopqrstuvwxyz0"
-
-Created:     2011-12-13 00:00 UTC
-Data Size:   1 MB
-Maintenance: not required
-PG Version:  9.0.0
-Plan:        Ronin
-Status:      available
-Tables:      1
+Data Size: (empty)
 
 STDOUT
       end

@@ -206,7 +206,18 @@ private
 
   def hpg_databases_with_info
     @hpg_databases_with_info ||= hpg_databases.inject({}) do |hash, (name, url)|
-      hash.update(name => hpg_info(url))
+      if name == 'SHARED_DATABASE'
+        data = api.get_app(app).body
+        hash.update(name => {
+          :info => [{
+            'name'    => 'Data Size',
+            'values'  => [format_bytes(data['database_size'])]
+          }],
+          :url        => url
+        })
+      else
+        hash.update(name => hpg_info(url))
+      end
     end
   end
 
