@@ -98,7 +98,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     return unless confirm_command
 
     action("Resetting #{name}") do
-      if name == 'SHARED_DATABASE'
+      if name =~ /^SHARED_DATABASE/
         heroku.database_reset(app)
       else
         hpg_client(url).reset

@@ -28,6 +28,16 @@ Resetting HEROKU_POSTGRESQL_RONIN... done
 STDOUT
     end
 
+    it "resets shared databases" do
+      Heroku::Client.any_instance.should_receive(:database_reset).with('myapp')
+
+      stderr, stdout = execute("pg:reset SHARED_DATABASE --confirm myapp")
+      stderr.should == ''
+      stdout.should == <<-STDOUT
+Resetting SHARED_DATABASE... done
+STDOUT
+    end
+
     it "doesn't reset the app's database if the user doesn't confirm" do
       stub_pg.reset
 
