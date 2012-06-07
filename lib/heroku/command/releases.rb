@@ -109,14 +109,8 @@ class Heroku::Command::Releases < Heroku::Command::Base
     release = shift_argument
     validate_arguments!
 
-    if release
-      action("Rolling back #{app} to #{release}") do
-        status(api.post_release(app, release).body)
-      end
-    else
-      action("Rolling back #{app}") do
-        status(api.post_release(app, release).body)
-      end
+    action("Rolling back #{app}") do
+      status(api.post_release(app, release).body)
     end
   end
 
