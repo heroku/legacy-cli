@@ -35,10 +35,14 @@ class Heroku::Command::Status < Heroku::Command::Base
       status['issues'].each do |issue|
         duration = time_ago(Time.now - Time.parse(issue['created_at'])).gsub(' ago', '+')
         styled_header("#{issue['title']} (#{duration})")
-        changes = issue['updates'].map do |change|
-          change['contents']
+        changes = issue['updates'].map do |issue|
+          [
+            time_ago(Time.now - Time.parse(issue['created_at'])),
+            issue['update_type'],
+            issue['contents']
+          ]
         end
-        styled_array(changes)
+        styled_array(changes, :sort => false)
       end
     end
   end
