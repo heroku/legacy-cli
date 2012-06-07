@@ -58,7 +58,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
 
     action "Promoting #{display_name} to DATABASE_URL" do
-      api.put_config_vars(app, "DATABASE_URL" => url)
+      hpg_promote(url)
     end
   end
 
@@ -167,9 +167,18 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     name, url = hpg_resolve(db)
 
+    url_is_database_url = (url == app_config_vars["DATABASE_URL"])
+
     if options[:reset]
       action "Resetting credentials for #{name}" do
         hpg_client(url).rotate_credentials
+      end
+      if url_is_database_url
+        forget_config!
+        name, new_url = hpg_resolve(db)
+        action "Promoting #{name}" do
+          hpg_promote(new_url)
+        end
       end
     else
       uri = URI.parse(url)

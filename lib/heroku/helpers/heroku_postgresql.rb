@@ -27,6 +27,11 @@ module Heroku::Helpers::HerokuPostgresql
     end
   end
 
+  def forget_config!
+    @hpg_databases   = nil
+    @app_config_vars = nil
+  end
+
   def hpg_resolve(name, default=nil)
     if app_config_vars["DATABASE_URL"]
       hpg_databases["DATABASE"] = app_config_vars["DATABASE_URL"]
@@ -84,6 +89,10 @@ module Heroku::Helpers::HerokuPostgresql
     else
       name
     end
+  end
+
+  def hpg_promote(url)
+    api.put_config_vars(app, "DATABASE_URL" => url)
   end
 
 end
