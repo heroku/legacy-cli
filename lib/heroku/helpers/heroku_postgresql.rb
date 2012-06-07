@@ -91,4 +91,8 @@ module Heroku::Helpers::HerokuPostgresql
     end
   end
 
+  def hpg_promote(url)
+    api.put_config_vars(app, "DATABASE_URL" => url)
+  end
+
 end

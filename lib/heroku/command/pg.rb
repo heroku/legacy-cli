@@ -44,8 +44,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   # Sets DATABASE as your DATABASE_URL
   #
-  def promote(db = shift_argument)
-    unless db
+  def promote
+    unless db = shift_argument
       error("Usage: heroku pg:promote DATABASE")
     end
     validate_arguments!
@@ -58,7 +58,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
 
     action "Promoting #{display_name} to DATABASE_URL" do
-      api.put_config_vars(app, "DATABASE_URL" => url)
+      hpg_promote(url)
     end
   end
 
@@ -176,7 +176,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
       if url_is_database_url
         forget_config!
         name, new_url = hpg_resolve(db)
-        promote(new_url)
+        action "Promoting #{name}" do
+          hpg_promote(new_url)
+        end
       end
     else
       uri = URI.parse(url)

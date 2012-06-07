@@ -173,7 +173,7 @@ STDERR
         stderr.should be_empty
         stdout.should == <<-STDOUT
 Resetting credentials for HEROKU_POSTGRESQL_RESETME (DATABASE_URL)... done
-Promoting custom URL to DATABASE_URL... done
+Promoting HEROKU_POSTGRESQL_RESETME (DATABASE_URL)... done
 STDOUT
       end
 
