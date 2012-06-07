@@ -111,7 +111,7 @@ class Heroku::Command::Releases < Heroku::Command::Base
 
     if release
       action("Rolling back #{app} to #{release}") do
-        api.post_release(app, release)
+        status(api.post_release(app, release).body)
       end
     else
       action("Rolling back #{app}") do

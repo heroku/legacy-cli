@@ -129,7 +129,7 @@ STDOUT
       stderr, stdout = execute("releases:rollback v1")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Rolling back myapp to v1... done
+Rolling back myapp to v1... done, v1
 STDOUT
     end
   end
