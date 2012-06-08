@@ -98,7 +98,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     return unless confirm_command
 
     action("Resetting #{name}") do
-      if name =~ /^SHARED_DATABASE/
+      if name =~ /^SHARED_DATABASE/i
         heroku.database_reset(app)
       else
         hpg_client(url).reset
@@ -148,7 +148,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
       wait_for hpg_info(hpg_resolve(db).last)
     else
       hpg_databases_with_info.keys.sort.each do |name|
-        wait_for hpg_databases_with_info[name]
+        if name =~ /^SHARED_DATABASE/i
+          next
+        else
+          wait_for(hpg_databases_with_info[name])
+        end
       end
     end
   end
@@ -215,7 +219,7 @@ private
 
   def hpg_databases_with_info
     @hpg_databases_with_info ||= hpg_databases.inject({}) do |hash, (name, url)|
-      if name == 'SHARED_DATABASE'
+      if name =~ /^SHARED_DATABASE/i
         data = api.get_app(app).body
         hash.update(name => {
           :info => [{
