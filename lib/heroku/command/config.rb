@@ -82,7 +82,7 @@ class Heroku::Command::Config < Heroku::Command::Base
 
   # config:remove KEY1 [KEY2 ...]
   #
-  # remove a config var
+  # remove one or more config vars
   #
   # $ heroku config:add A=one
   # Removing A and restarting myapp... done, v123
@@ -109,5 +109,7 @@ class Heroku::Command::Config < Heroku::Command::Base
       end
     end
   end
+
+  alias_command "config:unset", "config:remove"
 
 end
