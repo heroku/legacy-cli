@@ -16,16 +16,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def index
     validate_arguments!
-
-    if message = Heroku::Updater.disable
-      error message
-    end
-
-    action("Updating from #{Heroku::VERSION}") do
-      Heroku::Updater.update
-      /VERSION = "([^"]+)"/ =~ File.read(File.join(Heroku::Updater.updated_client_path, "lib/heroku/version.rb"))
-      status("updated to #{$1}")
-    end
+    update_from_url "http://assets.heroku.com/heroku-client/heroku-client.zip"
   end
 
   # update:beta
@@ -37,11 +28,16 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def beta
     validate_arguments!
+    update_from_url "http://assets.heroku.com/heroku-client/heroku-client-beta.zip"
+  end
 
+private
+
+  def update_from_url(url)
+    Heroku::Updater.check_disabled!
     action("Updating from #{Heroku::VERSION}") do
-      Heroku::Updater.update(true)
-      /VERSION = "([^"]+)"/ =~ File.read(File.join(Heroku::Updater.updated_client_path, "lib/heroku/version.rb"))
-      status("updated to #{$1}")
+      new_version = Heroku::Updater.update(url)
+      status "updated to #{new_version}"
     end
   end
 
