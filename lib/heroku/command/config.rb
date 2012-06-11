@@ -80,6 +80,26 @@ class Heroku::Command::Config < Heroku::Command::Base
 
   alias_command "config:set", "config:add"
 
+  # config:get KEY
+  #
+  # display a config value for an app
+  #
+  #Examples:
+  #
+  # $ heroku config:get A
+  # one
+  #
+  def get
+    unless key = shift_argument
+      error("Usage: heroku config:get KEY\nMust specify a key.")
+    end
+    validate_arguments!
+
+    vars = api.get_config_vars(app).body
+    key, value = vars.detect {|k,v| k.downcase == key}
+    display(value)
+  end
+
   # config:remove KEY1 [KEY2 ...]
   #
   # remove one or more config vars

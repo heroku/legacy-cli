@@ -43,6 +43,15 @@ B=two
 STDOUT
     end
 
+    it "shows a single config for get" do
+      api.put_config_vars("myapp", { 'LONG' => 'A' * 60 })
+      stderr, stdout = execute("config:get LONG")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+STDOUT
+    end
+
     context("add") do
 
       it "sets config vars" do
