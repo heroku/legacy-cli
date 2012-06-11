@@ -52,58 +52,58 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
 
-    context("add") do
+    context("set") do
 
       it "sets config vars" do
-        stderr, stdout = execute("config:add A=1 B=2")
+        stderr, stdout = execute("config:set A=1 B=2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Adding config vars and restarting myapp... done, v1
+Setting config vars and restarting myapp... done, v1
 A: 1
 B: 2
       STDOUT
       end
 
       it "allows config vars with = in the value" do
-        stderr, stdout = execute("config:add A=b=c")
+        stderr, stdout = execute("config:set A=b=c")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Adding config vars and restarting myapp... done, v1
+Setting config vars and restarting myapp... done, v1
 A: b=c
 STDOUT
       end
 
     end
 
-    describe "config:remove" do
+    describe "config:unset" do
 
       it "exits with a help notice when no keys are provides" do
-        stderr, stdout = execute("config:remove")
+        stderr, stdout = execute("config:unset")
         stderr.should == <<-STDERR
- !    Usage: heroku config:remove KEY1 [KEY2 ...]
+ !    Usage: heroku config:unset KEY1 [KEY2 ...]
 STDERR
         stdout.should == ""
       end
 
       context "when one key is provided" do
 
-        it "removes a single key" do
-          stderr, stdout = execute("config:remove A")
+        it "unsets a single key" do
+          stderr, stdout = execute("config:unset A")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Removing A and restarting myapp... done, v1
+Unsetting A and restarting myapp... done, v1
 STDOUT
         end
       end
 
       context "when more than one key is provided" do
 
-        it "removes all given keys" do
-          stderr, stdout = execute("config:remove A B")
+        it "unsets all given keys" do
+          stderr, stdout = execute("config:unset A B")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Removing A and restarting myapp... done, v1
-Removing B and restarting myapp... done, v2
+Unsetting A and restarting myapp... done, v1
+Unsetting B and restarting myapp... done, v2
 STDOUT
         end
       end

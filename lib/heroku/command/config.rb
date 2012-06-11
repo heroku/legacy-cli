@@ -38,24 +38,24 @@ class Heroku::Command::Config < Heroku::Command::Base
     end
   end
 
-  # config:add KEY1=VALUE1 ...
+  # config:set KEY1=VALUE1 ...
   #
-  # add one or more config vars
+  # set one or more config vars
   #
   #Example:
   #
-  # $ heroku config:add A=one
-  # Adding config vars and restarting myapp... done, v123
+  # $ heroku config:set A=one
+  # Setting config vars and restarting myapp... done, v123
   # A: one
   #
-  # $ heroku config:add A=one B=two
-  # Adding config vars and restarting myapp... done, v123
+  # $ heroku config:set A=one B=two
+  # Setting config vars and restarting myapp... done, v123
   # A: one
   # B: two
   #
-  def add
+  def set
     unless args.size > 0 and args.all? { |a| a.include?('=') }
-      error("Usage: heroku config:add <key>=<value> [<key2>=<value2> ...]")
+      error("Usage: heroku config:set <key>=<value> [<key2>=<value2> ...]")
     end
 
     vars = args.inject({}) do |vars, arg|
@@ -64,7 +64,7 @@ class Heroku::Command::Config < Heroku::Command::Base
       vars
     end
 
-    action("Adding config vars and restarting #{app}") do
+    action("Setting config vars and restarting #{app}") do
       api.put_config_vars(app, vars)
 
       @status = begin
@@ -78,7 +78,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     styled_hash(vars)
   end
 
-  alias_command "config:set", "config:add"
+  alias_command "config:add", "config:set"
 
   # config:get KEY
   #
@@ -100,24 +100,24 @@ class Heroku::Command::Config < Heroku::Command::Base
     display(value)
   end
 
-  # config:remove KEY1 [KEY2 ...]
+  # config:unset KEY1 [KEY2 ...]
   #
-  # remove one or more config vars
+  # unset one or more config vars
   #
-  # $ heroku config:add A=one
-  # Removing A and restarting myapp... done, v123
+  # $ heroku config:unset A
+  # Unsetting A and restarting myapp... done, v123
   #
-  # $ heroku config:add A B
-  # Adding A and restarting myapp... done, v123
-  # Adding B and restarting myapp... done, v124
+  # $ heroku config:unset A B
+  # Unsetting A and restarting myapp... done, v123
+  # Unsetting B and restarting myapp... done, v124
   #
-  def remove
+  def unset
     if args.empty?
-      error("Usage: heroku config:remove KEY1 [KEY2 ...]")
+      error("Usage: heroku config:unset KEY1 [KEY2 ...]")
     end
 
     args.each do |key|
-      action("Removing #{key} and restarting #{app}") do
+      action("Unsetting #{key} and restarting #{app}") do
         api.delete_config_var(app, key)
 
         @status = begin
@@ -130,6 +130,6 @@ class Heroku::Command::Config < Heroku::Command::Base
     end
   end
 
-  alias_command "config:unset", "config:remove"
+  alias_command "config:remove", "config:unset"
 
 end
