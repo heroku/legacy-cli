@@ -1,3 +1,21 @@
+2.26.7 06/11/2012
+=================
+
+add rendezvous related specs
+tweak unknown command error message for clarity
+bump netrc to get cygwin permissions fix
+loosen time ago so that it can display '24h ago'
+update netrc to allow for encrypted files
+fix billing link in confirm_billing
+allow port/scheme overide for HEROKU_HOST
+properly send release with rollback command
+re-promote master databases after pg:reset
+fix pg:info to work properly with shared databases
+update rollback to work/display more consistently
+add status specs, update status formatting
+simplify specs by stubbing time_ago (instead of time)
+loosen shared_database matchers to fix failing shared database commands
+
 2.26.6 06/04/2012
 =================
 
