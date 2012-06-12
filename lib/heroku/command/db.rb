@@ -200,6 +200,10 @@ module Heroku::Command
     end
 
     def load_taps
+      begin
+        require "rubygems"
+      rescue LoadError
+      end
       require 'taps/operation'
       require 'taps/cli'
       enforce_taps_version "0.3.23"

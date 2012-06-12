@@ -1,12 +1,6 @@
 #!/usr/bin/env ruby1.9.1
 # encoding: UTF-8
 
-# attempt to load rubygems in order to have access to taps
-begin
-  require "rubygems"
-rescue LoadError
-end
-
 # resolve bin path, ignoring symlinks
 require "pathname"
 bin_file = Pathname.new(__FILE__).realpath
