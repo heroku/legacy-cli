@@ -1,21 +1,16 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-begin
-  # resolve bin path, ignoring symlinks
-  require "pathname"
-  bin_file = Pathname.new(__FILE__).realpath
+# resolve bin path, ignoring symlinks
+require "pathname"
+bin_file = Pathname.new(__FILE__).realpath
 
-  # add self to libpath
-  $:.unshift File.expand_path("../../lib", bin_file)
+# add self to libpath
+$:.unshift File.expand_path("../../lib", bin_file)
 
-  require "heroku/updater"
-  Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
+require "heroku/updater"
+Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
 
-  # start up the CLI
-  require "heroku/cli"
-  Heroku::CLI.start(*ARGV)
-rescue Interrupt
-  `stty icanon echo`
-  puts("\n !    Command cancelled.")
-end
+# start up the CLI
+require "heroku/cli"
+Heroku::CLI.start(*ARGV)
