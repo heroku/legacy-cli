@@ -596,7 +596,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   def heroku_headers   # :nodoc:
     {
       'X-Heroku-API-Version' => '2',
-      'User-Agent'           => self.class.gem_version_string,
+      'User-Agent'           => Heroku::USER_AGENT,
       'X-Ruby-Version'       => RUBY_VERSION,
       'X-Ruby-Platform'      => RUBY_PLATFORM
     }
