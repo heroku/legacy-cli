@@ -249,12 +249,11 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   class Service
-    attr_accessor :attached, :upid
+    attr_accessor :attached
 
-    def initialize(client, app, upid=nil)
+    def initialize(client, app)
       @client = client
       @app = app
-      @upid = upid
     end
 
     # start the service
@@ -272,22 +271,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
       raise AppCrashed, e.http_body  if e.http_code == 502
       raise
     end
-
-    def transition(action)
-      @response = @client.put(
-        "/apps/#{@app}/services/#{@upid}",
-        action,
-        :content_type => 'text/plain'
-      ).to_s
-      self
-    rescue RestClient::RequestFailed => e
-      raise AppCrashed, e.http_body  if e.http_code == 502
-      raise
-    end
-
-    def down   ; transition('down') ; end
-    def up     ; transition('up')   ; end
-    def bounce ; transition('bounce') ; end
 
     # Does the service have any remaining output?
     def end_of_stream?
@@ -339,26 +322,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   def start(app_name, command, attached=false)
     service = Service.new(self, app_name)
     service.start(command, attached)
-  end
-
-  # Get a Service instance to execute commands against.
-  def service(app_name, upid)
-    Service.new(self, app_name, upid)
-  end
-
-  # Bring a service up.
-  def up(app_name, upid)
-    service(app_name, upid).up
-  end
-
-  # Bring a service down.
-  def down(app_name, upid)
-    service(app_name, upid).down
-  end
-
-  # Bounce a service.
-  def bounce(app_name, upid)
-    service(app_name, upid).bounce
   end
 
 
