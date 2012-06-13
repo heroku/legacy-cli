@@ -84,22 +84,24 @@ module Heroku
     end
 
     def self.background_update!
-      pid = fork do
-        begin
-          require "rest_client"
-          latest_version = json_decode(RestClient.get("http://rubygems.org/api/v1/gems/heroku.json").body)["version"]
+      if File.exists?(File.join(home_directory, ".heroku", "autoupdate"))
+        pid = fork do
+          begin
+            require "rest_client"
+            latest_version = json_decode(RestClient.get("http://rubygems.org/api/v1/gems/heroku.json").body)["version"]
 
-          if Gem::Version.new(latest_version) > latest_local_version
-            @background_updating = true
-            update
+            if Gem::Version.new(latest_version) > latest_local_version
+              @background_updating = true
+              update
+            end
+          rescue Exception => ex
+            # trap all errors
+          ensure
+            @background_updating = false
           end
-        rescue Exception => ex
-          # trap all errors
-        ensure
-          @background_updating = false
         end
+        Process.detach pid
       end
-      Process.detach pid
     end
   end
 end
