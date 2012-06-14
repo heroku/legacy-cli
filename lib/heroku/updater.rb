@@ -1,5 +1,10 @@
 require 'heroku/helpers'
 
+begin
+  require 'rubygems'
+rescue LoadError
+end
+
 module Heroku
   module Updater
 
