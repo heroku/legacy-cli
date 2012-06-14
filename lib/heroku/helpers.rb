@@ -336,7 +336,7 @@ module Heroku
         cols = []
         array.each do |item|
           if item.is_a?(Array)
-            item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, val.length].max }
+            item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, (val || '').length].max }
           end
         end
         cols.map { |col| "%-#{col}s" }.join("   ")
