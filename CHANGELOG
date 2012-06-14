@@ -1,3 +1,23 @@
+2.27.0 06/14/2012
+=================
+
+only load ~/.heroku/client if it is newer than installed version
+only complete update if downloaded version is newer
+more consistent help for config:remove and add config:unset alias
+add config:get to return a single config value
+default to config set/get and make add/remove aliases
+move interrupt rescue to CLI.start so that toolbelts get it too
+skip inject_libpath on deb toolbelt
+add magic comment for UTF-8 to toolbelt bin files
+consolidate rubygems load attempt (remove duplication in toolbelt bins)
+remove deprecated services api
+centralize/expand user agents and give toolbelt a non-gem user agent
+make background autoupdate opt in based on presence of ~/.heroku/autoupdate
+newer libssl for deb
+nicer error formatting with suggestions on getting help
+line_formatter no longer fails on nil values in arrays
+
+
 2.26.7 06/11/2012
 =================
 
