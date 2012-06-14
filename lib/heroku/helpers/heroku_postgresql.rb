@@ -40,6 +40,7 @@ module Heroku::Helpers::HerokuPostgresql
       error("Your app has no databases.")
     end
 
+    original_name = name.to_s
     name = name.to_s.upcase.gsub(/_URL$/, "")
 
     if hpg_databases[name]
@@ -48,8 +49,8 @@ module Heroku::Helpers::HerokuPostgresql
       [hpg_pretty_name(config_var), hpg_databases[config_var]]
     elsif default && name.empty? && app_config_vars[default]
       [hpg_pretty_name(default), app_config_vars[default]]
-    elsif URI.parse(name).scheme
-      [nil, name]
+    elsif URI.parse(original_name).scheme
+      [nil, original_name]
     elsif name.empty?
       error("Unknown database. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
     else
