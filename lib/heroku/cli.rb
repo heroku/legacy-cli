@@ -12,9 +12,9 @@ class Heroku::CLI
       `stty icanon echo`
       puts("\n !    Command cancelled.")
     rescue => error
-      puts(' !    Error encountered.')
-      puts(" !    You can search for help at: https://help.heroku.com")
-      puts(" !    Or report this as a bug at: https://github.com/heroku/heroku/issues/new")
+      puts(' !    Heroku client internal error.')
+      puts(" !    Search for help at: https://help.heroku.com")
+      puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
       puts
       puts("    Error:     #{error.message} (#{error.class})")
       puts("    Backtrace: #{error.backtrace.first}")
