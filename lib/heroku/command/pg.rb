@@ -50,14 +50,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    if URI.parse(db).scheme
-      url = db
-      display_name = "custom URL"
-    else
-      display_name, url = hpg_resolve(db)
-    end
+    name, url = hpg_resolve(db)
+    name ||= 'Custom URL'
 
-    action "Promoting #{display_name} to DATABASE_URL" do
+    action "Promoting #{name} to DATABASE_URL" do
       hpg_promote(url)
     end
   end

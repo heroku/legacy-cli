@@ -48,6 +48,8 @@ module Heroku::Helpers::HerokuPostgresql
       [hpg_pretty_name(config_var), hpg_databases[config_var]]
     elsif default && name.empty? && app_config_vars[default]
       [hpg_pretty_name(default), app_config_vars[default]]
+    elsif URI.parse(name).scheme
+      [nil, name]
     elsif name.empty?
       error("Unknown database. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
     else

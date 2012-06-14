@@ -144,7 +144,7 @@ STDOUT
         stderr, stdout = execute("pg:promote postgres://john:S3nsit1ve@my.example.com/db_name --confirm=myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Promoting custom URL to DATABASE_URL... done
+Promoting Custom URL to DATABASE_URL... done
 STDOUT
       end
 
