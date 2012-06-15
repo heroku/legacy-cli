@@ -1,3 +1,9 @@
+2.27.1 06/14/2012
+=================
+
+fix resolver to deal with postgres:// style input
+require rbuygems for updater, needed for version comparison
+
 2.27.0 06/14/2012
 =================
 
