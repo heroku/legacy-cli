@@ -232,7 +232,10 @@ module Heroku
       ret = yield
       Heroku::Helpers.error_with_failure = false
       display((options[:success] || "done"), false)
-      display(", #{@status}", false) if @status
+      if @status
+        display(", #{@status}", false)
+        @status = nil
+      end
       display
       ret
     end
