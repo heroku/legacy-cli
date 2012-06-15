@@ -56,35 +56,30 @@ STDERR
     context "index" do
       it "requests the info from the server" do
         stub_pg.get_database.returns(:info => [
-          {"name" => "Conn Info", "values"=>["\"host=ec2-012-34-567-890.compute-1.amazonaws.com", "port=5432 dbname=abcdefghijklmn", "user=abcdefghijklm sslmode=require", "password=abcdefghijklmnopqrstuvwxyz0\""]},
-          {"name"=>"Data Size", "values"=>["1 MB"]},
-          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
-          {"name"=>"Followers", "values"=>[], "resolve_db_name"=>true},
-          {"name"=>"Forks", "values"=>[], "resolve_db_name"=>true},
-          {"name"=>"Maintenance", "values"=>["not required"]},
-          {"name"=>"PG Version", "values"=>["9.0.0"]},
           {"name"=>"Plan", "values"=>["Ronin"]},
           {"name"=>"Status", "values"=>["available"]},
-          {"name"=>"Tables", "values"=>[1]}
+          {"name"=>"Data Size", "values"=>["1 MB"]},
+          {"name"=>"Tables", "values"=>[1]},
+          {"name"=>"PG Version", "values"=>["9.1.4"]},
+          {"name"=>"Fork/Follow", "values"=>["Available"]},
+          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
+          {"name"=>"Maintenance", "values"=>["not required"]}
         ])
 
         stderr, stdout = execute("pg")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === HEROKU_POSTGRESQL_RONIN
-Conn Info:   
-  "host=ec2-012-34-567-890.compute-1.amazonaws.com
-  port=5432 dbname=abcdefghijklmn
-  user=abcdefghijklm sslmode=require
-  password=abcdefghijklmnopqrstuvwxyz0"
-
-Created:     2011-12-13 00:00 UTC
-Data Size:   1 MB
-Maintenance: not required
-PG Version:  9.0.0
 Plan:        Ronin
 Status:      available
+Data Size:   1 MB
 Tables:      1
+PG Version:  9.1.4
+Fork/Follow: Available
+Created:     2011-12-13 00:00 UTC
+Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
+Maintenance: not required
 
 === SHARED_DATABASE
 Data Size: (empty)
@@ -96,35 +91,30 @@ STDOUT
     context "info" do
       it "requests the info from the server" do
         stub_pg.get_database.returns(:info => [
-          {"name" => "Conn Info", "values"=>["\"host=ec2-012-34-567-890.compute-1.amazonaws.com", "port=5432 dbname=abcdefghijklmn", "user=abcdefghijklm sslmode=require", "password=abcdefghijklmnopqrstuvwxyz0\""]},
-          {"name"=>"Data Size", "values"=>["1 MB"]},
-          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
-          {"name"=>"Followers", "values"=>[], "resolve_db_name"=>true},
-          {"name"=>"Forks", "values"=>[], "resolve_db_name"=>true},
-          {"name"=>"Maintenance", "values"=>["not required"]},
-          {"name"=>"PG Version", "values"=>["9.0.0"]},
           {"name"=>"Plan", "values"=>["Ronin"]},
           {"name"=>"Status", "values"=>["available"]},
-          {"name"=>"Tables", "values"=>[1]}
+          {"name"=>"Data Size", "values"=>["1 MB"]},
+          {"name"=>"Tables", "values"=>[1]},
+          {"name"=>"PG Version", "values"=>["9.1.4"]},
+          {"name"=>"Fork/Follow", "values"=>["Available"]},
+          {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
+          {"name"=>"Maintenance", "values"=>["not required"]}
         ])
 
         stderr, stdout = execute("pg:info RONIN")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === HEROKU_POSTGRESQL_RONIN
-Conn Info:   
-  "host=ec2-012-34-567-890.compute-1.amazonaws.com
-  port=5432 dbname=abcdefghijklmn
-  user=abcdefghijklm sslmode=require
-  password=abcdefghijklmnopqrstuvwxyz0"
-
-Created:     2011-12-13 00:00 UTC
-Data Size:   1 MB
-Maintenance: not required
-PG Version:  9.0.0
 Plan:        Ronin
 Status:      available
+Data Size:   1 MB
 Tables:      1
+PG Version:  9.1.4
+Fork/Follow: Available
+Created:     2011-12-13 00:00 UTC
+Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
+Maintenance: not required
 
 STDOUT
       end

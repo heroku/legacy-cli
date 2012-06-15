@@ -361,9 +361,10 @@ module Heroku
       display("=== #{header}")
     end
 
-    def styled_hash(hash)
+    def styled_hash(hash, keys=nil)
       max_key_length = hash.keys.map {|key| key.to_s.length}.max + 2
-      hash.keys.sort {|x,y| x.to_s <=> y.to_s}.each do |key|
+      keys ||= hash.keys.sort {|x,y| x.to_s <=> y.to_s}
+      keys.each do |key|
         case value = hash[key]
         when Array
           if value.empty?

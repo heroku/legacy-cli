@@ -204,7 +204,7 @@ private
     styled_header(pretty_name)
     styled_hash(db[:info].inject({}) do |hash, item|
       hash.update(item["name"] => hpg_info_display(item))
-    end)
+    end, db[:info].map {|item| item['name']})
 
     display
   end
@@ -238,15 +238,11 @@ private
 
   def hpg_info_display(item)
     item["values"] = [item["value"]] if item["value"]
-    if item["name"] == "Conn Info"
-      "\n  #{item["values"].join("\n  ")}\n\n"
-    else
-      item["values"].map do |value|
-        if item["resolve_db_name"]
-          database_name_from_url(value)
-        else
-          value
-        end
+    item["values"].map do |value|
+      if item["resolve_db_name"]
+        database_name_from_url(value)
+      else
+        value
       end
     end
   end
