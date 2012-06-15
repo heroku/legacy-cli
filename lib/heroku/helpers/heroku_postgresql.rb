@@ -3,6 +3,7 @@ require "heroku/helpers"
 module Heroku::Helpers::HerokuPostgresql
 
   extend self
+  extend Heroku::Helpers
 
   def app_config_vars
     @app_config_vars ||= api.get_config_vars(app).body
