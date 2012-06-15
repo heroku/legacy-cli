@@ -293,15 +293,15 @@ class Heroku::Command::Apps < Heroku::Command::Base
       error("Usage: heroku apps:destroy --app APP\nMust specify APP to destroy.")
     end
 
-    api.get_app(app) # fail fast if no access or doesn't exist
+    api.get_app(@app) # fail fast if no access or doesn't exist
 
-    message = "WARNING: Potentially Destructive Action\nThis command will destroy #{app} (including all add-ons)."
-    if confirm_command(app, message)
-      action("Destroying #{app} (including all add-ons)") do
-        api.delete_app(app)
+    message = "WARNING: Potentially Destructive Action\nThis command will destroy #{@app} (including all add-ons)."
+    if confirm_command(@app, message)
+      action("Destroying #{@app} (including all add-ons)") do
+        api.delete_app(@app)
         if remotes = git_remotes(Dir.pwd)
           remotes.each do |remote_name, remote_app|
-            next if app != remote_app
+            next if @app != remote_app
             git "remote rm #{remote_name}"
           end
         end
