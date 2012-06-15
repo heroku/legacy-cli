@@ -1,7 +1,10 @@
 require "heroku"
 require "heroku/command"
+require "heroku/helpers"
 
 class Heroku::CLI
+
+  extend Heroku::Helpers
 
   def self.start(*args)
     begin
@@ -10,18 +13,22 @@ class Heroku::CLI
       Heroku::Command.run(command, args)
     rescue Interrupt
       `stty icanon echo`
-      puts("\n !    Command cancelled.")
+      error("Command cancelled.")
     rescue => error
-      puts(' !    Heroku client internal error.')
-      puts(" !    Search for help at: https://help.heroku.com")
-      puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
-      puts
-      puts("    Error:     #{error.message} (#{error.class})")
-      puts("    Backtrace: #{error.backtrace.first}")
-      error.backtrace[1..-1].each do |line|
-        puts("               #{line}")
+      if Heroku::Helpers.error_with_failure
+        display("failed")
+        Heroku::Helpers.error_with_failure = false
       end
-      puts
+      $stderr.puts(' !    Heroku client internal error.')
+      $stderr.puts(" !    Search for help at: https://help.heroku.com")
+      $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
+      $stderr.puts
+      $stderr.puts("    Error:     #{error.message} (#{error.class})")
+      $stderr.puts("    Backtrace: #{error.backtrace.first}")
+      error.backtrace[1..-1].each do |line|
+        $stderr.puts("               #{line}")
+      end
+      $stderr.puts
       command = ARGV.map do |arg|
         if arg.include?(' ')
           arg = %{"#{arg}"}
@@ -29,9 +36,10 @@ class Heroku::CLI
           arg
         end
       end.join(' ')
-      puts("    Command:   heroku #{command}")
-      puts("    Version:   #{Heroku::USER_AGENT}")
-      puts
+      $stderr.puts("    Command:   heroku #{command}")
+      $stderr.puts("    Version:   #{Heroku::USER_AGENT}")
+      $stderr.puts
+      exit(1)
     end
   end
 
