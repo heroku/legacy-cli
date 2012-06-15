@@ -1,3 +1,9 @@
+2.27.3 06/15/2012
+=================
+
+fix for pg:unfollow
+preserve order of data in pg:info
+
 2.27.2 06/15/2012
 =================
 
