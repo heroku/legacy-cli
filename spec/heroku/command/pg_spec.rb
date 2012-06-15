@@ -206,12 +206,12 @@ STDOUT
             {"name"=>"Maintenance", "values"=>["not required"]}
           ]
         )
-        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_OTHER_URL --confirm myapp")
+        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_OTHER --confirm myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
  !    HEROKU_POSTGRESQL_OTHER will become writable and no longer
  !    follow postgresql://ronin_database_url. This cannot be undone.
-Unfollowing HEROKU_POSTGRESQL_OTHER_URL... done
+Unfollowing HEROKU_POSTGRESQL_OTHER... done
 STDOUT
       end
     end
