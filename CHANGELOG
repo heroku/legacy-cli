@@ -1,3 +1,11 @@
+2.27.2 06/15/2012
+=================
+
+properly preserve capitalization of plugin arguments
+clear status after it is displayed
+cleanup apps:destroy to clarify explicit vs implicit app arg
+simplify by removing downcase from shift_argument
+
 2.27.1 06/14/2012
 =================
 
