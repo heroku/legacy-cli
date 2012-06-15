@@ -66,10 +66,6 @@ module Heroku
     end
 
     def self.shift_argument
-      @invalid_arguments.shift.downcase rescue nil
-    end
-
-    def self.shift_preserved_argument
       @invalid_arguments.shift rescue nil
     end
 

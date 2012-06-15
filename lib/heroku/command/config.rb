@@ -96,7 +96,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     validate_arguments!
 
     vars = api.get_config_vars(app).body
-    key, value = vars.detect {|k,v| k.downcase == key}
+    key, value = vars.detect {|k,v| k == key}
     display(value)
   end
 
