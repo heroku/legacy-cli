@@ -126,7 +126,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     return unless confirm_command
 
     action "Unfollowing #{db}" do
-      hpg_client(origin_url).unfollow
+      hpg_client(replica_url).unfollow
     end
   end
 

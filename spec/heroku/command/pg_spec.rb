@@ -177,5 +177,44 @@ STDOUT
       end
 
     end
+
+    context "unfollow" do
+      before do
+        api.put_config_vars "myapp", {
+          "DATABASE_URL" => "postgres://database_url",
+          "SHARED_DATABASE_URL" => "postgres://other_database_url",
+          "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url",
+          "HEROKU_POSTGRESQL_OTHER_URL" => "postgres://other_database_url"
+        }
+      end
+
+      it "sends request to unfollow" do
+        hpg_client = double('Heroku::Client::HerokuPostgresql')
+        Heroku::Client::HerokuPostgresql.should_receive(:new).twice.with('postgres://other_database_url').and_return(hpg_client)
+        hpg_client.should_receive(:unfollow)
+        hpg_client.should_receive(:get_database).and_return(
+          :following => 'postgresql://ronin_database_url',
+          :info => [
+            {"name"=>"Plan", "values"=>["Ronin"]},
+            {"name"=>"Status", "values"=>["available"]},
+            {"name"=>"Data Size", "values"=>["1 MB"]},
+            {"name"=>"Tables", "values"=>[1]},
+            {"name"=>"PG Version", "values"=>["9.1.4"]},
+            {"name"=>"Fork/Follow", "values"=>["Available"]},
+            {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+            {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
+            {"name"=>"Maintenance", "values"=>["not required"]}
+          ]
+        )
+        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_OTHER_URL --confirm myapp")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+ !    HEROKU_POSTGRESQL_OTHER will become writable and no longer
+ !    follow postgresql://ronin_database_url. This cannot be undone.
+Unfollowing HEROKU_POSTGRESQL_OTHER_URL... done
+STDOUT
+      end
+    end
+
   end
 end
