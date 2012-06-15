@@ -7,42 +7,42 @@ module Heroku::Command
   describe Plugins do
 
     before do
-      @plugin = Heroku::Plugin.new("git://github.com/heroku/plugin.git")
+      @plugin = Heroku::Plugin.new("git://github.com/heroku/Plugin.git")
     end
 
     context("install") do
 
       before do
-        Heroku::Plugin.should_receive(:new).with('git://github.com/heroku/plugin.git').and_return(@plugin)
+        Heroku::Plugin.should_receive(:new).with('git://github.com/heroku/Plugin.git').and_return(@plugin)
         @plugin.should_receive(:install).and_return(true)
       end
 
       it "installs plugins" do
         Heroku::Plugin.should_receive(:load_plugin).and_return(true)
-        stderr, stdout = execute("plugins:install git://github.com/heroku/plugin.git")
+        stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Installing plugin... done
+Installing Plugin... done
 STDOUT
       end
 
       it "does not install plugins that do not load" do
         Heroku::Plugin.should_receive(:load_plugin).and_raise("error")
         @plugin.should_receive(:uninstall).and_return(true)
-        stderr, stdout = execute("plugins:install git://github.com/heroku/plugin.git")
+        stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
         stderr.should == <<-STDERR
- !    Could not initialize plugin: error
+ !    Could not initialize Plugin: error
  !    
  !    Are you attempting to install a Rails plugin? If so, use the following:
  !    
  !    Rails 2.x:
- !    script/plugin install git://github.com/heroku/plugin.git
+ !    script/plugin install git://github.com/heroku/Plugin.git
  !    
  !    Rails 3.x:
- !    rails plugin install git://github.com/heroku/plugin.git
+ !    rails plugin install git://github.com/heroku/Plugin.git
 STDERR
         stdout.should == <<-STDOUT
-Installing plugin... failed
+Installing Plugin... failed
 STDOUT
       end
 
@@ -51,26 +51,26 @@ STDOUT
     context("uninstall") do
 
       before do
-        Heroku::Plugin.should_receive(:new).with('plugin').and_return(@plugin)
+        Heroku::Plugin.should_receive(:new).with('Plugin').and_return(@plugin)
       end
 
       it "uninstalls plugins" do
         @plugin.should_receive(:uninstall).and_return(true)
-        stderr, stdout = execute("plugins:uninstall plugin")
+        stderr, stdout = execute("plugins:uninstall Plugin")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Uninstalling plugin... done
+Uninstalling Plugin... done
 STDOUT
       end
 
       it "does not uninstall plugins that do not exist" do
         @plugin.should_receive(:uninstall).and_return(false)
-        stderr, stdout = execute("plugins:uninstall plugin")
+        stderr, stdout = execute("plugins:uninstall Plugin")
         stderr.should == <<-STDERR
- !    Plugin "plugin" not found.
+ !    Plugin "Plugin" not found.
 STDERR
         stdout.should == <<-STDOUT
-Uninstalling plugin... failed
+Uninstalling Plugin... failed
 STDOUT
       end
 

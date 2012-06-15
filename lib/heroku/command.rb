@@ -69,6 +69,10 @@ module Heroku
       @invalid_arguments.shift.downcase rescue nil
     end
 
+    def self.shift_preserved_argument
+      @invalid_arguments.shift rescue nil
+    end
+
     def self.validate_arguments!
       unless invalid_arguments.empty?
         arguments = invalid_arguments.map {|arg| "\"#{arg}\""}

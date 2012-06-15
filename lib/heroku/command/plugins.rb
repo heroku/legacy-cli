@@ -38,7 +38,7 @@ module Heroku::Command
     # Installing heroku-accounts... done
     #
     def install
-      plugin = Heroku::Plugin.new(shift_argument)
+      plugin = Heroku::Plugin.new(shift_preserved_argument)
       validate_arguments!
 
       action("Installing #{plugin.name}") do
@@ -64,7 +64,7 @@ module Heroku::Command
     # Uninstalling heroku-accounts... done
     #
     def uninstall
-      plugin = Heroku::Plugin.new(shift_argument)
+      plugin = Heroku::Plugin.new(shift_preserved_argument)
       validate_arguments!
 
       action("Uninstalling #{plugin.name}") do
