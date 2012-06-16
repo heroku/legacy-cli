@@ -96,7 +96,7 @@ STDOUT
         stdout.should == <<-STDOUT
 Warning: non-unix style params have been deprecated, use --extra=XXX instead
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
     end
@@ -108,7 +108,7 @@ STDOUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -118,7 +118,7 @@ STDOUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -128,7 +128,7 @@ STDOUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -138,7 +138,7 @@ STDOUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -149,7 +149,7 @@ STDOUT
         stdout.should == <<-STDOUT
 Warning: non-unix style params have been deprecated, use --qux=quux instead
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -166,7 +166,7 @@ STDOUT
           stderr.should == ''
           stdout.should == <<-STDOUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
         end
       end
@@ -179,7 +179,7 @@ STDOUT
           stderr.should == ''
           stdout.should == <<-STDOUT
 Adding heroku-postgresql:ronin to myapp... done, v99 (free)
-heroku-postgresql:ronin documentation available at: https://devcenter.heroku.com/articles/heroku-postgresql
+Use `heroku addons:docs heroku-postgresql:ronin` to view documentation
 STDOUT
         end
       end
@@ -195,7 +195,7 @@ STDOUT
         stderr, stdout = execute("addons:add myaddon")
         stdout.should == <<-OUTPUT
 Adding myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
 
@@ -206,7 +206,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Adding myaddon to myapp... done, v99 (free)
 foo
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
 
@@ -218,7 +218,7 @@ OUTPUT
 Adding myaddon to myapp... done, v99 ($200/mo)
 foo
 bar
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
 
@@ -255,7 +255,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Upgrading myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
 
@@ -265,7 +265,7 @@ OUTPUT
         stderr.should == ''
         stdout.should == <<-OUTPUT
 Upgrading myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
 
       end
@@ -277,7 +277,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Upgrading myaddon to myapp... done, v99 (free)
 Don't Panic
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
     end
@@ -293,7 +293,7 @@ OUTPUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Downgrading myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -303,7 +303,7 @@ STDOUT
         stderr.should == ''
         stdout.should == <<-STDOUT
 Downgrading myaddon to myapp... done, v99 (free)
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 STDOUT
       end
 
@@ -314,7 +314,7 @@ STDOUT
         stdout.should == <<-OUTPUT
 Downgrading myaddon to myapp... done, v99 (free)
 Don't Panic
-myaddon documentation available at: https://devcenter.heroku.com/articles/myaddon
+Use `heroku addons:docs myaddon` to view documentation
 OUTPUT
       end
     end
