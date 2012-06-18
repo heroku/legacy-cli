@@ -41,9 +41,19 @@ module Heroku
           check_for_deprecation(plugin)
           next if skip_plugins.include?(plugin)
           load_plugin(plugin)
-        rescue ScriptError, StandardError => e
-          display "ERROR: Unable to load plugin #{plugin}: #{e.message}"
-          display
+        rescue ScriptError, StandardError => error
+          $stderr.puts(" !    Unable to load plugin #{plugin}.")
+          $stderr.puts(" !    Search for help at: https://help.heroku.com")
+          $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
+          $stderr.puts
+          $stderr.puts("    Error:     #{error.message} (#{error.class})")
+          $stderr.puts("    Backtrace: #{error.backtrace.first}")
+          error.backtrace[1..-1].each do |line|
+            $stderr.puts("               #{line}")
+          end
+          $stderr.puts
+          $stderr.puts("    Version:   #{Heroku::USER_AGENT}")
+          $stderr.puts
         end
       end
       # check to see if we are using ddollar/heroku-accounts

@@ -69,21 +69,25 @@ module Heroku
         end
 
         it "should not throw an error" do
-          Plugin.stub!(:display)
-          lambda { Plugin.load! }.should_not raise_error
+          capture_stderr do
+            lambda { Plugin.load! }.should_not raise_error
+          end
         end
 
         it "should fail gracefully" do
-          Plugin.should_receive(:display).with(/Unable to load plugin some_plugin/)
-          Plugin.should_receive(:display).with()
-          Plugin.load!
+          stderr = capture_stderr do
+            Plugin.load!
+          end
+          stderr.should include('Error:     cannot load such file -- some_non_existant_file (LoadError)')
         end
 
         it "should still load other plugins" do
-          Plugin.stub!(:display)
           FileUtils.mkdir_p(@sandbox + '/some_plugin_2/lib')
           File.open(@sandbox + '/some_plugin_2/init.rb', 'w') { |f| f.write "LoadedPlugin2 = true" }
-          Plugin.load!
+          stderr = capture_stderr do
+            Plugin.load!
+          end
+          stderr.should include('Error:     cannot load such file -- some_non_existant_file (LoadError)')
           LoadedPlugin2.should be_true
         end
       end
