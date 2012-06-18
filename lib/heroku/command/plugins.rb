@@ -43,10 +43,17 @@ module Heroku::Command
 
       action("Installing #{plugin.name}") do
         if plugin.install
-          begin
-            Heroku::Plugin.load_plugin(plugin.name)
-          rescue Exception => ex
-            installation_failed(plugin, ex.message)
+          unless Heroku::Plugin.load_plugin(plugin.name)
+            plugin.uninstall
+            error <<-ERROR
+Are you attempting to install a Rails plugin? If so, use the following:
+
+Rails 2.x:
+script/plugin install #{plugin.uri}
+
+Rails 3.x:
+rails plugin install #{plugin.uri}
+ERROR
           end
         else
           error("Could not install #{plugin.name}. Please check the URL and try again")
@@ -74,21 +81,5 @@ module Heroku::Command
       end
     end
 
-    protected
-
-      def installation_failed(plugin, message)
-        plugin.uninstall
-        error <<-ERROR
-Could not initialize #{plugin.name}: #{message}
-
-Are you attempting to install a Rails plugin? If so, use the following:
-
-Rails 2.x:
-script/plugin install #{plugin.uri}
-
-Rails 3.x:
-rails plugin install #{plugin.uri}
-        ERROR
-      end
   end
 end

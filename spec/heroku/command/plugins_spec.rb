@@ -27,12 +27,21 @@ STDOUT
       end
 
       it "does not install plugins that do not load" do
-        Heroku::Plugin.should_receive(:load_plugin).and_raise("error")
+        File.should_receive(:exists?).and_return(true)
+        Heroku::Plugin.should_receive(:load).and_raise("error")
         @plugin.should_receive(:uninstall).and_return(true)
         stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
-        stderr.should == <<-STDERR
- !    Could not initialize Plugin: error
- !    
+        stderr.should include(<<-STDERR)
+ !    Unable to load plugin Plugin.
+ !    Search for help at: https://help.heroku.com
+ !    Or report a bug at: https://github.com/heroku/heroku/issues/new
+
+    Error:     error (RuntimeError)
+STDERR
+        # not worried about specifics in backtrace
+        stderr.should include("    Backtrace: ")
+        stderr.should include("    Version:   #{Heroku::USER_AGENT}")
+        stderr.should include(<<-STDERR)
  !    Are you attempting to install a Rails plugin? If so, use the following:
  !    
  !    Rails 2.x:

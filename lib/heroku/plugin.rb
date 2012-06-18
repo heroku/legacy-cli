@@ -37,24 +37,9 @@ module Heroku
 
     def self.load!
       list.each do |plugin|
-        begin
-          check_for_deprecation(plugin)
-          next if skip_plugins.include?(plugin)
-          load_plugin(plugin)
-        rescue ScriptError, StandardError => error
-          $stderr.puts(" !    Unable to load plugin #{plugin}.")
-          $stderr.puts(" !    Search for help at: https://help.heroku.com")
-          $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
-          $stderr.puts
-          $stderr.puts("    Error:     #{error.message} (#{error.class})")
-          $stderr.puts("    Backtrace: #{error.backtrace.first}")
-          error.backtrace[1..-1].each do |line|
-            $stderr.puts("               #{line}")
-          end
-          $stderr.puts
-          $stderr.puts("    Version:   #{Heroku::USER_AGENT}")
-          $stderr.puts
-        end
+        check_for_deprecation(plugin)
+        next if skip_plugins.include?(plugin)
+        load_plugin(plugin)
       end
       # check to see if we are using ddollar/heroku-accounts
       if list.include?('heroku-accounts') && Heroku::Auth.methods.include?(:fetch_from_account)
@@ -73,9 +58,25 @@ module Heroku
     end
 
     def self.load_plugin(plugin)
-      folder = "#{self.directory}/#{plugin}"
-      $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
-      load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
+      begin
+        folder = "#{self.directory}/#{plugin}"
+        $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
+        load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
+      rescue ScriptError, StandardError => error
+        $stderr.puts(" !    Unable to load plugin #{plugin}.")
+        $stderr.puts(" !    Search for help at: https://help.heroku.com")
+        $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
+        $stderr.puts
+        $stderr.puts("    Error:     #{error.message} (#{error.class})")
+        $stderr.puts("    Backtrace: #{error.backtrace.first}")
+        error.backtrace[1..-1].each do |line|
+          $stderr.puts("               #{line}")
+        end
+        $stderr.puts
+        $stderr.puts("    Version:   #{Heroku::USER_AGENT}")
+        $stderr.puts
+        false
+      end
     end
 
     def self.remove_plugin(plugin)
