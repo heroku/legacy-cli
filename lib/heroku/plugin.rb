@@ -138,10 +138,8 @@ module Heroku
             error("Unable to update #{name}.\n" + message)
           end
         else
-          error(<<-ERROR)
-#{name} is a legacy plugin installation.
-Enable updating by reinstalling with `heroku plugins:install`.
-ERROR
+          $stderr.puts(" !    #{name} is a legacy plugin installation.")
+          $stderr.puts(" !    Enable updating by reinstalling with `heroku plugins:install`.")
         end
       end
     end

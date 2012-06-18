@@ -79,21 +79,30 @@ ERROR
       end
     end
 
-    # plugins:update PLUGIN
+    # plugins:update [PLUGIN]
     #
-    # updates a plugin
+    # updates all plugins or a single plugin by name
     #
     #Example:
+    #
+    # $ heroku plugins:update
+    # Updating heroku-accounts... done
     #
     # $ heroku plugins:update heroku-accounts
     # Updating heroku-accounts... done
     #
     def update
-      plugin = Heroku::Plugin.new(shift_argument)
+      plugins = if plugin = shift_argument
+        [plugin]
+      else
+        ::Heroku::Plugin.list
+      end
       validate_arguments!
 
-      action("Updating #{plugin.name}") do
-        plugin.update
+      plugins.each do |plugin|
+        action("Updating #{plugin}") do
+          Heroku::Plugin.new(plugin).update
+        end
       end
     end
 

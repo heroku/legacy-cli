@@ -90,9 +90,19 @@ STDOUT
         Heroku::Plugin.should_receive(:new).with('Plugin').and_return(@plugin)
       end
 
-      it "updates plugins" do
+      it "updates plugin by name" do
         @plugin.should_receive(:update).and_return(true)
         stderr, stdout = execute("plugins:update Plugin")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Updating Plugin... done
+STDOUT
+      end
+
+      it "updates all plugins" do
+        Heroku::Plugin.should_receive(:list).and_return([], [], ['Plugin'])
+        @plugin.should_receive(:update).and_return(true)
+        stderr, stdout = execute("plugins:update")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Updating Plugin... done
