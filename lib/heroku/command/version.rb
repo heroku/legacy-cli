@@ -12,12 +12,12 @@ class Heroku::Command::Version < Heroku::Command::Base
   #Example:
   #
   # $ heroku version
-  # v1.2.3
+  # heroku-toolbelt/1.2.3 (x86_64-darwin11.2.0) ruby/1.9.3
   #
   def index
     validate_arguments!
 
-    display(Heroku::VERSION)
+    display(Heroku::USER_AGENT)
   end
 
 end
