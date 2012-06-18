@@ -75,9 +75,25 @@ ERROR
       validate_arguments!
 
       action("Uninstalling #{plugin.name}") do
-        unless plugin.uninstall
-          error(%{Plugin "#{plugin.name}" not found.})
-        end
+        plugin.uninstall
+      end
+    end
+
+    # plugins:update PLUGIN
+    #
+    # updates a plugin
+    #
+    #Example:
+    #
+    # $ heroku plugins:update heroku-accounts
+    # Updating heroku-accounts... done
+    #
+    def update
+      plugin = Heroku::Plugin.new(shift_argument)
+      validate_arguments!
+
+      action("Updating #{plugin.name}") do
+        plugin.update
       end
     end
 

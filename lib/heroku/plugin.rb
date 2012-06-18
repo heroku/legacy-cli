@@ -111,7 +111,9 @@ module Heroku
     end
 
     def install
-      uninstall
+      if File.directory?(path)
+        uninstall
+      end
       Dir.chdir(self.class.directory) do
         git("clone #{uri}")
         unless $?.success?
@@ -123,19 +125,40 @@ module Heroku
     end
 
     def uninstall
-      if File.directory?(path)
-        FileUtils.rm_r(path)
-        true
-      else
-        false
+      ensure_plugin_exists
+      FileUtils.rm_r(path)
+    end
+
+    def update
+      ensure_plugin_exists
+      Dir.chdir(path) do
+        unless git('config --get branch.master.remote').empty?
+          message = git("pull")
+          unless $?.success?
+            error("Unable to update #{name}.\n" + message)
+          end
+        else
+          error(<<-ERROR)
+#{name} is a legacy plugin installation.
+Enable updating by reinstalling with `heroku plugins:install`.
+ERROR
+        end
       end
     end
 
     private
-      def guess_name(url)
-        @name = File.basename(url)
-        @name = File.basename(File.dirname(url)) if @name.empty?
-        @name.gsub!(/\.git$/, '') if @name =~ /\.git$/
+
+    def ensure_plugin_exists
+      unless File.directory?(path)
+        error("#{name} plugin not found.")
       end
+    end
+
+    def guess_name(url)
+      @name = File.basename(url)
+      @name = File.basename(File.dirname(url)) if @name.empty?
+      @name.gsub!(/\.git$/, '') if @name =~ /\.git$/
+    end
+
   end
 end

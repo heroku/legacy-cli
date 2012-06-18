@@ -52,6 +52,39 @@ module Heroku
         File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
       end
 
+      context "update" do
+
+        before(:each) do
+          plugin_folder = "/tmp/heroku_plugin"
+          FileUtils.mkdir_p(plugin_folder)
+          `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
+          Plugin.new(plugin_folder).install
+          `cd #{plugin_folder} && echo 'updated' > README && git add . && git commit -m 'my plugin update'`
+        end
+
+        it "updates existing copies" do
+          Plugin.new('heroku_plugin').update
+          File.directory?("#{@sandbox}/heroku_plugin").should be_true
+          File.read("#{@sandbox}/heroku_plugin/README").should == "updated\n"
+        end
+
+        it "warns on legacy plugins" do
+          `cd #{@sandbox}/heroku_plugin && git config --unset branch.master.remote`
+          stderr = capture_stderr do
+            begin
+              Plugin.new('heroku_plugin').update
+            rescue SystemExit
+            end
+          end
+          stderr.should == <<-STDERR
+ !    heroku_plugin is a legacy plugin installation.
+ !    Enable updating by reinstalling with `heroku plugins:install`.
+STDERR
+        end
+
+      end
+
+
       it "uninstalls removing the folder" do
         FileUtils.mkdir_p(@sandbox + '/plugin1')
         Plugin.new('git://github.com/heroku/plugin1.git').uninstall
