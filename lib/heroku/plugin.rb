@@ -110,10 +110,9 @@ module Heroku
     end
 
     def install
-      FileUtils.mkdir_p(path)
-      Dir.chdir(path) do
-        git("init -q")
-        git("pull #{uri} master -q")
+      uninstall
+      Dir.chdir(self.class.directory) do
+        git("clone #{uri}")
         unless $?.success?
           FileUtils.rm_rf path
           return false

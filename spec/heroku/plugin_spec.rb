@@ -42,6 +42,16 @@ module Heroku
         File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
       end
 
+      it "reinstalls over old copies" do
+        plugin_folder = "/tmp/heroku_plugin"
+        FileUtils.mkdir_p(plugin_folder)
+        `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
+        Plugin.new(plugin_folder).install
+        Plugin.new(plugin_folder).install
+        File.directory?("#{@sandbox}/heroku_plugin").should be_true
+        File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
+      end
+
       it "uninstalls removing the folder" do
         FileUtils.mkdir_p(@sandbox + '/plugin1')
         Plugin.new('git://github.com/heroku/plugin1.git').uninstall
