@@ -121,7 +121,7 @@ STDERR
           stderr = capture_stderr do
             Plugin.load!
           end
-          stderr.should include('Error:     cannot load such file -- some_non_existant_file (LoadError)')
+          stderr.should include('some_non_existant_file (LoadError)')
         end
 
         it "should still load other plugins" do
@@ -130,7 +130,7 @@ STDERR
           stderr = capture_stderr do
             Plugin.load!
           end
-          stderr.should include('Error:     cannot load such file -- some_non_existant_file (LoadError)')
+          stderr.should include('some_non_existant_file (LoadError)')
           LoadedPlugin2.should be_true
         end
       end
