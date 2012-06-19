@@ -4,12 +4,14 @@ require "heroku/command/addons"
 module Heroku::Command
   describe Addons do
     before do
+      @addons = prepare_command(Addons)
       stub_core.release("myapp", "current").returns( "name" => "v99" )
     end
 
     describe "index" do
 
       before(:each) do
+        stub_core
         api.post_app("name" => "myapp", "stack" => "cedar")
       end
 
@@ -89,136 +91,147 @@ STDOUT
     end
 
     describe 'v1-style command line params' do
+      it "understands foo=baz" do
+        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
+      end
+
       it "gives a deprecation notice with an example" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => 'bar', 'extra' => 'XXX' }).and_return('price' => 'free')
-        stderr, stdout = execute("addons:add myaddon --foo=bar extra=XXX")
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => {:foo => 'bar', :extra => "XXX"}}).
+          to_return(:body => Heroku::OkJson.encode({ 'price' => 'free' }))
+        stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Warning: non-unix style params have been deprecated, use --extra=XXX instead
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
+Adding my_addon to myapp... done, v99 (free)
+Use `heroku addons:docs my_addon` to view documentation
 STDOUT
       end
     end
 
     describe 'unix-style command line params' do
       it "understands --foo=baz" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => 'baz' }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:add myaddon --foo=baz')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
       end
 
       it "understands --foo baz" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => 'baz' }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:add myaddon --foo baz')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon --foo baz))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.add
       end
 
       it "treats lone switches as true" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => true }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:add myaddon --foo')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon --foo))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => true })
+        @addons.add
       end
 
       it "converts 'true' to boolean" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => true }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:add myaddon --foo=true')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon --foo=true))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => true })
+        @addons.add
       end
 
-      it "works with many mixed config vars" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => true, 'bob' => true, 'qux' => 'quux' }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:add myaddon --foo  baz --bar yes --baz=foo --bab --bob=true qux=quux')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Warning: non-unix style params have been deprecated, use --qux=quux instead
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+      it "works with many config vars" do
+        @addons.stub!(:args).and_return(%w(my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => true, 'bob' => true })
+        @addons.add
+      end
+
+      it "sends the variables to the server" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => 'true', 'bob' => 'true' }})
+        stderr, stdout = execute("addons:add my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true")
+        stderr.should == ""
       end
 
       it "raises an error for spurious arguments" do
-        lambda { execute('addons:add myaddon spurious') }.should raise_error(CommandFailed, 'Unexpected arguments: spurious')
+        @addons.stub!(:args).and_return(%w(my_addon spurious))
+        lambda { @addons.add }.should raise_error(CommandFailed)
+      end
+    end
+
+    describe "mixed options" do
+      it "understands foo=bar and --baz=bar on the same line" do
+        @addons.stub!(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', { 'foo' => 'baz', 'baz' => 'bar', 'bar' => true, 'bob' => true })
+        @addons.add
+      end
+
+      it "sends the variables to the server" do
+        stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          with(:body => {:config => { 'foo' => 'baz', 'baz' => 'bar', 'bar' => 'true', 'bob' => 'true' }})
+        stderr, stdout = execute("addons:add my_addon foo=baz --baz=bar bob=true --bar")
+        stderr.should == ""
+        stdout.should include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
       end
     end
 
     describe "fork and follow switches" do
-      %w{fork follow}.each do |switch|
-        it "#{switch} should only resolve for heroku-postgresql addon" do
-          Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'myaddon', {switch => 'HEROKU_POSTGRESQL_RED'}).and_return({'price' => 'free'})
-          stderr, stdout = execute("addons:add myaddon --#{switch} HEROKU_POSTGRESQL_RED")
-          stderr.should == ''
-          stdout.should == <<-STDOUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+      it "should only resolve for heroku-postgresql addon" do
+        %w{fork follow}.each do |switch|
+          @addons.stub!(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.heroku.should_receive(:install_addon).
+            with('myapp', 'addon', {switch => 'HEROKU_POSTGRESQL_RED'})
+          @addons.add
         end
       end
 
-      %w{fork follow}.each do |switch|
-        it "#{switch} should translate --fork and --follow" do
-          Heroku::Command::Addons.any_instance.should_receive(:app_config_vars).twice.and_return({ 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
-          Heroku::Client.any_instance.should_receive(:install_addon).with('myapp', 'heroku-postgresql:ronin', {switch => 'foo'}).and_return({'price' => 'free'})
-          stderr, stdout = execute("addons:add heroku-postgresql:ronin --#{switch} HEROKU_POSTGRESQL_RED")
-          stderr.should == ''
-          stdout.should == <<-STDOUT
-Adding heroku-postgresql:ronin to myapp... done, v99 (free)
-Use `heroku addons:docs heroku-postgresql:ronin` to view documentation
-STDOUT
+      it "should translate --fork and --follow" do
+        %w{fork follow}.each do |switch|
+          @addons.stub!(:app_config_vars).and_return({ 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
+          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'foo'})
+          @addons.add
         end
       end
     end
 
     describe 'adding' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+
       it "requires an addon name" do
-        lambda { execute('addons:add') }.should raise_error(CommandFailed, 'Missing add-on name')
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.add }.should raise_error(CommandFailed)
       end
 
       it "adds an addon" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with("myapp", "myaddon", {}).and_return({ "price" => "free" })
-        stderr, stdout = execute("addons:add myaddon")
-        stdout.should == <<-OUTPUT
-Adding myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-OUTPUT
+        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.heroku.should_receive(:install_addon).with('myapp', 'my_addon', {})
+        @addons.add
+      end
+
+      it "adds an addon with a price" do
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        stderr, stdout = execute("addons:add my_addon")
+        stderr.should == ""
+        stdout.should =~ /\(free\)/
       end
 
       it "adds an addon with a price and message" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with("myapp", "myaddon", {}).and_return({ "price" => "free", "message" => "foo" })
-        stderr, stdout = execute("addons:add myaddon")
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "foo" })
+        stderr, stdout = execute("addons:add my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Adding myaddon to myapp... done, v99 (free)
+Adding my_addon to myapp... done, v99 (free)
 foo
-Use `heroku addons:docs myaddon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation
 OUTPUT
       end
 
       it "adds an addon with a price and multiline message" do
-        Heroku::Client.any_instance.should_receive(:install_addon).with("myapp", "myaddon", {}).and_return({ "price" => "$200/mo", "message" => "foo\nbar" })
-        stderr, stdout = execute("addons:add myaddon")
+        stub_core.install_addon("myapp", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
+        stderr, stdout = execute("addons:add my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Adding myaddon to myapp... done, v99 ($200/mo)
+Adding my_addon to myapp... done, v99 ($200/mo)
 foo
 bar
-Use `heroku addons:docs myaddon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation
 OUTPUT
       end
 
@@ -226,134 +239,122 @@ OUTPUT
         Heroku::Command.should_receive(:error).with("Unexpected arguments: bar")
         run("addons:add redistogo -a foo bar")
       end
-
-      it "asks the user to confirm billing when API responds with 402" do
-        e = RestClient::RequestFailed.new
-        e.stub!(:http_code).and_return(402)
-        e.stub!(:http_body).and_return('{"error":"test"}')
-        Heroku::Client.any_instance.should_receive(:install_addon).and_raise(e)
-        Heroku::Command::Addons.any_instance.should_receive(:confirm_billing).and_return(false)
-        stderr, stdout = execute('addons:add myaddon')
-        stderr.should == <<-STDERR
- !    test
-STDERR
-        stdout.should == <<-STDOUT
-Adding myaddon to myapp... failed
-STDOUT
-      end
-
     end
 
     describe 'upgrading' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+
       it "requires an addon name" do
-        lambda { execute('addons:upgrade') }.should raise_error(CommandFailed, 'Missing add-on name')
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.upgrade }.should raise_error(CommandFailed)
       end
 
       it "upgrades an addon" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with("myapp", "myaddon", {}).and_return({ "price" => "free" })
-        stderr, stdout = execute("addons:upgrade myaddon")
-        stderr.should == ""
-        stdout.should == <<-OUTPUT
-Upgrading myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-OUTPUT
+        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', {})
+        @addons.upgrade
       end
 
       it "upgrade an addon with config vars" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with('myapp', 'myaddon', { 'foo' => 'baz' }).and_return({ 'price' => 'free' })
-        stderr, stdout = execute('addons:upgrade myaddon --foo=baz')
-        stderr.should == ''
-        stdout.should == <<-OUTPUT
-Upgrading myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-OUTPUT
-
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.upgrade
       end
 
-      it "upgrades an addon with a price and message" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with("myapp", "myaddon", {}).and_return({ "price" => "free", "message" => "Don't Panic" })
-        stderr, stdout = execute("addons:upgrade myaddon")
+      it "adds an addon with a price" do
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        stderr, stdout = execute("addons:upgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Upgrading myaddon to myapp... done, v99 (free)
+Upgrading my_addon to myapp... done, v99 (free)
+Use `heroku addons:docs my_addon` to view documentation
+OUTPUT
+      end
+
+      it "adds an addon with a price and message" do
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
+        stderr, stdout = execute("addons:upgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+Upgrading my_addon to myapp... done, v99 (free)
 Don't Panic
-Use `heroku addons:docs myaddon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation
 OUTPUT
       end
     end
 
     describe 'downgrading' do
+      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+
       it "requires an addon name" do
-        lambda { execute('addons:downgrade') }.should raise_error(CommandFailed, 'Missing add-on name')
+        @addons.stub!(:args).and_return([])
+        lambda { @addons.downgrade }.should raise_error(CommandFailed)
       end
 
       it "downgrades an addon" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with('myapp', 'myaddon', {}).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:downgrade myaddon')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Downgrading myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', {})
+        @addons.downgrade
       end
 
       it "downgrade an addon with config vars" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with('myapp', 'myaddon', { 'foo' => 'baz' }).and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:downgrade myaddon --foo=baz')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Downgrading myaddon to myapp... done, v99 (free)
-Use `heroku addons:docs myaddon` to view documentation
-STDOUT
+        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.heroku.should_receive(:upgrade_addon).with('myapp', 'my_addon', { 'foo' => 'baz' })
+        @addons.downgrade
+      end
+
+      it "downgrades an addon with a price" do
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free" })
+        stderr, stdout = execute("addons:downgrade my_addon")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+Downgrading my_addon to myapp... done, v99 (free)
+Use `heroku addons:docs my_addon` to view documentation
+OUTPUT
       end
 
       it "downgrades an addon with a price and message" do
-        Heroku::Client.any_instance.should_receive(:upgrade_addon).with("myapp", "myaddon", {}).and_return({ "price" => "free", "message" => "Don't Panic" })
-        stderr, stdout = execute("addons:downgrade myaddon")
+        stub_core.upgrade_addon("myapp", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
+        stderr, stdout = execute("addons:downgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Downgrading myaddon to myapp... done, v99 (free)
+Downgrading my_addon to myapp... done, v99 (free)
 Don't Panic
-Use `heroku addons:docs myaddon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation
 OUTPUT
       end
     end
 
-    context "remove" do
-      it "does not remove addons with no confirm" do
-        stderr, stdout = execute('addons:remove myaddon')
-        stderr.should == <<-STDERR
- !    Confirmation did not match myapp. Aborted.
-STDERR
-        stdout.should == <<-STDOUT + '> '
+    it "asks the user to confirm billing when API responds with 402" do
+      @addons.stub!(:args).and_return(%w( addon1 ))
+      e = RestClient::RequestFailed.new
+      e.stub!(:http_code).and_return(402)
+      e.stub!(:http_body).and_return('{"error":"test"}')
+      @addons.heroku.should_receive(:install_addon).and_raise(e)
+      @addons.should_receive(:confirm_billing).and_return(false)
+      STDERR.should_receive(:puts).with(" !    test")
+      lambda { @addons.add }.should raise_error(SystemExit)
+    end
 
- !    WARNING: Destructive Action
- !    This command will affect the app: myapp
- !    To proceed, type \"myapp\" or re-run this command with --confirm myapp
+    it "does not remove addons with no confirm" do
+      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.should_receive(:confirm_command).once.and_return(false)
+      @addons.heroku.should_not_receive(:uninstall_addon)
+      @addons.remove
+    end
 
-STDOUT
-      end
+    it "removes addons after prompting for confirmation" do
+      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.should_receive(:confirm_command).once.and_return(true)
+      @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => "myapp")
+      @addons.remove
+    end
 
-      it "removes addons after prompting for confirmation" do
-        Heroku::Command::Addons.any_instance.should_receive(:confirm_command).and_return(true)
-        Heroku::Client.any_instance.should_receive(:uninstall_addon).with('myapp', 'myaddon', :confirm => "myapp").and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:remove myaddon')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Removing myaddon from myapp... done, v99 (free)
-
-STDOUT
-      end
-
-      it "removes addons with confirm option" do
-        Heroku::Client.any_instance.should_receive(:uninstall_addon).with('myapp', 'myaddon', :confirm => "myapp").and_return({'price' => 'free'})
-        stderr, stdout = execute('addons:remove myaddon --confirm myapp')
-        stderr.should == ''
-        stdout.should == <<-STDOUT
-Removing myaddon from myapp... done, v99 (free)
-
-STDOUT
-      end
+    it "removes addons with confirm option" do
+      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.stub!(:options).and_return(:confirm => "myapp")
+      @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => "myapp")
+      @addons.remove
     end
 
     describe "opening add-on docs" do
@@ -460,7 +461,7 @@ STDERR
       it "opens the addon if only one matches" do
         api.post_addon('myapp', 'redistogo:nano')
         require("launchy")
-        Launchy.should_receive(:open).with("https://api.heroku.com/myapps/myapp/addons/redistogo:nano")
+        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:nano")
         stderr, stdout = execute('addons:open redistogo:nano')
         stderr.should == ''
         stdout.should == <<-STDOUT
