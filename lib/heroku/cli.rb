@@ -23,10 +23,10 @@ class Heroku::CLI
       $stderr.puts(" !    Search for help at: https://help.heroku.com")
       $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
       $stderr.puts
-      $stderr.puts("    Error:     #{error.message} (#{error.class})")
-      $stderr.puts("    Backtrace: #{error.backtrace.first}")
+      $stderr.puts("    Error:       #{error.message} (#{error.class})")
+      $stderr.puts("    Backtrace:   #{error.backtrace.first}")
       error.backtrace[1..-1].each do |line|
-        $stderr.puts("               #{line}")
+        $stderr.puts("                 #{line}")
       end
       $stderr.puts
       command = ARGV.map do |arg|
@@ -36,8 +36,17 @@ class Heroku::CLI
           arg
         end
       end.join(' ')
-      $stderr.puts("    Command:   heroku #{command}")
-      $stderr.puts("    Version:   #{Heroku::USER_AGENT}")
+      $stderr.puts("    Command:     heroku #{command}")
+      unless Heroku::Auth.host == Heroku::Auth.default_host
+        $stderr.puts("    Host:        #{Heroku::Auth.host}")
+      end
+      if http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        $stderr.puts("    HTTP Proxy:  #{http_proxy}")
+      end
+      if https_proxy = ENV['https_proxy'] || ENV['HTTPS_PROXY']
+        $stderr.puts("    HTTPS Proxy: #{https_proxy}")
+      end
+      $stderr.puts("    Version:     #{Heroku::USER_AGENT}")
       $stderr.puts
       exit(1)
     end
