@@ -16,7 +16,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    update_from_url "http://assets.heroku.com/heroku-client/heroku-client.zip"
+    update_from_url("http://assets.heroku.com/heroku-client/heroku-client.zip")
   end
 
   # update:beta
@@ -28,7 +28,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def beta
     validate_arguments!
-    update_from_url "http://assets.heroku.com/heroku-client/heroku-client-beta.zip"
+    update_from_url("http://assets.heroku.com/heroku-client/heroku-client-beta.zip")
   end
 
 private

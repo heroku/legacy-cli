@@ -8,8 +8,6 @@ end
 module Heroku
   module Updater
 
-    DEFAULT_UPDATE_URL = "http://assets.heroku.com/heroku-client/heroku-client.zip"
-
     extend Heroku::Helpers
 
     def self.installed_client_path
@@ -39,14 +37,24 @@ module Heroku
       error disable if disable
     end
 
-    def self.update(url=DEFAULT_UPDATE_URL)
+    def self.update(url, autoupdate=false)
       require "fileutils"
       require "tmpdir"
       require "zip/zip"
 
+      user_agent = Heroku::USER_AGENT
+      if autoupdate
+        useragent += ' autoupdate'
+      end
+
       Dir.mktmpdir do |download_dir|
         File.open("#{download_dir}/heroku.zip", "wb") do |file|
-          file.print RestClient.get(url).body
+          file.print Excon.get(
+            url,
+            :headers => {
+              'User-Agent' => useragent
+            }
+          ).body
         end
 
         Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
@@ -92,8 +100,8 @@ module Heroku
       if File.exists?(File.join(home_directory, ".heroku", "autoupdate"))
         pid = fork do
           begin
-            require "rest_client"
-            latest_version = json_decode(RestClient.get("http://rubygems.org/api/v1/gems/heroku.json").body)["version"]
+            require "excon"
+            latest_version = json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
             if Gem::Version.new(latest_version) > latest_local_version
               @background_updating = true
