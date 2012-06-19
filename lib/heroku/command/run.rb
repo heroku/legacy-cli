@@ -107,7 +107,6 @@ protected
   def rendezvous_session(rendezvous_url, &on_connect)
     begin
       set_buffer(false)
-      $stdin.sync = $stdout.sync = true
       rendezvous = Heroku::Client::Rendezvous.new(
         :rendezvous_url => rendezvous_url,
         :connect_timeout => (ENV["HEROKU_CONNECT_TIMEOUT"] || 120).to_i,

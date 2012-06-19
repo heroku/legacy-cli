@@ -32,7 +32,6 @@ class Heroku::Command::Logs < Heroku::Command::Base
     @line_start = true
     @token = nil
 
-    $stdout.sync = true
     heroku.read_logs(app, opts) do |chunk|
       unless chunk.empty?
         if STDOUT.isatty && ENV.has_key?("TERM")
