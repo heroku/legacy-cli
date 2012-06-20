@@ -1,10 +1,5 @@
 require 'heroku/helpers'
 
-begin
-  require 'rubygems'
-rescue LoadError
-end
-
 module Heroku
   module Updater
 
@@ -19,13 +14,16 @@ module Heroku
     end
 
     def self.latest_local_version
-      [ client_version_from_path(installed_client_path), client_version_from_path(updated_client_path) ].sort.last
+      maximum_version(client_version_from_path(installed_client_path), client_version_from_path(updated_client_path))
     end
 
     def self.client_version_from_path(path)
       version_file = File.join(path, "lib/heroku/version.rb")
-      return Gem::Version.new("0.0") unless File.exists?(version_file)
-      Gem::Version.new(File.read(version_file).match(/VERSION = "([^"]+)"/)[1])
+      if File.exists?(version_file)
+        File.read(version_file).match(/VERSION = "([^"]+)"/)[1]
+      else
+        '0.0.0'
+      end
     end
 
     def self.disable(message=nil)
@@ -77,7 +75,7 @@ module Heroku
         old_version = latest_local_version
         new_version = client_version_from_path(download_dir)
 
-        if old_version > new_version
+        if old_version != new_version && maximum_version(old_version, new_version) == old_version
           return if @background_updating
           error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
         end
@@ -90,17 +88,28 @@ module Heroku
       end
     end
 
+    def self.maximum_version(first_version, second_version)
+      first_major, first_minor, first_patch = first_version.split('.').map {|x| x.to_i}
+      second_major, second_minor, second_patch = second_version.split('.').map {|x| x.to_i}
+
+      if first_major > second_major || first_minor > second_minor || first_patch > second_patch
+        first_version
+      else
+        second_version
+      end
+    end
+
     def self.inject_libpath
       background_update!
 
       old_version = client_version_from_path(installed_client_path)
       new_version = client_version_from_path(updated_client_path)
-      return unless new_version > old_version
-
-      $:.unshift File.join(updated_client_path, "lib")
-      vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
-      vendored_gems.each do |vendored_gem|
-        $:.unshift File.join(vendored_gem, "lib")
+      unless old_version != new_version && maximum_version(old_version, new_version) == new_version
+        $:.unshift File.join(updated_client_path, "lib")
+        vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
+        vendored_gems.each do |vendored_gem|
+          $:.unshift File.join(vendored_gem, "lib")
+        end
       end
     end
 
