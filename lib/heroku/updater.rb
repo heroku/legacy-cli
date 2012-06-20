@@ -89,10 +89,10 @@ module Heroku
     end
 
     def self.maximum_version(first_version, second_version)
-      first_major, first_minor, first_patch = first_version.split('.').map {|x| x.to_i}
-      second_major, second_minor, second_patch = second_version.split('.').map {|x| x.to_i}
+      first_major, first_minor, first_patch, first_pre = first_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
+      second_major, second_minor, second_patch, second_pre = second_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
 
-      if first_major > second_major || first_minor > second_minor || first_patch > second_patch
+      if first_major > second_major || first_minor > second_minor || first_patch > second_patch || first_pre > second_pre
         first_version
       else
         second_version
