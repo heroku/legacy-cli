@@ -45,6 +45,26 @@ STDERR
         @base.app.should == "myapp"
       end
 
+      it "attempts to find the app via the --confirm option" do
+        @base.stub!(:options).and_return(:confirm => "myconfirmapp")
+        @base.app.should == "myconfirmapp"
+      end
+
+      it "attempts to find the app via HEROKU_APP when not explicitly specified" do
+        ENV['HEROKU_APP'] = "myenvapp"
+        @base.app.should == "myenvapp"
+        @base.stub!(:options).and_return([])
+        @base.app.should == "myenvapp"
+        ENV.delete('HEROKU_APP')
+      end
+
+      it "overrides HEROKU_APP when explicitly specified" do
+        ENV['HEROKU_APP'] = "myenvapp"
+        @base.stub!(:options).and_return(:app => "myapp")
+        @base.app.should == "myapp"
+        ENV.delete('HEROKU_APP')
+      end
+
       it "read remotes from git config" do
         Dir.stub(:chdir)
         File.should_receive(:exists?).with(".git").and_return(true)
