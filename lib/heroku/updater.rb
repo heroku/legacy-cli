@@ -48,13 +48,14 @@ module Heroku
       end
 
       Dir.mktmpdir do |download_dir|
+        download_url = Excon.get(
+          url,
+          :headers => {
+            'User-Agent' => useragent
+          }
+        ).headers['Location']
         File.open("#{download_dir}/heroku.zip", "wb") do |file|
-          file.print Excon.get(
-            url,
-            :headers => {
-              'User-Agent' => useragent
-            }
-          ).body
+          file.print Excon.get(download_url).body
         end
 
         Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
@@ -76,6 +77,7 @@ module Heroku
         end
 
         FileUtils.rm_rf updated_client_path
+        FileUtils.mkdir_p File.dirname(updated_client_path)
         FileUtils.cp_r  download_dir, updated_client_path
 
         new_version
