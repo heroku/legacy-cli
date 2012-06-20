@@ -48,14 +48,20 @@ module Heroku
       end
 
       Dir.mktmpdir do |download_dir|
-        download_url = Excon.get(
+
+        # follow redirect, if one exists
+        headers = Excon.head(
           url,
           :headers => {
             'User-Agent' => useragent
           }
-        ).headers['Location']
+        ).headers
+        if headers['Location']
+          url = headers['Location']
+        end
+
         File.open("#{download_dir}/heroku.zip", "wb") do |file|
-          file.print Excon.get(download_url).body
+          file.print Excon.get(url).body
         end
 
         Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
