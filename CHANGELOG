@@ -1,3 +1,20 @@
+2.28.0 06/20/2012
+=================
+
+fix pg:unfollow specs to better reflect real usage
+add tests to pg resolver for uri and SHARED_DATABASE arguments
+suggest `addons:docs` instead of listing doc urls after addon modification
+version now displays additional info (like user-agent)
+update plugin load errors to be inline with pretty errors
+improved plugin:install using git clone instead of checkout
+add plugin:update to update all (or specified) plugins
+add non-default host and proxy settings to nice errors
+set special user agent when doing autoupdate
+set stdin/stdout sync to avoid buffering
+get updates through toolbelt app to allow better metric tracking
+remove rubygems dependency from updater
+allow HEROKU_APP to provide a default app value to commands
+
 2.27.3 06/15/2012
 =================
 
