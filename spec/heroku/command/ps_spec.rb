@@ -28,12 +28,22 @@ describe Heroku::Command::Ps do
     describe "ps" do
 
       it "displays processes" do
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('0s ago')
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return('0s ago')
+        api.post_ps_scale('myapp', 'web', 10)
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === web: `bundle exec thin start -p $PORT`
 web.1: created for 0s
+web.2: created for 0s
+web.3: created for 0s
+web.4: created for 0s
+web.5: created for 0s
+web.6: created for 0s
+web.7: created for 0s
+web.8: created for 0s
+web.9: created for 0s
+web.10: created for 0s
 
 STDOUT
       end

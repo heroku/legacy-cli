@@ -116,9 +116,15 @@ class Heroku::Command::Ps < Heroku::Command::Base
       processes_by_command[key] << item
     end
 
+    processes_by_command.keys.each do |key|
+      processes_by_command[key] = processes_by_command[key].sort do |x,y|
+        x.match(/\.(\d+):/).captures.first.to_i <=> y.match(/\.(\d+):/).captures.first.to_i
+      end
+    end
+
     processes_by_command.keys.sort.each do |key|
       styled_header(key)
-      styled_array(processes_by_command[key])
+      styled_array(processes_by_command[key], :sort => false)
     end
   end
 
