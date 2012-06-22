@@ -8,7 +8,12 @@ class Heroku::CLI
 
   def self.start(*args)
     begin
-      $stdin.sync = $stdout.sync = true
+      if $stdin.isatty
+        $stdin.sync = true
+      end
+      if $stdout.isatty
+        $stdout.sync = true
+      end
       command = args.shift.strip rescue "help"
       Heroku::Command.load
       Heroku::Command.run(command, args)
