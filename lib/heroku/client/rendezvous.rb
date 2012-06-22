@@ -92,7 +92,7 @@ class Heroku::Client::Rendezvous
       data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
     end
     if running_on_windows?
-      data.gsub(/\e\[\d+m/, '')
+      data = data.gsub(/\e\[[\d;]+m/, '')
     end
     output.isatty ? data : data.gsub(/\cM/,"")
   end
