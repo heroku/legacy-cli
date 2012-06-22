@@ -104,7 +104,7 @@ module Heroku
 
       old_version = client_version_from_path(installed_client_path)
       new_version = client_version_from_path(updated_client_path)
-      unless old_version != new_version && maximum_version(old_version, new_version) == new_version
+      if old_version != new_version && maximum_version(old_version, new_version) == new_version
         $:.unshift File.join(updated_client_path, "lib")
         vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
         vendored_gems.each do |vendored_gem|
