@@ -5,6 +5,9 @@ require "heroku/client"
 require "heroku/helpers"
 
 class Heroku::Client::Rendezvous
+
+  include Heroku::Helpers
+
   attr_reader :rendezvous_url, :connect_timeout, :activity_timeout, :input, :output, :on_connect
 
   def initialize(opts)
@@ -85,7 +88,12 @@ class Heroku::Client::Rendezvous
 
   def fixup(data)
     return nil if ! data
-    data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
+    if data.respond_to?(:force_encoding)
+      data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
+    end
+    if running_on_windows?
+      data.gsub(/\e\[\d+m/, '')
+    end
     output.isatty ? data : data.gsub(/\cM/,"")
   end
 end
