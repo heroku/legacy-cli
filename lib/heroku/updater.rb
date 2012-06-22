@@ -110,6 +110,7 @@ module Heroku
         vendored_gems.each do |vendored_gem|
           $:.unshift File.join(vendored_gem, "lib")
         end
+        load('heroku/updater.rb') # reload updated updater
       end
     end
 
