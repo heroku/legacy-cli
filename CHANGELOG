@@ -1,3 +1,15 @@
+2.28.1 06/22/2012
+=================
+
+handle occasional [['base', 'message']] errors
+make ps sort numerically
+add experimental rpm packaging
+dup shift_argument to avoid frozen strings
+only set sync when stdin/stdout are tty
+reload updater in inject_loadpath
+fix error formatting in plugins:update
+fix display of quoted config values
+
 2.28.0 06/20/2012
 =================
 
