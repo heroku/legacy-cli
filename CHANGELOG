@@ -1,3 +1,9 @@
+2.28.2 06/22/2012
+=================
+
+strip color codes for windows consoles
+fix inverted logic in updater inject_libpath
+
 2.28.1 06/22/2012
 =================
 
