@@ -66,7 +66,8 @@ module Heroku
     end
 
     def self.shift_argument
-      @invalid_arguments.shift rescue nil
+      # dup argument to get a non-frozen string
+      @invalid_arguments.shift.dup rescue nil
     end
 
     def self.validate_arguments!
