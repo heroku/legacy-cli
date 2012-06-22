@@ -27,6 +27,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     if vars.empty?
       display("#{app} has no config vars.")
     else
+      vars = quote_vars!(vars)
       if options[:shell]
         vars.keys.sort.each do |key|
           display("#{key}=#{vars[key]}")
@@ -75,7 +76,7 @@ class Heroku::Command::Config < Heroku::Command::Base
       end
     end
 
-    styled_hash(vars)
+    styled_hash(quote_vars!(vars))
   end
 
   alias_command "config:add", "config:set"
@@ -96,7 +97,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     validate_arguments!
 
     vars = api.get_config_vars(app).body
-    key, value = vars.detect {|k,v| k == key}
+    key, value = quote_vars!(vars).detect {|k,v| k == key}
     display(value)
   end
 
@@ -131,5 +132,15 @@ class Heroku::Command::Config < Heroku::Command::Base
   end
 
   alias_command "config:remove", "config:unset"
+
+  private
+  def quote_vars!(vars)
+    vars.keys.each do |key|
+      if vars[key].include?(' ')
+        vars[key] = %{"#{vars[key]}"}
+      end
+    end
+    vars
+  end
 
 end

@@ -33,6 +33,16 @@ LONG: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
 
+    it "quotes values with spaces" do
+      api.put_config_vars("myapp", { 'SPACED' => 'foo bar' })
+      stderr, stdout = execute("config")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+=== Config Vars for myapp
+SPACED: "foo bar"
+STDOUT
+    end
+
     it "shows configs in a shell compatible format" do
       api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two' })
       stderr, stdout = execute("config --shell")
@@ -70,6 +80,15 @@ B: 2
         stdout.should == <<-STDOUT
 Setting config vars and restarting myapp... done, v1
 A: b=c
+STDOUT
+      end
+
+      it "sets config vars without changing case" do
+        stderr, stdout = execute("config:set a=b")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Setting config vars and restarting myapp... done, v1
+a: b
 STDOUT
       end
 
