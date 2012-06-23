@@ -43,6 +43,17 @@ SPACED: "foo bar"
 STDOUT
     end
 
+    it "handles when value is nil" do
+      api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => nil })
+      stderr, stdout = execute("config")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+=== Config Vars for myapp
+BAZ_QUX: 
+FOO_BAR: one
+STDOUT
+    end
+
     it "shows configs in a shell compatible format" do
       api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two' })
       stderr, stdout = execute("config --shell")
