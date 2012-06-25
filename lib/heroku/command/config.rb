@@ -136,10 +136,11 @@ class Heroku::Command::Config < Heroku::Command::Base
   private
   def quote_vars!(vars)
     vars.keys.each do |key|
-      if vars[key].nil?
-        vars[key] = ''
-      elsif vars[key].include?(' ')
-        vars[key] = %{"#{vars[key]}"}
+      value = vars[key].to_s
+      if value.include?(' ')
+        vars[key] = %{"#{value}"}
+      else
+        vars[key] = value
       end
     end
     vars
