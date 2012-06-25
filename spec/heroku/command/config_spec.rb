@@ -33,16 +33,6 @@ LONG: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
 
-    it "quotes values with spaces" do
-      api.put_config_vars("myapp", { 'SPACED' => 'foo bar' })
-      stderr, stdout = execute("config")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
-=== Config Vars for myapp
-SPACED: "foo bar"
-STDOUT
-    end
-
     it "handles when value is nil" do
       api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => nil })
       stderr, stdout = execute("config")
@@ -66,12 +56,12 @@ STDOUT
     end
 
     it "shows configs in a shell compatible format" do
-      api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two' })
+      api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two three' })
       stderr, stdout = execute("config --shell")
       stderr.should == ""
       stdout.should == <<-STDOUT
-A=one
-B=two
+A="one"
+B="two three"
 STDOUT
     end
 
