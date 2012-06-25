@@ -4,7 +4,7 @@ PATH
     heroku (2.28.2)
       heroku-api (~> 0.2.6)
       launchy (>= 0.3.2)
-      netrc (~> 0.7.4)
+      netrc (~> 0.7.5)
       rest-client (~> 1.6.1)
       rubyzip
 
@@ -30,7 +30,7 @@ GEM
       addressable (~> 2.2.6)
     mime-types (1.17.2)
     multi_json (1.1.0)
-    netrc (0.7.4)
+    netrc (0.7.5)
     rack (1.4.1)
     rake (0.9.2.2)
     rest-client (1.6.7)
