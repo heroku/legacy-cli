@@ -95,7 +95,7 @@ module Heroku
       if first_major > second_major ||
         (first_major == second_major && first_minor > second_minor) ||
         (first_major == second_major && first_minor == second_minor && first_patch > second_patch) ||
-        (first_major == second_major && first_minor == second_minor && first_patch == second_patch && first_pre > second_pre) ||
+        (first_major == second_major && first_minor == second_minor && first_patch == second_patch && first_pre > second_pre)
         first_version
       else
         second_version
