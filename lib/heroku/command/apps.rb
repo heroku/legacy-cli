@@ -23,7 +23,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     apps = api.get_apps.body
     unless apps.empty?
       my_apps, collaborated_apps = apps.partition do |app|
-        app["owner_email"] == heroku.user
+        app["owner_email"] == Heroku::Auth.user
       end
 
       unless my_apps.empty?
