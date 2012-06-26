@@ -3,18 +3,22 @@ require 'heroku/helpers'
 module Heroku
   module Updater
 
-    extend Heroku::Helpers
-
     def self.installed_client_path
       File.expand_path("../../..", __FILE__)
     end
 
     def self.updated_client_path
-      File.join(home_directory, ".heroku", "client")
+      File.join(Heroku::Helpers.home_directory, ".heroku", "client")
     end
 
     def self.latest_local_version
-      maximum_version(client_version_from_path(installed_client_path), client_version_from_path(updated_client_path))
+      installed_version = client_version_from_path(installed_client_path)
+      updated_version = client_version_from_path(updated_client_path)
+      if compare_versions(updated_version, installed_version) > 0
+        updated_version
+      else
+        installed_version
+      end
     end
 
     def self.client_version_from_path(path)
@@ -88,18 +92,8 @@ module Heroku
       end
     end
 
-    def self.maximum_version(first_version, second_version)
-      first_major, first_minor, first_patch, first_pre = first_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
-      second_major, second_minor, second_patch, second_pre = second_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
-
-      if first_major > second_major ||
-        (first_major == second_major && first_minor > second_minor) ||
-        (first_major == second_major && first_minor == second_minor && first_patch > second_patch) ||
-        (first_major == second_major && first_minor == second_minor && first_patch == second_patch && first_pre > second_pre)
-        first_version
-      else
-        second_version
-      end
+    def self.compare_versions(first_version, second_version)
+      first_version.split('.').map {|part| Integer(part) rescue part} <=> second_version.split('.').map {|part| Integer(part) rescue part}
     end
 
     def self.inject_libpath
@@ -107,7 +101,8 @@ module Heroku
 
       old_version = client_version_from_path(installed_client_path)
       new_version = client_version_from_path(updated_client_path)
-      if old_version != new_version && maximum_version(old_version, new_version) == new_version
+
+      if compare_versions(new_version, old_version) > 0
         $:.unshift File.join(updated_client_path, "lib")
         vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
         vendored_gems.each do |vendored_gem|
@@ -118,13 +113,13 @@ module Heroku
     end
 
     def self.background_update!
-      if File.exists?(File.join(home_directory, ".heroku", "autoupdate"))
+      if File.exists?(File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate"))
         pid = fork do
           begin
             require "excon"
             latest_version = json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
-            if latest_version != latest_local_version && maximum_version(latest_version, latest_local_version) == latest_version
+            if compare_versions(latest_version, latest_local_version) > 0
               @background_updating = true
               update
             end
