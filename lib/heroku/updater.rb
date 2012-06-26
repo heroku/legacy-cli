@@ -124,7 +124,7 @@ module Heroku
             require "excon"
             latest_version = json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
-            if Gem::Version.new(latest_version) > latest_local_version
+            if latest_version != latest_local_version && maximum_version(latest_version, latest_local_version) == latest_version
               @background_updating = true
               update
             end
