@@ -92,7 +92,10 @@ module Heroku
       first_major, first_minor, first_patch, first_pre = first_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
       second_major, second_minor, second_patch, second_pre = second_version.split('.').map {|x| x.gsub(/\D/,'').to_i} + [0,0,0,0]
 
-      if first_major > second_major || first_minor > second_minor || first_patch > second_patch || first_pre > second_pre
+      if first_major > second_major ||
+        (first_major == second_major && first_minor > second_minor) ||
+        (first_major == second_major && first_minor == second_minor && first_patch > second_patch) ||
+        (first_major == second_major && first_minor == second_minor && first_patch == second_patch && first_pre > second_pre) ||
         first_version
       else
         second_version
