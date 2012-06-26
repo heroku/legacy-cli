@@ -174,8 +174,15 @@ module Heroku
 
     def self.run(cmd, arguments=[])
       object, method = prepare_run(cmd, arguments.dup)
-      object.send(method)
-    rescue RestClient::Unauthorized, Heroku::API::Errors::Unauthorized
+      begin
+        object.send(method)
+      rescue => error
+        # load likely error classes, as they may not be loaded yet due to defered loads
+        require 'heroku-api'
+        require 'rest_client'
+        raise(error)
+      end
+    rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized
       puts "Authentication failure"
       unless ENV['HEROKU_API_KEY']
         run "login"

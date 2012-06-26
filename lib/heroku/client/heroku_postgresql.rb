@@ -7,6 +7,7 @@ class Heroku::Client::HerokuPostgresql
   include Heroku::Helpers
 
   def initialize(url)
+    require 'rest_client'
     @heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"
     @database_sha = sha(url)
     @heroku_postgresql_resource = RestClient::Resource.new(

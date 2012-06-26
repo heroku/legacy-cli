@@ -2,7 +2,6 @@ require "heroku"
 require "heroku/client"
 require "heroku/helpers"
 
-require "heroku-api"
 require "netrc"
 
 class Heroku::Auth
@@ -13,6 +12,7 @@ class Heroku::Auth
 
     def api
       @api ||= begin
+        require("heroku-api")
         api = Heroku::API.new(default_params.merge(:api_key => password))
 
         def api.request(params, &block)

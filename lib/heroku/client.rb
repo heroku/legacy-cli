@@ -1,5 +1,4 @@
 require 'rexml/document'
-require 'rest_client'
 require 'uri'
 require 'time'
 require 'heroku/auth'
@@ -38,6 +37,7 @@ class Heroku::Client
   end
 
   def initialize(user, password, host=Heroku::Auth.host)
+    require 'rest_client'
     @user = user
     @password = password
     @host = host
