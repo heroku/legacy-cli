@@ -1,3 +1,9 @@
+2.28.4 06/26/2012
+=================
+
+fix user agent for pkg toolbelt
+defer rest_client and heroku-api load
+
 2.28.3 06/25/2012
 =================
 
