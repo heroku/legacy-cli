@@ -1,3 +1,10 @@
+2.28.6 06/27/2012
+=================
+
+fixes for heroku-api and rest_client availability in error handling
+fix updater version checking
+fix user_agent setting for updater
+
 2.28.5 06/26/2012
 =================
 
