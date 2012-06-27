@@ -81,7 +81,7 @@ module Heroku
         new_version = client_version_from_path(download_dir)
 
         if compare_versions(new_version, old_version) < 0 && !autoupdate
-          error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
+          Heroku::Helpers.error("Installed version (#{old_version}) is newer than the latest available update (#{new_version})")
         end
 
         FileUtils.rm_rf updated_client_path

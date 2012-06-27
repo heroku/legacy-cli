@@ -176,7 +176,7 @@ module Heroku
       begin
         object, method = prepare_run(cmd, arguments.dup)
         object.send(method)
-      rescue Interrupt, StandardError => error
+      rescue Interrupt, StandardError, SystemExit => error
         # load likely error classes, as they may not be loaded yet due to defered loads
         require 'heroku-api'
         require 'rest_client'
