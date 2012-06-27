@@ -40,6 +40,7 @@ module Heroku
     end
 
     def self.update(url, autoupdate=false)
+      require "excon"
       require "fileutils"
       require "tmpdir"
       require "zip/zip"
