@@ -4,7 +4,11 @@ require "rubygems"
 
 require "excon"
 Excon.defaults[:mock] = true
+
+# ensure these are around for errors
+# as their require is generally deferred
 require "heroku-api"
+require "rest_client"
 
 require "simplecov"
 SimpleCov.start do
