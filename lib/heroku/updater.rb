@@ -36,7 +36,9 @@ module Heroku
     end
 
     def self.check_disabled!
-      error disable if disable
+      if disable
+        Heroku::Helpers.error(disable)
+      end
     end
 
     def self.update(url, autoupdate=false)
