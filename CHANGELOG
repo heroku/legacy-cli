@@ -1,3 +1,10 @@
+2.28.5 06/26/2012
+=================
+
+replace maximum_version in updater with simpler compare_versions
+fix regression around heroku-api not being required prior to login
+require excon in updater as heroku-api won't have been required
+
 2.28.4 06/26/2012
 =================
 
