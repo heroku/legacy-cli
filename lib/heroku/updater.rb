@@ -47,7 +47,7 @@ module Heroku
 
       user_agent = Heroku::USER_AGENT
       if autoupdate
-        useragent += ' autoupdate'
+        user_agent += ' autoupdate'
       end
 
       Dir.mktmpdir do |download_dir|
