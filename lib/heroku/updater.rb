@@ -80,7 +80,7 @@ module Heroku
         old_version = latest_local_version
         new_version = client_version_from_path(download_dir)
 
-        if compare_versions(new_version, old_version) > 0 && !autoupdate
+        if compare_versions(new_version, old_version) < 0 && !autoupdate
           error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
         end
 
