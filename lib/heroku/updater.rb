@@ -45,7 +45,7 @@ module Heroku
       require "tmpdir"
       require "zip/zip"
 
-      user_agent = "heroku/toolbelt/#{latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+      user_agent = "heroku-toolbelt/#{latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
       if autoupdate
         user_agent += ' autoupdate'
       end
