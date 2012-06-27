@@ -80,7 +80,7 @@ module Heroku
         old_version = latest_local_version
         new_version = client_version_from_path(download_dir)
 
-        if compare_versions(new_version, old_version) > 0 && !@background_updating
+        if compare_versions(new_version, old_version) > 0 && !autoupdate
           error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
         end
 
@@ -120,10 +120,9 @@ module Heroku
             latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
             if compare_versions(latest_version, latest_local_version) > 0
-              @background_updating = true
               update("https://toolbelt.herokuapp.com/download/zip", true)
             end
-#          rescue Exception => ex
+          rescue Exception => ex
             # trap all errors
           ensure
             @background_updating = false
