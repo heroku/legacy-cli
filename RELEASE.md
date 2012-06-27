@@ -13,7 +13,7 @@ Heroku CLI Release Process
 * Move to a checkout of the toolbelt repo and make sure everything is up to date `git pull`
 * Move to the components/heroku directory, `git fetch` and `git reset --hard HASH` where HASH is commit hash of vX.Y.Z
 * Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
-* Ask in #dx for toolbelt releases
+* Start toolbelt-build build at http://dx-jenkins.herokai.com/
 * Create a [new changelog] => http://devcenter.heroku.com/admin/changelog_items/new
 * Paste the contents of your clipboard (or enter text based on the following):
 * Set the title to `Heroku CLI vX.Y.Z released with #{highlights}`
