@@ -45,7 +45,7 @@ module Heroku
       require "tmpdir"
       require "zip/zip"
 
-      user_agent = Heroku::USER_AGENT
+      user_agent = "heroku/toolbelt/#{latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
       if autoupdate
         user_agent += ' autoupdate'
       end
@@ -56,7 +56,7 @@ module Heroku
         headers = Excon.head(
           url,
           :headers => {
-            'User-Agent' => useragent
+            'User-Agent' => user_agent
           }
         ).headers
         if headers['Location']
@@ -80,8 +80,7 @@ module Heroku
         old_version = latest_local_version
         new_version = client_version_from_path(download_dir)
 
-        if old_version != new_version && maximum_version(old_version, new_version) == old_version
-          return if @background_updating
+        if compare_versions(new_version, old_version) > 0 && !@background_updating
           error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
         end
 
@@ -118,13 +117,13 @@ module Heroku
         pid = fork do
           begin
             require "excon"
-            latest_version = json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
+            latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
             if compare_versions(latest_version, latest_local_version) > 0
               @background_updating = true
-              update
+              update("https://toolbelt.herokuapp.com/download/zip", true)
             end
-          rescue Exception => ex
+#          rescue Exception => ex
             # trap all errors
           ensure
             @background_updating = false
