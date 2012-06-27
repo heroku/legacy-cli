@@ -211,6 +211,7 @@ class Heroku::Auth
     end
 
     def ask_for_and_save_credentials
+      require("heroku-api") # for the errors
       begin
         @credentials = ask_for_credentials
         write_credentials

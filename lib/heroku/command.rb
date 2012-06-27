@@ -173,10 +173,10 @@ module Heroku
     end
 
     def self.run(cmd, arguments=[])
-      object, method = prepare_run(cmd, arguments.dup)
       begin
+        object, method = prepare_run(cmd, arguments.dup)
         object.send(method)
-      rescue => error
+      rescue Interrupt, StandardError => error
         # load likely error classes, as they may not be loaded yet due to defered loads
         require 'heroku-api'
         require 'rest_client'
