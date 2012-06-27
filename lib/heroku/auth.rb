@@ -70,6 +70,7 @@ class Heroku::Auth
     end
 
     def api_key(user = get_credentials[0], password = get_credentials[1])
+      require("heroku-api")
       api = Heroku::API.new(default_params)
       api.post_login(user, password).body["api_key"]
     end
