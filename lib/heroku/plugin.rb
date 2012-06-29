@@ -114,6 +114,7 @@ module Heroku
       if File.directory?(path)
         uninstall
       end
+      FileUtils.mkdir_p(self.class.directory)
       Dir.chdir(self.class.directory) do
         git("clone #{uri}")
         unless $?.success?
