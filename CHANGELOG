@@ -1,3 +1,9 @@
+2.28.8 07/03/2012
+=================
+
+fix errors related to excon refactoring
+ensure that plugins directory exists before installing plugins
+
 2.28.7 06/27/2012
 =================
 
