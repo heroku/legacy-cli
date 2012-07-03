@@ -1,3 +1,4 @@
+require "cgi"
 require "heroku"
 require "heroku/client"
 require "heroku/helpers"
