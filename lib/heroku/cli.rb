@@ -2,6 +2,12 @@ require "heroku"
 require "heroku/command"
 require "heroku/helpers"
 
+# workaround for rescue/reraise to define errors in command.rb failing in 1.8.6
+if RUBY_VERSION =~ /^1.8.6/
+  require('heroku-api')
+  require('rest_client')
+end
+
 class Heroku::CLI
 
   extend Heroku::Helpers
