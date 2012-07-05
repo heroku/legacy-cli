@@ -205,6 +205,7 @@ class Heroku::Client
   # support for console sessions
   class ConsoleSession
     def initialize(id, app, client)
+      require 'rest_client'
       @id = id; @app = app; @client = client
     end
     def run(cmd)
@@ -252,6 +253,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     attr_accessor :attached
 
     def initialize(client, app)
+      require 'rest_client'
       @client = client
       @app = app
     end
