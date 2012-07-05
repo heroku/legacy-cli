@@ -10,11 +10,6 @@ Excon.defaults[:mock] = true
 require "heroku-api"
 require "rest_client"
 
-require "simplecov"
-SimpleCov.start do
-  add_filter "/spec/"
-end
-
 require "heroku/cli"
 require "rspec"
 require "rr"
