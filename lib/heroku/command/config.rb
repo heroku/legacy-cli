@@ -30,7 +30,7 @@ class Heroku::Command::Config < Heroku::Command::Base
       vars.each {|key, value| vars[key] = value.to_s}
       if options[:shell]
         vars.keys.sort.each do |key|
-          display(%{#{key}="#{vars[key]}"})
+          display(%{#{key}=#{vars[key]}})
         end
       else
         styled_header("Config Vars for #{app}")

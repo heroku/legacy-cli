@@ -60,8 +60,8 @@ STDOUT
       stderr, stdout = execute("config --shell")
       stderr.should == ""
       stdout.should == <<-STDOUT
-A="one"
-B="two three"
+A=one
+B=two three
 STDOUT
     end
 
