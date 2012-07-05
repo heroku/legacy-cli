@@ -201,7 +201,7 @@ module Heroku::Command
           row << ':'
           size = row.size
           stop = false
-          row << addons.map { |a| a['short'] }.sort.map do |short|
+          row << addons.map { |a| a['short'] }.compact.sort.map do |short|
             size += short.size
             if size < 31
               short
