@@ -1,3 +1,13 @@
+2.28.9 07/06/2012
+=================
+
+ensure rest_client is required for console commands
+handle nil short names in addons:list
+avoid displaying nil message after addons:remove
+require rest_client in 1.8.6 as rescue/reraise fails
+remove simplecov
+bump to latest heroku.rb and excon
+
 2.28.8 07/03/2012
 =================
 
