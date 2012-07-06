@@ -95,6 +95,19 @@ STDOUT
         api.delete_app("myapp")
       end
 
+      it "with -a name" do
+        with_blank_git_repository do
+          stderr, stdout = execute("apps:create -a myapp")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Creating myapp... done, stack is bamboo-mri-1.9.2
+http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Git remote heroku added
+STDOUT
+        end
+        api.delete_app("myapp")
+      end
+
       it "with --no-remote" do
         with_blank_git_repository do
           stderr, stdout = execute("apps:create myapp --no-remote")

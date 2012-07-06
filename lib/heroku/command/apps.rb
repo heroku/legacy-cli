@@ -177,7 +177,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # $ heroku apps:create myapp-staging --remote staging
   #
   def create
-    name    = shift_argument
+    name    = shift_argument || options[:app]
     validate_arguments!
 
     info    = api.post_app({ "name" => name, "stack" => options[:stack] }).body
