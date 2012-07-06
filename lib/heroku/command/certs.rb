@@ -108,8 +108,6 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   private
 
-  TIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
-
   def current_endpoint
     endpoint = heroku.ssl_endpoint_list(app).first || error("No SSL endpoints exist for #{app}")
     endpoint["cname"]
@@ -150,9 +148,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def format_endpoint(endpoint)
     endpoint["ca_signed?"] = endpoint["ssl_cert"]["ca_signed?"].to_s.capitalize
     endpoint["domains"]    = endpoint["ssl_cert"]["cert_domains"].join(", ")
-    endpoint["expires_at"] = Time.parse(endpoint["ssl_cert"]["expires_at"]).strftime(TIME_FORMAT)
+    endpoint["expires_at"] = format_date(endpoint["ssl_cert"]["expires_at"])
     endpoint["issuer"]     = endpoint["ssl_cert"]["issuer"]
-    endpoint["starts_at"]  = Time.parse(endpoint["ssl_cert"]["starts_at"]).strftime(TIME_FORMAT)
+    endpoint["starts_at"]  = format_date(endpoint["ssl_cert"]["starts_at"])
     endpoint["subject"]    = endpoint["ssl_cert"]["subject"]
     endpoint
   end
