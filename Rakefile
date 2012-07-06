@@ -152,6 +152,11 @@ task "ci" do
   poll_ci
 end
 
+desc("Start a new toolbelt build")
+task "toolbelt:build" do
+  `open http://dx-jenkins.herokai.com`
+end
+
 desc("Create a new changelog article")
 task "changelog" do
   changelog = <<-CHANGELOG
@@ -168,6 +173,6 @@ CHANGELOG
 end
 
 desc("Release the latest version")
-task "release" => ["gem:release", "tgz:release", "zip:release", "changelog"] do
+task "release" => ["gem:release", "tgz:release", "zip:release", "toolbelt:build"] do
   puts("Released v#{version}")
 end
