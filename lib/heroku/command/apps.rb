@@ -161,16 +161,16 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #Examples:
   #
   # $ heroku apps:create
-  # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
+  # Creating floating-dragon-42... done, stack is cedar
   # http://floating-dragon-42.heroku.com/ | git@heroku.com:floating-dragon-42.git
   #
-  # $ heroku apps:create -s cedar
-  # Creating floating-dragon-42... done, stack is cedar
+  # $ heroku apps:create -s bamboo
+  # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
   # http://floating-dragon-42.herokuapp.com/ | git@heroku.com:floating-dragon-42.git
   #
   # # specify a name
   # $ heroku apps:create myapp
-  # Creating myapp... done, stack is bamboo-mri-1.9.2
+  # Creating myapp... done, stack is cedar
   # http://myapp.heroku.com/ | git@heroku.com:myapp.git
   #
   # # create a staging app
