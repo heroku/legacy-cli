@@ -9,11 +9,11 @@ Heroku CLI Release Process
 * Commit the changes `git commit -m "vX.Y.Z"`
 * Push the `git push origin master`
 * Ensure CI still passes `bundle exec rake ci`
-* Release the gem `bundle exec rake release`
 * Move to a checkout of the toolbelt repo and make sure everything is up to date `git pull`
 * Move to the components/heroku directory, `git fetch` and `git reset --hard HASH` where HASH is commit hash of vX.Y.Z
 * Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
-* Start toolbelt-build build at http://dx-jenkins.herokai.com/
+* Release the gem `bundle exec rake release`
+* Start toolbelt-build build at http://dx-jenkins.herokai.com/ (this will be opened by rake release automatically)
 * If there are only bug fixes, you are done, otherwise create a changelog describing features as below:
 * Create a [new changelog] => http://devcenter.heroku.com/admin/changelog_items/new
 * Paste the contents of your clipboard (or enter text based on the following):
