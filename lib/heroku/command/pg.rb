@@ -190,14 +190,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
 private
 
   def database_name_from_url(url)
-    vars = app_config_vars
-    vars.delete "DATABASE_URL"
+    vars = app_config_vars.reject {|key,value| key == 'DATABASE_URL'}
     (vars.invert[url] || url).gsub(/_URL$/, "")
   end
 
   def display_db(name, db)
     pretty_name = name
-    if db[:url] == app_config_vars["DATABASE_URL"] && !pretty_name.include?(' (DATABASE_URL)')
+    if !pretty_name.include?(' (DATABASE_URL)') && app_config_vars["#{name}_URL"] == app_config_vars["DATABASE_URL"]
       pretty_name += " (DATABASE_URL)"
     end
 
