@@ -132,19 +132,24 @@ module Heroku
 
     def update
       ensure_plugin_exists
-      Dir.chdir(path) do
-        unless git('config --get branch.master.remote').empty?
-          message = git("pull")
-          unless $?.success?
-            error("Unable to update #{name}.\n" + message)
+      if File.symlink?(path)
+        error(<<-ERROR)
+#{name} is a symlink plugin installation.
+Enable updating by reinstalling with `heroku plugins:install`.
+ERROR
+      else
+        Dir.chdir(path) do
+          unless git('config --get branch.master.remote').empty?
+            message = git("pull")
+            unless $?.success?
+              error("Unable to update #{name}.\n" + message)
+            end
+          else
+            error(<<-ERROR)
+#{name} is a legacy plugin installation.
+Enable updating by reinstalling with `heroku plugins:install`.
+ERROR
           end
-        else
-          if Heroku::Helpers.error_with_failure
-            display('failed')
-            Heroku::Helpers.error_with_failure = false
-          end
-          $stderr.puts(" !    #{name} is a legacy plugin installation.")
-          $stderr.puts(" !    Enable updating by reinstalling with `heroku plugins:install`.")
         end
       end
     end

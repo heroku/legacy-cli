@@ -82,6 +82,20 @@ module Heroku
 STDERR
         end
 
+        it "warns on symlinked plugins" do
+          `cd #{@sandbox} && ln -s heroku_plugin heroku_plugin_symlink`
+          stderr = capture_stderr do
+            begin
+              Plugin.new('heroku_plugin_symlink').update
+            rescue SystemExit
+            end
+          end
+          stderr.should == <<-STDERR
+ !    heroku_plugin_symlink is a symlink plugin installation.
+ !    Enable updating by reinstalling with `heroku plugins:install`.
+STDERR
+        end
+
       end
 
 

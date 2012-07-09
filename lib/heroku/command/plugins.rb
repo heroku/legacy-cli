@@ -100,8 +100,12 @@ ERROR
       validate_arguments!
 
       plugins.each do |plugin|
-        action("Updating #{plugin}") do
-          Heroku::Plugin.new(plugin).update
+        begin
+          action("Updating #{plugin}") do
+            Heroku::Plugin.new(plugin).update
+          end
+        rescue SystemExit
+          # ignore so that other plugins still update
         end
       end
     end
