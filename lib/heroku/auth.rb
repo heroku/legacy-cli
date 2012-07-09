@@ -273,12 +273,19 @@ class Heroku::Auth
           File.chmod(0700, ssh_dir)
         end
       end
-      `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
+      output = `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
+      if ! $?.success?
+        error("Could not generate key: #{output}")
+      end
     end
 
     def associate_key(key)
       action("Uploading SSH public key #{key}") do
-        api.post_key(File.read(key))
+        if File.exists?(key)
+          api.post_key(File.read(key))
+        else
+          error("Could not upload SSH public key: key file '" + key + "' does not exist")
+        end
       end
     end
 
