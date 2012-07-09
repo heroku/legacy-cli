@@ -270,23 +270,10 @@ class Heroku::Auth
           File.chmod(0700, ssh_dir)
         end
       end
-      if which('ssh-keygen')
-        `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
-      else
-        error("Could not generate key: ssh-keygen doesn't exist. Please install it or make sure it's in your path.")
+      output = `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
+      if ! $?.success?
+        error("Could not generate key: #{output}")
       end
-    end
-
-    # check if an executable exists anywhere in the path
-    def which(cmd)
-      exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-      ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
-        exts.each { |ext|
-          exe = "#{path}/#{cmd}#{ext}"
-          return exe if File.executable? exe
-        }
-      end
-      return nil
     end
 
     def associate_key(key)
