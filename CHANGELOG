@@ -1,3 +1,12 @@
+2.28.11 07/06/2012
+==================
+
+fix for pg:info sometimes not labelling DATABASE_URL
+allow apps:create -a myapp to use myapp as the new app name
+update apps:create examples to reflect cedar as default
+clearer messaging around ssh key creation/upload errors
+skip plugins:update for symlinked plugins
+
 2.28.10 07/06/2012
 ==================
 
