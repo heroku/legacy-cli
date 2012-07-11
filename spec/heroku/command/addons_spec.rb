@@ -35,7 +35,7 @@ STDOUT
             :path => %r{^/apps/myapp/addons$}
           },
           {
-            :body   => Heroku::API.json_encode([
+            :body   => Heroku::API::OkJson.encode([
               { 'configured' => false, 'name' => 'deployhooks:email' },
               { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' },
               { 'configured' => true, 'name' => 'deployhooks:http' }
@@ -395,7 +395,7 @@ STDOUT
             :path => %r{^/addons$}
           },
           {
-            :body   => Heroku::API.json_encode([
+            :body   => Heroku::API::OkJson.encode([
               { 'name' => 'qux:foo' },
               { 'name' => 'quux:bar' }
             ]),
@@ -477,7 +477,7 @@ STDOUT
             :path => %r{^/apps/myapp/addons$}
           },
           {
-            :body   => Heroku::API.json_encode([
+            :body   => Heroku::API::OkJson.encode([
               { 'name' => 'deployhooks:email' },
               { 'name' => 'deployhooks:http' }
             ]),
