@@ -66,7 +66,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     app_data = api.get_app(app).body
 
     unless options[:raw]
-      styled_header(app)
+      styled_header(app_data["name"])
     end
 
     addons_data = api.get_addons(app).body.map {|addon| addon["description"]}.sort
