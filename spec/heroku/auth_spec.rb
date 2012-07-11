@@ -32,6 +32,7 @@ module Heroku
     end
 
     after do
+      FileUtils.rm_rf(@cli.netrc_path)
       FakeFS.deactivate!
     end
 
