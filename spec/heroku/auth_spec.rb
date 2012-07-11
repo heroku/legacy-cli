@@ -7,12 +7,14 @@ module Heroku
     include Heroku::Helpers
 
     before do
+      ENV['HEROKU_API_KEY'] = nil
+
       @cli = Heroku::Auth
       @cli.stub!(:check)
       @cli.stub!(:display)
       @cli.stub!(:running_on_a_mac?).and_return(false)
+      @cli.credentials = nil
 
-      ENV['HEROKU_API_KEY'] = nil
       FakeFS.activate!
 
       FakeFS::File.stub!(:stat).and_return(double('stat', :mode => "0600".to_i(8)))
@@ -20,24 +22,13 @@ module Heroku
       FakeFS::File.stub!(:readlines) do |path|
         File.read(path).split("\n").map {|line| "#{line}\n"}
       end
-    end
 
-    before(:each) do
-      @cli.credentials = nil
-
-      home_directory = @cli.netrc_path.split("/")[0..-2].join("/")
-      unless File.exists?(home_directory)
-        FileUtils.mkdir_p(home_directory)
-      end
+      FileUtils.mkdir_p(@cli.netrc_path.split("/")[0..-2].join("/"))
 
       File.open(@cli.netrc_path, "w") do |file|
         file.puts("machine api.heroku.com\n  login user\n  password pass\n")
         file.puts("machine code.heroku.com\n  login user\n  password pass\n")
       end
-    end
-
-    after(:each) do
-      FileUtils.rm_rf(@cli.netrc_path)
     end
 
     after do
