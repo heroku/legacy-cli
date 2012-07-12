@@ -351,8 +351,8 @@ OUTPUT
     end
 
     it "removes addons with confirm option" do
+      Heroku::Command.stub!(:current_options).and_return(:confirm => "myapp")
       @addons.stub!(:args).and_return(%w( addon1 ))
-      @addons.stub!(:options).and_return(:confirm => "myapp")
       @addons.heroku.should_receive(:uninstall_addon).with('myapp', 'addon1', :confirm => "myapp")
       @addons.remove
     end

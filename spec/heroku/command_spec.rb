@@ -81,11 +81,19 @@ describe Heroku::Command do
           run "addons:add my_addon"
         end
 
+        it "should not continue if the confirmation does not match" do
+          Heroku::Command.stub(:current_options).and_return(:confirm => 'not_myapp')
+
+          lambda do
+            Heroku::Command.confirm_command('myapp')
+          end.should raise_error(Heroku::Command::CommandFailed)
+        end
+
         it "should not continue if the user doesn't confirm" do
           stub(Heroku::Command).confirm_command.returns(false)
           stub_request(:post, %r{apps/myapp/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
-            to_raise(StandardError)
+            to_raise(Heroku::Command::CommandFailed)
 
           run "addons:add my_addon"
         end

@@ -54,7 +54,7 @@ module Heroku
     end
 
     def self.current_options
-      @current_options
+      @current_options ||= {}
     end
 
     def self.global_options

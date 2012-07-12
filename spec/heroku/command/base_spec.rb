@@ -11,14 +11,14 @@ module Heroku::Command
 
     describe "confirming" do
       it "confirms the app via --confirm" do
+        Heroku::Command.stub(:current_options).and_return(:confirm => "myapp")
         @base.stub(:app).and_return("myapp")
-        @base.stub(:options).and_return(:confirm => "myapp")
         @base.confirm_command.should be_true
       end
 
       it "does not confirms the app via --confirm on a mismatch" do
+        Heroku::Command.stub(:current_options).and_return(:confirm => "badapp")
         @base.stub(:app).and_return("myapp")
-        @base.stub(:options).and_return(:confirm => "badapp")
         lambda { @base.confirm_command}.should raise_error CommandFailed
       end
 
