@@ -112,9 +112,16 @@ module Heroku
     def self.prepare_run(cmd, args=[])
       command = parse(cmd)
 
+      if args.include?('-h') || args.include?('--help')
+        args.unshift(cmd) unless cmd =~ /^-.*/
+        cmd = 'help'
+        command = parse('help')
+      end
+
       unless command
         if %w( -v --version ).include?(cmd)
-          command = parse('version')
+          cmd = 'version'
+          command = parse(cmd)
         else
           error([
             "`#{cmd}` is not a heroku command.",
@@ -155,12 +162,6 @@ module Heroku
       rescue OptionParser::InvalidOption => ex
         invalid_options << ex.args.first
         retry
-      end
-
-      if opts[:help]
-        args.unshift cmd unless cmd =~ /^-.*/
-        cmd = "help"
-        command = parse(cmd)
       end
 
       args.concat(invalid_options)
