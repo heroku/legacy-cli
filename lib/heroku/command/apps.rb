@@ -181,18 +181,18 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
 
     info    = api.post_app({ "name" => name, "stack" => options[:stack] }).body
-    hprint("Creating #{info["name"]}...")
     begin
-      if info["create_status"] == "creating"
-        Timeout::timeout(options[:timeout].to_i) do
-          loop do
-            break if heroku.create_complete?(info["name"])
-            hprint(".")
-            sleep 1
+      action("Creating #{info['name']}") do
+        if info['create_status'] == 'creating'
+          Timeout::timeout(options[:timeout].to_i) do
+            loop do
+              break if heroku.create_complete?(info["name"])
+              sleep 1
+            end
           end
         end
+        status("stack is #{info['stack']}")
       end
-      hputs(" done, stack is #{info["stack"]}")
 
       (options[:addons] || "").split(",").each do |addon|
         addon.strip!
