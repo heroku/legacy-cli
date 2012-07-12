@@ -41,15 +41,6 @@ STDERR
         # not worried about specifics in backtrace
         stderr.should include("    Backtrace: ")
         stderr.should include("    Version:   #{Heroku::USER_AGENT}")
-        stderr.should include(<<-STDERR)
- !    Are you attempting to install a Rails plugin? If so, use the following:
- !    
- !    Rails 2.x:
- !    script/plugin install git://github.com/heroku/Plugin.git
- !    
- !    Rails 3.x:
- !    rails plugin install git://github.com/heroku/Plugin.git
-STDERR
         stdout.should == <<-STDOUT
 Installing Plugin... failed
 STDOUT

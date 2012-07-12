@@ -45,15 +45,7 @@ module Heroku::Command
         if plugin.install
           unless Heroku::Plugin.load_plugin(plugin.name)
             plugin.uninstall
-            error <<-ERROR
-Are you attempting to install a Rails plugin? If so, use the following:
-
-Rails 2.x:
-script/plugin install #{plugin.uri}
-
-Rails 3.x:
-rails plugin install #{plugin.uri}
-ERROR
+            exit(1)
           end
         else
           error("Could not install #{plugin.name}. Please check the URL and try again")

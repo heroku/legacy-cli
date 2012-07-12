@@ -63,6 +63,10 @@ module Heroku
         $: << "#{folder}/lib"    if File.directory? "#{folder}/lib"
         load "#{folder}/init.rb" if File.exists?  "#{folder}/init.rb"
       rescue ScriptError, StandardError => error
+        if Heroku::Helpers.error_with_failure
+          display("failed")
+          Heroku::Helpers.error_with_failure = false
+        end
         $stderr.puts(" !    Unable to load plugin #{plugin}.")
         $stderr.puts(" !    Search for help at: https://help.heroku.com")
         $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
