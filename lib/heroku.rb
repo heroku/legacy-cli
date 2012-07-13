@@ -1,4 +1,5 @@
 require "heroku/client"
+require "heroku/version"
 
 module Heroku
 
