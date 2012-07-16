@@ -152,8 +152,8 @@ task "ci" do
   poll_ci
 end
 
-desc("Start a new toolbelt build")
-task "toolbelt:build" do
+desc("open jenkins")
+task "jenkins" do
   `open http://dx-jenkins.herokai.com`
 end
 
@@ -173,6 +173,6 @@ CHANGELOG
 end
 
 desc("Release the latest version")
-task "release" => ["gem:release", "toolbelt:build", "tgz:release", "zip:release"] do
+task "release" => ["gem:release", "jenkins", "tgz:release", "zip:release"] do
   puts("Released v#{version}")
 end

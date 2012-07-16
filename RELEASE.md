@@ -9,6 +9,7 @@ Heroku CLI Release Process
 * Commit the changes `git commit -m "vX.Y.Z"`
 * Push the `git push origin master`
 * Ensure CI still passes `bundle exec rake ci`
+* Ensure fisticuffs passes by starting a build at http://dx-jenkins.herokai.com/, you can open with `bundle exec rake jenkins`
 * Move to a checkout of the toolbelt repo and make sure everything is up to date `git pull`
 * Move to the components/heroku directory, `git fetch` and `git reset --hard HASH` where HASH is commit hash of vX.Y.Z
 * Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
