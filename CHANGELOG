@@ -1,3 +1,15 @@
+2.28.13 07/16/2012
+==================
+
+update apps:create to use consistent helpers
+fix -h to work with namespaces without index commands
+fix confirm_command to work properly in Heroku::Command context
+remove legacy rails related warning from failed plugin installation
+make version dependency explicit (used by user-agent)
+bump to latest heroku-api to get excon proxy fixes
+add post install toolbelt recommendation for gem
+updated release to mention fisticuffs
+
 2.28.12 07/11/2012
 ==================
 
