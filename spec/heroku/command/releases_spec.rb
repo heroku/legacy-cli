@@ -28,11 +28,11 @@ describe Heroku::Command::Releases do
       @stderr.should == ""
       @stdout.should == <<-STDOUT
 === myapp Releases
-v5   Config add SUPER_LONG_CONFIG_VAR_TO_GE..   email@example.com   1s ago
-v4   Config add QUX_QUUX                        email@example.com   30s ago
-v3   Config add BAZ_QUX                         email@example.com   1m ago
-v2   Config add BAR_BAZ                         email@example.com   1h ago
-v1   Config add FOO_BAR                         email@example.com   2012/01/02 12:34:56
+v5  Config add SUPER_LONG_CONFIG_VAR_TO_GE..  email@example.com  1s ago
+v4  Config add QUX_QUUX                       email@example.com  30s ago
+v3  Config add BAZ_QUX                        email@example.com  1m ago
+v2  Config add BAR_BAZ                        email@example.com  1h ago
+v1  Config add FOO_BAR                        email@example.com  2012/01/02 12:34:56
 
 STDOUT
     end

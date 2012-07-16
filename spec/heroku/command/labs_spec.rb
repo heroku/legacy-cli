@@ -1,4 +1,5 @@
 require "spec_helper"
+
 require "heroku/command/labs"
 
 module Heroku::Command
@@ -19,11 +20,11 @@ module Heroku::Command
       stderr.should == ""
       stdout.should == <<-STDOUT
 === myapp Features
-[+] sigterm-all        When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-[ ] user_env_compile   Add user config vars to the environment during slug compilation
+[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+[ ] user_env_compile  Add user config vars to the environment during slug compilation
 
 === email@example.com Features
-[ ] sumo-rankings   Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
 STDOUT
     end

@@ -31,13 +31,13 @@ Development: red
 Production:  red
 
 === HTTP Routing Errors (3h+)
-1m ago    update   The number of applications seeing H99 errors is continuing to decrease as we continue to work toward a full resolution of the HTTP routing issues. The API is back online now as well.
-5m ago    update   Our engineers are continuing to work toward a full resolution of the HTTP routing issues. The API is currently in maintenance mode intentionally as we restore application operations.
-10m ago   update   Most applications are back online at this time. Our engineers are working on getting the remaining apps back online.
-30m ago   update   Our routing engineers have pushed out a patch to our routing tier. The platform is recovering and applications are coming back online. Our engineers are continuing to fully restore service.
-1h ago    update   We have identified an issue with our routers that is causing errors on HTTP requests to applications. Engineers are working to resolve the issue.
-2h ago    update   We have confirmed widespread errors on the platform. Our engineers are continuing to investigate.
-3h ago    issue    Our automated systems have detected potential platform errors.  We are investigating.
+1m ago   update  The number of applications seeing H99 errors is continuing to decrease as we continue to work toward a full resolution of the HTTP routing issues. The API is back online now as well.
+5m ago   update  Our engineers are continuing to work toward a full resolution of the HTTP routing issues. The API is currently in maintenance mode intentionally as we restore application operations.
+10m ago  update  Most applications are back online at this time. Our engineers are working on getting the remaining apps back online.
+30m ago  update  Our routing engineers have pushed out a patch to our routing tier. The platform is recovering and applications are coming back online. Our engineers are continuing to fully restore service.
+1h ago   update  We have identified an issue with our routers that is causing errors on HTTP requests to applications. Engineers are working to resolve the issue.
+2h ago   update  We have confirmed widespread errors on the platform. Our engineers are continuing to investigate.
+3h ago   issue   Our automated systems have detected potential platform errors.  We are investigating.
 
 STDOUT
 

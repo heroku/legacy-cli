@@ -48,10 +48,10 @@ STDOUT
         stdout.should == <<-STDOUT
 === myapp Configured Add-ons
 deployhooks:http
-heroku-postgresql:ronin   HEROKU_POSTGRESQL_RED
+heroku-postgresql:ronin  HEROKU_POSTGRESQL_RED
 
 === myapp Add-ons to Configure
-deployhooks:email   https://api.heroku.com/myapps/myapp/addons/deployhooks:email
+deployhooks:email  https://api.heroku.com/myapps/myapp/addons/deployhooks:email
 
 STDOUT
         Excon.stubs.shift
