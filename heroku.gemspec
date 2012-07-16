@@ -12,6 +12,10 @@ Gem::Specification.new do |gem|
   gem.description = "Client library and command-line tool to deploy and manage apps on Heroku."
   gem.executables = "heroku"
   gem.license     = "MIT"
+  gem.post_install_message = <<-MESSAGE
+ !    Heroku recommends using the Heroku Toolbelt to install the CLI.
+ !    Download it from: https://toolbelt.heroku.com
+  MESSAGE
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|spec/|test/)} }
 
