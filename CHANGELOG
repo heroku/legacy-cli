@@ -1,3 +1,10 @@
+2.28.14 07/16/2012
+==================
+
+updated release stuff to describe changelog task
+reduce space between columns in styled_array
+bump heroku-api version for further proxy fixes
+
 2.28.13 07/16/2012
 ==================
 
