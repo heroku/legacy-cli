@@ -342,7 +342,7 @@ module Heroku
             item.each_with_index { |val,idx| cols[idx] = [cols[idx]||0, (val || '').length].max }
           end
         end
-        cols.map { |col| "%-#{col}s" }.join("   ")
+        cols.map { |col| "%-#{col}s" }.join("  ")
       else
         "%s"
       end
