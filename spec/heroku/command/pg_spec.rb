@@ -97,7 +97,6 @@ STDOUT
           {"name"=>"Tables", "values"=>[1]},
           {"name"=>"PG Version", "values"=>["9.1.4"]},
           {"name"=>"Fork/Follow", "values"=>["Available"]},
-          {"name"=>"Forked From", "values"=>["postgres://username:password@postgreshost.com:5432/database_name"], "resolve_db_name" => "true"},
           {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
           {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
           {"name"=>"Maintenance", "values"=>["not required"]}
@@ -113,7 +112,6 @@ Data Size:   1 MB
 Tables:      1
 PG Version:  9.1.4
 Fork/Follow: Available
-Forked From: Database on postgreshost.com:5432/database_name
 Created:     2011-12-13 00:00 UTC
 Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
 Maintenance: not required
