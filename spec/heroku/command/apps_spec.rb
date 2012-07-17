@@ -217,7 +217,7 @@ STDOUT
         stderr, stdout = execute("apps:rename")
         stderr.should == <<-STDERR
  !    Usage: heroku apps:rename NEWNAME
- !    Must specify a new name.
+ !    Must specify NEWNAME to rename.
 STDERR
         stdout.should == ""
       end
