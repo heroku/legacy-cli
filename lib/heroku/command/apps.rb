@@ -80,9 +80,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
       app_data.keys.sort_by { |a| a.to_s }.each do |key|
         case key
-        when :addons then
+        when 'addons' then
           hputs("addons=#{addons_data.join(",")}")
-        when :collaborators then
+        when 'collaborators'then
           hputs("collaborators=#{collaborators_data.join(",")}")
         else
           hputs("#{key}=#{app_data[key]}")
