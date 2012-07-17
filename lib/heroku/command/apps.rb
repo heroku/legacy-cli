@@ -78,15 +78,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
       if domain_name
         app_data["domain_name"] = domain_name
       end
+      unless addons_data.empty?
+        app_data['addons'] = addons_data.join(',')
+      end
+      unless collaborators_data.empty?
+        app_data['collaborators'] = collaborators_data.join(',')
+      end
       app_data.keys.sort_by { |a| a.to_s }.each do |key|
-        case key
-        when 'addons' then
-          hputs("addons=#{addons_data.join(",")}")
-        when 'collaborators'then
-          hputs("collaborators=#{collaborators_data.join(",")}")
-        else
-          hputs("#{key}=#{app_data[key]}")
-        end
+        hputs("#{key}=#{app_data[key]}")
       end
     else
       data = {}
