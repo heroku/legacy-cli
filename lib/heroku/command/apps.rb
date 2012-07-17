@@ -69,7 +69,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       styled_header(app_data["name"])
     end
 
-    addons_data = api.get_addons(app).body.map {|addon| addon["description"]}.sort
+    addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
     collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
     domain_name = (domains_data = api.get_domains(app).body) && domains_data.first && domains_data.first["domain"]
