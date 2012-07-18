@@ -37,7 +37,11 @@ private
     Heroku::Updater.check_disabled!
     action("Updating from #{Heroku::VERSION}") do
       new_version = Heroku::Updater.update(url)
-      status "updated to #{new_version}"
+      if new_version == Heroku::VERSION
+        status("nothing to update")
+      else
+        status("updated to #{new_version}")
+      end
     end
   end
 
