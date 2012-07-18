@@ -195,7 +195,7 @@ STDOUT
         Heroku::Client::HerokuPostgresql.should_receive(:new).twice.with('postgres://other_database_url').and_return(hpg_client)
         hpg_client.should_receive(:unfollow)
         hpg_client.should_receive(:get_database).and_return(
-          :following => 'postgresql://ronin_database_url',
+          :following => 'postgresql://user:pass@roninhost/database',
           :info => [
             {"name"=>"Plan", "values"=>["Ronin"]},
             {"name"=>"Status", "values"=>["available"]},
@@ -212,7 +212,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
  !    HEROKU_POSTGRESQL_OTHER will become writable and no longer
- !    follow postgresql://ronin_database_url. This cannot be undone.
+ !    follow Database on roninhost:5432/database. This cannot be undone.
 Unfollowing HEROKU_POSTGRESQL_OTHER... done
 STDOUT
       end

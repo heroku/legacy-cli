@@ -195,7 +195,7 @@ private
       var.gsub(/_URL$/, '')
     else
       uri = URI.parse(url)
-      "Database on #{uri.hostname}:#{uri.port}#{uri.path}"
+      "Database on #{uri.host}:#{uri.port || 5432}#{uri.path}"
     end
   end
 
