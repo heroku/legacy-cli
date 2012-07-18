@@ -36,11 +36,11 @@ STDOUT
  !    Search for help at: https://help.heroku.com
  !    Or report a bug at: https://github.com/heroku/heroku/issues/new
 
-    Error:     error (RuntimeError)
+    Error:       error (RuntimeError)
 STDERR
         # not worried about specifics in backtrace
-        stderr.should include("    Backtrace: ")
-        stderr.should include("    Version:   #{Heroku::USER_AGENT}")
+        stderr.should include("    Backtrace:   ")
+        stderr.should include("    Version:     #{Heroku::USER_AGENT}")
         stdout.should == <<-STDOUT
 Installing Plugin... failed
 STDOUT

@@ -357,6 +357,54 @@ module Heroku
       display
     end
 
+    def styled_error(error, message='Heroku client internal error.')
+      if Heroku::Helpers.error_with_failure
+        display("failed")
+        Heroku::Helpers.error_with_failure = false
+      end
+      $stderr.puts(" !    #{message}.")
+      $stderr.puts(" !    Search for help at: https://help.heroku.com")
+      $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
+      $stderr.puts
+      $stderr.puts("    Error:       #{error.message} (#{error.class})")
+      $stderr.puts("    Backtrace:   #{error.backtrace.first}")
+      error.backtrace[1..-1].each do |line|
+        $stderr.puts("                 #{line}")
+      end
+      if error.backtrace.length > 1
+        $stderr.puts
+      end
+      command = ARGV.map do |arg|
+        if arg.include?(' ')
+          arg = %{"#{arg}"}
+        else
+          arg
+        end
+      end.join(' ')
+      $stderr.puts("    Command:     heroku #{command}")
+      unless Heroku::Auth.host == Heroku::Auth.default_host
+        $stderr.puts("    Host:        #{Heroku::Auth.host}")
+      end
+      if http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        $stderr.puts("    HTTP Proxy:  #{http_proxy}")
+      end
+      if https_proxy = ENV['https_proxy'] || ENV['HTTPS_PROXY']
+        $stderr.puts("    HTTPS Proxy: #{https_proxy}")
+      end
+      plugins = Heroku::Plugin.list.sort
+      unless plugins.empty?
+        $stderr.puts("    Plugins:     #{plugins.first}")
+        plugins[1..-1].each do |plugin|
+          $stderr.puts("                 #{plugin}")
+        end
+        if plugins.length > 1
+          $stderr.puts
+        end
+      end
+      $stderr.puts("    Version:     #{Heroku::USER_AGENT}")
+      $stderr.puts
+    end
+
     def styled_header(header)
       display("=== #{header}")
     end
