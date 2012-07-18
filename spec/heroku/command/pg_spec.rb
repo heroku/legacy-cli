@@ -97,6 +97,7 @@ STDOUT
           {"name"=>"Tables", "values"=>[1]},
           {"name"=>"PG Version", "values"=>["9.1.4"]},
           {"name"=>"Fork/Follow", "values"=>["Available"]},
+          {"name"=>"Forked From", "values"=>["postgres://username:password@postgreshost.com:5432/database_name"], "resolve_db_name" => "true"},
           {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
           {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
           {"name"=>"Maintenance", "values"=>["not required"]}
@@ -112,6 +113,7 @@ Data Size:   1 MB
 Tables:      1
 PG Version:  9.1.4
 Fork/Follow: Available
+Forked From: Database on postgreshost.com:5432/database_name
 Created:     2011-12-13 00:00 UTC
 Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
 Maintenance: not required
@@ -193,7 +195,7 @@ STDOUT
         Heroku::Client::HerokuPostgresql.should_receive(:new).twice.with('postgres://other_database_url').and_return(hpg_client)
         hpg_client.should_receive(:unfollow)
         hpg_client.should_receive(:get_database).and_return(
-          :following => 'postgresql://ronin_database_url',
+          :following => 'postgresql://user:pass@roninhost/database',
           :info => [
             {"name"=>"Plan", "values"=>["Ronin"]},
             {"name"=>"Status", "values"=>["available"]},
@@ -210,7 +212,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
  !    HEROKU_POSTGRESQL_OTHER will become writable and no longer
- !    follow postgresql://ronin_database_url. This cannot be undone.
+ !    follow Database on roninhost:5432/database. This cannot be undone.
 Unfollowing HEROKU_POSTGRESQL_OTHER... done
 STDOUT
       end
