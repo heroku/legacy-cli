@@ -58,6 +58,14 @@ class Heroku::CLI
       if https_proxy = ENV['https_proxy'] || ENV['HTTPS_PROXY']
         $stderr.puts("    HTTPS Proxy: #{https_proxy}")
       end
+      plugins = Heroku::Plugin.list.sort
+      unless plugins.empty?
+        $stderr.puts("    Plugins:     #{plugins.first}")
+        plugins[1..-1].each do |plugin|
+          $stderr.puts("                 #{plugin}")
+        end
+        $stderr.puts
+      end
       $stderr.puts("    Version:     #{Heroku::USER_AGENT}")
       $stderr.puts
       exit(1)
