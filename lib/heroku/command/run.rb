@@ -58,7 +58,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def rake
     deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead.")
-    command = "rake #{args.join(" ")}"
+    command = "rake #{args.join(' ')}"
     run_attached(command)
   end
 
@@ -84,6 +84,14 @@ class Heroku::Command::Run < Heroku::Command::Base
       console_session(app)
     else
       display(heroku.console(app, cmd))
+    end
+  rescue RestClient::RequestFailed => e
+    if e.http_body =~ /For Cedar apps, use: `heroku run console`/
+      deprecate('For Cedar apps, use: `heroku run console`.')
+      command = "console #{args.join(' ')}"
+      run_attached(command)
+    else
+      raise(e)
     end
   rescue RestClient::RequestTimeout
     error("Timed out. Long running requests are not supported on the console.\nPlease consider creating a rake task instead.")
