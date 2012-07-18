@@ -93,7 +93,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   def get
     unless key = shift_argument
-      error("Usage: heroku config:get KEY\nMust specify a key.")
+      error("Usage: heroku config:get KEY\nMust specify KEY.")
     end
     validate_arguments!
 
