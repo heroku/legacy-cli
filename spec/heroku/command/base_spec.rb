@@ -25,12 +25,14 @@ module Heroku::Command
       it "confirms the app interactively via ask" do
         @base.stub(:app).and_return("myapp")
         @base.stub(:ask).and_return("myapp")
+        Heroku::Command.stub(:current_options).and_return({})
         @base.confirm_command.should be_true
       end
 
       it "fails if the interactive confirm doesn't match" do
         @base.stub(:app).and_return("myapp")
         @base.stub(:ask).and_return("badresponse")
+        Heroku::Command.stub(:current_options).and_return({})
         capture_stderr do
           lambda { @base.confirm_command }.should raise_error(SystemExit)
         end.should == <<-STDERR
