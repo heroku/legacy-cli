@@ -191,7 +191,12 @@ private
 
   def database_name_from_url(url)
     vars = app_config_vars.reject {|key,value| key == 'DATABASE_URL'}
-    (vars.invert[url] || url).gsub(/_URL$/, "")
+    if var = vars.invert[url]
+      var.gsub(/_URL$/, '')
+    else
+      uri = URI.parse(url)
+      "Database on #{uri.hostname}:#{uri.port}#{uri.path}"
+    end
   end
 
   def display_db(name, db)
