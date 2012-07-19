@@ -17,7 +17,7 @@ module Heroku::Command
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== Config Vars for myapp
+=== myapp Config Vars
 BAZ_QUX: two
 FOO_BAR: one
 STDOUT
@@ -28,7 +28,7 @@ STDOUT
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== Config Vars for myapp
+=== myapp Config Vars
 LONG: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
@@ -38,7 +38,7 @@ STDOUT
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== Config Vars for myapp
+=== myapp Config Vars
 BAZ_QUX: 
 FOO_BAR: one
 STDOUT
@@ -49,7 +49,7 @@ STDOUT
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== Config Vars for myapp
+=== myapp Config Vars
 BAZ_QUX: true
 FOO_BAR: one
 STDOUT

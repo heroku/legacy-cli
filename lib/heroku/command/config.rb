@@ -33,7 +33,7 @@ class Heroku::Command::Config < Heroku::Command::Base
           display(%{#{key}=#{vars[key]}})
         end
       else
-        styled_header("Config Vars for #{app}")
+        styled_header("#{app} Config Vars")
         styled_hash(vars)
       end
     end
