@@ -95,7 +95,7 @@ module Heroku::Command
 
       args.each do |name|
         messages = nil
-        action("Removing #{name} from #{app}") do
+        action("Removing #{name} on #{app}") do
           messages = addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
         end
         display(messages[:attachment]) if messages[:attachment]
@@ -262,7 +262,7 @@ module Heroku::Command
       hpg_translate_fork_and_follow(addon, config)
 
       messages = nil
-      action("#{label} #{addon} to #{app}") do
+      action("#{label} #{addon} on #{app}") do
         messages = addon_run { install_or_upgrade.call(addon, config) }
       end
       display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
