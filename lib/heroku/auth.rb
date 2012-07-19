@@ -300,12 +300,29 @@ class Heroku::Auth
       @login_attempts < 3
     end
 
+    def verified_hosts
+      %w( heroku.com heroku-shadow.com )
+    end
+
+    def base_host(host)
+      URI.parse(full_host(host)).host.split(".")[-2..-1].join(".")
+    end
+
+    def full_host(host)
+      (host =~ /^http/) ? host : "https://api.#{host}"
+    end
+
+    def verify_host?(host)
+      hostname = base_host(host)
+      verified = verified_hosts.include?(hostname)
+      verified = false if ENV["HEROKU_SSL_VERIFY"] == "disable"
+      verified
+    end
+
     protected
 
     def default_params
-      full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
-      verify_ssl = ENV['HEROKU_SSL_VERIFY'] != 'disable' && full_host =~ %r|^https://api.heroku.com|
-      uri = URI(full_host)
+      uri = URI.parse(full_host(host))
       {
         :headers          => {
           'User-Agent'    => Heroku.user_agent
@@ -313,7 +330,7 @@ class Heroku::Auth
         :host             => uri.host,
         :port             => uri.port.to_s,
         :scheme           => uri.scheme,
-        :ssl_verify_peer  => verify_ssl
+        :ssl_verify_peer  => verify_host?(host)
       }
     end
   end
