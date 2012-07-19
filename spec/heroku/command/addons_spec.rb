@@ -266,7 +266,7 @@ OUTPUT
         stderr, stdout = execute("addons:upgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Upgrading my_addon on myapp... done, v99 (free)
+Upgrading to my_addon on myapp... done, v99 (free)
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
@@ -276,7 +276,7 @@ OUTPUT
         stderr, stdout = execute("addons:upgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Upgrading my_addon on myapp... done, v99 (free)
+Upgrading to my_addon on myapp... done, v99 (free)
 Don't Panic
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
@@ -308,7 +308,7 @@ OUTPUT
         stderr, stdout = execute("addons:downgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Downgrading my_addon on myapp... done, v99 (free)
+Downgrading to my_addon on myapp... done, v99 (free)
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
@@ -318,7 +318,7 @@ OUTPUT
         stderr, stdout = execute("addons:downgrade my_addon")
         stderr.should == ""
         stdout.should == <<-OUTPUT
-Downgrading my_addon on myapp... done, v99 (free)
+Downgrading to my_addon on myapp... done, v99 (free)
 Don't Panic
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT

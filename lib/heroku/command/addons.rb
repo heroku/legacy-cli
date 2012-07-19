@@ -70,7 +70,7 @@ module Heroku::Command
     # upgrade an existing addon
     #
     def upgrade
-      configure_addon('Upgrading') do |addon, config|
+      configure_addon('Upgrading to') do |addon, config|
         heroku.upgrade_addon(app, addon, config)
       end
     end
@@ -80,7 +80,7 @@ module Heroku::Command
     # downgrade an existing addon
     #
     def downgrade
-      configure_addon('Downgrading') do |addon, config|
+      configure_addon('Downgrading to') do |addon, config|
         heroku.upgrade_addon(app, addon, config)
       end
     end
