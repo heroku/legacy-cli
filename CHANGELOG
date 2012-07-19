@@ -1,3 +1,20 @@
+2.29.0 07/19/2012
+=================
+
+more consistent usage error for apps:rename
+fix apps:info -r to properly include addons/collaborators
+display addon names, rather than descriptions, from apps:info
+avoid displaying postgres follower credentials
+warn, then `run console` for `console` on cedar
+add `git:clone` to clone an apps repo and setup heroku remote
+clearer update messaging when already up to date
+display installed plugins in nice error output
+consolidate/centralize nice error handling/display
+fix an intermitent spec failure in confirm_command
+bump heroku.rb to get a fix for nonblock errors and readline
+more consistent usage error for config:get
+update docs for addons:remove to reflect one or more usage
+
 2.28.15 07/17/2012
 ==================
 
