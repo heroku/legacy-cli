@@ -23,7 +23,7 @@ module Heroku::Command
         stderr, stdout = execute("addons")
         stderr.should == ""
         stdout.should == <<-STDOUT
-No addons for myapp
+myapp has no add-ons.
 STDOUT
       end
 

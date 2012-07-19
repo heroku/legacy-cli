@@ -18,7 +18,7 @@ module Heroku::Command
 
       installed = api.get_addons(app).body
       if installed.empty?
-        display("No addons for #{app}")
+        display("#{app} has no add-ons.")
       else
         available, pending = installed.partition { |a| a['configured'] }
 
