@@ -85,9 +85,9 @@ module Heroku::Command
       end
     end
 
-    # addons:remove ADDON
+    # addons:remove ADDON1 [ADDON2 ...]
     #
-    # uninstall an addon
+    # uninstall one or more addons
     #
     def remove
       return unless confirm_command
