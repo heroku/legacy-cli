@@ -109,7 +109,7 @@ module Heroku::Command
     #
     def docs
       unless addon = shift_argument
-        error("Usage: heroku addons:docs ADDON\nMust specify addon.")
+        error("Usage: heroku addons:docs ADDON\nMust specify ADDON to open docs for.")
       end
       validate_arguments!
 
@@ -143,7 +143,7 @@ module Heroku::Command
     #
     def open
       unless addon = shift_argument
-        error("Usage: heroku addons:open ADDON\nMust specify addon.")
+        error("Usage: heroku addons:open ADDON\nMust specify ADDON to open.")
       end
       validate_arguments!
 

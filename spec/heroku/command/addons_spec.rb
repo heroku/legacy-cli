@@ -372,7 +372,7 @@ OUTPUT
         stderr, stdout = execute('addons:docs')
         stderr.should == <<-STDERR
  !    Usage: heroku addons:docs ADDON
- !    Must specify addon.
+ !    Must specify ADDON to open docs for.
 STDERR
         stdout.should == ''
       end
@@ -453,7 +453,7 @@ STDOUT
         stderr, stdout = execute('addons:open')
         stderr.should == <<-STDERR
  !    Usage: heroku addons:open ADDON
- !    Must specify addon.
+ !    Must specify ADDON to open.
 STDERR
         stdout.should == ''
       end
