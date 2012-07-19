@@ -268,7 +268,7 @@ module Heroku::Command
       display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
       display(messages[:message]) unless messages[:message].to_s.strip == ""
 
-      display("Use `heroku addons:docs #{addon}` to view documentation")
+      display("Use `heroku addons:docs #{addon}` to view documentation.")
     end
 
     #this will clean up when we officially deprecate

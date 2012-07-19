@@ -106,7 +106,7 @@ STDOUT
         stdout.should == <<-STDOUT
 Warning: non-unix style params have been deprecated, use --extra=XXX instead
 Adding my_addon to myapp... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 STDOUT
       end
     end
@@ -219,7 +219,7 @@ STDOUT
         stdout.should == <<-OUTPUT
 Adding my_addon to myapp... done, v99 (free)
 foo
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
 
@@ -231,7 +231,7 @@ OUTPUT
 Adding my_addon to myapp... done, v99 ($200/mo)
 foo
 bar
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
 
@@ -267,7 +267,7 @@ OUTPUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Upgrading my_addon to myapp... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
 
@@ -278,7 +278,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Upgrading my_addon to myapp... done, v99 (free)
 Don't Panic
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
     end
@@ -309,7 +309,7 @@ OUTPUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Downgrading my_addon to myapp... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
 
@@ -320,7 +320,7 @@ OUTPUT
         stdout.should == <<-OUTPUT
 Downgrading my_addon to myapp... done, v99 (free)
 Don't Panic
-Use `heroku addons:docs my_addon` to view documentation
+Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
     end
