@@ -125,7 +125,9 @@ protected
       rendezvous.start
     rescue Timeout::Error
       error "\nTimeout awaiting process"
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET, OpenSSL::SSL::SSLError
+    rescue OpenSSL::SSL::SSLError
+      error "Authentication error"
+    rescue Errno::ECONNREFUSED, Errno::ECONNRESET
       error "\nError connecting to process"
     rescue Interrupt
     ensure
