@@ -101,7 +101,11 @@ class Heroku::Auth
     end
 
     def netrc_path
-      default = Netrc.default_path
+      if ENV['HEROKU_NETRC']
+        default = ENV['HEROKU_NETRC']
+      else
+        default = Netrc.default_path
+      end
       encrypted = default + ".gpg"
       if File.exists?(encrypted)
         encrypted
