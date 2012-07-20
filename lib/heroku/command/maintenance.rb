@@ -1,8 +1,28 @@
 require "heroku/command/base"
 
-# toggle maintenance mode
+# manage maintenance mode for an app
 #
 class Heroku::Command::Maintenance < Heroku::Command::Base
+
+  # maintenance
+  #
+  # display the current maintenance status of app
+  #
+  #Example:
+  #
+  # $ heroku maintenance
+  # off
+  #
+  def index
+    validate_arguments!
+
+    case api.get_app_maintenance(app).body['maintenance']
+    when true
+      display('on')
+    when false
+      display('off')
+    end
+  end
 
   # maintenance:on
   #
