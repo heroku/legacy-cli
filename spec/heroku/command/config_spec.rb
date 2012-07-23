@@ -112,6 +112,7 @@ STDOUT
         stderr, stdout = execute("config:unset")
         stderr.should == <<-STDERR
  !    Usage: heroku config:unset KEY1 [KEY2 ...]
+ !    Must specify KEY to unset.
 STDERR
         stdout.should == ""
       end
