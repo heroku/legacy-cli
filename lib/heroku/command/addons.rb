@@ -117,7 +117,11 @@ module Heroku::Command
       addon_types = addon_names.map {|name| name.split(':').first}.uniq
 
       name_matches = addon_names.select {|name| name =~ /^#{addon}/}
-      type_matches = name_matches.map {|name| name.split(':').first}.uniq
+      type_matches = addon_types.select {|name| name =~ /^#{addon}/}
+
+      if name_matches.include?(addon) || type_matches.include?(addon)
+        type_matches = [addon]
+      end
 
       case type_matches.length
       when 0 then
