@@ -39,7 +39,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     end
   end
 
-  # config:set KEY1=VALUE1 ...
+  # config:set KEY1=VALUE1 [KEY2=VALUE2 ...]
   #
   # set one or more config vars
   #
@@ -56,7 +56,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   def set
     unless args.size > 0 and args.all? { |a| a.include?('=') }
-      error("Usage: heroku config:set <key>=<value> [<key2>=<value2> ...]")
+      error("Usage: heroku config:set KEY1=VALUE1 [KEY2=VALUE2 ...]\nMust specify KEY and VALUE to set.")
     end
 
     vars = args.inject({}) do |vars, arg|
@@ -115,7 +115,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   def unset
     if args.empty?
-      error("Usage: heroku config:unset KEY1 [KEY2 ...]")
+      error("Usage: heroku config:unset KEY1 [KEY2 ...]\nMust specify KEY to unset.")
     end
 
     args.each do |key|

@@ -167,7 +167,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "restart", "ps:restart"
 
-  # ps:scale PROCESS1=AMOUNT1 ...
+  # ps:scale PROCESS1=AMOUNT1 [PROCESS2=AMOUNT2 ...]
   #
   # scale processes by the given amount
   #
@@ -186,7 +186,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     if changes.empty?
-      error("Usage: heroku ps:scale web=2 worker+1")
+      error("Usage: heroku ps:scale PROCESS1=AMOUNT1 [PROCESS2=AMOUNT2 ...]\nMust specify PROCESS and AMOUNT to scale.")
     end
 
     changes.keys.sort.each do |process|
@@ -219,7 +219,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     message, options = case process
     when NilClass
-      error("Usage: heroku ps:stop PROCESS")
+      error("Usage: heroku ps:stop PROCESS\nMust specify PROCESS to stop.")
     when /.+\..+/
       ps = args.first
       ["Stopping #{ps} process", { :ps => ps }]
