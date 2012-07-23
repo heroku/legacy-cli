@@ -271,7 +271,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     url = app_data["web_url"]
     hputs("Opening #{url}")
     require("launchy")
-    Launchy.open(url)
+    Launchy.open(url).join
   end
 
   alias_command "open", "apps:open"

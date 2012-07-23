@@ -379,7 +379,7 @@ STDERR
 
       it "opens the addon if only one matches" do
         require("launchy")
-        Launchy.should_receive(:open).with("https://devcenter.heroku.com/articles/redistogo")
+        Launchy.should_receive(:open).with("https://devcenter.heroku.com/articles/redistogo").and_return(Thread.new {})
         stderr, stdout = execute('addons:docs redistogo:nano')
         stderr.should == ''
         stdout.should == <<-STDOUT
@@ -461,7 +461,7 @@ STDERR
       it "opens the addon if only one matches" do
         api.post_addon('myapp', 'redistogo:nano')
         require("launchy")
-        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:nano")
+        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/myapps/myapp/addons/redistogo:nano").and_return(Thread.new {})
         stderr, stdout = execute('addons:open redistogo:nano')
         stderr.should == ''
         stdout.should == <<-STDOUT
