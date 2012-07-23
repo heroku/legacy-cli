@@ -383,7 +383,7 @@ STDERR
         stderr, stdout = execute('addons:docs redistogo:nano')
         stderr.should == ''
         stdout.should == <<-STDOUT
-Opening redistogo docs... done
+Opening redistogo:nano docs... done
 STDOUT
       end
 
