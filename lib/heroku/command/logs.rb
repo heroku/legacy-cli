@@ -62,9 +62,9 @@ class Heroku::Command::Logs < Heroku::Command::Base
   # DEPRECATED: use `heroku drains`
   #
   def drains
-    output_with_bang "The logs:drain command has been deprecated. Please use drains"
-    usage = Heroku::Command::Help.usage_for_command("drains")
-    puts usage
+    # deprecation notice added 09/30/2011
+    display("~ `heroku logs:drains` has been deprecated and replaced with `heroku drains`")
+    Heroku::Command::Drains.new.index
   end
 
   protected
