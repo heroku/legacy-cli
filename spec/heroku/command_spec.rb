@@ -41,8 +41,9 @@ describe Heroku::Command do
 
       context "and the user includes --confirm APP --app APP2" do
         it "should warn that the app and confirm do not match and not continue" do
-          Heroku::Command.should_receive(:error).with("Mismatch between --app and --confirm")
-          run "addons:add my_addon --confirm APP --app APP2"
+          capture_stderr do
+            run "addons:add my_addon --confirm APP --app APP2"
+          end.should == " !    Mismatch between --app and --confirm\n"
         end
       end
     end

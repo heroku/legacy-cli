@@ -91,12 +91,11 @@ module Heroku::Command
     #
     def remove
       return unless confirm_command
-      options[:confirm] ||= app
 
       args.each do |name|
         messages = nil
         action("Removing #{name} on #{app}") do
-          messages = addon_run { heroku.uninstall_addon(app, name, :confirm => options[:confirm]) }
+          messages = addon_run { heroku.uninstall_addon(app, name, :confirm => app) }
         end
         display(messages[:attachment]) if messages[:attachment]
         display(messages[:message]) if messages[:message]
