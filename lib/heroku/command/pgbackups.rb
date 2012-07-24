@@ -19,13 +19,22 @@ module Heroku::Command
       backups = []
       pgbackup_client.get_transfers.each { |t|
         next unless backup_types.member?(t['to_name']) && !t['error_at'] && !t['destroyed_at']
-        backups << [backup_name(t['to_url']), t['created_at'], t['size'], t['from_name'], ]
+        backups << {
+          'id' => backup_name(t['to_url']),
+          'created_at' => t['created_at'],
+          'size' => t['size'],
+          'database' => t['from_name']
+        }
       }
 
       if backups.empty?
         no_backups_error!
       else
-        display Display.new.render([["ID", "Backup Time", "Size", "Database"]], backups)
+        display_table(
+          backups,
+          %w{ id created_at size database },
+          ["ID", "Backup Time", "Size", "Database"]
+        )
       end
     end
 
@@ -253,59 +262,6 @@ module Heroku::Command
         step, amount = @last_progress
         unless ['done', 'error'].include? amount
           redisplay "#{step.capitalize}... #{amount} #{spinner(@ticks)}"
-        end
-      end
-    end
-
-    class Display
-      attr_reader :columns, :rows
-
-      def initialize(columns=nil, rows=nil, opts={})
-        @columns = columns
-        @rows = rows
-        @opts = opts.update(:display_columns => @columns, :display_rows => @rows)
-      end
-
-      def render(*data)
-        _data = data
-        data = DataSource.new(data, @opts)
-
-        # join in grid lines
-        lines = []
-        data.rows.each { |row|
-          lines << row.join(@opts[:delimiter] || " | ")
-        }
-
-        # insert header grid line
-        if _data.length > 1
-          grid_row = data.rows.first.map { |datum| "-" * datum.length }
-          grid_line = grid_row.join("-+-")
-          lines.insert(1, grid_line)
-          lines << "" # trailing newline
-        end
-        return lines.join("\n")
-      end
-
-      class DataSource
-        attr_reader :rows, :columns
-
-        def initialize(data, opts={})
-          rows = []
-          data.each { |d| rows += d }
-          columns = rows.transpose
-
-          max_widths = columns.map { |c|
-            c.map { |datum| datum.length }.max
-          }
-
-          max_widths = [10, 10] if opts[:display_columns]
-
-          @columns = []
-          columns.each_with_index { |c,i|
-            column = @columns[i] = []
-            c.each { |d| column << d.ljust(max_widths[i]) }
-          }
-          @rows = @columns.transpose
         end
       end
     end

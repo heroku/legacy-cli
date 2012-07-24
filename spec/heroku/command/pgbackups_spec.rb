@@ -35,9 +35,9 @@ module Heroku::Command
       stderr, stdout = execute("pgbackups")
       stderr.should == ""
       stdout.should == <<-STDOUT
-ID   | Backup Time               | Size | Database
------+---------------------------+------+---------
-b001 | 2012-01-01 12:00:00 +0000 | 1024 | DATABASE
+ID    Backup Time                Size  Database
+----  -------------------------  ----  --------
+b001  2012-01-01 12:00:00 +0000  1024  DATABASE
 STDOUT
     end
 
