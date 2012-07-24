@@ -51,11 +51,6 @@ class Heroku::Command::Help < Heroku::Command::Base
   alias_command "-h", "help"
   alias_command "--help", "help"
 
-  def self.usage_for_command(command)
-    command = new.send(:commands)[command]
-    "Usage: heroku #{command[:banner]}" if command
-  end
-
 private
 
   def commands_for_namespace(name)
