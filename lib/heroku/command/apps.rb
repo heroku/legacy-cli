@@ -261,8 +261,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # # opens the app in a browser
   # $ heroku apps:open
+  # Opening http://myapp.herokuapp.com
   #
   def open
     validate_arguments!
@@ -282,7 +282,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku apps:destroy -a myapp
+  # $ heroku apps:destroy -a myapp --confirm myapp
+  # Destroying myapp (including all add-ons)... done
   #
   def destroy
     @app = shift_argument || options[:app] || options[:confirm]
