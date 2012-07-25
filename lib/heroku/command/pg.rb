@@ -38,13 +38,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       name, url = hpg_resolve(db)
       display_db name, hpg_info(url)
     else
-      if hpg_databases_with_info.empty?
-        display("#{app} has no heroku-postgresql databases.")
-      else
-        hpg_databases_with_info.keys.sort.each do |name|
-          display_db name, hpg_databases_with_info[name]
-        end
-      end
+      index
     end
   end
 
