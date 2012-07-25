@@ -62,5 +62,56 @@ Cloning into 'myapp'...
 
     end
 
+    context("remote") do
+
+      before(:each) do
+        api.post_app("name" => "myapp", "stack" => "cedar")
+        FileUtils.mkdir('myapp')
+        FileUtils.chdir('myapp') { `git init` }
+      end
+
+      after(:each) do
+        api.delete_app("myapp")
+        FileUtils.rm_rf('myapp')
+      end
+
+      it "adds remote" do
+        any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('remote').returns("origin")
+          stub(git).git('remote add heroku git@heroku.com:myapp.git')
+        end
+        stderr, stdout = execute("git:remote")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Git remote heroku added
+        STDOUT
+      end
+
+      it "adds -r remote" do
+        any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('clone git@heroku.com:myapp.git ').returns("Cloning into 'myapp'...")
+          stub(git).git('remote').returns("origin")
+          stub(git).git('remote add other git@heroku.com:myapp.git')
+        end
+        stderr, stdout = execute("git:remote -r other")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Git remote other added
+        STDOUT
+      end
+
+      it "skips remote when it already exists" do
+        any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('remote').returns("heroku")
+        end
+        stderr, stdout = execute("git:remote")
+        stderr.should == <<-STDERR
+ !    Git remote heroku already exists
+STDERR
+        stdout.should == ""
+      end
+
+    end
+
   end
 end

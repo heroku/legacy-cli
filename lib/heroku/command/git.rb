@@ -15,9 +15,13 @@ class Heroku::Command::Git < Heroku::Command::Base
   #
   #Examples:
   #
+  # $ heroku git:clone -a myapp
+  # Cloning into 'myapp'...
+  # Git remote heroku added
   #
   def clone
     git_options = args.join(" ")
+    remote = options[:remote] || 'heroku'
 
     app_data = api.get_app(app).body
 
@@ -25,7 +29,38 @@ class Heroku::Command::Git < Heroku::Command::Base
 
     unless options[:no_remote].is_a?(FalseClass)
       FileUtils.chdir(app_data['name']) do
-        create_git_remote(options[:remote] || 'heroku', app_data['git_url'])
+        create_git_remote(remote, app_data['git_url'])
+      end
+    end
+  end
+
+  # git:remote [OPTIONS]
+  #
+  # adds a git remote to an app repo
+  #
+  # if OPTIONS are specified they will be passed to git remote add
+  #
+  # -r, --remote REMOTE        # the git remote to create, default "heroku"
+  #
+  #Examples:
+  #
+  # $ heroku git:remote -a myapp
+  # Git remote heroku added
+  #
+  # $ heroku git:remote -a myapp
+  # !    Git remote heroku already exists
+  #
+  def remote
+    git_options = args.join(" ")
+    remote = options[:remote] || 'heroku'
+
+    if git('remote').split("\n").include?(remote)
+      error("Git remote #{remote} already exists")
+    else
+      app_data = api.get_app(app).body
+
+      FileUtils.chdir(app_data['name']) do
+        create_git_remote(remote, app_data['git_url'])
       end
     end
   end
