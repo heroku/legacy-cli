@@ -48,7 +48,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def promote
     unless db = shift_argument
-      error("Usage: heroku pg:promote DATABASE")
+      error("Usage: heroku pg:promote DATABASE\nMust specify DATABASE to promote.")
     end
     validate_arguments!
 
@@ -88,7 +88,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def reset
     unless db = shift_argument
-      error("Usage: pg:reset DATABASE")
+      error("Usage: pg:reset DATABASE\nMust specify DATABASE to reset.")
     end
     validate_arguments!
 
@@ -110,7 +110,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def unfollow
     unless db = shift_argument
-      error("Usage: heroku pg:unfollow REPLICA")
+      error("Usage: heroku pg:unfollow REPLICA\nMust specify REPLICA to unfollow.")
     end
     validate_arguments!
 
@@ -163,7 +163,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def credentials
     unless db = shift_argument
-      error("Usage: heroku pg:credentials DATABASE")
+      error("Usage: heroku pg:credentials DATABASE\nMust specify DATABASE to display credentials.")
     end
     validate_arguments!
 

@@ -144,6 +144,7 @@ STDOUT
         stderr, stdout = execute("pg:promote")
         stderr.should == <<-STDERR
  !    Usage: heroku pg:promote DATABASE
+ !    Must specify DATABASE to promote.
 STDERR
         stdout.should == ""
       end
