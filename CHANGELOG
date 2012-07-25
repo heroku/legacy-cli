@@ -1,3 +1,29 @@
+2.30.0 07/25/2012
+=================
+
+more consistent header display for config
+more consistent messaging for no addons for app message
+add period to addons:docs suggestions
+simplify wording around modifying addons
+clarify wording for addons up/down-grade messaging
+more consistent usage errors for addons:(docs|open)
+bump to heroku-api 0.3.0 (escapes config/domains/keys)
+add maintenance command to display apps maintenance status
+wait for launchy to finish before continuing
+more consistent usage/help for config and ps
+update tests to match new usage messages
+exact match to an addon type should not be treated as ambiguous by addon:docs
+fix messaging around opening addons:docs with exact matches
+more consistent deprecation messaging for logs:drains
+remove no longer used Heroku::Command::Help.usage_for_command
+standardize pgbackups table display with display_table
+more consistent --confirm handling
+more explicit apps examples
+add git:remote command to seutp heroku remote
+more explicit output for pg when app has no databases
+defer to index in pg:info without argument
+backport domain_names fix to deal with v2 api data format
+
 2.29.0 07/19/2012
 =================
 
