@@ -76,7 +76,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
     if options[:raw]
       if domain_name
-        app_data["domain_name"] = domain_name
+        app_data['domain_name'] = domain_name
+      end
+      if app_data['domain_name'].is_a?(Hash)
+        app_data['domain_name'] = app_data['domain_name']['domain']
       end
       unless addons_data.empty?
         app_data['addons'] = addons_data.join(',')
