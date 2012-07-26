@@ -43,8 +43,19 @@ class Heroku::Client
     @host = host
   end
 
+  # :nocov:
+
+  def deprecate
+    method = caller.first.split('`').last[0...-1]
+    source = caller[1].split(' ').first[0...-3]
+    $stderr.puts(" !    DEPRECATED: Heroku::Client##{method} is deprecated, please use the heroku-api gem.")
+    $stderr.puts(" !    DEPRECATED: More information available at https://github.com/heroku/heroku.rb")
+    $stderr.puts(" !    DEPRECATED: Deprecated method called from #{source}.")
+  end
+
   # Show a list of apps which you are a collaborator on.
   def list
+    deprecate # 07/26/2012
     doc = xml(get('/apps').to_s)
     doc.elements.to_a("//apps/app").map do |a|
       name = a.elements.to_a("name").first
@@ -55,6 +66,7 @@ class Heroku::Client
 
   # Show info such as mode, custom domain, and collaborators on an app.
   def info(name_or_domain)
+    deprecate # 07/26/2012
     raise ArgumentError.new("name_or_domain is required for info") unless name_or_domain
     name_or_domain = name_or_domain.gsub(/^(http:\/\/)?(www\.)?/, '')
     doc = xml(get("/apps/#{name_or_domain}").to_s)
@@ -65,6 +77,7 @@ class Heroku::Client
 
   # Create a new app, with an optional name.
   def create(name=nil, options={})
+    deprecate # 07/26/2012
     name = create_request(name, options)
     loop do
       break if create_complete?(name)
@@ -74,29 +87,36 @@ class Heroku::Client
   end
 
   def create_app(name=nil, options={})
+    deprecate # 07/26/2012
     options[:name] = name if name
     json_decode(post("/apps", { :app => options }, :accept => "application/json").to_s)
   end
 
   def create_request(name=nil, options={})
+    deprecate # 07/26/2012
     options[:name] = name if name
     xml(post('/apps', :app => options).to_s).elements["//app/name"].text
   end
 
   def create_complete?(name)
+    deprecate # 07/26/2012
     put("/apps/#{name}/status", {}).code == 201
   end
 
   # Update an app.  Available attributes:
   #   :name => rename the app (changes http and git urls)
   def update(name, attributes)
+    deprecate # 07/26/2012
     put("/apps/#{name}", :app => attributes).to_s
   end
 
   # Destroy the app permanently.
   def destroy(name)
+    deprecate # 07/26/2012
     delete("/apps/#{name}").to_s
   end
+
+  # :nocov:
 
   # Get a list of collaborators on the app, returns an array of hashes each with :email
   def list_collaborators(app_name)

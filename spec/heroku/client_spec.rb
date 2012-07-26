@@ -26,10 +26,12 @@ describe Heroku::Client do
         <app><name>myapp2</name><owner>test@heroku.com</owner></app>
       </apps>
     EOXML
-    @client.list.should == [
-      ["myapp1", "test@heroku.com"],
-      ["myapp2", "test@heroku.com"]
-    ]
+    capture_stderr do # deprecated method
+      @client.list.should == [
+        ["myapp1", "test@heroku.com"],
+        ["myapp2", "test@heroku.com"]
+      ]
+    end
   end
 
   it "info -> get app attributes" do
@@ -47,7 +49,9 @@ describe Heroku::Client do
     EOXML
     @client.stub!(:list_collaborators).and_return([:jon, :mike])
     @client.stub!(:installed_addons).and_return([:addon1])
-    @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'myapp', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
+    capture_stderr do # deprecated method
+      @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'myapp', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
+    end
   end
 
   it "create_request -> create a new blank app" do
@@ -55,7 +59,9 @@ describe Heroku::Client do
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>untitled-123</name></app>
     EOXML
-    @client.create_request.should == "untitled-123"
+    capture_stderr do # deprecated method
+      @client.create_request.should == "untitled-123"
+    end
   end
 
   it "create_request(name) -> create a new blank app with a specified name" do
@@ -63,7 +69,9 @@ describe Heroku::Client do
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>newapp</name></app>
     EOXML
-    @client.create_request("newapp").should == "newapp"
+    capture_stderr do # deprecated method
+      @client.create_request("newapp").should == "newapp"
+    end
   end
 
   it "create_complete?(name) -> checks if a create request is complete" do
@@ -71,17 +79,23 @@ describe Heroku::Client do
     @response.should_receive(:code).and_return(202)
     @client.should_receive(:resource).and_return(@resource)
     @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
-    @client.create_complete?('myapp').should be_false
+    capture_stderr do # deprecated method
+      @client.create_complete?('myapp').should be_false
+    end
   end
 
   it "update(name, attributes) -> updates existing apps" do
     stub_api_request(:put, "/apps/myapp").with(:body => "app[mode]=production")
-    @client.update("myapp", :mode => 'production')
+    capture_stderr do # deprecated method
+      @client.update("myapp", :mode => 'production')
+    end
   end
 
   it "destroy(name) -> destroy the named app" do
     stub_api_request(:delete, "/apps/destroyme")
-    @client.destroy("destroyme")
+    capture_stderr do # deprecated method
+      @client.destroy("destroyme")
+    end
   end
 
   it "rake(app_name, cmd) -> run a rake command on the app" do
