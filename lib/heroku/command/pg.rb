@@ -146,9 +146,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       wait_for hpg_info(hpg_resolve(db).last)
     else
       hpg_databases_with_info.keys.sort.each do |name|
-        if name =~ /^SHARED_DATABASE/i
-          next
-        else
+        unless name =~ /^SHARED_DATABASE/i
           wait_for(hpg_databases_with_info[name])
         end
       end
