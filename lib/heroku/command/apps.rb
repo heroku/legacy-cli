@@ -188,7 +188,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
-              break if heroku.create_complete?(info["name"])
+              break if api.get_app(info['name']).body['create_status'] == 'complete'
               sleep 1
             end
           end
