@@ -1,3 +1,11 @@
+2.30.1 07/25/2012
+=================
+
+clearer, more consistent usage errors for pg
+fix labs commands when no app is specified
+simplify/shorten pg:wait logic
+more consistent deprecation message for heroku run:console
+
 2.30.0 07/25/2012
 =================
 
