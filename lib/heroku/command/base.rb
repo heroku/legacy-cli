@@ -31,7 +31,8 @@ class Heroku::Command::Base
     elsif app_from_dir = extract_app_in_dir(Dir.pwd)
       app_from_dir
     else
-      error("No app specified.\nRun this command from an app folder or specify which app to use with --app <app name>")
+      # raise instead of using error command to enable rescuing when app is optional
+      raise Heroku::Command::CommandFailed.new("No app specified.\nRun this command from an app folder or specify which app to use with --app <app name>")
     end
   end
 

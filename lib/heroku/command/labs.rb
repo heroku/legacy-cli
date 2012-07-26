@@ -23,14 +23,16 @@ class Heroku::Command::Labs < Heroku::Command::Base
   def index
     validate_arguments!
 
-    features_data = api.get_features(app).body
+    labs_app = app rescue nil
+
+    features_data = api.get_features(labs_app).body
 
     app_features, user_features = features_data.partition do |feature|
       feature["kind"] == "app"
     end
 
-    if app
-      display_features "#{app} Features", app_features
+    if labs_app
+      display_features "#{labs_app} Features", app_features
     end
 
     display_features "#{Heroku::Auth.user} Features", user_features
