@@ -37,14 +37,14 @@ module Heroku
     def confirm_billing
       display
       display "This action will cause your account to be billed at the end of the month"
-      display "For more information, see http://devcenter.heroku.com/articles/usage-and-billing"
+      display "For more information, see https://devcenter.heroku.com/articles/usage-and-billing"
       if confirm
         Heroku::Auth.client.confirm_billing
         true
       end
     end
 
-    def confirm(message="Are you sure you wish to continue? (y/n)?")
+    def confirm(message="Are you sure you wish to continue? (y/n)")
       display("#{message} ", false)
       ['y', 'yes'].include?(ask.downcase)
     end
