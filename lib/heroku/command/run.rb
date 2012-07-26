@@ -87,7 +87,7 @@ class Heroku::Command::Run < Heroku::Command::Base
     end
   rescue RestClient::RequestFailed => e
     if e.http_body =~ /For Cedar apps, use: `heroku run console`/
-      deprecate('For Cedar apps, use: `heroku run console`.')
+      deprecate("`heroku #{current_command}` has been deprecated for Cedar apps. Please use: `heroku run console` instead.")
       command = "console #{args.join(' ')}"
       run_attached(command)
     else
