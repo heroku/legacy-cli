@@ -37,7 +37,7 @@ module Heroku
     def confirm_billing
       display
       display "This action will cause your account to be billed at the end of the month"
-      display "For more information, see http://devcenter.heroku.com/articles/billing"
+      display "For more information, see http://devcenter.heroku.com/articles/usage-and-billing"
       if confirm
         Heroku::Auth.client.confirm_billing
         true
