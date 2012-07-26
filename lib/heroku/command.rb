@@ -190,7 +190,7 @@ module Heroku
         retry
       end
     rescue Heroku::API::Errors::VerificationRequired, RestClient::PaymentRequired => e
-      retry if run('account:confirm_billing', arguments.dup)
+      retry if Heroku::Helpers.confirm_billing
     rescue Heroku::API::Errors::NotFound => e
       error extract_error(e.response.body) {
         e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
