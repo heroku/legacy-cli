@@ -348,27 +348,37 @@ describe Heroku::Client do
   describe "config vars" do
     it "config_vars(app_name) -> json hash of config vars for the app" do
       stub_api_request(:get, "/apps/myapp/config_vars").to_return(:body => '{"A":"one", "B":"two"}')
-      @client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
+      capture_stderr do
+        @client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
+      end
     end
 
     it "add_config_vars(app_name, vars)" do
       stub_api_request(:put, "/apps/myapp/config_vars").with(:body => '{"x":"y"}')
-      @client.add_config_vars('myapp', {'x'=> 'y'})
+      capture_stderr do
+        @client.add_config_vars('myapp', {'x'=> 'y'})
+      end
     end
 
     it "remove_config_var(app_name, key)" do
       stub_api_request(:delete, "/apps/myapp/config_vars/mykey")
-      @client.remove_config_var('myapp', 'mykey')
+      capture_stderr do
+        @client.remove_config_var('myapp', 'mykey')
+      end
     end
 
     it "clear_config_vars(app_name) -> resets all config vars for this app" do
       stub_api_request(:delete, "/apps/myapp/config_vars")
-      @client.clear_config_vars('myapp')
+      capture_stderr do
+        @client.clear_config_vars('myapp')
+      end
     end
 
     it "can handle config vars with special characters" do
       stub_api_request(:delete, "/apps/myapp/config_vars/foo%5Bbar%5D")
-      lambda { @client.remove_config_var('myapp', 'foo[bar]') }.should_not raise_error
+      capture_stderr do
+        lambda { @client.remove_config_var('myapp', 'foo[bar]') }.should_not raise_error
+      end
     end
   end
 

@@ -116,6 +116,26 @@ class Heroku::Client
     delete("/apps/#{name}").to_s
   end
 
+  def config_vars(app_name)
+    deprecate # 07/27/2012
+    json_decode get("/apps/#{app_name}/config_vars", :accept => :json).to_s
+  end
+
+  def add_config_vars(app_name, new_vars)
+    deprecate # 07/27/2012
+    put("/apps/#{app_name}/config_vars", json_encode(new_vars), :accept => :json).to_s
+  end
+
+  def remove_config_var(app_name, key)
+    deprecate # 07/27/2012
+    delete("/apps/#{app_name}/config_vars/#{escape(key)}", :accept => :json).to_s
+  end
+
+  def clear_config_vars(app_name)
+    deprecate # 07/27/2012
+    delete("/apps/#{app_name}/config_vars").to_s
+  end
+
   # :nocov:
 
   # Get a list of collaborators on the app, returns an array of hashes each with :email
@@ -447,22 +467,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   # Scales the background processes.
   def set_workers(app_name, qty)
     put("/apps/#{app_name}/workers", :workers => qty).to_s
-  end
-
-  def config_vars(app_name)
-    json_decode get("/apps/#{app_name}/config_vars", :accept => :json).to_s
-  end
-
-  def add_config_vars(app_name, new_vars)
-    put("/apps/#{app_name}/config_vars", json_encode(new_vars), :accept => :json).to_s
-  end
-
-  def remove_config_var(app_name, key)
-    delete("/apps/#{app_name}/config_vars/#{escape(key)}", :accept => :json).to_s
-  end
-
-  def clear_config_vars(app_name)
-    delete("/apps/#{app_name}/config_vars").to_s
   end
 
   def addons
