@@ -161,7 +161,7 @@ module Heroku::Command
     #
     def destroy
       unless name = shift_argument
-        error("Usage: heroku pgbackups:destroy BACKUP_ID")
+        error("Usage: heroku pgbackups:destroy BACKUP_ID\nMust specify BACKUP_ID to destroy.")
       end
       backup = pgbackup_client.get_backup(name)
       if backup["destroyed_at"]
