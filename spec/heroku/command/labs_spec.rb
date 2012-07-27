@@ -14,18 +14,29 @@ module Heroku::Command
       api.delete_app("myapp")
     end
 
-    it "lists features" do
+    it "lists available features" do
+      stderr, stdout = execute("labs:list")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+=== App Available Features
+sigterm-all:      When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+user_env_compile: Add user config vars to the environment during slug compilation
+
+=== User Available Features
+sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+
+STDOUT
+    end
+
+    it "lists enabled features" do
       stub_core.list_features("myapp").returns([])
       stderr, stdout = execute("labs")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Features
-[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-[ ] user_env_compile  Add user config vars to the environment during slug compilation
+=== myapp Enabled Features
+sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
 
-=== email@example.com Features
-[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
-
+email@example.com has no enabled features.
 STDOUT
     end
 
@@ -53,6 +64,7 @@ STDERR
       stdout.should == <<-STDOUT
 Enabling user_env_compile for myapp... done
 WARNING: This feature is experimental and may change or be removed without notice.
+For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
 STDOUT
     end
 
