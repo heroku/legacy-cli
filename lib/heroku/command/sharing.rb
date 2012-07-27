@@ -20,13 +20,10 @@ module Heroku::Command
     def index
       validate_arguments!
 
+      # this is never empty, as it always includes the owner
       collaborators = api.get_collaborators(app).body
-      unless collaborators.empty?
-        styled_header("#{app} Collaborators")
-        styled_array(collaborators.map {|collaborator| collaborator["email"]})
-      else
-        display("#{app} has no collaborators")
-      end
+      styled_header("#{app} Collaborators")
+      styled_array(collaborators.map {|collaborator| collaborator["email"]})
     end
 
     # sharing:add EMAIL
