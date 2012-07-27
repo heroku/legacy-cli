@@ -40,7 +40,7 @@ module Heroku::Command
     #
     def add
       unless email = shift_argument
-        raise(CommandFailed, "Specify an email address to share the app with.")
+        error("Usage: heroku sharing:add EMAIL\nMust specify EMAIL to add sharing.")
       end
       validate_arguments!
 
@@ -60,7 +60,7 @@ module Heroku::Command
     #
     def remove
       unless email = shift_argument
-        raise(CommandFailed, "Specify an email address to remove from the app.")
+        error("Usage: heroku sharing:remove EMAIL\nMust specify EMAIL to remove sharing.")
       end
       validate_arguments!
 
@@ -80,7 +80,7 @@ module Heroku::Command
     #
     def transfer
       unless email = shift_argument
-        raise(CommandFailed, "Specify the email address of the new owner")
+        error("Usage: heroku sharing:transfer EMAIL\nMust specify EMAIL to transfer an app.")
       end
       validate_arguments!
 
