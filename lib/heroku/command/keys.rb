@@ -80,7 +80,7 @@ module Heroku::Command
     def remove
       key = shift_argument
       if key.nil? || key.empty?
-        error("Usage: heroku keys:remove KEY\nMust specify key to remove.")
+        error("Usage: heroku keys:remove KEY\nMust specify KEY to remove.")
       end
       validate_arguments!
 

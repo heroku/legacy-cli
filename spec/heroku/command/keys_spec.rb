@@ -96,7 +96,7 @@ STDOUT
         stderr, stdout = execute("keys:remove")
         stderr.should == <<-STDERR
  !    Usage: heroku keys:remove KEY
- !    Must specify key to remove.
+ !    Must specify KEY to remove.
 STDERR
         stdout.should == ""
       end
