@@ -98,6 +98,7 @@ STDOUT
         stderr, stdout = execute("pgbackups:destroy")
         stderr.should == <<-STDERR
  !    Usage: heroku pgbackups:destroy BACKUP_ID
+ !    Must specify BACKUP_ID to destroy.
 STDERR
         stdout.should == ""
       end
