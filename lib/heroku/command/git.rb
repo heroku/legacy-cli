@@ -58,10 +58,7 @@ class Heroku::Command::Git < Heroku::Command::Base
       error("Git remote #{remote} already exists")
     else
       app_data = api.get_app(app).body
-
-      FileUtils.chdir(app_data['name']) do
-        create_git_remote(remote, app_data['git_url'])
-      end
+      create_git_remote(remote, app_data['git_url'])
     end
   end
 

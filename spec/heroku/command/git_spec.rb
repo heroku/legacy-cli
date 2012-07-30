@@ -89,7 +89,6 @@ Git remote heroku added
 
       it "adds -r remote" do
         any_instance_of(Heroku::Command::Git) do |git|
-          stub(git).git('clone git@heroku.com:myapp.git ').returns("Cloning into 'myapp'...")
           stub(git).git('remote').returns("origin")
           stub(git).git('remote add other git@heroku.com:myapp.git')
         end
