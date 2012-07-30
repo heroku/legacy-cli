@@ -88,6 +88,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # $ heroku labs:enable user_env_compile
   # Enabling user_env_compile for myapp... done
+  # http://devcenter.heroku.com/articles/labs-user-env-compile
   #
   def enable
     unless feature_name = shift_argument
