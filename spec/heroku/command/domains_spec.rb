@@ -23,7 +23,7 @@ module Heroku::Command
         stderr, stdout = execute("domains")
         stderr.should == ""
         stdout.should == <<-STDOUT
-No domain names for myapp
+myapp has no domain names.
 STDOUT
       end
 
@@ -32,7 +32,7 @@ STDOUT
         stderr, stdout = execute("domains")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== Domain names for myapp
+=== myapp Domain Names
 example.com
 
 STDOUT
@@ -51,11 +51,11 @@ STDOUT
     end
 
     it "shows usage if no domain specified for add" do
-      lambda { execute("domains:add") }.should raise_error(CommandFailed, /Usage:/)
-    end
-
-    it "shows usage if blank domain specified for add" do
-      lambda { execute("domains:add  ") }.should raise_error(CommandFailed, /Usage:/)
+      stderr, stdout = execute("domains:add")
+      stderr.should == <<-STDERR
+ !    Usage: heroku domains:add DOMAIN
+ !    Must specify DOMAIN to add.
+      STDERR
     end
 
     it "removes domain names" do
@@ -68,11 +68,11 @@ STDOUT
     end
 
     it "shows usage if no domain specified for remove" do
-      lambda { execute("domains:remove") }.should raise_error(CommandFailed, /Usage:/)
-    end
-
-    it "shows usage if blank domain specified for remove" do
-      lambda { execute("domains:remove  ") }.should raise_error(CommandFailed, /Usage:/)
+      stderr, stdout = execute("domains:remove")
+      stderr.should == <<-STDERR
+ !    Usage: heroku domains:remove DOMAIN
+ !    Must specify DOMAIN to remove.
+      STDERR
     end
 
     it "removes all domain names" do
@@ -80,7 +80,7 @@ STDOUT
       stderr, stdout = execute("domains:clear")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Removing all domain names for myapp... done
+Removing all domain names from myapp... done
 STDOUT
     end
   end

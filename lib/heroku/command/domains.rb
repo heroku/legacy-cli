@@ -20,10 +20,10 @@ module Heroku::Command
       validate_arguments!
       domains = api.get_domains(app).body
       if domains.length > 0
-        styled_header("Domain names for #{app}")
+        styled_header("#{app} Domain Names")
         styled_array domains.map {|domain| domain["domain"]}
       else
-        display("No domain names for #{app}")
+        display("#{app} has no domain names.")
       end
     end
 
@@ -37,9 +37,10 @@ module Heroku::Command
     # Adding example.com to myapp... done
     #
     def add
-      domain = shift_argument
+      unless domain = shift_argument
+        error("Usage: heroku domains:add DOMAIN\nMust specify DOMAIN to add.")
+      end
       validate_arguments!
-      fail("Usage: heroku domains:add DOMAIN") if domain.to_s.strip.empty?
       action("Adding #{domain} to #{app}") do
         api.post_domain(app, domain)
       end
@@ -55,9 +56,10 @@ module Heroku::Command
     # Removing example.com from myapp... done
     #
     def remove
-      domain = shift_argument
+      unless domain = shift_argument
+        error("Usage: heroku domains:remove DOMAIN\nMust specify DOMAIN to remove.")
+      end
       validate_arguments!
-      fail("Usage: heroku domains:remove DOMAIN") if domain.to_s.strip.empty?
       action("Removing #{domain} from #{app}") do
         api.delete_domain(app, domain)
       end
@@ -74,7 +76,7 @@ module Heroku::Command
     #
     def clear
       validate_arguments!
-      action("Removing all domain names for #{app}") do
+      action("Removing all domain names from #{app}") do
         api.delete_domains(app)
       end
     end
