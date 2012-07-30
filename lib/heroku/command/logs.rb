@@ -49,6 +49,8 @@ class Heroku::Command::Logs < Heroku::Command::Base
     raise(interrupt)
   end
 
+  # :nocov:
+
   # logs:drains
   #
   # DEPRECATED: use `heroku drains`
@@ -58,6 +60,8 @@ class Heroku::Command::Logs < Heroku::Command::Base
     display("~ `heroku logs:drains` has been deprecated and replaced with `heroku drains`")
     Heroku::Command::Drains.new.index
   end
+
+  # :nocov:
 
   protected
 
