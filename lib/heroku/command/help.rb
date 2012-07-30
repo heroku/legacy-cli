@@ -147,7 +147,11 @@ private
       puts
     end
 
-    if commands_for_namespace(name).size > 0
+    namespace_commands = commands_for_namespace(name).reject do |command|
+      command[:help] =~ /DEPRECATED/
+    end
+
+    if !namespace_commands.empty?
       puts "Additional commands, type \"heroku help COMMAND\" for more details:"
       puts
       help_for_namespace(name)
