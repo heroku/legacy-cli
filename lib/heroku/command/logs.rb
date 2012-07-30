@@ -49,14 +49,6 @@ class Heroku::Command::Logs < Heroku::Command::Base
     raise(interrupt)
   end
 
-  # logs:cron
-  #
-  # DEPRECATED: display cron logs from legacy logging
-  #
-  def cron
-    display heroku.cron_logs(app)
-  end
-
   # logs:drains
   #
   # DEPRECATED: use `heroku drains`

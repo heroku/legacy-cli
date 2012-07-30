@@ -57,13 +57,4 @@ STDOUT
     end
   end
 
-  describe "deprecated logs:cron" do
-    it "can view cron logs" do
-      stub_core.cron_logs("myapp").returns("the_cron_logs")
-      stderr, stdout = execute("logs:cron")
-      stderr.should == ""
-      stdout.should =~ /the_cron_logs/
-    end
-  end
-
 end
