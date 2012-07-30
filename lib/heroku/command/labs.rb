@@ -46,7 +46,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   def info
     unless feature_name = shift_argument
-      error("Usage: heroku labs:info FEATURE")
+      error("Usage: heroku labs:info FEATURE\nMust specify FEATURE for info.")
     end
     validate_arguments!
 
@@ -69,7 +69,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   def disable
     unless feature_name = shift_argument
-      error("Usage: heroku labs:disable FEATURE")
+      error("Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable.")
     end
     validate_arguments!
 
@@ -88,11 +88,11 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # $ heroku labs:enable user_env_compile
   # Enabling user_env_compile for myapp... done
-  # http://devcenter.heroku.com/articles/labs-user-env-compile
+  # For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
   #
   def enable
     unless feature_name = shift_argument
-      error("Usage: heroku labs:enable FEATURE")
+      error("Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable.")
     end
     validate_arguments!
 

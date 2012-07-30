@@ -54,6 +54,7 @@ STDOUT
       stderr, stdout = execute("labs:info")
       stderr.should == <<-STDERR
  !    Usage: heroku labs:info FEATURE
+ !    Must specify FEATURE for info.
 STDERR
       stdout.should == ""
     end
@@ -72,6 +73,7 @@ STDOUT
       stderr, stdout = execute("labs:enable")
       stderr.should == <<-STDERR
  !    Usage: heroku labs:enable FEATURE
+ !    Must specify FEATURE to enable.
 STDERR
       stdout.should == ""
     end
@@ -89,6 +91,7 @@ STDOUT
       stderr, stdout = execute("labs:disable")
       stderr.should == <<-STDERR
  !    Usage: heroku labs:disable FEATURE
+ !    Must specify FEATURE to disable.
 STDERR
       stdout.should == ""
     end
