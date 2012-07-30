@@ -362,7 +362,7 @@ module Heroku
         display("failed")
         Heroku::Helpers.error_with_failure = false
       end
-      $stderr.puts(" !    #{message}.")
+      $stderr.puts(" !    #{message}")
       $stderr.puts(" !    Search for help at: https://help.heroku.com")
       $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
       $stderr.puts
