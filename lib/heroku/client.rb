@@ -189,6 +189,33 @@ class Heroku::Client
     delete("/apps/#{app_name}/domains").to_s
   end
 
+  # Get the list of ssh public keys for the current user.
+  def keys
+    deprecate # 07/31/2012
+    doc = xml get('/user/keys').to_s
+    doc.elements.to_a('//keys/key').map do |key|
+      key.elements['contents'].text
+    end
+  end
+
+  # Add an ssh public key to the current user.
+  def add_key(key)
+    deprecate # 07/31/2012
+    post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' }).to_s
+  end
+
+  # Remove an existing ssh public key from the current user.
+  def remove_key(key)
+    deprecate # 07/31/2012
+    delete("/user/keys/#{escape(key)}").to_s
+  end
+
+  # Clear all keys on the current user.
+  def remove_all_keys
+    deprecate # 07/31/2012
+    delete("/user/keys").to_s
+  end
+
   # :nocov:
 
   def add_ssl(app_name, pem, key)
@@ -201,29 +228,6 @@ class Heroku::Client
 
   def clear_ssl(app_name)
     delete("/apps/#{app_name}/ssl")
-  end
-
-  # Get the list of ssh public keys for the current user.
-  def keys
-    doc = xml get('/user/keys').to_s
-    doc.elements.to_a('//keys/key').map do |key|
-      key.elements['contents'].text
-    end
-  end
-
-  # Add an ssh public key to the current user.
-  def add_key(key)
-    post("/user/keys", key, { 'Content-Type' => 'text/ssh-authkey' }).to_s
-  end
-
-  # Remove an existing ssh public key from the current user.
-  def remove_key(key)
-    delete("/user/keys/#{escape(key)}").to_s
-  end
-
-  # Clear all keys on the current user.
-  def remove_all_keys
-    delete("/user/keys").to_s
   end
 
   # Get a list of stacks available to the app, with the current one marked.

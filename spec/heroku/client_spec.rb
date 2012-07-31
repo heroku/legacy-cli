@@ -316,22 +316,30 @@ describe Heroku::Client do
           </key>
         </keys>
       EOXML
-      @client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
+      capture_stderr do # capture deprecation message
+        @client.keys.should == [ "ssh-dss thekey== joe@workstation" ]
+      end
     end
 
     it "add_key(key) -> add an SSH key (e.g., the contents of id_rsa.pub) to the user" do
       stub_api_request(:post, "/user/keys").with(:body => "a key")
-      @client.add_key('a key')
+      capture_stderr do # capture deprecation message
+        @client.add_key('a key')
+      end
     end
 
     it "remove_key(key) -> remove an SSH key by name (user@box)" do
       stub_api_request(:delete, "/user/keys/joe%40workstation")
-      @client.remove_key('joe@workstation')
+      capture_stderr do # capture deprecation message
+        @client.remove_key('joe@workstation')
+      end
     end
 
     it "remove_all_keys -> removes all SSH keys for the user" do
       stub_api_request(:delete, "/user/keys")
-      @client.remove_all_keys
+      capture_stderr do # capture deprecation message
+        @client.remove_all_keys
+      end
     end
 
     it "database_session(app_name) -> creates a taps database session" do
