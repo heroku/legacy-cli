@@ -181,9 +181,11 @@ module Heroku
 
       describe "an account with existing keys" do
         before :each do
-          @client = mock(Object)
-          @client.should_receive(:keys).and_return(["existingkey"])
-          @cli.should_receive(:client).and_return(@client)
+          @api = mock(Object)
+          @response = mock(Object)
+          @response.should_receive(:body).and_return(['existingkeys'])
+          @api.should_receive(:get_keys).and_return(@response)
+          @cli.should_receive(:api).and_return(@api)
         end
 
         it "should not do anything if the account already has keys" do
@@ -194,9 +196,11 @@ module Heroku
 
       describe "an account with no keys" do
         before :each do
-          @client = mock(Object)
-          @client.should_receive(:keys).and_return([])
-          @cli.should_receive(:client).and_return(@client)
+          @api = mock(Object)
+          @response = mock(Object)
+          @response.should_receive(:body).and_return([])
+          @api.should_receive(:get_keys).and_return(@response)
+          @cli.should_receive(:api).and_return(@api)
         end
 
         describe "with zero public keys" do
