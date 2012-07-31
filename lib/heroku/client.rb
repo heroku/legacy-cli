@@ -388,11 +388,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     get("/apps/#{app_name}/logs").to_s
   end
 
-  # Fetch recent cron logs from the app server.
-  def cron_logs(app_name)
-    get("/apps/#{app_name}/cron_logs").to_s
-  end
-
   def read_logs(app_name, options=[])
     query = "&" + options.join("&") unless options.empty?
     url = get("/apps/#{app_name}/logs?logplex=true#{query}").to_s
