@@ -26,7 +26,7 @@ describe Heroku::Client do
         <app><name>myapp2</name><owner>test@heroku.com</owner></app>
       </apps>
     EOXML
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.list.should == [
         ["myapp1", "test@heroku.com"],
         ["myapp2", "test@heroku.com"]
@@ -49,7 +49,7 @@ describe Heroku::Client do
     EOXML
     @client.stub!(:list_collaborators).and_return([:jon, :mike])
     @client.stub!(:installed_addons).and_return([:addon1])
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.info('myapp').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'myapp', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
     end
   end
@@ -59,7 +59,7 @@ describe Heroku::Client do
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>untitled-123</name></app>
     EOXML
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.create_request.should == "untitled-123"
     end
   end
@@ -69,7 +69,7 @@ describe Heroku::Client do
       <?xml version="1.0" encoding="UTF-8"?>
       <app><name>newapp</name></app>
     EOXML
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.create_request("newapp").should == "newapp"
     end
   end
@@ -79,21 +79,21 @@ describe Heroku::Client do
     @response.should_receive(:code).and_return(202)
     @client.should_receive(:resource).and_return(@resource)
     @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.create_complete?('myapp').should be_false
     end
   end
 
   it "update(name, attributes) -> updates existing apps" do
     stub_api_request(:put, "/apps/myapp").with(:body => "app[mode]=production")
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.update("myapp", :mode => 'production')
     end
   end
 
   it "destroy(name) -> destroy the named app" do
     stub_api_request(:delete, "/apps/destroyme")
-    capture_stderr do # deprecated method
+    capture_stderr do # capture deprecation message
       @client.destroy("destroyme")
     end
   end
@@ -225,20 +225,26 @@ describe Heroku::Client do
           <collaborator><email>jon@example.com</email></collaborator>
         </collaborators>
       EOXML
-      @client.list_collaborators('myapp').should == [
-        { :email => 'joe@example.com' },
-        { :email => 'jon@example.com' }
-      ]
+      capture_stderr do # capture deprecation message
+        @client.list_collaborators('myapp').should == [
+          { :email => 'joe@example.com' },
+          { :email => 'jon@example.com' }
+        ]
+      end
     end
 
     it "add_collaborator(app_name, email) -> adds collaborator to app" do
       stub_api_request(:post, "/apps/myapp/collaborators").with(:body => "collaborator%5Bemail%5D=joe%40example.com")
-      @client.add_collaborator('myapp', 'joe@example.com')
+      capture_stderr do # capture deprecation message
+        @client.add_collaborator('myapp', 'joe@example.com')
+      end
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
       stub_api_request(:delete, "/apps/myapp/collaborators/joe%40example%2Ecom")
-      @client.remove_collaborator('myapp', 'joe@example.com')
+      capture_stderr do # capture deprecation message
+        @client.remove_collaborator('myapp', 'joe@example.com')
+      end
     end
   end
 
@@ -348,35 +354,35 @@ describe Heroku::Client do
   describe "config vars" do
     it "config_vars(app_name) -> json hash of config vars for the app" do
       stub_api_request(:get, "/apps/myapp/config_vars").to_return(:body => '{"A":"one", "B":"two"}')
-      capture_stderr do
+      capture_stderr do # capture deprecation message
         @client.config_vars('myapp').should == { 'A' => 'one', 'B' => 'two'}
       end
     end
 
     it "add_config_vars(app_name, vars)" do
       stub_api_request(:put, "/apps/myapp/config_vars").with(:body => '{"x":"y"}')
-      capture_stderr do
+      capture_stderr do # capture deprecation message
         @client.add_config_vars('myapp', {'x'=> 'y'})
       end
     end
 
     it "remove_config_var(app_name, key)" do
       stub_api_request(:delete, "/apps/myapp/config_vars/mykey")
-      capture_stderr do
+      capture_stderr do # capture deprecation message
         @client.remove_config_var('myapp', 'mykey')
       end
     end
 
     it "clear_config_vars(app_name) -> resets all config vars for this app" do
       stub_api_request(:delete, "/apps/myapp/config_vars")
-      capture_stderr do
+      capture_stderr do # capture deprecation message
         @client.clear_config_vars('myapp')
       end
     end
 
     it "can handle config vars with special characters" do
       stub_api_request(:delete, "/apps/myapp/config_vars/foo%5Bbar%5D")
-      capture_stderr do
+      capture_stderr do # capture deprecation message
         lambda { @client.remove_config_var('myapp', 'foo[bar]') }.should_not raise_error
       end
     end

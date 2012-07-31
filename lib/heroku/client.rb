@@ -136,10 +136,9 @@ class Heroku::Client
     delete("/apps/#{app_name}/config_vars").to_s
   end
 
-  # :nocov:
-
   # Get a list of collaborators on the app, returns an array of hashes each with :email
   def list_collaborators(app_name)
+    deprecate # 07/31/2012
     doc = xml(get("/apps/#{app_name}/collaborators").to_s)
     doc.elements.to_a("//collaborators/collaborator").map do |a|
       { :email => a.elements['email'].text }
@@ -148,13 +147,17 @@ class Heroku::Client
 
   # Invite a person by email address to collaborate on the app.
   def add_collaborator(app_name, email)
+    deprecate # 07/31/2012
     xml(post("/apps/#{app_name}/collaborators", { 'collaborator[email]' => email }).to_s)
   end
 
   # Remove a collaborator.
   def remove_collaborator(app_name, email)
+    deprecate # 07/31/2012
     delete("/apps/#{app_name}/collaborators/#{escape(email)}").to_s
   end
+
+  # :nocov:
 
   def list_domains(app_name)
     doc = xml(get("/apps/#{app_name}/domains").to_s)
