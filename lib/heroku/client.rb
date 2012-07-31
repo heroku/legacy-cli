@@ -293,6 +293,12 @@ class Heroku::Client
     post("/apps/#{app}/releases", :rollback => release)
   end
 
+  # Fetch recent logs from the app server.
+  def logs(app_name)
+    deprecate # 07/31/2012
+    get("/apps/#{app_name}/logs").to_s
+  end
+
   # :nocov:
 
   def add_ssl(app_name, pem, key)
@@ -447,11 +453,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   def start(app_name, command, attached=false)
     service = Service.new(self, app_name)
     service.start(command, attached)
-  end
-
-  # Fetch recent logs from the app server.
-  def logs(app_name)
-    get("/apps/#{app_name}/logs").to_s
   end
 
   def read_logs(app_name, options=[])

@@ -162,7 +162,9 @@ describe Heroku::Client do
 
   it "logs(app_name) -> returns recent output of the app logs" do
     stub_api_request(:get, "/apps/myapp/logs").to_return(:body => "log")
-    @client.logs('myapp').should == 'log'
+    capture_stderr do # capture deprecation message
+      @client.logs('myapp').should == 'log'
+    end
   end
 
   it "can get the number of dynos" do
