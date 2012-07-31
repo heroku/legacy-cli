@@ -257,28 +257,38 @@ describe Heroku::Client do
           <domain-name><domain>example2.com</domain></domain-name>
         </domain-names>
       EOXML
-      @client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
+      capture_stderr do # capture deprecation message
+        @client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
+      end
     end
 
     it "add_domain(app_name, domain) -> adds domain name to app" do
       stub_api_request(:post, "/apps/myapp/domains").with(:body => "example.com")
-      @client.add_domain('myapp', 'example.com')
+      capture_stderr do # capture deprecation message
+        @client.add_domain('myapp', 'example.com')
+      end
     end
 
     it "remove_domain(app_name, domain) -> removes domain name from app" do
       stub_api_request(:delete, "/apps/myapp/domains/example.com")
-      @client.remove_domain('myapp', 'example.com')
+      capture_stderr do # capture deprecation message
+        @client.remove_domain('myapp', 'example.com')
+      end
     end
 
     it "remove_domain(app_name, domain) -> makes sure a domain is set" do
       lambda do
-        @client.remove_domain('myapp', '')
+        capture_stderr do # capture deprecation message
+          @client.remove_domain('myapp', '')
+        end
       end.should raise_error(ArgumentError)
     end
 
     it "remove_domains(app_name) -> removes all domain names from app" do
       stub_api_request(:delete, "/apps/myapp/domains")
-      @client.remove_domains('myapp')
+      capture_stderr do # capture deprecation message
+        @client.remove_domains('myapp')
+      end
     end
 
     it "add_ssl(app_name, pem, key) -> adds a ssl cert to the domain" do

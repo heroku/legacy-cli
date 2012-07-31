@@ -157,9 +157,8 @@ class Heroku::Client
     delete("/apps/#{app_name}/collaborators/#{escape(email)}").to_s
   end
 
-  # :nocov:
-
   def list_domains(app_name)
+    deprecate # 07/31/2012
     doc = xml(get("/apps/#{app_name}/domains").to_s)
     doc.elements.to_a("//domain-names/*").map do |d|
       attrs = { :domain => d.elements['domain'].text }
@@ -175,17 +174,22 @@ class Heroku::Client
   end
 
   def add_domain(app_name, domain)
+    deprecate # 07/31/2012
     post("/apps/#{app_name}/domains", domain).to_s
   end
 
   def remove_domain(app_name, domain)
+    deprecate # 07/31/2012
     raise ArgumentError.new("invalid domain: #{domain.inspect}") if domain.to_s.strip == ""
     delete("/apps/#{app_name}/domains/#{domain}").to_s
   end
 
   def remove_domains(app_name)
+    deprecate # 07/31/2012
     delete("/apps/#{app_name}/domains").to_s
   end
+
+  # :nocov:
 
   def add_ssl(app_name, pem, key)
     json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
