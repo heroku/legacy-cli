@@ -128,7 +128,9 @@ describe Heroku::Client do
 
   it "restart(app_name) -> restarts the app servers" do
     stub_api_request(:delete, "/apps/myapp/server")
-    @client.restart('myapp')
+    capture_stderr do # capture deprecation message
+      @client.restart('myapp')
+    end
   end
 
   describe "read_logs" do
@@ -170,7 +172,9 @@ describe Heroku::Client do
         <dynos type='integer'>5</dynos>
       </app>
     EOXML
-    @client.dynos('myapp').should == 5
+    capture_stderr do # capture deprecation message
+      @client.dynos('myapp').should == 5
+    end
   end
 
   it "can get the number of workers" do
@@ -180,12 +184,16 @@ describe Heroku::Client do
         <workers type='integer'>5</workers>
       </app>
     EOXML
-    @client.workers('myapp').should == 5
+    capture_stderr do # capture deprecation message
+      @client.workers('myapp').should == 5
+    end
   end
 
   it "set_dynos(app_name, qty) -> scales the app" do
     stub_api_request(:put, "/apps/myapp/dynos").with(:body => "dynos=3")
-    @client.set_dynos('myapp', 3)
+    capture_stderr do # capture deprecation message
+      @client.set_dynos('myapp', 3)
+    end
   end
 
   it "rake catches 502s and shows the app crashlog" do
@@ -207,7 +215,9 @@ describe Heroku::Client do
   describe "ps_scale" do
     it "scales a process and returns the new count" do
       stub_api_request(:post, "/apps/myapp/ps/scale").with(:body => { :type => "web", :qty => "5" }).to_return(:body => "5")
-      @client.ps_scale("myapp", :type => "web", :qty => "5").should == 5
+      capture_stderr do # capture deprecation message
+        @client.ps_scale("myapp", :type => "web", :qty => "5").should == 5
+      end
     end
   end
 

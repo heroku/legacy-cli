@@ -222,6 +222,62 @@ class Heroku::Client
     delete("/user/keys").to_s
   end
 
+  # Retreive ps list for the given app name.
+  def ps(app_name)
+    deprecate # 07/31/2012
+    json_decode get("/apps/#{app_name}/ps", :accept => 'application/json').to_s
+  end
+
+  # Restart the app servers.
+  def restart(app_name)
+    deprecate # 07/31/2012
+    delete("/apps/#{app_name}/server").to_s
+  end
+
+  def dynos(app_name)
+    deprecate # 07/31/2012
+    doc = xml(get("/apps/#{app_name}").to_s)
+    doc.elements["//app/dynos"].text.to_i
+  end
+
+  def workers(app_name)
+    deprecate # 07/31/2012
+    doc = xml(get("/apps/#{app_name}").to_s)
+    doc.elements["//app/workers"].text.to_i
+  end
+
+  # Scales the web processes.
+  def set_dynos(app_name, qty)
+    deprecate # 07/31/2012
+    put("/apps/#{app_name}/dynos", :dynos => qty).to_s
+  end
+
+  # Scales the background processes.
+  def set_workers(app_name, qty)
+    deprecate # 07/31/2012
+    put("/apps/#{app_name}/workers", :workers => qty).to_s
+  end
+
+  def ps_run(app, opts={})
+    deprecate # 07/31/2012
+    json_decode post("/apps/#{app}/ps", opts, :accept => :json).to_s
+  end
+
+  def ps_scale(app, opts={})
+    deprecate # 07/31/2012
+    Integer(post("/apps/#{app}/ps/scale", opts).to_s)
+  end
+
+  def ps_restart(app, opts={})
+    deprecate # 07/31/2012
+    post("/apps/#{app}/ps/restart", opts)
+  end
+
+  def ps_stop(app, opts={})
+    deprecate # 07/31/2012
+    post("/apps/#{app}/ps/stop", opts)
+  end
+
   # :nocov:
 
   def add_ssl(app_name, pem, key)
@@ -372,21 +428,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     end
   end
 
-  # Retreive ps list for the given app name.
-  def ps(app_name)
-    json_decode get("/apps/#{app_name}/ps", :accept => 'application/json').to_s
-  end
-
   # Run a service. If Responds to #each and yields output as it's received.
   def start(app_name, command, attached=false)
     service = Service.new(self, app_name)
     service.start(command, attached)
-  end
-
-
-  # Restart the app servers.
-  def restart(app_name)
-    delete("/apps/#{app_name}/server").to_s
   end
 
   # Fetch recent logs from the app server.
@@ -461,26 +506,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     delete("/apps/#{app_name}/logs/drains?url=#{URI.escape(url)}").to_s
   end
 
-  def dynos(app_name)
-    doc = xml(get("/apps/#{app_name}").to_s)
-    doc.elements["//app/dynos"].text.to_i
-  end
-
-  def workers(app_name)
-    doc = xml(get("/apps/#{app_name}").to_s)
-    doc.elements["//app/workers"].text.to_i
-  end
-
-  # Scales the web processes.
-  def set_dynos(app_name, qty)
-    put("/apps/#{app_name}/dynos", :dynos => qty).to_s
-  end
-
-  # Scales the background processes.
-  def set_workers(app_name, qty)
-    put("/apps/#{app_name}/workers", :workers => qty).to_s
-  end
-
   def addons
     json_decode get("/addons", :accept => 'application/json').to_s
   end
@@ -524,22 +549,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   def rollback(app, release=nil)
     post("/apps/#{app}/releases", :rollback => release)
-  end
-
-  def ps_run(app, opts={})
-    json_decode post("/apps/#{app}/ps", opts, :accept => :json).to_s
-  end
-
-  def ps_scale(app, opts={})
-    Integer(post("/apps/#{app}/ps/scale", opts).to_s)
-  end
-
-  def ps_restart(app, opts={})
-    post("/apps/#{app}/ps/restart", opts)
-  end
-
-  def ps_stop(app, opts={})
-    post("/apps/#{app}/ps/stop", opts)
   end
 
   def confirm_billing
