@@ -240,8 +240,8 @@ module Heroku::Command
         end
 
         begin
-          release = heroku.release(app, 'current')
-          release = release['name'] if release
+          release = api.get_release(app, 'current').body
+          release = release['name']
         rescue RestClient::RequestFailed => e
           release = nil
         end

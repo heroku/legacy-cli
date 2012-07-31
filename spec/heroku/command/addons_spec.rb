@@ -101,6 +101,17 @@ STDOUT
         stub_request(:post, %r{apps/myapp/addons/my_addon$}).
           with(:body => {:config => {:foo => 'bar', :extra => "XXX"}}).
           to_return(:body => Heroku::OkJson.encode({ 'price' => 'free' }))
+        Excon.stub(
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/releases/current}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :status => 200,
+          }
+        )
         stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -108,6 +119,7 @@ Warning: non-unix style params have been deprecated, use --extra=XXX instead
 Adding my_addon on myapp... done, v99 (free)
 Use `heroku addons:docs my_addon` to view documentation.
 STDOUT
+        Excon.stubs.shift
       end
     end
 
@@ -192,7 +204,24 @@ STDOUT
     end
 
     describe 'adding' do
-      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+      before do
+        @addons.stub!(:args).and_return(%w(my_addon))
+        Excon.stub(
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/releases/current}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :status => 200,
+          }
+        )
+      end
+      after do
+        Excon.stubs.shift
+      end
+
 
       it "requires an addon name" do
         @addons.stub!(:args).and_return([])
@@ -242,7 +271,23 @@ OUTPUT
     end
 
     describe 'upgrading' do
-      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+      before do
+        @addons.stub!(:args).and_return(%w(my_addon))
+        Excon.stub(
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/releases/current}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :status => 200,
+          }
+        )
+      end
+      after do
+        Excon.stubs.shift
+      end
 
       it "requires an addon name" do
         @addons.stub!(:args).and_return([])
@@ -284,7 +329,23 @@ OUTPUT
     end
 
     describe 'downgrading' do
-      before { @addons.stub!(:args).and_return(%w(my_addon)) }
+      before do
+        @addons.stub!(:args).and_return(%w(my_addon))
+        Excon.stub(
+          {
+            :expects => 200,
+            :method => :get,
+            :path => %r{^/apps/myapp/releases/current}
+          },
+          {
+            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :status => 200,
+          }
+        )
+      end
+      after do
+        Excon.stubs.shift
+      end
 
       it "requires an addon name" do
         @addons.stub!(:args).and_return([])

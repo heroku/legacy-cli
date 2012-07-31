@@ -39,6 +39,7 @@ class Heroku::Command::Releases < Heroku::Command::Base
   # releases:info RELEASE
   #
   # view detailed information for a release
+  # find latest release details by passing 'current' as the release
   #
   # -s, --shell  # output config vars in shell format
   #
