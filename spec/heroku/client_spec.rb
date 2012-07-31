@@ -355,12 +355,16 @@ describe Heroku::Client do
 
     it "maintenance(app_name, :on) -> sets maintenance mode for an app" do
       stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=1")
-      @client.maintenance('myapp', :on)
+      capture_stderr do # capture deprecation message
+        @client.maintenance('myapp', :on)
+      end
     end
 
     it "maintenance(app_name, :off) -> turns off maintenance mode for an app" do
       stub_api_request(:post, "/apps/myapp/server/maintenance").with(:body => "maintenance_mode=0")
-      @client.maintenance('myapp', :off)
+      capture_stderr do # capture deprecation message
+        @client.maintenance('myapp', :off)
+      end
     end
   end
 

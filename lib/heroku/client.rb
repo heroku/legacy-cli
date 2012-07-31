@@ -116,6 +116,12 @@ class Heroku::Client
     delete("/apps/#{name}").to_s
   end
 
+  def maintenance(app_name, mode)
+    deprecate # 07/31/2012
+    mode = mode == :on ? '1' : '0'
+    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
+  end
+
   def config_vars(app_name)
     deprecate # 07/27/2012
     json_decode get("/apps/#{app_name}/config_vars", :accept => :json).to_s
@@ -502,11 +508,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   def database_reset(app_name)
     post("/apps/#{app_name}/database/reset", '').to_s
-  end
-
-  def maintenance(app_name, mode)
-    mode = mode == :on ? '1' : '0'
-    post("/apps/#{app_name}/server/maintenance", :maintenance_mode => mode).to_s
   end
 
   def httpcache_purge(app_name)
