@@ -278,6 +278,21 @@ class Heroku::Client
     post("/apps/#{app}/ps/stop", opts)
   end
 
+  def releases(app)
+    deprecate # 07/31/2012
+    json_decode get("/apps/#{app}/releases", :accept => :json).to_s
+  end
+
+  def release(app, release)
+    deprecate # 07/31/2012
+    json_decode get("/apps/#{app}/releases/#{release}", :accept => :json).to_s
+  end
+
+  def rollback(app, release=nil)
+    deprecate # 07/31/2012
+    post("/apps/#{app}/releases", :rollback => release)
+  end
+
   # :nocov:
 
   def add_ssl(app_name, pem, key)
@@ -537,18 +552,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   def httpcache_purge(app_name)
     delete("/apps/#{app_name}/httpcache").to_s
-  end
-
-  def releases(app)
-    json_decode get("/apps/#{app}/releases", :accept => :json).to_s
-  end
-
-  def release(app, release)
-    json_decode get("/apps/#{app}/releases/#{release}", :accept => :json).to_s
-  end
-
-  def rollback(app, release=nil)
-    post("/apps/#{app}/releases", :rollback => release)
   end
 
   def confirm_billing
