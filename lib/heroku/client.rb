@@ -319,6 +319,23 @@ class Heroku::Client
     json_decode delete("/features/#{name}?app=#{app}", :accept => :json).to_s
   end
 
+  # Get a list of stacks available to the app, with the current one marked.
+  def list_stacks(app_name, options={})
+    deprecate # 07/31/2012
+    include_deprecated = options.delete(:include_deprecated) || false
+
+    json_decode get("/apps/#{app_name}/stack",
+      :params => { :include_deprecated => include_deprecated },
+      :accept => 'application/json'
+    ).to_s
+  end
+
+  # Request a stack migration.
+  def migrate_to_stack(app_name, stack)
+    deprecate # 07/31/2012
+    put("/apps/#{app_name}/stack", stack, :accept => 'text/plain').to_s
+  end
+
   # :nocov:
 
   def add_ssl(app_name, pem, key)
@@ -331,21 +348,6 @@ class Heroku::Client
 
   def clear_ssl(app_name)
     delete("/apps/#{app_name}/ssl")
-  end
-
-  # Get a list of stacks available to the app, with the current one marked.
-  def list_stacks(app_name, options={})
-    include_deprecated = options.delete(:include_deprecated) || false
-
-    json_decode get("/apps/#{app_name}/stack",
-      :params => { :include_deprecated => include_deprecated },
-      :accept => 'application/json'
-    ).to_s
-  end
-
-  # Request a stack migration.
-  def migrate_to_stack(app_name, stack)
-    put("/apps/#{app_name}/stack", stack, :accept => 'text/plain').to_s
   end
 
   class AppCrashed < RuntimeError; end
