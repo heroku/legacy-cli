@@ -163,11 +163,6 @@ describe Heroku::Client do
     @client.logs('myapp').should == 'log'
   end
 
-  it "cron_logs(app_name) -> returns recent output of the app logs" do
-    stub_api_request(:get, "/apps/myapp/cron_logs").to_return(:body => "cron log")
-    @client.cron_logs('myapp').should == 'cron log'
-  end
-
   it "can get the number of dynos" do
     stub_api_request(:get, "/apps/myapp").to_return(:body => <<-EOXML)
       <?xml version='1.0' encoding='UTF-8'?>
