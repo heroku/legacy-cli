@@ -31,11 +31,6 @@ class Heroku::Client
 
   attr_accessor :host, :user, :password
 
-  def self.auth(user, password, host=Heroku::Auth.host)
-    client = new(user, password, host)
-    json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
-  end
-
   def initialize(user, password, host=Heroku::Auth.host)
     require 'rest_client'
     @user = user
@@ -45,12 +40,22 @@ class Heroku::Client
 
   # :nocov:
 
-  def deprecate
+  def self.deprecate
     method = caller.first.split('`').last[0...-1]
     source = caller[1].split(' ').first[0...-3]
     $stderr.puts(" !    DEPRECATED: Heroku::Client##{method} is deprecated, please use the heroku-api gem.")
     $stderr.puts(" !    DEPRECATED: More information available at https://github.com/heroku/heroku.rb")
     $stderr.puts(" !    DEPRECATED: Deprecated method called from #{source}.")
+  end
+
+  def deprecate
+    self.class.deprecate
+  end
+
+  def self.auth(user, password, host=Heroku::Auth.host)
+    deprecate # 08/01/2012
+    client = new(user, password, host)
+    json_decode client.post('/login', { :username => user, :password => password }, :accept => 'json').to_s
   end
 
   # Show a list of apps which you are a collaborator on.

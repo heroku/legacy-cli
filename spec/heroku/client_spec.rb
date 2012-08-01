@@ -15,7 +15,9 @@ describe Heroku::Client do
   it "Client.auth -> get user details" do
     user_info = { "api_key" => "abc" }
     stub_request(:post, "https://foo:bar@api.heroku.com/login").to_return(:body => json_encode(user_info))
-    Heroku::Client.auth("foo", "bar").should == user_info
+    capture_stderr do # capture deprecation message
+      Heroku::Client.auth("foo", "bar").should == user_info
+    end
   end
 
   it "list -> get a list of this user's apps" do
