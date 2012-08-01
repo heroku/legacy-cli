@@ -40,8 +40,10 @@ module Heroku::Command
       it "warns about no SSL endpoints if the app has no certs" do
         stub_core.ssl_endpoint_list("myapp").returns([])
         stderr, stdout = execute("certs")
-        stdout.should include "myapp has no SSL endpoints."
-        stdout.should include "Use `heroku certs:add PEM KEY` to create one."
+        stdout.should == <<-STDOUT
+myapp has no SSL endpoints.
+Use `heroku certs:add PEM KEY` to add one.
+        STDOUT
       end
     end
 
@@ -78,7 +80,9 @@ module Heroku::Command
         stub_core.ssl_endpoint_list("myapp").returns([])
 
         stderr, stdout = execute("certs:info")
-        stderr.should include "!    No SSL endpoints exist for myapp"
+        stderr.should == <<-STDERR
+ !    myapp has no SSL endpoints.
+        STDERR
       end
     end
 
@@ -97,7 +101,9 @@ module Heroku::Command
         stub_core.ssl_endpoint_list("myapp").returns([])
 
         stderr, stdout = execute("certs:remove")
-        stderr.should include "!    No SSL endpoints exist for myapp"
+        stderr.should == <<-STDERR
+ !    myapp has no SSL endpoints.
+        STDERR
       end
     end
 
@@ -121,7 +127,9 @@ module Heroku::Command
         stub_core.ssl_endpoint_list("myapp").returns([])
 
         stderr, stdout = execute("certs:update pem_file key_file")
-        stderr.should include "!    No SSL endpoints exist for myapp"
+        stderr.should == <<-STDERR
+ !    myapp has no SSL endpoints.
+        STDERR
       end
     end
 
@@ -140,7 +148,9 @@ module Heroku::Command
         stub_core.ssl_endpoint_list("myapp").returns([])
 
         stderr, stdout = execute("certs:rollback")
-        stderr.should include "!    No SSL endpoints exist for myapp"
+        stderr.should == <<-STDERR
+ !    myapp has no SSL endpoints.
+        STDERR
       end
     end
   end

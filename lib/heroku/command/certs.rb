@@ -13,7 +13,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
     if endpoints.empty?
       display "#{app} has no SSL endpoints."
-      display "Use `heroku certs:add PEM KEY` to create one."
+      display "Use `heroku certs:add PEM KEY` to add one."
     else
       endpoints.map!{ |e| format_endpoint(e) }
       display_table endpoints, %w( cname domains expires_at ca_signed? ), 
@@ -27,13 +27,11 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def add
     fail("Usage: heroku certs:add PEM KEY\nMust specify PEM and KEY to add cert.") if args.size < 2
-    pem = File.read(args[0]) rescue error("Unable to read PEM")
-    key = File.read(args[1]) rescue error("Unable to read KEY")
-    app = self.app
+    pem = File.read(args[0]) rescue error("Unable to read #{args[0]} PEM")
+    key = File.read(args[1]) rescue error("Unable to read #{args[1]} KEY")
 
-    endpoint = nil
-    action("Adding SSL endpoint to #{app}") do
-      endpoint = heroku.ssl_endpoint_add(app, pem, key)
+    endpoint = action("Adding SSL endpoint to #{app}") do
+      heroku.ssl_endpoint_add(app, pem, key)
     end
 
     display_warnings(endpoint)
@@ -48,9 +46,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def info
     cname = options[:endpoint] || current_endpoint
-    endpoint = nil
-    action("Fetching information on SSL endpoint #{cname}") do
-      endpoint = heroku.ssl_endpoint_info(app, cname)
+    endpoint = action("Fetching information on SSL endpoint #{cname}") do
+      heroku.ssl_endpoint_info(app, cname)
     end
 
     display "Certificate details:"
@@ -76,14 +73,13 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def update
     fail("Usage: heroku certs:update PEM KEY\nMust specify PEM and KEY to update cert.") if args.size < 2
-    pem = File.read(args[0]) rescue error("Unable to read PEM")
-    key = File.read(args[1]) rescue error("Unable to read KEY")
+    pem = File.read(args[0]) rescue error("Unable to read #{args[0]} PEM")
+    key = File.read(args[1]) rescue error("Unable to read #{args[1]} KEY")
     app = self.app
     cname = options[:endpoint] || current_endpoint
 
-    endpoint = nil
-    action("Updating SSL endpoint #{cname} for #{app}") do
-      endpoint = heroku.ssl_endpoint_update(app, cname, pem, key)
+    endpoint = action("Updating SSL endpoint #{cname} for #{app}") do
+      heroku.ssl_endpoint_update(app, cname, pem, key)
     end
 
     display_warnings(endpoint)
@@ -98,9 +94,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def rollback
     cname = options[:endpoint] || current_endpoint
 
-    endpoint = nil
-    action("Rolling back SSL endpoint #{cname} on #{app}") do
-      endpoint = heroku.ssl_endpoint_rollback(app, cname)
+    endpoint = action("Rolling back SSL endpoint #{cname} on #{app}") do
+      heroku.ssl_endpoint_rollback(app, cname)
     end
 
     display "New active certificate details:"
@@ -110,7 +105,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   private
 
   def current_endpoint
-    endpoint = heroku.ssl_endpoint_list(app).first || error("No SSL endpoints exist for #{app}")
+    endpoint = heroku.ssl_endpoint_list(app).first || error("#{app} has no SSL endpoints.")
     endpoint["cname"]
   end
 
