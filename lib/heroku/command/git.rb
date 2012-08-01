@@ -27,7 +27,7 @@ class Heroku::Command::Git < Heroku::Command::Base
 
     display git("clone #{app_data['git_url']} #{git_options}")
 
-    unless options[:no_remote].is_a?(FalseClass)
+    unless $?.exitstatus > 0 || options[:no_remote].is_a?(FalseClass)
       FileUtils.chdir(app_data['name']) do
         create_git_remote(remote, app_data['git_url'])
       end
