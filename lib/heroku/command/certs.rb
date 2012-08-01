@@ -3,6 +3,7 @@ require "heroku/command/base"
 # manage ssl endpoints for an app
 #
 class Heroku::Command::Certs < Heroku::Command::Base
+
   # certs
   #
   # list SSL endpoints for an app
@@ -11,8 +12,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
     endpoints = heroku.ssl_endpoint_list(app)
 
     if endpoints.empty?
-      display "No SSL endpoints setup."
-      display "Use 'heroku certs:add <pemfile> <keyfile>' to create a SSL endpoint."
+      display "#{app} has no SSL endpoints."
+      display "Use `heroku certs:add PEM KEY` to create one."
     else
       endpoints.map!{ |e| format_endpoint(e) }
       display_table endpoints, %w( cname domains expires_at ca_signed? ), 
@@ -25,7 +26,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   # add an SSL endpoint to an app
   #
   def add
-    fail("Usage: heroku certs:add PEM KEY") if args.size < 2
+    fail("Usage: heroku certs:add PEM KEY\nMust specify PEM and KEY to add cert.") if args.size < 2
     pem = File.read(args[0]) rescue error("Unable to read PEM")
     key = File.read(args[1]) rescue error("Unable to read KEY")
     app = self.app
@@ -74,7 +75,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   # update an SSL endpoint on an app
   #
   def update
-    fail("Usage: heroku certs:update PEM KEY") if args.size < 2
+    fail("Usage: heroku certs:update PEM KEY\nMust specify PEM and KEY to update cert.") if args.size < 2
     pem = File.read(args[0]) rescue error("Unable to read PEM")
     key = File.read(args[1]) rescue error("Unable to read KEY")
     app = self.app
