@@ -264,9 +264,7 @@ describe Heroku::Client do
           <domain-name><domain>example2.com</domain></domain-name>
         </domain-names>
       EOXML
-      capture_stderr do # capture deprecation message
-        @client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
-      end
+      @client.list_domains('myapp').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
     end
 
     it "add_domain(app_name, domain) -> adds domain name to app" do

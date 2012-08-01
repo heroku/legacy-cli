@@ -163,22 +163,6 @@ class Heroku::Client
     delete("/apps/#{app_name}/collaborators/#{escape(email)}").to_s
   end
 
-  def list_domains(app_name)
-    deprecate # 07/31/2012
-    doc = xml(get("/apps/#{app_name}/domains").to_s)
-    doc.elements.to_a("//domain-names/*").map do |d|
-      attrs = { :domain => d.elements['domain'].text }
-      if cert = d.elements['cert']
-        attrs[:cert] = {
-          :expires_at => Time.parse(cert.elements['expires-at'].text),
-          :subject    => cert.elements['subject'].text,
-          :issuer     => cert.elements['issuer'].text,
-        }
-      end
-      attrs
-    end
-  end
-
   def add_domain(app_name, domain)
     deprecate # 07/31/2012
     post("/apps/#{app_name}/domains", domain).to_s
@@ -337,6 +321,21 @@ class Heroku::Client
   end
 
   # :nocov:
+
+  def list_domains(app_name)
+    doc = xml(get("/apps/#{app_name}/domains").to_s)
+    doc.elements.to_a("//domain-names/*").map do |d|
+      attrs = { :domain => d.elements['domain'].text }
+      if cert = d.elements['cert']
+        attrs[:cert] = {
+          :expires_at => Time.parse(cert.elements['expires-at'].text),
+          :subject    => cert.elements['subject'].text,
+          :issuer     => cert.elements['issuer'].text,
+        }
+      end
+      attrs
+    end
+  end
 
   def add_ssl(app_name, pem, key)
     json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
