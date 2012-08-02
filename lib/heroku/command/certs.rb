@@ -15,9 +15,19 @@ class Heroku::Command::Certs < Heroku::Command::Base
       display "#{app} has no SSL endpoints."
       display "Use `heroku certs:add PEM KEY` to add one."
     else
-      endpoints.map!{ |e| format_endpoint(e) }
-      display_table endpoints, %w( cname domains expires_at ca_signed? ), 
+      endpoints.map! do |endpoint|
+        {
+          'cname'       => endpoint['cname'],
+          'domains'     => endpoint['ssl_cert']['cert_domains'].join(', '),
+          'expires_at'  => format_date(endpoint['ssl_cert']['expires_at']),
+          'ca_signed?'  => endpoint['ssl_cert']['ca_signed?'].to_s.capitalize
+        }
+      end
+      display_table(
+        endpoints,
+        %w( cname domains expires_at ca_signed? ),
         [ "Endpoint", "Common Name(s)", "Expires", "Trusted" ]
+      )
     end
   end
 
@@ -46,7 +56,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   def info
     cname = options[:endpoint] || current_endpoint
-    endpoint = action("Fetching information on SSL endpoint #{cname}") do
+    endpoint = action("Fetching SSL endpoint #{cname} info for #{app}") do
       heroku.ssl_endpoint_info(app, cname)
     end
 
@@ -89,12 +99,12 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:rollback
   #
-  # rollback an SSL endpoint on an app
+  # rollback an SSL endpoint for an app
   #
   def rollback
     cname = options[:endpoint] || current_endpoint
 
-    endpoint = action("Rolling back SSL endpoint #{cname} on #{app}") do
+    endpoint = action("Rolling back SSL endpoint #{cname} for #{app}") do
       heroku.ssl_endpoint_rollback(app, cname)
     end
 
@@ -109,27 +119,22 @@ class Heroku::Command::Certs < Heroku::Command::Base
     endpoint["cname"]
   end
 
-  def display(msg="", new_line=true)
-    @num_spaces ||= 0
-    spacing = " " * @num_spaces
-    super(spacing + msg, new_line)
-  end
-
   def display_certificate_info(endpoint)
-    endpoint = format_endpoint(endpoint)
-    indent(4) do
-      display "subject: %s"        % endpoint['subject']
-      display "start date: %s"     % endpoint['starts_at']
-      display "expire date: %s"    % endpoint['expires_at']
-      display "common name(s): %s" % endpoint['domains']
-      display "issuer: %s"         % endpoint['issuer']
-      if endpoint["ssl_cert"]["ca_signed?"]
-        display "SSL certificate is verified by a root authority."
-      elsif endpoint["issuer"] == endpoint["subject"]
-        display "SSL certificate is self signed."
-      else
-        display "SSL certificate is not trusted."
-      end
+    data = {
+      'Common Name(s)'  => endpoint['ssl_cert']['cert_domains'],
+      'Expires At'      => format_date(endpoint['ssl_cert']['expires_at']),
+      'Issuer'          => endpoint['ssl_cert']['issuer'],
+      'Starts At'       => format_date(endpoint['ssl_cert']['starts_at']),
+      'Subject'         => endpoint['ssl_cert']['subject']
+    }
+    styled_hash(data)
+
+    if endpoint["ssl_cert"]["ca_signed?"]
+      display "SSL certificate is verified by a root authority."
+    elsif endpoint["issuer"] == endpoint["subject"]
+      display "SSL certificate is self signed."
+    else
+      display "SSL certificate is not trusted."
     end
   end
 
@@ -141,20 +146,4 @@ class Heroku::Command::Certs < Heroku::Command::Base
     end
   end
 
-  def format_endpoint(endpoint)
-    endpoint["ca_signed?"] = endpoint["ssl_cert"]["ca_signed?"].to_s.capitalize
-    endpoint["domains"]    = endpoint["ssl_cert"]["cert_domains"].join(", ")
-    endpoint["expires_at"] = format_date(endpoint["ssl_cert"]["expires_at"])
-    endpoint["issuer"]     = endpoint["ssl_cert"]["issuer"]
-    endpoint["starts_at"]  = format_date(endpoint["ssl_cert"]["starts_at"])
-    endpoint["subject"]    = endpoint["ssl_cert"]["subject"]
-    endpoint
-  end
-
-  def indent(spaces)
-    @num_spaces ||= 0
-    @num_spaces += spaces
-    yield
-    @num_spaces -= spaces
-  end
 end
