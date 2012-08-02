@@ -242,7 +242,7 @@ module Heroku::Command
         begin
           release = api.get_release(app, 'current').body
           release = release['name']
-        rescue RestClient::RequestFailed => e
+        rescue Heroku::API::Errors::Error
           release = nil
         end
       end
