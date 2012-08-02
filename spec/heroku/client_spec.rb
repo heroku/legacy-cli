@@ -103,7 +103,9 @@ describe Heroku::Client do
   it "rake(app_name, cmd) -> run a rake command on the app" do
     stub_api_request(:post, "/apps/myapp/services").with(:body => "rake db:migrate").to_return(:body => "foo")
     stub_api_request(:get,  "/foo").to_return(:body => "output")
-    @client.rake('myapp', 'db:migrate')
+    capture_stderr do # capture deprecation message
+      @client.rake('myapp', 'db:migrate')
+    end
   end
 
   it "console(app_name, cmd) -> run a console command on the app" do
@@ -205,7 +207,9 @@ describe Heroku::Client do
     e.stub!(:http_code).and_return(502)
     e.stub!(:http_body).and_return('the crashlog')
     @client.should_receive(:post).and_raise(e)
-    lambda { @client.rake('myapp', '') }.should raise_error(Heroku::Client::AppCrashed)
+    capture_stderr do # capture deprecation message
+      lambda { @client.rake('myapp', '') }.should raise_error(Heroku::Client::AppCrashed)
+    end
   end
 
   it "rake passes other status codes (i.e., 500) as standard restclient exceptions" do
@@ -213,7 +217,9 @@ describe Heroku::Client do
     e.stub!(:http_code).and_return(500)
     e.stub!(:http_body).and_return('not a crashlog')
     @client.should_receive(:post).and_raise(e)
-    lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
+    capture_stderr do # capture deprecation message
+      lambda { @client.rake('myapp', '') }.should raise_error(RestClient::RequestFailed)
+    end
   end
 
   describe "ps_scale" do

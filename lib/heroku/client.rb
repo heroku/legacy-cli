@@ -341,73 +341,10 @@ class Heroku::Client
     put("/apps/#{app_name}/stack", stack, :accept => 'text/plain').to_s
   end
 
-  # :nocov:
-
-  def add_ssl(app_name, pem, key)
-    json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
-  end
-
-  def remove_ssl(app_name, domain)
-    delete("/apps/#{app_name}/domains/#{domain}/ssl").to_s
-  end
-
-  def clear_ssl(app_name)
-    delete("/apps/#{app_name}/ssl")
-  end
-
-  class AppCrashed < RuntimeError; end
-
-  # Run a rake command on the Heroku app and return all output as
-  # a string.
+  # Run a rake command on the Heroku app and return output as a string
   def rake(app_name, cmd)
+    # deprecated by virtue of start deprecation 08/02/2012
     start(app_name, "rake #{cmd}", :attached).to_s
-  end
-
-  # support for console sessions
-  class ConsoleSession
-    def initialize(id, app, client)
-      require 'rest_client'
-      @id = id; @app = app; @client = client
-    end
-    def run(cmd)
-      @client.run_console_command("/apps/#{@app}/consoles/#{@id}/command", cmd, "=> ")
-    end
-  end
-
-  # Execute a one-off console command, or start a new console tty session if
-  # cmd is nil.
-  def console(app_name, cmd=nil)
-    if block_given?
-      id = post("/apps/#{app_name}/consoles").to_s
-      yield ConsoleSession.new(id, app_name, self)
-      delete("/apps/#{app_name}/consoles/#{id}").to_s
-    else
-      run_console_command("/apps/#{app_name}/console", cmd)
-    end
-  rescue RestClient::BadGateway => e
-    raise(AppCrashed, <<-ERROR)
-Unable to attach to a dyno to open a console session.
-Your application may have crashed.
-Check the output of "heroku ps" and "heroku logs" for more information.
-    ERROR
-  end
-
-  # internal method to run console commands formatting the output
-  def run_console_command(url, command, prefix=nil)
-    output = post(url, { :command => command }, :accept => "text/plain").to_s
-    return output unless prefix
-    if output.include?("\n")
-      lines  = output.split("\n")
-      (lines[0..-2] << "#{prefix}#{lines.last}").join("\n")
-    else
-      prefix + output
-    end
-  rescue RestClient::RequestFailed => e
-    if e.http_code == 422
-      Heroku::Command.extract_error(e.http_body, :raw => true)
-    else
-      raise e
-    end
   end
 
   class Service
@@ -478,8 +415,72 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
   # Run a service. If Responds to #each and yields output as it's received.
   def start(app_name, command, attached=false)
+    deprecate # 08/02/2012
     service = Service.new(self, app_name)
     service.start(command, attached)
+  end
+
+  # :nocov:
+
+  def add_ssl(app_name, pem, key)
+    json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
+  end
+
+  def remove_ssl(app_name, domain)
+    delete("/apps/#{app_name}/domains/#{domain}/ssl").to_s
+  end
+
+  def clear_ssl(app_name)
+    delete("/apps/#{app_name}/ssl")
+  end
+
+  class AppCrashed < RuntimeError; end
+
+  # support for console sessions
+  class ConsoleSession
+    def initialize(id, app, client)
+      require 'rest_client'
+      @id = id; @app = app; @client = client
+    end
+    def run(cmd)
+      @client.run_console_command("/apps/#{@app}/consoles/#{@id}/command", cmd, "=> ")
+    end
+  end
+
+  # Execute a one-off console command, or start a new console tty session if
+  # cmd is nil.
+  def console(app_name, cmd=nil)
+    if block_given?
+      id = post("/apps/#{app_name}/consoles").to_s
+      yield ConsoleSession.new(id, app_name, self)
+      delete("/apps/#{app_name}/consoles/#{id}").to_s
+    else
+      run_console_command("/apps/#{app_name}/console", cmd)
+    end
+  rescue RestClient::BadGateway => e
+    raise(AppCrashed, <<-ERROR)
+Unable to attach to a dyno to open a console session.
+Your application may have crashed.
+Check the output of "heroku ps" and "heroku logs" for more information.
+    ERROR
+  end
+
+  # internal method to run console commands formatting the output
+  def run_console_command(url, command, prefix=nil)
+    output = post(url, { :command => command }, :accept => "text/plain").to_s
+    return output unless prefix
+    if output.include?("\n")
+      lines  = output.split("\n")
+      (lines[0..-2] << "#{prefix}#{lines.last}").join("\n")
+    else
+      prefix + output
+    end
+  rescue RestClient::RequestFailed => e
+    if e.http_code == 422
+      Heroku::Command.extract_error(e.http_body, :raw => true)
+    else
+      raise e
+    end
   end
 
   def read_logs(app_name, options=[])
