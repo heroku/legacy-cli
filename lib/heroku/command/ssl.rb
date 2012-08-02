@@ -11,11 +11,11 @@ module Heroku::Command
     # list certificates for an app
     #
     def index
-      heroku.list_domains(app).each do |d|
-        if cert = d[:cert]
-          display "#{d[:domain]} has a SSL certificate registered to #{cert[:subject]} which expires on #{cert[:expires_at].strftime("%b %d, %Y")}"
+      api.get_domains(app).body.each do |domain|
+        if cert = domain['cert']
+          display "#{domain['domain']} has a SSL certificate registered to #{cert['subject']} which expires on #{format_date(cert['expires_at'])}"
         else
-          display "#{d[:domain]} has no certificate"
+          display "#{domain['domain']} has no certificate"
         end
       end
     end
