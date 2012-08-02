@@ -1,3 +1,45 @@
+2.30.2 08/02/2012
+=================
+
+standardize/consolidate confirm_billing handling
+use heroku.rb to poll app creation status
+deprecate client's app methods in favor of heroku-api
+deprecate client's config methods in favor of heroku-api
+more consistent usage error for pgbackups:destroy
+more consistent usage errors for keys
+more consistent usage errors for sharing
+simplify sharing as collaborator list always includes at least owner
+more consistent styling/usage for labs, add labs:list
+remove logs:cron (has been deprecated for a very long time)
+don't display 'Additional Commands' if all additional are deprecated
+fix double period in some styled error messages
+remove erroneous chdir in git:remote
+don't assume launchy return value responds to join (doesn't on windows)
+update labs:enable example to include docs hint
+more consistent usage errors for labs
+more consistent addons messaging
+remove deprecated logs:drains from coverage consideration
+deprecate client's collaborator methods in favor of heroku-api
+deprecate client's domain methods in favor of heroku-api
+deprecate client's keys methods in favor of heroku-api
+remove long deprecated cron_logs from client and specs
+deprecate client's maintenance methods in favor of heroku-api
+deprecate client's dynos/workers/ps methods in favor of heroku-api
+deprecate client's release methods in favor of heroku-api
+deprecate client's logs methods in favor of heroku-api
+deprecate client's features methods in favor of heroku-api
+deprecate client's stacks methods in favor of heroku-api
+remove deprecated client#release usage from addons
+remove deprecated client#key usage from auth
+bump heroku-api dep
+avoid creating remote in git:clone if clone fails
+deprecate client#auth in favor of heroku-api
+more consistent usage errors and empty list for certs
+better errors and messaging for certs
+use heroku-api to retrieve release in addons_run
+fix ssl command by using heroku.rb/json responses
+deprecate client's rake/start methods in favor of rendezvous
+
 2.30.1 07/25/2012
 =================
 
