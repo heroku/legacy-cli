@@ -74,7 +74,7 @@ module Heroku
 
     def format_date(date)
       date = Time.parse(date) if date.is_a?(String)
-      date.strftime("%Y-%m-%d %H:%M %Z")
+      date.strftime("%Y-%m-%d %H:%M %Z").gsub('GMT', 'UTC')
     end
 
     def ask

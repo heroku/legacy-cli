@@ -3,25 +3,36 @@ require "heroku/command/certs"
 
 module Heroku::Command
   describe Certs do
+    let(:certificate_details) {
+      <<-CERTIFICATE_DETAILS.chomp
+Common Name(s): example.org
+Expires At:     2013-08-01 21:34 UTC
+Issuer:         /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org
+Starts At:      2012-08-01 21:34 UTC
+Subject:        /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org
+SSL certificate is self signed.
+      CERTIFICATE_DETAILS
+    }
+
     let(:endpoint) {
-      { 'cname'          => 'tokyo-1050',
+      { 'cname'          => 'tokyo-1050.herokussl.com',
         'ssl_cert' => {
           'ca_signed?'   => false,
           'cert_domains' => [ 'example.org' ],
-          'starts_at'    => Time.now.to_s,
-          'expires_at'   => (Time.now + 365 * 24 * 3600).to_s,
+          'starts_at'    => "2012-08-01 21:34:23 UTC",
+          'expires_at'   => "2013-08-01 21:34:23 UTC",
           'issuer'       => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
           'subject'      => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
         }
       }
     }
     let(:endpoint2) {
-      { 'cname'          => 'akita-7777',
+      { 'cname'          => 'akita-7777.herokussl.com',
         'ssl_cert' => {
           'ca_signed?'   => true,
           'cert_domains' => [ 'heroku.com' ],
-          'starts_at'    => Time.now.to_s,
-          'expires_at'   => (Time.now + 365 * 24 * 3600).to_s,
+          'starts_at'    => "2012-08-01 21:34:23 UTC",
+          'expires_at'   => "2013-08-01 21:34:23 UTC",
           'issuer'       => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
           'subject'      => '/C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org',
         }
@@ -32,9 +43,12 @@ module Heroku::Command
       it "shows a list of certs" do
         stub_core.ssl_endpoint_list("myapp").returns([endpoint, endpoint2])
         stderr, stdout = execute("certs")
-        stdout.should include "Endpoint", "Common Name(s)", "Expires", "Trusted"
-        stdout.should include "tokyo-1050", "example.org", "False"
-        stdout.should include "akita-7777", "heroku.com", "True"
+        stdout.should == <<-STDOUT
+Endpoint                  Common Name(s)  Expires               Trusted
+------------------------  --------------  --------------------  -------
+tokyo-1050.herokussl.com  example.org     2013-08-01 21:34 UTC  False
+akita-7777.herokussl.com  heroku.com      2013-08-01 21:34 UTC  True
+STDOUT
       end
 
       it "warns about no SSL endpoints if the app has no certs" do
@@ -54,10 +68,12 @@ Use `heroku certs:add PEM KEY` to add one.
         stub_core.ssl_endpoint_add('myapp', 'pem content', 'key content').returns(endpoint)
 
         stderr, stdout = execute("certs:add pem_file key_file")
-        stdout.should include "Adding SSL endpoint to myapp... done"
-        stdout.should include "myapp now served by tokyo-1050"
-        stdout.should include "Certificate details:"
-        stdout.should include "subject: /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org"
+        stdout.should == <<-STDOUT
+Adding SSL endpoint to myapp... done
+myapp now served by tokyo-1050.herokussl.com
+Certificate details:
+#{certificate_details}
+        STDOUT
       end
 
       it "shows usage if two arguments are not provided" do
@@ -68,12 +84,14 @@ Use `heroku certs:add PEM KEY` to add one.
     describe "certs:info" do
       it "shows certificate details" do
         stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_info('myapp', 'tokyo-1050').returns(endpoint)
+        stub_core.ssl_endpoint_info('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:info")
-        stdout.should include "Fetching information on SSL endpoint tokyo-1050... done"
-        stdout.should include "Certificate details:"
-        stdout.should include "subject: /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org"
+        stdout.should == <<-STDOUT
+Fetching SSL endpoint tokyo-1050.herokussl.com info for myapp... done
+Certificate details:
+#{certificate_details}
+        STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
@@ -89,11 +107,11 @@ Use `heroku certs:add PEM KEY` to add one.
     describe "certs:remove" do
       it "removes an endpoint" do
         stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_remove('myapp', 'tokyo-1050').returns(endpoint)
+        stub_core.ssl_endpoint_remove('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:remove")
-        stdout.should include "Removing SSL endpoint tokyo-1050 from myapp..."
-        stdout.should include "De-provisioned endpoint tokyo-1050."
+        stdout.should include "Removing SSL endpoint tokyo-1050.herokussl.com from myapp..."
+        stdout.should include "De-provisioned endpoint tokyo-1050.herokussl.com."
         stdout.should include "NOTE: Billing is still active. Remove SSL endpoint add-on to stop billing."
       end
 
@@ -115,12 +133,14 @@ Use `heroku certs:add PEM KEY` to add one.
 
       it "updates an endpoint" do
         stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_update('myapp', 'tokyo-1050', 'pem content', 'key content').returns(endpoint)
+        stub_core.ssl_endpoint_update('myapp', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
 
         stderr, stdout = execute("certs:update pem_file key_file")
-        stdout.should include "Updating SSL endpoint tokyo-1050 for myapp... done"
-        stdout.should include "Updated certificate details:"
-        stdout.should include "subject: /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org"
+        stdout.should == <<-STDOUT
+Updating SSL endpoint tokyo-1050.herokussl.com for myapp... done
+Updated certificate details:
+#{certificate_details}
+        STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
@@ -136,12 +156,14 @@ Use `heroku certs:add PEM KEY` to add one.
     describe "certs:rollback" do
       it "performs a rollback on an endpoint" do
         stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_rollback('myapp', 'tokyo-1050').returns(endpoint)
+        stub_core.ssl_endpoint_rollback('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:rollback")
-        stdout.should include "Rolling back SSL endpoint tokyo-1050 on myapp... done"
-        stdout.should include "New active certificate details:"
-        stdout.should include "subject: /C=US/ST=California/L=San Francisco/O=Heroku by Salesforce/CN=secure.example.org"
+        stdout.should == <<-STDOUT
+Rolling back SSL endpoint tokyo-1050.herokussl.com for myapp... done
+New active certificate details:
+#{certificate_details}
+        STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
