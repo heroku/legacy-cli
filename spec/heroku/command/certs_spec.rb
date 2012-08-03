@@ -51,11 +51,11 @@ akita-7777.herokussl.com  heroku.com      2013-08-01 21:34 UTC  True
 STDOUT
       end
 
-      it "warns about no SSL endpoints if the app has no certs" do
+      it "warns about no SSL Endpoints if the app has no certs" do
         stub_core.ssl_endpoint_list("myapp").returns([])
         stderr, stdout = execute("certs")
         stdout.should == <<-STDOUT
-myapp has no SSL endpoints.
+myapp has no SSL Endpoints.
 Use `heroku certs:add PEM KEY` to add one.
         STDOUT
       end
@@ -69,7 +69,7 @@ Use `heroku certs:add PEM KEY` to add one.
 
         stderr, stdout = execute("certs:add pem_file key_file")
         stdout.should == <<-STDOUT
-Adding SSL endpoint to myapp... done
+Adding SSL Endpoint to myapp... done
 myapp now served by tokyo-1050.herokussl.com
 Certificate details:
 #{certificate_details}
@@ -88,7 +88,7 @@ Certificate details:
 
         stderr, stdout = execute("certs:info")
         stdout.should == <<-STDOUT
-Fetching SSL endpoint tokyo-1050.herokussl.com info for myapp... done
+Fetching SSL Endpoint tokyo-1050.herokussl.com info for myapp... done
 Certificate details:
 #{certificate_details}
         STDOUT
@@ -99,7 +99,7 @@ Certificate details:
 
         stderr, stdout = execute("certs:info")
         stderr.should == <<-STDERR
- !    myapp has no SSL endpoints.
+ !    myapp has no SSL Endpoints.
         STDERR
       end
     end
@@ -110,9 +110,9 @@ Certificate details:
         stub_core.ssl_endpoint_remove('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:remove")
-        stdout.should include "Removing SSL endpoint tokyo-1050.herokussl.com from myapp..."
+        stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from myapp..."
         stdout.should include "De-provisioned endpoint tokyo-1050.herokussl.com."
-        stdout.should include "NOTE: Billing is still active. Remove SSL endpoint add-on to stop billing."
+        stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
       end
 
       it "shows an error if an app has no endpoints" do
@@ -120,7 +120,7 @@ Certificate details:
 
         stderr, stdout = execute("certs:remove")
         stderr.should == <<-STDERR
- !    myapp has no SSL endpoints.
+ !    myapp has no SSL Endpoints.
         STDERR
       end
     end
@@ -137,7 +137,7 @@ Certificate details:
 
         stderr, stdout = execute("certs:update pem_file key_file")
         stdout.should == <<-STDOUT
-Updating SSL endpoint tokyo-1050.herokussl.com for myapp... done
+Updating SSL Endpoint tokyo-1050.herokussl.com for myapp... done
 Updated certificate details:
 #{certificate_details}
         STDOUT
@@ -148,7 +148,7 @@ Updated certificate details:
 
         stderr, stdout = execute("certs:update pem_file key_file")
         stderr.should == <<-STDERR
- !    myapp has no SSL endpoints.
+ !    myapp has no SSL Endpoints.
         STDERR
       end
     end
@@ -160,7 +160,7 @@ Updated certificate details:
 
         stderr, stdout = execute("certs:rollback")
         stdout.should == <<-STDOUT
-Rolling back SSL endpoint tokyo-1050.herokussl.com for myapp... done
+Rolling back SSL Endpoint tokyo-1050.herokussl.com for myapp... done
 New active certificate details:
 #{certificate_details}
         STDOUT
@@ -171,7 +171,7 @@ New active certificate details:
 
         stderr, stdout = execute("certs:rollback")
         stderr.should == <<-STDERR
- !    myapp has no SSL endpoints.
+ !    myapp has no SSL Endpoints.
         STDERR
       end
     end
