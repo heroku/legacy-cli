@@ -220,9 +220,9 @@ module Heroku
     end
 
 
-    def nulltok(s);  s[0,4] == 'null'  && [:val, 'null',  nil]   end
-    def truetok(s);  s[0,4] == 'true'  && [:val, 'true',  true]  end
-    def falsetok(s); s[0,5] == 'false' && [:val, 'false', false] end
+    def nulltok(s);  s[0,4] == 'null'  ? [:val, 'null',  nil]   : [] end
+    def truetok(s);  s[0,4] == 'true'  ? [:val, 'true',  true]  : [] end
+    def falsetok(s); s[0,5] == 'false' ? [:val, 'false', false] : [] end
 
 
     def numtok(s)
@@ -235,6 +235,8 @@ module Heroku
         else
           [:val, m[0], Integer(m[0])]
         end
+      else
+        []
       end
     end
 
@@ -375,15 +377,6 @@ module Heroku
     end
 
 
-    def unsubst(u)
-      if u < Usurrself || u > Umax || surrogate?(u)
-        return Ucharerr, Ucharerr
-      end
-      u -= Usurrself
-      [Usurr1 + ((u>>10)&0x3ff), Usurr2 + (u&0x3ff)]
-    end
-
-
     def surrogate?(u)
       Usurr1 <= u && u < Usurr3
     end
@@ -473,43 +466,24 @@ module Heroku
         else
           c = s[r]
           case true
+          when rubydoesenc
+            begin
+              c.ord # will raise an error if c is invalid UTF-8
+              t.write(c)
+            rescue
+              t.write(Ustrerr)
+            end
           when Spc <= c && c <= ?~
             t.putc(c)
-          when rubydoesenc
-            u = c.ord
-            surrenc(t, u)
           else
-            u, size = uchardec(s, r)
-            r += size - 1 # we add one more at the bottom of the loop
-            surrenc(t, u)
+            n = ucharcopy(t, s, r) # ensure valid UTF-8 output
+            r += n - 1 # r is incremented below
           end
         end
         r += 1
       end
       t.putc(?")
       t.string
-    end
-
-
-    def surrenc(t, u)
-      if u < 0x10000
-        t.print('\\u')
-        hexenc4(t, u)
-      else
-        u1, u2 = unsubst(u)
-        t.print('\\u')
-        hexenc4(t, u1)
-        t.print('\\u')
-        hexenc4(t, u2)
-      end
-    end
-
-
-    def hexenc4(t, u)
-      t.putc(Hex[(u>>12)&0xf])
-      t.putc(Hex[(u>>8)&0xf])
-      t.putc(Hex[(u>>4)&0xf])
-      t.putc(Hex[u&0xf])
     end
 
 
@@ -521,60 +495,77 @@ module Heroku
     end
 
 
-    # Decodes unicode character u from UTF-8
-    # bytes in string s at position i.
-    # Returns u and the number of bytes read.
-    def uchardec(s, i)
+    # Copies the valid UTF-8 bytes of a single character
+    # from string s at position i to I/O object t, and
+    # returns the number of bytes copied.
+    # If no valid UTF-8 char exists at position i,
+    # ucharcopy writes Ustrerr and returns 1.
+    def ucharcopy(t, s, i)
       n = s.length - i
-      return [Ucharerr, 1] if n < 1
+      raise Utf8Error if n < 1
 
       c0 = s[i].ord
 
       # 1-byte, 7-bit sequence?
       if c0 < Utagx
-        return [c0, 1]
+        t.putc(c0)
+        return 1
       end
 
-      # unexpected continuation byte?
-      return [Ucharerr, 1] if c0 < Utag2
+      raise Utf8Error if c0 < Utag2 # unexpected continuation byte?
 
-      # need continuation byte
-      return [Ucharerr, 1] if n < 2
+      raise Utf8Error if n < 2 # need continuation byte
       c1 = s[i+1].ord
-      return [Ucharerr, 1] if c1 < Utagx || Utag2 <= c1
+      raise Utf8Error if c1 < Utagx || Utag2 <= c1
 
       # 2-byte, 11-bit sequence?
       if c0 < Utag3
-        u = (c0&Umask2)<<6 | (c1&Umaskx)
-        return [Ucharerr, 1] if u <= Uchar1max
-        return [u, 2]
+        raise Utf8Error if ((c0&Umask2)<<6 | (c1&Umaskx)) <= Uchar1max
+        t.putc(c0)
+        t.putc(c1)
+        return 2
       end
 
       # need second continuation byte
-      return [Ucharerr, 1] if n < 3
+      raise Utf8Error if n < 3
+
       c2 = s[i+2].ord
-      return [Ucharerr, 1] if c2 < Utagx || Utag2 <= c2
+      raise Utf8Error if c2 < Utagx || Utag2 <= c2
 
       # 3-byte, 16-bit sequence?
       if c0 < Utag4
         u = (c0&Umask3)<<12 | (c1&Umaskx)<<6 | (c2&Umaskx)
-        return [Ucharerr, 1] if u <= Uchar2max
-        return [u, 3]
+        raise Utf8Error if u <= Uchar2max
+        t.putc(c0)
+        t.putc(c1)
+        t.putc(c2)
+        return 3
       end
 
       # need third continuation byte
-      return [Ucharerr, 1] if n < 4
+      raise Utf8Error if n < 4
       c3 = s[i+3].ord
-      return [Ucharerr, 1] if c3 < Utagx || Utag2 <= c3
+      raise Utf8Error if c3 < Utagx || Utag2 <= c3
 
       # 4-byte, 21-bit sequence?
       if c0 < Utag5
         u = (c0&Umask4)<<18 | (c1&Umaskx)<<12 | (c2&Umaskx)<<6 | (c3&Umaskx)
-        return [Ucharerr, 1] if u <= Uchar3max
-        return [u, 4]
+        raise Utf8Error if u <= Uchar3max
+        t.putc(c0)
+        t.putc(c1)
+        t.putc(c2)
+        t.putc(c3)
+        return 4
       end
 
-      return [Ucharerr, 1]
+      raise Utf8Error
+    rescue Utf8Error
+      t.write(Ustrerr)
+      return 1
+    end
+
+
+    class Utf8Error < ::StandardError
     end
 
 
@@ -595,14 +586,13 @@ module Heroku
     Uchar2max = (1<<11) - 1
     Uchar3max = (1<<16) - 1
     Ucharerr = 0xFFFD # unicode "replacement char"
+    Ustrerr = "\xef\xbf\xbd" # unicode "replacement char"
     Usurrself = 0x10000
     Usurr1 = 0xd800
     Usurr2 = 0xdc00
     Usurr3 = 0xe000
-    Umax = 0x10ffff
 
     Spc = ' '[0]
     Unesc = {?b=>?\b, ?f=>?\f, ?n=>?\n, ?r=>?\r, ?t=>?\t}
-    Hex = '0123456789abcdef'
   end
 end
