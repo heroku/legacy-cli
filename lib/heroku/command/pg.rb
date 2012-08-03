@@ -88,7 +88,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def reset
     unless db = shift_argument
-      error("Usage: pg:reset DATABASE\nMust specify DATABASE to reset.")
+      error("Usage: heroku pg:reset DATABASE\nMust specify DATABASE to reset.")
     end
     validate_arguments!
 
