@@ -21,16 +21,10 @@ class Heroku::Command::Labs < Heroku::Command::Base
     validate_arguments!
 
     if app
-      display_features(
-        "#{app} Enabled Features",
-        { 'enabled' => true, 'kind' => 'app' }
-      )
+      display_features(app, 'enabled', { 'enabled' => true, 'kind' => 'app' })
     end
 
-    display_features(
-      "#{Heroku::Auth.user} Enabled Features",
-      { 'enabled' => true, 'kind' => 'user' }
-    )
+    display_features(Heroku::Auth.user, 'enabled', { 'enabled' => true, 'kind' => 'user' })
   end
 
   # labs:info FEATURE
@@ -124,8 +118,8 @@ class Heroku::Command::Labs < Heroku::Command::Base
   def list
     validate_arguments!
 
-    display_features('App Available Features', { 'kind' => 'app' })
-    display_features('User Available Features', { 'kind' => 'user' })
+    display_features('App', 'available', { 'kind' => 'app' })
+    display_features('User', 'available', { 'kind' => 'user' })
   end
 
 private
@@ -137,7 +131,7 @@ private
     nil
   end
 
-  def display_features(header, attributes)
+  def display_features(type, status, attributes)
     @features ||= api.get_features(app).body
 
     selected_features = @features.dup
@@ -151,9 +145,14 @@ private
     end
 
     if feature_hash.empty?
-      display("#{header.split(' ').first} has no enabled features.")
+      case status
+      when 'available'
+        display("There are no #{type} features available.")
+      when 'enabled'
+        display("#{type} has no enabled features.")
+      end
     else
-      styled_header(header)
+      styled_header("#{type} #{status.capitalize} Features")
       styled_hash(feature_hash)
       display
     end
