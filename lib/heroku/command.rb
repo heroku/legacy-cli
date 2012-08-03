@@ -1,6 +1,5 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
-require 'heroku/builtin_plugin'
 require 'heroku/version'
 require "optparse"
 
