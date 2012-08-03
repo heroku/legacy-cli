@@ -106,7 +106,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
     display("For more information see: #{feature_data['docs']}")
   end
 
-  # labs
+  # labs:list
   #
   # lists available features
   #
