@@ -147,11 +147,11 @@ protected
   def self.extract_options(help)
     help.select do |line|
       line =~ /^\s+-(.+)#(.+)/
-    end.inject({}) do |hash, line|
-      description = line.split("#", 2).last
-      long  = line.match(/--([A-Za-z\- ]+)/)[1].strip
-      short = line.match(/-([A-Za-z ])[ ,]/) && $1 && $1.strip
-      hash.update(long.split(" ").first => { :desc => description, :short => short, :long => long })
+    end.inject([]) do |options, line|
+      args = line.split('#', 2).first
+      args = args.split(/,\s*/).map {|arg| arg.strip}.sort.reverse
+      name = args.last.split(' ', 2).first[2..-1]
+      options << { :name => name, :args => args }
     end
   end
 
@@ -160,7 +160,7 @@ protected
   end
 
   def extract_option(key)
-    options[key.dup.gsub('-','').to_sym]
+    options[key.dup.gsub('-','_').to_sym]
   end
 
   def invalid_arguments

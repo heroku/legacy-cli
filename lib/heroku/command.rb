@@ -97,15 +97,16 @@ module Heroku
     end
 
     def self.global_option(name, *args, &blk)
-      global_options << { :name => name, :args => args, :proc => blk }
+      # args.sort.reverse gives -l, --long order
+      global_options << { :name => name.to_s, :args => args.sort.reverse, :proc => blk }
     end
 
-    global_option :app, "--app APP", "-a" do |app|
+    global_option :app, "-a", "--app APP" do |app|
       raise OptionParser::InvalidOption.new(app) if app == "pp"
     end
 
     global_option :confirm, "--confirm APP"
-    global_option :help,    "--help", "-h"
+    global_option :help,    "-h", "--help"
     global_option :remote,  "--remote REMOTE"
 
     def self.prepare_run(cmd, args=[])
@@ -141,15 +142,12 @@ module Heroku
         parser.on("--version") do |value|
           invalid_options << "--version"
         end
-        global_options.each do |global_option|
-          parser.on(*global_option[:args]) do |value|
-            global_option[:proc].call(value) if global_option[:proc]
-            opts[global_option[:name]] = value
-          end
-        end
-        command[:options].each do |name, option|
-          parser.on("-#{option[:short]}", "--#{option[:long]}", option[:desc]) do |value|
-            opts[name.gsub("-", "_").to_sym] = value
+        (global_options + command[:options]).each do |option|
+          parser.on(*option[:args]) do |value|
+            if option[:proc]
+              option[:proc].call(value)
+            end
+            opts[option[:name].gsub('-', '_').to_sym] = value
           end
         end
       end
