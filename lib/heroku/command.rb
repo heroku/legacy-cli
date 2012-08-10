@@ -132,6 +132,7 @@ module Heroku
       end
 
       @current_command = cmd
+      @anonymized_args = []
 
       opts = {}
       invalid_options = []
@@ -148,6 +149,8 @@ module Heroku
               option[:proc].call(value)
             end
             opts[option[:name].gsub('-', '_').to_sym] = value
+            ARGV.join(' ') =~ /(#{option[:args].map {|arg| arg.split(' ', 2).first}.join('|')})/
+            @anonymized_args << "#{$1} _"
           end
         end
       end
@@ -155,13 +158,18 @@ module Heroku
       begin
         parser.order!(args) do |nonopt|
           invalid_options << nonopt
+          @anonymized_args << '!'
         end
       rescue OptionParser::InvalidOption => ex
         invalid_options << ex.args.first
+        @anonymized_args << '!'
         retry
       end
 
       args.concat(invalid_options)
+
+      @anonymized_args = @anonymized_args.sort_by {|arg| arg.gsub('-', '')}
+      @anonymous_command = [ARGV.first, *@anonymized_args].join(' ')
 
       @current_args = args
       @current_options = opts
