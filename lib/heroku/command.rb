@@ -182,7 +182,7 @@ module Heroku
       if !@normalized_args.include?('--app _') && (implied_app = command_instance.app rescue nil)
         @normalized_args << '--app _'
       end
-      @normalized_command = [ARGV.first, @normalized_args.sort_by! {|arg| arg.gsub('-', '')}].join(' ')
+      @normalized_command = [ARGV.first, @normalized_args.sort_by {|arg| arg.gsub('-', '')}].join(' ')
 
       [ command_instance, command[:method] ]
     end
