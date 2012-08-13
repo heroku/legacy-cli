@@ -16,7 +16,6 @@ module Heroku::Command
       end
 
       it "tries to find a key if no key filename is supplied" do
-        Heroku::Auth.should_receive(:get_credentials)
         Heroku::Auth.should_receive(:ask).and_return("y")
         Heroku::Auth.should_receive(:generate_ssh_key)
         File.should_receive(:exists?).with('.git').and_return(false)

@@ -26,7 +26,7 @@ module Heroku::Command
       validate_arguments!
       keys = api.get_keys.body
       if keys.length > 0
-        styled_header("#{heroku.user} Keys")
+        styled_header("#{Heroku::Auth.user} Keys")
         keys = if options[:long]
           keys.map {|key| key["contents"].strip}
         else
