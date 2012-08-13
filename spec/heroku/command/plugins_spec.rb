@@ -27,6 +27,7 @@ STDOUT
       end
 
       it "does not install plugins that do not load" do
+        File.should_receive(:exists?).with('.git').and_return(true)
         File.should_receive(:exists?).and_return(true)
         Heroku::Plugin.should_receive(:load).and_raise("error")
         @plugin.should_receive(:uninstall).and_return(true)

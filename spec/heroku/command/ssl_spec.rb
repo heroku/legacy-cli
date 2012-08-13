@@ -5,6 +5,7 @@ module Heroku::Command
   describe Ssl do
 
     it "adds ssl certificates to domains" do
+      File.should_receive(:exists?).with('.git').and_return(false)
       File.should_receive(:exists?).with('my.crt').and_return(true)
       File.should_receive(:read).with('my.crt').and_return('crt contents')
       File.should_receive(:exists?).with('my.key').and_return(true)

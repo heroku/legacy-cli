@@ -132,7 +132,7 @@ module Heroku
       end
 
       @current_command = cmd
-      @anonymized_args = []
+      @anonymized_args, @normalized_args = [], []
 
       opts = {}
       invalid_options = []
@@ -151,6 +151,7 @@ module Heroku
             opts[option[:name].gsub('-', '_').to_sym] = value
             ARGV.join(' ') =~ /(#{option[:args].map {|arg| arg.split(' ', 2).first}.join('|')})/
             @anonymized_args << "#{$1} _"
+            @normalized_args << "#{option[:args].last.split(' ', 2).first} _"
           end
         end
       end
@@ -159,23 +160,31 @@ module Heroku
         parser.order!(args) do |nonopt|
           invalid_options << nonopt
           @anonymized_args << '!'
+          @normalized_args << '!'
         end
       rescue OptionParser::InvalidOption => ex
         invalid_options << ex.args.first
         @anonymized_args << '!'
+        @normalized_args << '!'
         retry
       end
 
       args.concat(invalid_options)
 
-      @anonymized_args = @anonymized_args.sort_by {|arg| arg.gsub('-', '')}
-      @anonymous_command = [ARGV.first, *@anonymized_args].join(' ')
-
       @current_args = args
       @current_options = opts
       @invalid_arguments = invalid_options
 
-      [ command[:klass].new(args.dup, opts.dup), command[:method] ]
+      command_instance = command[:klass].new(args.dup, opts.dup)
+
+      @anonymous_command = [ARGV.first, *@anonymized_args].join(' ')
+
+      if !@normalized_args.include?('--app _') && (implied_app = command_instance.app rescue nil)
+        @normalized_args << '--app _'
+      end
+      @normalized_command = [ARGV.first, @normalized_args.sort_by! {|arg| arg.gsub('-', '')}].join(' ')
+
+      [ command_instance, command[:method] ]
     end
 
     def self.run(cmd, arguments=[])
