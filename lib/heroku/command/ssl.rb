@@ -1,3 +1,5 @@
+# :nocov:
+
 require "heroku/command/base"
 
 module Heroku::Command
@@ -59,3 +61,5 @@ module Heroku::Command
     end
   end
 end
+
+# :nocov: #
