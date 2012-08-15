@@ -264,13 +264,13 @@ module Heroku
     # Unquote will raise an error if q contains control characters.
     def unquote(q)
       q = q[1...-1]
-      a = q.dup # allocate a big enough string
       rubydoesenc = false
       # In ruby >= 1.9, a[w] is a codepoint, not a byte.
-      if a.class.method_defined?(:force_encoding)
-        a.force_encoding('UTF-8')
+      if q.class.method_defined?(:force_encoding)
+        q.force_encoding('UTF-8')
         rubydoesenc = true
       end
+      a = q.dup # allocate a big enough string
       r, w = 0, 0
       while r < q.length
         c = q[r]
