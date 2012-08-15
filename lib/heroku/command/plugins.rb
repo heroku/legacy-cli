@@ -94,7 +94,11 @@ module Heroku::Command
       plugins.each do |plugin|
         begin
           action("Updating #{plugin}") do
-            Heroku::Plugin.new(plugin).update
+            begin
+              Heroku::Plugin.new(plugin).update
+            rescue Heroku::Plugin::ErrorUpdatingSymlinkPlugin
+              status "skipped symlink"
+            end
           end
         rescue SystemExit
           # ignore so that other plugins still update

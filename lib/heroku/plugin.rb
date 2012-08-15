@@ -5,6 +5,8 @@ module Heroku
     include Heroku::Helpers
     extend Heroku::Helpers
 
+    class ErrorUpdatingSymlinkPlugin < StandardError; end
+
     DEPRECATED_PLUGINS = %w(
       heroku-cedar
       heroku-certs
@@ -122,10 +124,7 @@ module Heroku
     def update
       ensure_plugin_exists
       if File.symlink?(path)
-        error(<<-ERROR)
-#{name} is a symlink plugin installation.
-Enable updating by reinstalling with `heroku plugins:install`.
-ERROR
+        raise Heroku::Plugin::ErrorUpdatingSymlinkPlugin
       else
         Dir.chdir(path) do
           unless git('config --get branch.master.remote').empty?
