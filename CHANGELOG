@@ -1,3 +1,24 @@
+2.30.3 08/15/2012
+=================
+
+standardize formatting for certs
+vendor latest okjson
+format_date now converts 'GMT' to 'UTC' for consistency
+standardize casing of 'SSL Endpoint' on certs output
+remove builtin_plugin, which doesn't apper ever to be used
+make pg:reset usage message more consistent
+fix docs for labs:list
+cleanup labs index/list and better errors when no features are available
+more consistent global/command option handling
+setup for anonymized and normalized commands
+fix some flaky tests
+remove nocov to better emphasize code to be removed
+bump netrc to fix parsing stuff missing username or password
+softer messaging on symlinked plugins
+encoding fix for okjson
+bump netrc to add newline as needed between entries
+bump heroku-api for excon SSLv3 and nonblock fixes
+
 2.30.2 08/02/2012
 =================
 
