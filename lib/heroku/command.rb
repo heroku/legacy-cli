@@ -119,7 +119,7 @@ module Heroku
       end
 
       unless command
-        if %w( -v --version ).include?(cmd)
+        if %w( --version ).include?(cmd)
           cmd = 'version'
           command = parse(cmd)
         else

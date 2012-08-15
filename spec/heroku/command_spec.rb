@@ -168,10 +168,7 @@ describe Heroku::Command do
 
   context "when no commands match" do
 
-    it "displays the version if -v or --version is used" do
-      heroku("-v").should == <<-STDOUT
-#{Heroku::USER_AGENT}
-STDOUT
+    it "displays the version if --version is used" do
       heroku("--version").should == <<-STDOUT
 #{Heroku::USER_AGENT}
 STDOUT
