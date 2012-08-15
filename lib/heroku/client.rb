@@ -38,8 +38,6 @@ class Heroku::Client
     @host = host
   end
 
-  # :nocov:
-
   def self.deprecate
     method = caller.first.split('`').last[0...-1]
     source = caller[1].split(' ').first[0...-3]
@@ -419,8 +417,6 @@ class Heroku::Client
     service = Service.new(self, app_name)
     service.start(command, attached)
   end
-
-  # :nocov:
 
   def add_ssl(app_name, pem, key)
     json_decode(post("/apps/#{app_name}/ssl", :pem => pem, :key => key).to_s)
