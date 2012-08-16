@@ -54,6 +54,10 @@ class Heroku::Auth
       "heroku.com"
     end
 
+    def git_host
+      ENV['HEROKU_GIT_HOST'] || host
+    end
+
     def host
       ENV['HEROKU_HOST'] || default_host
     end
