@@ -261,19 +261,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #Example:
   #
   # $ heroku apps:open
-  # Opening http://myapp.herokuapp.com
+  # Opening myapp... done
   #
   def open
     validate_arguments!
 
     app_data = api.get_app(app).body
-    url = app_data["web_url"]
-    hputs("Opening #{url}")
-    require("launchy")
-    launchy = Launchy.open(url)
-    if launchy.respond_to?(:join)
-      launchy.join
-    end
+    launchy("Opening #{app}", app_data['web_url'])
   end
 
   alias_command "open", "apps:open"

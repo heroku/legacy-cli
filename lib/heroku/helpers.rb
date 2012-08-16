@@ -327,6 +327,16 @@ module Heroku
       %w(/ - \\ |)[ticks % 4]
     end
 
+    def launchy(message, url)
+      action(message) do
+        require("launchy")
+        launchy = Launchy.open(url)
+        if launchy.respond_to?(:join)
+          launchy.join
+        end
+      end
+    end
+
     # produces a printf formatter line for an array of items
     # if an individual line item is an array, it will create columns
     # that are lined-up

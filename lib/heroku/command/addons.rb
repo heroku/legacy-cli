@@ -131,13 +131,7 @@ module Heroku::Command
         ].compact.join("\n"))
       when 1
         addon_type = type_matches.first
-        action("Opening #{addon_type} docs") do
-          require("launchy")
-          launchy = Launchy.open(addon_docs_url(addon_type))
-          if launchy.respond_to?(:join)
-            launchy.join
-          end
-        end
+        launchy("Opening #{addon_type} docs", addon_docs_url(addon_type))
       else
         error("Ambiguous addon name: #{addon}\nPerhaps you meant #{name_matches[0...-1].map {|match| "`#{match}`"}.join(', ')} or `#{name_matches.last}`.\n")
       end
@@ -170,13 +164,7 @@ module Heroku::Command
         end
       when 1 then
         addon_to_open = matches.first
-        action("Opening #{addon_to_open} for #{app}") do
-          require("launchy")
-          launchy = Launchy.open(app_addon_url(addon_to_open))
-          if launchy.respond_to?(:join)
-            launchy.join
-          end
-        end
+        launchy("Opening #{addon_to_open} for #{app}", app_addon_url(addon_to_open))
       else
         error("Ambiguous addon name: #{addon}\nPerhaps you meant #{matches[0...-1].map {|match| "`#{match}`"}.join(', ')} or `#{matches.last}`.\n")
       end
