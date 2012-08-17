@@ -2,6 +2,17 @@ require "spec_helper"
 require "heroku/command/auth"
 
 describe Heroku::Command::Auth do
+  describe "auth" do
+    it "displays heroku help auth" do
+      stderr, stdout = execute("auth")
+
+      stderr.should == ""
+      stdout.should include "Additional commands"
+      stdout.should include "auth:login"
+      stdout.should include "auth:logout"
+    end
+  end
+
   describe "auth:token" do
 
     it "displays the user's api key" do
