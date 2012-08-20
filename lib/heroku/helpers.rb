@@ -367,22 +367,19 @@ module Heroku
       display
     end
 
-    def styled_error(error, message='Heroku client internal error.')
-      if Heroku::Helpers.error_with_failure
-        display("failed")
-        Heroku::Helpers.error_with_failure = false
-      end
-      $stderr.puts(" !    #{message}")
-      $stderr.puts(" !    Search for help at: https://help.heroku.com")
-      $stderr.puts(" !    Or report a bug at: https://github.com/heroku/heroku/issues/new")
-      $stderr.puts
-      $stderr.puts("    Error:       #{error.message} (#{error.class})")
-      $stderr.puts("    Backtrace:   #{error.backtrace.first}")
+    def format_error(error, message='Heroku client internal error.')
+      formatted_error = []
+      formatted_error << " !    #{message}"
+      formatted_error << ' !    Search for help at: https://help.heroku.com'
+      formatted_error << ' !    Or report a bug at: https://github.com/heroku/heroku/issues/new'
+      formatted_error << ''
+      formatted_error << "    Error:       #{error.message} (#{error.class})"
+      formatted_error << "    Backtrace:   #{error.backtrace.first}"
       error.backtrace[1..-1].each do |line|
-        $stderr.puts("                 #{line}")
+        formatted_error << "                 #{line}"
       end
       if error.backtrace.length > 1
-        $stderr.puts
+        formatted_error << ''
       end
       command = ARGV.map do |arg|
         if arg.include?(' ')
@@ -391,28 +388,39 @@ module Heroku
           arg
         end
       end.join(' ')
-      $stderr.puts("    Command:     heroku #{command}")
+      formatted_error << "    Command:     heroku #{command}"
+      require 'heroku/auth'
       unless Heroku::Auth.host == Heroku::Auth.default_host
-        $stderr.puts("    Host:        #{Heroku::Auth.host}")
+        formatted_error << "    Host:        #{Heroku::Auth.host}"
       end
       if http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
-        $stderr.puts("    HTTP Proxy:  #{http_proxy}")
+        formatted_error << "    HTTP Proxy:  #{http_proxy}"
       end
       if https_proxy = ENV['https_proxy'] || ENV['HTTPS_PROXY']
-        $stderr.puts("    HTTPS Proxy: #{https_proxy}")
+        formatted_error << "    HTTPS Proxy: #{https_proxy}"
       end
       plugins = Heroku::Plugin.list.sort
       unless plugins.empty?
-        $stderr.puts("    Plugins:     #{plugins.first}")
+        formatted_error << "    Plugins:     #{plugins.first}"
         plugins[1..-1].each do |plugin|
-          $stderr.puts("                 #{plugin}")
+          formatted_error << "                 #{plugin}"
         end
         if plugins.length > 1
+          formatted_error << ''
           $stderr.puts
         end
       end
-      $stderr.puts("    Version:     #{Heroku::USER_AGENT}")
-      $stderr.puts
+      formatted_error << "    Version:     #{Heroku::USER_AGENT}"
+      formatted_error << "\n"
+      formatted_error.join("\n")
+    end
+
+    def styled_error(error, message='Heroku client internal error.')
+      if Heroku::Helpers.error_with_failure
+        display("failed")
+        Heroku::Helpers.error_with_failure = false
+      end
+      $stderr.puts(format_error(error, message))
     end
 
     def styled_header(header)

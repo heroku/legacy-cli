@@ -48,7 +48,7 @@ module Heroku
       require "zip/zip"
 
       user_agent = "heroku-toolbelt/#{latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
-      if autoupdate
+      if autoupdate?
         user_agent += ' autoupdate'
       end
 
@@ -115,8 +115,12 @@ module Heroku
       end
     end
 
+    def self.autoupdate?
+      File.exists?(File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate"))
+    end
+
     def self.background_update!
-      if File.exists?(File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate"))
+      if autoupdate?
         pid = fork do
           begin
             require "excon"
@@ -125,10 +129,12 @@ module Heroku
             if compare_versions(latest_version, latest_local_version) > 0
               update("https://toolbelt.herokuapp.com/download/zip", true)
             end
-          rescue Exception => ex
-            # trap all errors
-          ensure
-            @background_updating = false
+            raise StandardError.new('Something went wrong')
+          rescue Exception, Interrupt => error
+            log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
+            File.open(log_path, 'w') do |log|
+              log.puts( Heroku::Helpers.format_error(error))
+            end
           end
         end
         Process.detach pid
