@@ -133,7 +133,7 @@ module Heroku
           rescue Exception, Interrupt => error
             log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
             File.open(log_path, 'w') do |log|
-              log.puts( Heroku::Helpers.format_error(error))
+              log.puts(Heroku::Helpers.format_error(error))
             end
           end
         end
