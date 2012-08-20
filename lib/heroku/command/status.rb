@@ -1,12 +1,12 @@
 require "heroku/command/base"
 
-# check status of Heroku platform
+# check status of heroku platform
 #
 class Heroku::Command::Status < Heroku::Command::Base
 
   # status
   #
-  # display current status of Heroku platform
+  # display current status of heroku platform
   #
   #Example:
   #

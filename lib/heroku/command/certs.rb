@@ -1,12 +1,12 @@
 require "heroku/command/base"
 
-# manage SSL Endpoints for an app
+# manage ssl endpoints for an app
 #
 class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs
   #
-  # list SSL Endpoints for an app
+  # list ssl endpoints for an app
   #
   def index
     endpoints = heroku.ssl_endpoint_list(app)
@@ -33,7 +33,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:add PEM KEY
   #
-  # add an SSL Endpoint to an app
+  # add an ssl endpoint to an app
   #
   def add
     fail("Usage: heroku certs:add PEM KEY\nMust specify PEM and KEY to add cert.") if args.size < 2
@@ -52,7 +52,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:info
   #
-  # show certificate information for an SSL Endpoint
+  # show certificate information for an ssl endpoint
   #
   def info
     cname = options[:endpoint] || current_endpoint
