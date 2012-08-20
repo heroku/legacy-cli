@@ -4,6 +4,9 @@ require "heroku/command/base"
 #
 class Heroku::Command::Auth < Heroku::Command::Base
 
+  # auth
+  #
+  # Authenticate, display token and current user
   def index
     validate_arguments!
 
