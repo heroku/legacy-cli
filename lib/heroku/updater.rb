@@ -129,7 +129,6 @@ module Heroku
             if compare_versions(latest_version, latest_local_version) > 0
               update("https://toolbelt.herokuapp.com/download/zip", true)
             end
-            raise StandardError.new('Something went wrong')
           rescue Exception, Interrupt => error
             log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
             File.open(log_path, 'w') do |log|
