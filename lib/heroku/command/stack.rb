@@ -16,7 +16,7 @@ module Heroku::Command
     #   aspen-mri-1.8.6
     #   bamboo-mri-1.9.2
     #   bamboo-ree-1.8.7
-    # * cedar (beta)
+    # * cedar
     #
     def index
       validate_arguments!
