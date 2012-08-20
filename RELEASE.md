@@ -15,6 +15,7 @@ Heroku CLI Release Process
 * Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
 * Release the gem `bundle exec rake release`
 * Start toolbelt-build build at http://dx-jenkins.herokai.com/ (this will be opened by rake release automatically)
+* Update current version with `Setting.set('current-heroku-client-version', 'X.Y.Z')` on core.
 * If there are only bug fixes, you are done, otherwise create a changelog describing features as below
 * Create a [new changelog] => http://devcenter.heroku.com/admin/changelog_items/new, you can open with `bundle exec rake changelog`
 * Paste the contents of your clipboard (or enter text based on the following):
