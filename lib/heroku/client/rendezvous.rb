@@ -55,6 +55,9 @@ class Heroku::Client::Rendezvous
               readables.delete(input)
               next
             end
+            if running_on_windows?
+              data.gsub!("\r\n", "\n") # prevent double CRs
+            end
             ssl_socket.write(data)
             ssl_socket.flush
           elsif (o.first.first == ssl_socket)
