@@ -10,14 +10,14 @@ module Heroku
     DEPRECATED_PLUGINS = %w(
       heroku-cedar
       heroku-certs
-      heroku-releases
-      heroku-postgresql
-      heroku-shared-postgresql
-      heroku-pgdumps
       heroku-kill
       heroku-labs
       heroku-logging
       heroku-netrc
+      heroku-pgdumps
+      heroku-postgresql
+      heroku-releases
+      heroku-shared-postgresql
       heroku-status
       heroku-stop
       heroku-suggest
