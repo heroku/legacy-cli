@@ -176,3 +176,30 @@ desc("Release the latest version")
 task "release" => ["gem:release", "jenkins", "tgz:release", "zip:release"] do
   puts("Released v#{version}")
 end
+
+desc("Display statistics")
+task "stats" do
+  require "heroku/command"
+  Dir[File.join(File.dirname(__FILE__), 'lib', 'heroku', 'command', '*.rb')].each do |file|
+    require(file)
+  end
+  commands, namespaces = Hash.new {|hash, key| hash[key] = 0}, []
+  Heroku::Command.commands.keys.each do |key|
+    data = key.split(':')
+    unless data.first == data.last
+      commands[data.last] += 1
+    end
+    namespaces |= [data.first]
+  end
+  puts "#{namespaces.length} Namespaces:"
+  puts "#{namespaces.join(', ')}"
+  puts
+  puts "#{commands.keys.length} Commands:"
+  max = commands.values.max
+  max.downto(0).each do |count|
+    keys = commands.keys.select {|key| commands[key] == count}
+    unless keys.empty?
+      puts("#{count}x #{keys.join(', ')}")
+    end
+  end
+end
