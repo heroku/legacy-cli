@@ -410,7 +410,7 @@ module Heroku
           $stderr.puts
         end
       end
-      formatted_error << "    Version:     #{Heroku::USER_AGENT}"
+      formatted_error << "    Version:     #{Heroku.user_agent}"
       formatted_error << "\n"
       formatted_error.join("\n")
     end

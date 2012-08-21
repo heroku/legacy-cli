@@ -43,14 +43,10 @@ module Heroku
 
     def self.update(url, autoupdate=false)
       require "excon"
+      require "heroku"
       require "fileutils"
       require "tmpdir"
       require "zip/zip"
-
-      user_agent = "heroku-toolbelt/#{latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
-      if autoupdate?
-        user_agent += ' autoupdate'
-      end
 
       Dir.mktmpdir do |download_dir|
 
@@ -58,7 +54,7 @@ module Heroku
         headers = Excon.head(
           url,
           :headers => {
-            'User-Agent' => user_agent
+            'User-Agent' => Heroku.user_agent
           }
         ).headers
         if headers['Location']

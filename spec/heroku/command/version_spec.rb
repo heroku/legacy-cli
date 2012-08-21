@@ -8,7 +8,7 @@ module Heroku::Command
       stderr, stdout = execute("version")
       stderr.should == ""
       stdout.should == <<-STDOUT
-#{Heroku::USER_AGENT}
+#{Heroku.user_agent}
 STDOUT
     end
 

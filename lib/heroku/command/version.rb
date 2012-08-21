@@ -17,7 +17,7 @@ class Heroku::Command::Version < Heroku::Command::Base
   def index
     validate_arguments!
 
-    display(Heroku::USER_AGENT)
+    display(Heroku.user_agent)
   end
 
 end

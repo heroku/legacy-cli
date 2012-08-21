@@ -20,6 +20,4 @@ Heroku::Updater.inject_libpath
 
 # start up the CLI
 require "heroku/cli"
-Heroku.send(:remove_const, 'USER_AGENT')
-Heroku::USER_AGENT = "heroku-toolbelt/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 Heroku::CLI.start(*ARGV)

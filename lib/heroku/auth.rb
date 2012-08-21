@@ -308,7 +308,7 @@ class Heroku::Auth
       uri = URI(full_host)
       {
         :headers          => {
-          'User-Agent'    => Heroku::USER_AGENT
+          'User-Agent'    => Heroku.user_agent
         },
         :host             => uri.host,
         :port             => uri.port.to_s,

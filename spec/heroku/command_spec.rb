@@ -170,7 +170,7 @@ describe Heroku::Command do
 
     it "displays the version if --version is used" do
       heroku("--version").should == <<-STDOUT
-#{Heroku::USER_AGENT}
+#{Heroku.user_agent}
 STDOUT
     end
 
