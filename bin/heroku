@@ -9,8 +9,7 @@ bin_file = Pathname.new(__FILE__).realpath
 $:.unshift File.expand_path("../../lib", bin_file)
 
 require "heroku/updater"
-#Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
-Heroku::Updater.inject_libpath
+Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
 
 # start up the CLI
 require "heroku/cli"
