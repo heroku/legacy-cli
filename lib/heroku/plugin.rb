@@ -10,6 +10,7 @@ module Heroku
     DEPRECATED_PLUGINS = %w(
       heroku-cedar
       heroku-certs
+      heroku-credentials
       heroku-kill
       heroku-labs
       heroku-logging
