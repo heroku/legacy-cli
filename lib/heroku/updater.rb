@@ -1,3 +1,5 @@
+require "fileutils"
+
 require 'heroku/helpers'
 
 module Heroku
@@ -44,7 +46,6 @@ module Heroku
     def self.update(url, autoupdate=false)
       require "excon"
       require "heroku"
-      require "fileutils"
       require "tmpdir"
       require "zip/zip"
 
@@ -116,9 +117,12 @@ module Heroku
     end
 
     def self.background_update!
-      if autoupdate?
+      autoupdating_path = File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
+      if autoupdate? && !File.exists?(autoupdating_path)
+        puts('autoupdate')
         pid = fork do
           begin
+            FileUtils.touch(autoupdating_path)
             require "excon"
             latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
@@ -130,9 +134,13 @@ module Heroku
             File.open(log_path, 'w') do |log|
               log.puts(Heroku::Helpers.format_error(error))
             end
+          ensure
+            File.delete(autoupdating_path)
           end
         end
         Process.detach pid
+      else
+        puts('autoupdating')
       end
     end
   end
