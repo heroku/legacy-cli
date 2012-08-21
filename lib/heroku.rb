@@ -7,7 +7,7 @@ module Heroku
   USER_AGENT = 'legacy' # left for backwards compatibility with old toolbelt bin files
 
   def self.user_agent
-    type = if __FILE__.include?(ENV['GEM_HOME'])
+    type = if ENV['GEM_HOME'] && __FILE__.include?(ENV['GEM_HOME'])
       'gem'
     else
       'toolbelt'
