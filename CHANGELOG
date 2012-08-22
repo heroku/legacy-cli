@@ -1,3 +1,24 @@
+2.30.4 08/22/2012
+=================
+
+free -v for other usage
+remove v2/v3 compatability hack from apps#domain_name
+use Heroku::Auth.host instead of Heroku::Client.new.host in git_remotes
+use HEROKU_GIT_HOST || HEROKU_HOST || default host for git remote detection
+DRY launchy usage
+update release notes to mention setting current in core
+prevent double CR in rendezvous on windows
+fix capitalizotion in help
+display help/commands when calling `heroku auth`
+remove beta indication on cedar in stacks help example
+reload helpers after inject_libpaths
+add error logging for autoupdate
+consolidate user_agent handling, improve gem vs toolbelt and add autoupdate
+add simple file based mutex for autoupdate
+alpha sort deprecated plugins list
+add heroku-credentials to deprecated plugins
+add stats rake task to give info on commands/namespaces
+
 2.30.3 08/15/2012
 =================
 
