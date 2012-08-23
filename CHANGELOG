@@ -1,3 +1,8 @@
+2.30.5 08/23/2012
+=================
+
+fix for helpers not being reloaded after inject_libpath
+
 2.30.4 08/22/2012
 =================
 
