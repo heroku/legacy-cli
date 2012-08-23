@@ -1,4 +1,7 @@
 if Heroku::Plugin.list.include?('heroku-accounts')
+
+  require "heroku/command/base"
+
   # manage multiple heroku accounts
   #
   class Heroku::Command::Accounts < Heroku::Command::Base
