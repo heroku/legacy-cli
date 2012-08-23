@@ -1,3 +1,6 @@
+load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
+load('heroku/updater.rb') # reload updater after possible inject_loadpath
+
 require "heroku"
 require "heroku/command"
 require "heroku/helpers"

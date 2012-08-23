@@ -96,8 +96,6 @@ module Heroku
     end
 
     def self.inject_libpath
-      background_update!
-
       old_version = client_version_from_path(installed_client_path)
       new_version = client_version_from_path(updated_client_path)
 
@@ -107,19 +105,19 @@ module Heroku
         vendored_gems.each do |vendored_gem|
           $:.unshift File.join(vendored_gem, "lib")
         end
-        load('heroku/helpers.rb') # reload updated helpers
         load('heroku/updater.rb') # reload updated updater
       end
+
+      background_update!
     end
 
     def self.autoupdate?
-      File.exists?(File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate"))
+      !@disable && File.exists?(File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate"))
     end
 
     def self.background_update!
       autoupdating_path = File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
       if autoupdate? && !File.exists?(autoupdating_path)
-        puts('autoupdate')
         pid = fork do
           begin
             FileUtils.touch(autoupdating_path)
@@ -139,8 +137,6 @@ module Heroku
           end
         end
         Process.detach pid
-      else
-        puts('autoupdating')
       end
     end
   end
