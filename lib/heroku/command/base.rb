@@ -187,7 +187,7 @@ protected
       if apps.size == 1
         apps.first
       else
-        raise(Heroku::Command::CommandFailed, "Multiple apps in folder and no app specified.\nSpecify which app to use with --app <app name>")
+        raise(Heroku::Command::CommandFailed, "Multiple apps in folder and no app specified.\nSpecify app with --app APP.")
       end
     end
   end
