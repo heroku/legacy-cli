@@ -46,7 +46,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # show detailed app information
   #
-  # -r, --raw  # output info as raw key/value pairs
+  # -s, --shell  # output more shell friendly key/value pairs
   #
   #Examples:
   #
@@ -73,7 +73,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
 
-    if options[:raw]
+    if options[:shell]
       if app_data['domain_name']
         app_data['domain_name'] = app_data['domain_name']['domain']
       end

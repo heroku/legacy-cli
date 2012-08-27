@@ -42,8 +42,8 @@ Web URL:       http://myapp.herokuapp.com/
 STDOUT
       end
 
-      it "shows raw app info when --raw option is used" do
-        stderr, stdout = execute("apps:info --raw")
+      it "shows shell app info when --shell option is used" do
+        stderr, stdout = execute("apps:info --shell")
         stderr.should == ""
         stdout.should match Regexp.new(<<-STDOUT)
 create_status=complete
