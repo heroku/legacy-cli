@@ -33,7 +33,9 @@ module Heroku
     end
 
     def self.disable(message=nil)
-      @disable = message if message
+      if message && !ENV['HEROKU_UPDATE'] == 'enable'
+        @disable = message
+      end
       @disable
     end
 
