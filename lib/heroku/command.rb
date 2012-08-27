@@ -259,7 +259,7 @@ module Heroku
       json = json_decode(body.to_s) rescue false
       case json
       when Array
-        json.first.last # message like [['base', 'message']]
+        json.first.join(' ') # message like [['base', 'message']]
       when Hash
         json['error']   # message like {'error' => 'message'}
       else
