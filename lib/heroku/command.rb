@@ -119,7 +119,7 @@ module Heroku
       end
 
       unless command
-        if %w( --version ).include?(cmd)
+        if cmd == '--version'
           cmd = 'version'
           command = parse(cmd)
         else
@@ -138,11 +138,9 @@ module Heroku
       invalid_options = []
 
       parser = OptionParser.new do |parser|
-        # overwrite OptionParsers Officious['version'] to avoid conflicts
+        # remove OptionParsers Officious['version'] to avoid conflicts
         # see: https://github.com/ruby/ruby/blob/trunk/lib/optparse.rb#L814
-        parser.on("--version") do |value|
-          invalid_options << "--version"
-        end
+        parser.base.long.delete('version')
         (global_options + command[:options]).each do |option|
           parser.on(*option[:args]) do |value|
             if option[:proc]
