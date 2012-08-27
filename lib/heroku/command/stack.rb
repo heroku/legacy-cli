@@ -27,6 +27,7 @@ module Heroku::Command
       stacks = stacks_data.map do |stack|
         row = [stack['current'] ? '*' : ' ', stack['name']]
         row << '(beta)' if stack['beta']
+        row << '(deprecated)' if stack['deprecated']
         row << '(prepared, will migrate on next git push)' if stack['requested']
         row.join(' ')
       end
