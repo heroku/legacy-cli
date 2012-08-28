@@ -49,45 +49,51 @@ module Heroku
       require "tmpdir"
       require "zip/zip"
 
-      Dir.mktmpdir do |download_dir|
+      latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
 
-        # follow redirect, if one exists
-        headers = Excon.head(
-          url,
-          :headers => {
-            'User-Agent' => Heroku.user_agent
-          }
-        ).headers
-        if headers['Location']
-          url = headers['Location']
-        end
+      if compare_versions(latest_version, latest_local_version) > 0
+        Dir.mktmpdir do |download_dir|
 
-        File.open("#{download_dir}/heroku.zip", "wb") do |file|
-          file.print Excon.get(url).body
-        end
-
-        Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
-          zip.each do |entry|
-            target = File.join(download_dir, entry.to_s)
-            FileUtils.mkdir_p File.dirname(target)
-            zip.extract(entry, target) { true }
+          # follow redirect, if one exists
+          headers = Excon.head(
+            url,
+            :headers => {
+              'User-Agent' => Heroku.user_agent
+            }
+          ).headers
+          if headers['Location']
+            url = headers['Location']
           end
+
+          File.open("#{download_dir}/heroku.zip", "wb") do |file|
+            file.print Excon.get(url).body
+          end
+
+          Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
+            zip.each do |entry|
+              target = File.join(download_dir, entry.to_s)
+              FileUtils.mkdir_p File.dirname(target)
+              zip.extract(entry, target) { true }
+            end
+          end
+
+          FileUtils.rm "#{download_dir}/heroku.zip"
+
+          old_version = latest_local_version
+          new_version = client_version_from_path(download_dir)
+
+          if compare_versions(new_version, old_version) < 0 && !autoupdate
+            Heroku::Helpers.error("Installed version (#{old_version}) is newer than the latest available update (#{new_version})")
+          end
+
+          FileUtils.rm_rf updated_client_path
+          FileUtils.mkdir_p File.dirname(updated_client_path)
+          FileUtils.cp_r  download_dir, updated_client_path
+
+          new_version
         end
-
-        FileUtils.rm "#{download_dir}/heroku.zip"
-
-        old_version = latest_local_version
-        new_version = client_version_from_path(download_dir)
-
-        if compare_versions(new_version, old_version) < 0 && !autoupdate
-          Heroku::Helpers.error("Installed version (#{old_version}) is newer than the latest available update (#{new_version})")
-        end
-
-        FileUtils.rm_rf updated_client_path
-        FileUtils.mkdir_p File.dirname(updated_client_path)
-        FileUtils.cp_r  download_dir, updated_client_path
-
-        new_version
+      else
+        false # already up to date
       end
     end
 

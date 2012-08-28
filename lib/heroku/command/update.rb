@@ -36,11 +36,10 @@ private
   def update_from_url(url)
     Heroku::Updater.check_disabled!
     action("Updating from #{Heroku::VERSION}") do
-      new_version = Heroku::Updater.update(url)
-      if new_version == Heroku::VERSION
-        status("nothing to update")
-      else
+      if new_version = Heroku::Updater.update(url)
         status("updated to #{new_version}")
+      else
+        status("nothing to update")
       end
     end
   end
