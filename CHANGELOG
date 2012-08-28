@@ -1,3 +1,14 @@
+2.31.0 08/28/2012
+=================
+
+require 'command/base' in accounts
+fix formatting for json validation errors
+improve punctuation and simplify no app specified messages
+indicate deprecation on stacks as appropriate
+remove officious version from optparse, instead of overriding
+change -r/--raw to -s/--shell for apps:info
+default autoupdate to on for new installs
+
 2.30.5 08/23/2012
 =================
 
