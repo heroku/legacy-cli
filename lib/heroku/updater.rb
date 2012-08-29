@@ -5,6 +5,10 @@ require 'heroku/helpers'
 module Heroku
   module Updater
 
+    def self.autoupdating_path
+      File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
+    end
+
     def self.installed_client_path
       File.expand_path("../../..", __FILE__)
     end
@@ -44,6 +48,14 @@ module Heroku
     end
 
     def self.update(url, autoupdate=false)
+      if ENV['HEROKU_AUTOUPDATE'] = 'true'
+        if !File.exists?(autoupdating_path)
+          FileUtils.touch(autoupdating_path)
+        else
+          error('autoupdate in progress')
+        end
+      end
+
       require "excon"
       require "heroku"
       require "tmpdir"
@@ -95,6 +107,8 @@ module Heroku
       else
         false # already up to date
       end
+    ensure
+      File.delete(autoupdating_path)
     end
 
     def self.compare_versions(first_version, second_version)
@@ -129,25 +143,8 @@ module Heroku
       end
       autoupdating_path = File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
       if autoupdate? && !File.exists?(autoupdating_path)
-        pid = fork do
-          begin
-            FileUtils.touch(autoupdating_path)
-            require "excon"
-            latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
-
-            if compare_versions(latest_version, latest_local_version) > 0
-              update("https://toolbelt.herokuapp.com/download/zip", true)
-            end
-          rescue Exception, Interrupt => error
-            log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
-            File.open(log_path, 'w') do |log|
-              log.puts(Heroku::Helpers.format_error(error))
-            end
-          ensure
-            File.delete(autoupdating_path)
-          end
-        end
-        Process.detach pid
+        log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
+        Process.detach(spawn(ENV.to_hash.merge({'HEROKU_AUTOUPDATE' => 'true'}), "heroku update", :err => :out, :out => log_path))
       end
     end
   end
