@@ -49,9 +49,7 @@ module Heroku
 
     def self.update(url, autoupdate=false)
       if ENV['HEROKU_AUTOUPDATE'] = 'true'
-        if !File.exists?(autoupdating_path)
-          FileUtils.touch(autoupdating_path)
-        else
+        if File.exists?(autoupdating_path)
           error('autoupdate in progress')
         end
       end
@@ -141,8 +139,8 @@ module Heroku
         FileUtils.mkdir_p(File.join(Heroku::Helpers.home_directory, '.heroku'))
         FileUtils.touch(File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate'))
       end
-      autoupdating_path = File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
       if autoupdate? && !File.exists?(autoupdating_path)
+        FileUtils.touch(autoupdating_path)
         log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
         pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
           fork do
