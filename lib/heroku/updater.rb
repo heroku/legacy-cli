@@ -144,7 +144,15 @@ module Heroku
       autoupdating_path = File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
       if autoupdate? && !File.exists?(autoupdating_path)
         log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
-        Process.detach(spawn(ENV.to_hash.merge({'HEROKU_AUTOUPDATE' => 'true'}), "heroku update", :err => :out, :out => log_path))
+        pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
+          fork do
+            ENV['HEROKU_AUTOUPDATE'] = 'true'
+            exec("heroku update &> #{log_path}")
+          end
+        else
+          spawn(ENV.to_hash.merge({'HEROKU_AUTOUPDATE' => 'true'}), "heroku update", {:err => :out, :out => log_path})
+        end
+        Process.detach(pid)
       end
     end
   end
