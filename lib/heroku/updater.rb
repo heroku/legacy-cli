@@ -106,7 +106,7 @@ module Heroku
         false # already up to date
       end
     ensure
-      File.delete(autoupdating_path)
+      FileUtils.rm_f(autoupdating_path)
     end
 
     def self.compare_versions(first_version, second_version)
