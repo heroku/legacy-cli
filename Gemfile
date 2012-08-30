@@ -1,5 +1,6 @@
 source "http://rubygems.org"
 
+gem 'heroku-api', :git => 'git://github.com/heroku/heroku.rb.git'
 gemspec
 
 group :development do
