@@ -50,7 +50,7 @@ module Heroku
     def self.update(url, autoupdate=false)
       if ENV['HEROKU_AUTOUPDATE'] = 'true'
         if File.exists?(autoupdating_path)
-          error('autoupdate in progress')
+          Heroku::Helpers.error('autoupdate in progress')
         end
       end
 
