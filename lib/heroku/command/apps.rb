@@ -56,7 +56,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # Repo Size: 5M
   # ...
   #
-  # $ heroku apps:info --raw
+  # $ heroku apps:info --shell
   # git_url=git@heroku.com:myapp.git
   # repo_size=5000000
   # ...
@@ -65,7 +65,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
     app_data = api.get_app(app).body
 
-    unless options[:raw]
+    unless options[:shell]
       styled_header(app_data["name"])
     end
 
