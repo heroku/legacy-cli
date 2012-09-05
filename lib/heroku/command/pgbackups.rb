@@ -209,8 +209,13 @@ module Heroku::Command
         update_display(transfer)
         break if transfer["finished_at"]
 
-        sleep 1
-        transfer = pgbackup_client.get_transfer(transfer["id"])
+        attempts = 0
+        begin
+          sleep 1
+          transfer = pgbackup_client.get_transfer(transfer["id"])
+        rescue RestClient::ServiceUnavailable
+          (attempts += 1) <= 5 ? retry : raise
+        end
       end
 
       display "\n"
