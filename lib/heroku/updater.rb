@@ -59,7 +59,7 @@ module Heroku
       require "tmpdir"
       require "zip/zip"
 
-      latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json').body)['version']
+      latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json', :nonblock => false).body)['version']
 
       if compare_versions(latest_version, latest_local_version) > 0
         Dir.mktmpdir do |download_dir|
@@ -69,14 +69,15 @@ module Heroku
             url,
             :headers => {
               'User-Agent' => Heroku.user_agent
-            }
+            },
+            :nonblack => false
           ).headers
           if headers['Location']
             url = headers['Location']
           end
 
           File.open("#{download_dir}/heroku.zip", "wb") do |file|
-            file.print Excon.get(url).body
+            file.print Excon.get(url, :nonblock => false).body
           end
 
           Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|

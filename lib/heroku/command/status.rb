@@ -20,7 +20,7 @@ class Heroku::Command::Status < Heroku::Command::Base
 
     heroku_status_host = ENV['HEROKU_STATUS_HOST'] || "status.heroku.com"
     require('excon')
-    status = json_decode(Excon.get("https://#{heroku_status_host}/api/v3/current-status.json").body)
+    status = json_decode(Excon.get("https://#{heroku_status_host}/api/v3/current-status.json", :nonblock => false).body)
 
     styled_header("Heroku Status")
 
