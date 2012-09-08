@@ -111,7 +111,6 @@ Certificate details:
 
         stderr, stdout = execute("certs:remove")
         stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from myapp..."
-        stdout.should include "De-provisioned endpoint tokyo-1050.herokussl.com."
         stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
       end
 
