@@ -195,9 +195,25 @@ STDOUT
 
       it "should translate --fork and --follow" do
         %w{fork follow}.each do |switch|
-          @addons.stub!(:app_config_vars).and_return({ 'HEROKU_POSTGRESQL_RED_URL' => 'foo'})
+          @addons.stub!(:app_config_vars).and_return({})
+          @addons.stub!(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
+              'config_var' => 'HEROKU_POSTGRESQL_RED_URL',
+              'resource' => {'name'  => 'loudly-yelling-1232',
+                             'value' => 'postgres://red_url',
+                             'type'  => 'heroku-postgresql:ronin' }})
+          ])
           @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
-          @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'foo'})
+          @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'postgres://red_url'})
+          @addons.add
+        end
+      end
+
+      it "should NOT translate --fork and --follow if passed in a full postgres url even if there are no databases" do
+        %w{fork follow}.each do |switch|
+          @addons.stub!(:app_config_vars).and_return({})
+          @addons.stub!(:app_attachments).and_return([])
+          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
+          @addons.heroku.should_receive(:install_addon).with('myapp', 'heroku-postgresql', {switch => 'postgres://foo:yeah@awesome.com:234/bestdb'})
           @addons.add
         end
       end

@@ -1,50 +1,77 @@
 require "heroku/client"
-require "digest/sha2"
 
 class Heroku::Client::HerokuPostgresql
-  Version = 10
+  Version = 11
 
   include Heroku::Helpers
 
-  def initialize(url)
+  @headers = { :x_heroku_gem_version  => Heroku::Client.version }
+
+  def self.add_headers(headers)
+    @headers.merge! headers
+  end
+
+  def self.headers
+    @headers
+  end
+
+  attr_reader :attachment
+  def initialize(attachment)
+    @attachment = attachment
     require 'rest_client'
-    @heroku_postgresql_host = ENV["HEROKU_POSTGRESQL_HOST"] || "https://shogun.heroku.com"
-    @database_sha = sha(url)
-    @heroku_postgresql_resource = RestClient::Resource.new(
-      "#{@heroku_postgresql_host}/client/v10/databases",
-      :headers =>  { :x_heroku_gem_version  => Heroku::Client.version }
+  end
+
+  def heroku_postgresql_host
+    if attachment.starter_plan?
+      ENV["HEROKU_POSTGRESQL_HOST"] || "postgres-starter-api"
+    else
+      if ENV['SHOGUN']
+        "shogun-#{ENV['SHOGUN']}"
+      else
+        ENV["HEROKU_POSTGRESQL_HOST"] || "postgres-api"
+      end
+    end
+  end
+
+  def resource_name
+    attachment.resource_name
+  end
+
+  def heroku_postgresql_resource
+    RestClient::Resource.new(
+      "https://#{heroku_postgresql_host}.heroku.com/client/v11/databases",
+      :user => Heroku::Auth.user,
+      :password => Heroku::Auth.password,
+      :headers => self.class.headers
       )
   end
 
   def ingress
-    http_put "#{@database_sha}/ingress"
+    http_put "#{resource_name}/ingress"
   end
 
   def reset
-    http_put "#{@database_sha}/reset"
+    http_put "#{resource_name}/reset"
   end
 
   def rotate_credentials
-    http_post "#{@database_sha}/credentials_rotation"
+    http_post "#{resource_name}/credentials_rotation"
   end
 
-  def get_database
-    http_get @database_sha
+  def get_database(extended=false)
+    query = extended ? '?extended=true' : ''
+    http_get resource_name + query
   end
 
   def get_wait_status
-    http_get "#{@database_sha}/wait_status"
+    http_get "#{resource_name}/wait_status"
   end
 
   def unfollow
-    http_put "#{@database_sha}/unfollow"
+    http_put "#{resource_name}/unfollow"
   end
 
   protected
-
-  def sha(url)
-    Digest::SHA2.hexdigest url
-  end
 
   def sym_keys(c)
     if c.is_a?(Array)
@@ -77,7 +104,7 @@ class Heroku::Client::HerokuPostgresql
   def http_get(path)
     checking_client_version do
       retry_on_exception(RestClient::Exception) do
-        response = @heroku_postgresql_resource[path].get
+        response = heroku_postgresql_resource[path].get
         display_heroku_warning response
         sym_keys(json_decode(response.to_s))
       end
@@ -86,7 +113,7 @@ class Heroku::Client::HerokuPostgresql
 
   def http_post(path, payload = {})
     checking_client_version do
-      response = @heroku_postgresql_resource[path].post(json_encode(payload))
+      response = heroku_postgresql_resource[path].post(json_encode(payload))
       display_heroku_warning response
       sym_keys(json_decode(response.to_s))
     end
@@ -94,7 +121,7 @@ class Heroku::Client::HerokuPostgresql
 
   def http_put(path, payload = {})
     checking_client_version do
-      response = @heroku_postgresql_resource[path].put(json_encode(payload))
+      response = heroku_postgresql_resource[path].put(json_encode(payload))
       display_heroku_warning response
       sym_keys(json_decode(response.to_s))
     end
