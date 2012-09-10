@@ -73,7 +73,6 @@ class Heroku::Command::Certs < Heroku::Command::Base
     action("Removing SSL Endpoint #{cname} from #{app}") do
       heroku.ssl_endpoint_remove(app, cname)
     end
-    display "De-provisioned endpoint #{cname}."
     display "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
   end
 
