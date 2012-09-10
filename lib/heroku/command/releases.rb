@@ -25,8 +25,8 @@ class Heroku::Command::Releases < Heroku::Command::Base
 
     unless releases_data.empty?
       releases = releases_data.map do |release|
-        datetime = time_ago((Time.now - Time.parse(release["created_at"])).to_i)
-        [ release["name"], truncate(release["descr"], 40), release["user"], datetime ]
+        datetime = time_since_now(Time.parse(release["created_at"]))
+        [ release["name"], truncate(release["descr"], 40), release["user"], "@ #{datetime}" ]
       end
 
       styled_header("#{app} Releases")

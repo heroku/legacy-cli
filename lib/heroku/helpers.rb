@@ -110,6 +110,20 @@ module Heroku
       %x{ git #{flattened_args} 2>&1 }.strip
     end
 
+    def time_since_now(other_time)
+      now = Time.now
+      elapsed = Time.now - other_time
+      msg = other_time.strftime("%Y/%m/%d %H:%M:%S")
+      if elapsed <= 60
+        msg += " (~ #{elapsed.floor}s ago)"
+      elsif elapsed <= (60 * 60)
+        msg += " (~ #{(elapsed / 60).floor}m ago)"
+      elsif elapsed <= (60 * 60 * 25)
+        msg += " (~ #{(elapsed / 60 / 60).floor}h ago)"
+      end
+      msg
+    end
+
     def time_ago(elapsed)
       if elapsed <= 60
         "#{elapsed.floor}s ago"
