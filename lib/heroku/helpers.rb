@@ -124,7 +124,12 @@ module Heroku
       msg
     end
 
-    def time_ago(elapsed)
+    def time_ago(since)
+      if since.is_a?(String)
+        since = Time.parse(since)
+      end
+
+      elapsed = Time.now - since
       if elapsed <= 60
         "#{elapsed.floor}s ago"
       elsif elapsed <= (60 * 60)
@@ -132,7 +137,7 @@ module Heroku
       elsif elapsed <= (60 * 60 * 25)
         "#{(elapsed / 60 / 60).floor}h ago"
       else
-        (Time.now - elapsed).strftime("%Y/%m/%d %H:%M:%S")
+        since.strftime("%Y/%m/%d %H:%M:%S")
       end
     end
 

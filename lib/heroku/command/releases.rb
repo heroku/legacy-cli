@@ -66,7 +66,7 @@ class Heroku::Command::Releases < Heroku::Command::Base
     data = {
       'By'     => release_data['user'],
       'Change' => release_data['descr'],
-      'When'   => time_ago(Time.now.to_i - Time.parse(release_data["created_at"]).to_i)
+      'When'   => time_ago(release_data["created_at"])
     }
 
     unless release_data['addons'].empty?
