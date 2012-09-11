@@ -110,16 +110,22 @@ module Heroku
       %x{ git #{flattened_args} 2>&1 }.strip
     end
 
-    def time_ago(elapsed)
-      if elapsed <= 60
-        "#{elapsed.floor}s ago"
-      elsif elapsed <= (60 * 60)
-        "#{(elapsed / 60).floor}m ago"
-      elsif elapsed <= (60 * 60 * 25)
-        "#{(elapsed / 60 / 60).floor}h ago"
-      else
-        (Time.now - elapsed).strftime("%Y/%m/%d %H:%M:%S")
+    def time_ago(since)
+      if since.is_a?(String)
+        since = Time.parse(since)
       end
+
+      elapsed = Time.now - since
+
+      message = since.strftime("%Y/%m/%d %H:%M:%S")
+      if elapsed <= 60
+        message << " (~ #{elapsed.floor}s ago)"
+      elsif elapsed <= (60 * 60)
+        message << " (~ #{(elapsed / 60).floor}m ago)"
+      elsif elapsed <= (60 * 60 * 25)
+        message << " (~ #{(elapsed / 60 / 60).floor}h ago)"
+      end
+      message
     end
 
     def truncate(text, length)

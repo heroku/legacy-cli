@@ -98,12 +98,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
     processes.each do |process|
       name    = process["process"].split(".").first
-      elapsed = time_ago(process['elapsed'])
-      elapsed = if elapsed.include?(' ago')
-        "for #{elapsed.gsub(/ ago/, '')}"
-      else
-        "since #{elapsed}"
-      end
+      elapsed = time_ago(Time.now - process['elapsed'])
 
       if name == "run"
         key  = "run: one-off processes"

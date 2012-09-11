@@ -34,8 +34,8 @@ class Heroku::Command::Status < Heroku::Command::Base
     unless status['issues'].empty?
       display
       status['issues'].each do |issue|
-        duration = time_ago(Time.now - Time.parse(issue['created_at'])).gsub(' ago', '+')
-        styled_header("#{issue['title']} (#{duration})")
+        duration = time_ago(issue['created_at']).gsub(' ago', '+')
+        styled_header("#{issue['title']}  #{duration}")
         changes = issue['updates'].map do |issue|
           [
             time_ago(Time.now - Time.parse(issue['created_at'])),

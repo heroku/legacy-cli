@@ -28,38 +28,38 @@ describe Heroku::Command::Ps do
     describe "ps" do
 
       it "displays processes" do
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return('0s ago')
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         api.post_ps_scale('myapp', 'web', 10)
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === web: `bundle exec thin start -p $PORT`
-web.1: created for 0s
-web.2: created for 0s
-web.3: created for 0s
-web.4: created for 0s
-web.5: created for 0s
-web.6: created for 0s
-web.7: created for 0s
-web.8: created for 0s
-web.9: created for 0s
-web.10: created for 0s
+web.1: created 2012/09/11 12:34:56 (~ 0s ago)
+web.2: created 2012/09/11 12:34:56 (~ 0s ago)
+web.3: created 2012/09/11 12:34:56 (~ 0s ago)
+web.4: created 2012/09/11 12:34:56 (~ 0s ago)
+web.5: created 2012/09/11 12:34:56 (~ 0s ago)
+web.6: created 2012/09/11 12:34:56 (~ 0s ago)
+web.7: created 2012/09/11 12:34:56 (~ 0s ago)
+web.8: created 2012/09/11 12:34:56 (~ 0s ago)
+web.9: created 2012/09/11 12:34:56 (~ 0s ago)
+web.10: created 2012/09/11 12:34:56 (~ 0s ago)
 
 STDOUT
       end
 
       it "displays one-off processes" do
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('0s ago', '0s ago')
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('2012/09/11 12:34:56 (~ 0s ago)', '2012/09/11 12:34:56 (~ 0s ago)')
         api.post_ps "myapp", "bash"
 
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === run: one-off processes
-run.1: created for 0s: `bash`
+run.1: created 2012/09/11 12:34:56 (~ 0s ago): `bash`
 
 === web: `bundle exec thin start -p $PORT`
-web.1: created for 0s
+web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 
 STDOUT
       end

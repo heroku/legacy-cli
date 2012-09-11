@@ -25,8 +25,12 @@ class Heroku::Command::Releases < Heroku::Command::Base
 
     unless releases_data.empty?
       releases = releases_data.map do |release|
-        datetime = time_ago((Time.now - Time.parse(release["created_at"])).to_i)
-        [ release["name"], truncate(release["descr"], 40), release["user"], datetime ]
+        [
+          release["name"],
+          truncate(release["descr"], 40),
+          release["user"],
+          time_ago(release['created_at'])
+        ]
       end
 
       styled_header("#{app} Releases")
@@ -66,7 +70,7 @@ class Heroku::Command::Releases < Heroku::Command::Base
     data = {
       'By'     => release_data['user'],
       'Change' => release_data['descr'],
-      'When'   => time_ago(Time.now.to_i - Time.parse(release_data["created_at"]).to_i)
+      'When'   => time_ago(release_data["created_at"])
     }
 
     unless release_data['addons'].empty?
