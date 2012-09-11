@@ -21,7 +21,7 @@ module Heroku::Command
         }
       )
 
-      Heroku::Command::Status.any_instance.should_receive(:time_ago).and_return('3h ago', '1m ago', '5m ago', '10m ago', '30m ago', '1h ago', '2h ago', '3h ago')
+      Heroku::Command::Status.any_instance.should_receive(:time_ago).and_return('2012/09/11 09:34:56 (~ 3h ago)', '2012/09/11 12:33:56 (~ 1m ago)', '2012/09/11 12:29:56 (~ 5m ago)', '2012/09/11 12:24:56 (~ 10m ago)', '2012/09/11 12:04:56 (~ 30m ago)', '2012/09/11 11:34:56 (~ 1h ago)', '2012/09/11 10:34:56 (~ 2h ago)', '2012/09/11 09:34:56 (~ 3h ago)')
 
       stderr, stdout = execute("status")
       stderr.should == ''
@@ -30,14 +30,14 @@ module Heroku::Command
 Development: red
 Production:  red
 
-=== HTTP Routing Errors (3h+)
-1m ago   update  The number of applications seeing H99 errors is continuing to decrease as we continue to work toward a full resolution of the HTTP routing issues. The API is back online now as well.
-5m ago   update  Our engineers are continuing to work toward a full resolution of the HTTP routing issues. The API is currently in maintenance mode intentionally as we restore application operations.
-10m ago  update  Most applications are back online at this time. Our engineers are working on getting the remaining apps back online.
-30m ago  update  Our routing engineers have pushed out a patch to our routing tier. The platform is recovering and applications are coming back online. Our engineers are continuing to fully restore service.
-1h ago   update  We have identified an issue with our routers that is causing errors on HTTP requests to applications. Engineers are working to resolve the issue.
-2h ago   update  We have confirmed widespread errors on the platform. Our engineers are continuing to investigate.
-3h ago   issue   Our automated systems have detected potential platform errors.  We are investigating.
+=== HTTP Routing Errors  2012/09/11 09:34:56 (~ 3h+)
+2012/09/11 12:33:56 (~ 1m ago)   update  The number of applications seeing H99 errors is continuing to decrease as we continue to work toward a full resolution of the HTTP routing issues. The API is back online now as well.
+2012/09/11 12:29:56 (~ 5m ago)   update  Our engineers are continuing to work toward a full resolution of the HTTP routing issues. The API is currently in maintenance mode intentionally as we restore application operations.
+2012/09/11 12:24:56 (~ 10m ago)  update  Most applications are back online at this time. Our engineers are working on getting the remaining apps back online.
+2012/09/11 12:04:56 (~ 30m ago)  update  Our routing engineers have pushed out a patch to our routing tier. The platform is recovering and applications are coming back online. Our engineers are continuing to fully restore service.
+2012/09/11 11:34:56 (~ 1h ago)   update  We have identified an issue with our routers that is causing errors on HTTP requests to applications. Engineers are working to resolve the issue.
+2012/09/11 10:34:56 (~ 2h ago)   update  We have confirmed widespread errors on the platform. Our engineers are continuing to investigate.
+2012/09/11 09:34:56 (~ 3h ago)   issue   Our automated systems have detected potential platform errors.  We are investigating.
 
 STDOUT
 
