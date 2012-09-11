@@ -1,15 +1,8 @@
-GIT
-  remote: git://github.com/heroku/heroku.rb.git
-  revision: 1c4d491f2aca944c820a0e078d31ba6cf64a55a2
-  specs:
-    heroku-api (0.3.4)
-      excon (~> 0.16.1)
-
 PATH
   remote: .
   specs:
     heroku (2.31.1)
-      heroku-api (~> 0.3.4)
+      heroku-api (~> 0.3.5)
       launchy (>= 0.3.2)
       netrc (~> 0.7.7)
       rest-client (~> 1.6.1)
@@ -30,6 +23,8 @@ GEM
     fakefs (0.4.0)
     fpm (0.3.11)
       json
+    heroku-api (0.3.5)
+      excon (~> 0.16.1)
     json (1.6.5)
     launchy (2.1.0)
       addressable (~> 2.2.6)
@@ -76,7 +71,6 @@ DEPENDENCIES
   fakefs
   fpm
   heroku!
-  heroku-api!
   jruby-openssl
   json
   rake (>= 0.8.7)
