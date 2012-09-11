@@ -9,29 +9,9 @@ module Heroku::Command
       api.post_app "name" => "myapp"
       api.put_config_vars "myapp", {
         "DATABASE_URL" => "postgres://database_url",
-        "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
+        "SHARED_DATABASE_URL" => "postgres://other_database_url",
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
       }
-
-      any_instance_of(Heroku::Command::Pg) do |pg|
-        stub(pg).app_attachments.returns([
-          Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
-            'resource' => {'name'  => 'loudly-yelling-1232',
-                           'value' => 'postgres://database_url',
-                           'type'  => 'heroku-postgresql:ronin' }}),
-          Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'config_var' => 'HEROKU_POSTGRESQL_RONIN_URL',
-            'resource' => {'name'  => 'softly-mocking-123',
-                           'value' => 'postgres://ronin_database_url',
-                           'type'  => 'heroku-postgresql:ronin' }}),
-          Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'config_var' => 'HEROKU_POSTGRESQL_FOLLOW_URL',
-            'resource' => {'name'  => 'whatever-somethign-2323',
-                           'value' => 'postgres://follow_database_url',
-                           'type'  => 'heroku-postgresql:ronin' }})
-        ])
-      end
     end
 
     after do
@@ -44,7 +24,7 @@ module Heroku::Command
       stderr, stdout = execute("pg:reset RONIN --confirm myapp")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Resetting HEROKU_POSTGRESQL_RONIN_URL... done
+Resetting HEROKU_POSTGRESQL_RONIN... done
 STDOUT
     end
 
@@ -83,13 +63,14 @@ STDERR
           {"name"=>"PG Version", "values"=>["9.1.4"]},
           {"name"=>"Fork/Follow", "values"=>["Available"]},
           {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
           {"name"=>"Maintenance", "values"=>["not required"]}
         ])
 
         stderr, stdout = execute("pg")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== HEROKU_POSTGRESQL_FOLLOW_URL
+=== HEROKU_POSTGRESQL_RONIN
 Plan:        Ronin
 Status:      available
 Data Size:   1 MB
@@ -97,26 +78,7 @@ Tables:      1
 PG Version:  9.1.4
 Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
-Maintenance: not required
-
-=== HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)
-Plan:        Ronin
-Status:      available
-Data Size:   1 MB
-Tables:      1
-PG Version:  9.1.4
-Fork/Follow: Available
-Created:     2011-12-13 00:00 UTC
-Maintenance: not required
-
-=== HEROKU_POSTGRESQL_RONIN_URL
-Plan:        Ronin
-Status:      available
-Data Size:   1 MB
-Tables:      1
-PG Version:  9.1.4
-Fork/Follow: Available
-Created:     2011-12-13 00:00 UTC
+Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
 Maintenance: not required
 
 === SHARED_DATABASE
@@ -137,13 +99,14 @@ STDOUT
           {"name"=>"Fork/Follow", "values"=>["Available"]},
           {"name"=>"Forked From", "values"=>["postgres://username:password@postgreshost.com:5432/database_name"], "resolve_db_name" => "true"},
           {"name"=>"Created", "values"=>["2011-12-13 00:00 UTC"]},
+          {"name"=>"Conn Info", "values"=>["[Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info"]},
           {"name"=>"Maintenance", "values"=>["not required"]}
         ])
 
         stderr, stdout = execute("pg:info RONIN")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== HEROKU_POSTGRESQL_RONIN_URL
+=== HEROKU_POSTGRESQL_RONIN
 Plan:        Ronin
 Status:      available
 Data Size:   1 MB
@@ -152,6 +115,7 @@ PG Version:  9.1.4
 Fork/Follow: Available
 Forked From: Database on postgreshost.com:5432/database_name
 Created:     2011-12-13 00:00 UTC
+Conn Info:   [Deprecated] Please use `heroku pg:credentials HEROKU_POSTGRESQL_RONIN` to view connection info
 Maintenance: not required
 
 STDOUT
@@ -163,9 +127,17 @@ STDOUT
         stderr, stdout = execute("pg:promote RONIN --confirm myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Promoting HEROKU_POSTGRESQL_RONIN_URL to DATABASE_URL... done
+Promoting HEROKU_POSTGRESQL_RONIN to DATABASE_URL... done
 STDOUT
         api.get_config_vars("myapp").body["DATABASE_URL"].should == "postgres://ronin_database_url"
+      end
+
+      it "promotes the specified database url case-sensitively" do
+        stderr, stdout = execute("pg:promote postgres://john:S3nsit1ve@my.example.com/db_name --confirm=myapp")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Promoting Custom URL to DATABASE_URL... done
+STDOUT
       end
 
       it "fails if no database is specified" do
@@ -179,13 +151,20 @@ STDERR
     end
 
     context "credential resets" do
+      before do
+        api.put_config_vars "myapp", {
+          "DATABASE_URL" => "postgres:///to_reset_credentials",
+          "HEROKU_POSTGRESQL_RESETME_URL" => "postgres:///to_reset_credentials"
+        }
+      end
+
       it "resets credentials and promotes to DATABASE_URL if it's the main DB" do
         stub_pg.rotate_credentials
-        stderr, stdout = execute("pg:credentials iv --reset")
-        stderr.should == ''
+        stderr, stdout = execute("pg:credentials resetme --reset")
+        stderr.should be_empty
         stdout.should == <<-STDOUT
-Resetting credentials for HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
-Promoting HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
+Resetting credentials for HEROKU_POSTGRESQL_RESETME (DATABASE_URL)... done
+Promoting HEROKU_POSTGRESQL_RESETME (DATABASE_URL)... done
 STDOUT
       end
 
@@ -195,17 +174,26 @@ STDOUT
           "DATABASE_URL" => "postgres://to_reset_credentials",
           "HEROKU_POSTGRESQL_RESETME_URL" => "postgres://something_else"
         }
-        stderr, stdout = execute("pg:credentials follo --reset")
-        stderr.should == ''
+        stderr, stdout = execute("pg:credentials resetme --reset")
+        stderr.should be_empty
         stdout.should_not include("Promoting")
       end
 
     end
 
     context "unfollow" do
+      before do
+        api.put_config_vars "myapp", {
+          "DATABASE_URL" => "postgres://database_url",
+          "SHARED_DATABASE_URL" => "postgres://other_database_url",
+          "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url",
+          "HEROKU_POSTGRESQL_OTHER_URL" => "postgres://other_database_url"
+        }
+      end
+
       it "sends request to unfollow" do
         hpg_client = double('Heroku::Client::HerokuPostgresql')
-        Heroku::Client::HerokuPostgresql.should_receive(:new).twice.and_return(hpg_client)
+        Heroku::Client::HerokuPostgresql.should_receive(:new).twice.with('postgres://other_database_url').and_return(hpg_client)
         hpg_client.should_receive(:unfollow)
         hpg_client.should_receive(:get_database).and_return(
           :following => 'postgresql://user:pass@roninhost/database',
@@ -221,12 +209,12 @@ STDOUT
             {"name"=>"Maintenance", "values"=>["not required"]}
           ]
         )
-        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_FOLLOW_URL --confirm myapp")
+        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_OTHER --confirm myapp")
         stderr.should == ""
         stdout.should == <<-STDOUT
- !    HEROKU_POSTGRESQL_FOLLOW_URL will become writable and no longer
+ !    HEROKU_POSTGRESQL_OTHER will become writable and no longer
  !    follow Database on roninhost:5432/database. This cannot be undone.
-Unfollowing HEROKU_POSTGRESQL_FOLLOW_URL... done
+Unfollowing HEROKU_POSTGRESQL_OTHER... done
 STDOUT
       end
     end

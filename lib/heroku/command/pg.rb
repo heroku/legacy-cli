@@ -26,8 +26,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:info [DATABASE]
   #
-  #   -x, --extended  # Show extended information
-  #
   # Display database information
   #
   # If DATABASE is not specified, displays all databases
@@ -37,8 +35,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
     validate_arguments!
 
     if db
-      attachment = hpg_resolve(db)
-      display_db attachment.display_name, hpg_info(attachment, options[:extended])
+      name, url = hpg_resolve(db)
+      display_db name, hpg_info(url)
     else
       index
     end
@@ -54,10 +52,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db)
+    name, url = hpg_resolve(db)
+    name ||= 'Custom URL'
 
-    action "Promoting #{attachment.display_name} to DATABASE_URL" do
-      hpg_promote(attachment.url)
+    action "Promoting #{name} to DATABASE_URL" do
+      hpg_promote(url)
     end
   end
 
@@ -68,10 +67,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
   def psql
-    attachment = hpg_resolve(shift_argument, "DATABASE_URL")
+    name, url = hpg_resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
 
-    uri = URI.parse( attachment.url )
+    uri = URI.parse(url)
     begin
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
@@ -93,14 +92,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db) unless db == "SHARED_DATABASE"
+    name, url = hpg_resolve(db)
     return unless confirm_command
 
-    if db == "SHARED_DATABASE"
-      action("Resetting SHARED_DATABASE") { heroku.database_reset(app) }
-    else
-      action("Resetting #{attachment.display_name}") do
-        hpg_client(attachment).reset
+    action("Resetting #{name}") do
+      if name =~ /^SHARED_DATABASE/i
+        heroku.database_reset(app)
+      else
+        hpg_client(url).reset
       end
     end
   end
@@ -115,21 +114,21 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    replica = hpg_resolve(db)
-    replica_info = hpg_info(replica)
+    replica_name, replica_url = hpg_resolve(db)
+    replica = hpg_info(replica_url)
 
-    unless replica_info[:following]
-      error("#{replica.display_name} is not following another database.")
+    unless replica[:following]
+      error("#{replica_name} is not following another database.")
     end
-    origin_url = replica_info[:following]
+    origin_url = replica[:following]
     origin_name = database_name_from_url(origin_url)
 
-    output_with_bang "#{replica.display_name} will become writable and no longer"
+    output_with_bang "#{replica_name} will become writable and no longer"
     output_with_bang "follow #{origin_name}. This cannot be undone."
     return unless confirm_command
 
-    action "Unfollowing #{replica.display_name}" do
-      hpg_client(replica).unfollow
+    action "Unfollowing #{db}" do
+      hpg_client(replica_url).unfollow
     end
   end
 
@@ -144,10 +143,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
     validate_arguments!
 
     if db
-      wait_for hpg_resolve(db)
+      wait_for hpg_info(hpg_resolve(db).last)
     else
-      hpg_databases.values.each do |attach|
-        wait_for(attach)
+      hpg_databases_with_info.keys.sort.each do |name|
+        unless name =~ /^SHARED_DATABASE/i
+          wait_for(hpg_databases_with_info[name])
+        end
       end
     end
   end
@@ -164,21 +165,23 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db)
+    name, url = hpg_resolve(db)
+
+    url_is_database_url = (url == app_config_vars["DATABASE_URL"])
 
     if options[:reset]
-      action "Resetting credentials for #{attachment.display_name}" do
-        hpg_client(attachment).rotate_credentials
+      action "Resetting credentials for #{name}" do
+        hpg_client(url).rotate_credentials
       end
-      if attachment.primary_attachment?
+      if url_is_database_url
         forget_config!
-        attachment = hpg_resolve(db)
-        action "Promoting #{attachment.display_name}" do
-          hpg_promote(attachment.url)
+        name, new_url = hpg_resolve(db)
+        action "Promoting #{name}" do
+          hpg_promote(new_url)
         end
       end
     else
-      uri = URI.parse( attachment.url )
+      uri = URI.parse(url)
       display "Connection info string:"
       display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
     end
@@ -210,29 +213,31 @@ private
     display
   end
 
-  def hpg_client(attachment)
-    Heroku::Client::HerokuPostgresql.new(attachment)
+  def hpg_client(url)
+    Heroku::Client::HerokuPostgresql.new(url)
   end
 
   def hpg_databases_with_info
-    return @hpg_databases_with_info if @hpg_databases_with_info
-
-    @hpg_databases_with_info = Hash[ hpg_databases.map { |config, att| [att.display_name, hpg_info(att, options[:extended])] } ]
-
-    if app_config_vars.keys.grep /^SHARED_DATABASE/i
-      data = api.get_app(app).body
-      @hpg_databases_with_info.update('SHARED_DATABASE' => {
-        :info => [{
-          'name'    => 'Data Size',
-          'values'  => [format_bytes(data['database_size'])]
-        }]
-      })
+    @hpg_databases_with_info ||= hpg_databases.inject({}) do |hash, (name, url)|
+      if name =~ /^SHARED_DATABASE/i
+        data = api.get_app(app).body
+        hash.update(name => {
+          :info => [{
+            'name'    => 'Data Size',
+            'values'  => [format_bytes(data['database_size'])]
+          }],
+          :url        => url
+        })
+      else
+        hash.update(name => hpg_info(url))
+      end
     end
-    return @hpg_databases_with_info
   end
 
-  def hpg_info(attachment, extended=false)
-    hpg_client(attachment).get_database(extended)
+  def hpg_info(url)
+    info = hpg_client(url).get_database
+    info[:url] = url
+    info
   end
 
   def hpg_info_display(item)
@@ -255,13 +260,13 @@ private
     end
   end
 
-  def wait_for(attach)
+  def wait_for(db)
     ticking do |ticks|
-      status = hpg_client(attach).get_wait_status
+      status = hpg_client(db[:url]).get_wait_status
       error status[:message] if status[:error?]
       break if !status[:waiting?] && ticks.zero?
       redisplay("Waiting for database %s... %s%s" % [
-                  attach.display_name,
+                  db[:pretty_name],
                   status[:waiting?] ? "#{spinner(ticks)} " : "",
                   status[:message]],
                   !status[:waiting?]) # only display a newline on the last tick
