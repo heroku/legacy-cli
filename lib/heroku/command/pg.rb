@@ -200,12 +200,7 @@ private
   end
 
   def display_db(name, db)
-    pretty_name = name
-    if !pretty_name.include?(' (DATABASE_URL)') && app_config_vars["#{name}_URL"] == app_config_vars["DATABASE_URL"]
-      pretty_name += " (DATABASE_URL)"
-    end
-
-    styled_header(pretty_name)
+    styled_header(name)
     styled_hash(db[:info].inject({}) do |hash, item|
       hash.update(item["name"] => hpg_info_display(item))
     end, db[:info].map {|item| item['name']})
