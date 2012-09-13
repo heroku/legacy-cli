@@ -67,7 +67,7 @@ module Heroku::Command
     #
     # if no DATABASE is specified, defaults to DATABASE_URL
     #
-    # -e, --expire  # if no slots are available to capture, destroy the oldest backup to make room
+    # -e, --expire  # if no slots are available, destroy the oldest manual backup to make room
     #
     def capture
       from_name, from_url = hpg_resolve(shift_argument, "DATABASE_URL")
