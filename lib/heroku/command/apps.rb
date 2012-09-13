@@ -206,7 +206,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       hputs([ info["web_url"], info["git_url"] ].join(" | "))
     rescue Timeout::Error
-      hputs("Timed Out! Check heroku status for known issues.")
+      hputs("Timed Out! Run `heroku status` to check for known platform issues.")
     end
 
     unless options[:no_remote].is_a? FalseClass
