@@ -38,7 +38,7 @@ class Heroku::Command::Status < Heroku::Command::Base
         styled_header("#{issue['title']}  #{duration}")
         changes = issue['updates'].map do |issue|
           [
-            time_ago(Time.now - Time.parse(issue['created_at'])),
+            time_ago(issue['created_at']),
             issue['update_type'],
             issue['contents']
           ]
