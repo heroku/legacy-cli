@@ -233,6 +233,12 @@ module Heroku
       error e.message
     rescue OptionParser::ParseError
       commands[cmd] ? run("help", [cmd]) : run("help")
+    rescue Excon::Errors::SocketError => e
+      if e.message == 'getaddrinfo: nodename nor servname provided, or not known (SocketError)'
+        error("Unable to connect to Heroku API, please check internet connectivity and try again.")
+      else
+        raise(e)
+      end
     ensure
       display_warnings
     end
