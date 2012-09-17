@@ -70,9 +70,11 @@ module Heroku::Command
     # -e, --expire  # if no slots are available, destroy the oldest manual backup to make room
     #
     def capture
-      from_name, from_url = hpg_resolve(shift_argument, "DATABASE_URL")
+      attachment = hpg_resolve(shift_argument, "DATABASE_URL")
       validate_arguments!
 
+      from_name = attachment.display_name
+      from_url  = attachment.url
       to_url    = nil # server will assign
       to_name   = "BACKUP"
 
@@ -103,13 +105,19 @@ module Heroku::Command
     #
     def restore
       if 0 == args.size
-        to_name, to_url = hpg_resolve(nil, "DATABASE_URL")
+        attachment = hpg_resolve(nil, "DATABASE_URL")
+        to_name = attachment.display_name
+        to_url  = attachment.url
         backup_id = :latest
       elsif 1 == args.size
-        to_name, to_url = hpg_resolve(shift_argument)
+        attachment = hpg_resolve(shift_argument)
+        to_name = attachment.display_name
+        to_url  = attachment.url
         backup_id = :latest
       else
-        to_name, to_url = hpg_resolve(shift_argument)
+        attachment = hpg_resolve(shift_argument)
+        to_name = attachment.display_name
+        to_url  = attachment.url
         backup_id = shift_argument
       end
 

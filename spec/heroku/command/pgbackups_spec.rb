@@ -16,7 +16,18 @@ module Heroku::Command
           "PGBACKUPS_URL"           => "https://ip:password@pgbackups.heroku.com/client"
         }
       )
+      @pgbackups.stub :app_attachments => mock_attachments
     end
+
+    let(:mock_attachments) {
+      [
+        Heroku::Helpers::HerokuPostgresql::Attachment.new({
+          'config_var' => 'HEROKU_POSTGRESQL_IVORY',
+          'resource' => {'name'  => 'softly-mocking-123',
+                         'value' => 'postgres://database',
+                         'type'  => 'heroku-postgresql:baku' }})
+      ]
+    }
 
     after do
       api.delete_app("myapp")
@@ -42,6 +53,13 @@ STDOUT
     end
 
     describe "single backup" do
+      let(:from_name)  { "FROM_NAME" }
+      let(:from_url)   { "postgres://from/bar" }
+      let(:attachment) { double('attachment', :display_name => from_name, :url => from_url ) }
+      before do
+        @pgbackups.stub!(:hpg_resolve).and_return(attachment)
+      end
+
       it "gets the url for the latest backup if nothing is specified" do
         stub_core
         stub_pgbackups.get_latest_backup.returns({"public_url" => "http://latest/backup.dump"})
@@ -70,11 +88,9 @@ STDOUT
       end
 
       it "should capture a backup when requested" do
-        from_name, from_url = "FROM_NAME", "postgres://from/bar"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
         @pgbackups.stub!(:args).and_return([])
-        @pgbackups.stub!(:hpg_resolve).and_return([from_name, from_url])
         @pgbackups.stub!(:transfer!).with(from_url, from_name, nil, "BACKUP", {:expire => nil}).and_return(backup_obj)
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
 
@@ -82,11 +98,9 @@ STDOUT
       end
 
       it "should send expiration flag to client if specified on args" do
-        from_name, from_url = "FROM_NAME", "postgres://from/bar"
         backup_obj = {'to_url' => "s3://bucket/userid/b001.dump"}
 
         @pgbackups.stub!(:options).and_return({:expire => true})
-        @pgbackups.stub!(:hpg_resolve).and_return([from_name, from_url])
         @pgbackups.stub!(:transfer!).with(from_url, from_name, nil, "BACKUP", {:expire => true}).and_return(backup_obj)
         @pgbackups.stub!(:poll_transfer!).with(backup_obj).and_return(backup_obj)
 
@@ -136,6 +150,12 @@ STDERR
           stub_core
           stub_pgbackups.create_transfer.returns(@backup_obj)
           stub_pgbackups.get_transfer.returns(@backup_obj)
+
+          any_instance_of(Heroku::Command::Pgbackups) do |pgbackups|
+            stub(pgbackups).app_attachments.returns(
+              mock_attachments
+            )
+          end
         end
 
         it 'aborts on a generic error' do
@@ -185,6 +205,7 @@ STDOUT
     end
 
     context "restore" do
+      let(:attachment) { double('attachment', :display_name => 'someconfigvar', :url => 'postgres://fromhost/database') }
       before do
         from_name, from_url = "FROM_NAME", "postgres://fromhost/database"
 
@@ -226,12 +247,13 @@ STDOUT
           @pgbackups.restore
         end
 
+
         it "should restore the named backup" do
           name = "backupname"
           args = ['DATABASE', name]
           @pgbackups.stub(:args).and_return(args)
           @pgbackups.stub(:shift_argument).and_return(*args)
-          @pgbackups.stub(:hpg_resolve).and_return([name])
+          @pgbackups.stub(:hpg_resolve).and_return(attachment)
           @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
           @pgbackups.restore
         end
@@ -240,7 +262,7 @@ STDOUT
           args = ['db_name_gets_shifted_out_in_resolve_db', 'http://external/file.dump']
           @pgbackups.stub(:args).and_return(args)
           @pgbackups.stub(:shift_argument).and_return(*args)
-          @pgbackups.stub(:hpg_resolve).and_return(["name", "url"])
+          @pgbackups.stub(:hpg_resolve).and_return(attachment)
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
           @pgbackups.restore
