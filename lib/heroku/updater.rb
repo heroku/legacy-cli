@@ -135,11 +135,14 @@ module Heroku
     end
 
     def self.background_update!
+      Heroku::Updater.disable("`heroku update` has been disabled in favor of autoupdate.")
+
       # default autoupdate for users with no plugins who haven't updated before
       unless File.exists?(File.join(Heroku::Helpers.home_directory, '.heroku'))
         FileUtils.mkdir_p(File.join(Heroku::Helpers.home_directory, '.heroku'))
         FileUtils.touch(File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate'))
       end
+
       if autoupdate? && !File.exists?(autoupdating_path)
         FileUtils.touch(autoupdating_path)
         log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
