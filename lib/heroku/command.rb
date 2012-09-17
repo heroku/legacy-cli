@@ -166,6 +166,17 @@ module Heroku
       @invalid_arguments = invalid_options
 
       @anonymous_command = [ARGV.first, *@anonymized_args].join(' ')
+      usage_directory = "#{home_directory}/.heroku/usage"
+      FileUtils.mkdir_p(usage_directory)
+      usage_file = usage_directory << "/#{Heroku::VERSION}"
+      usage = if File.exists?(usage_file)
+        json_decode(File.read(usage_file))
+      else
+        {}
+      end
+      usage[@anonymous_command] ||= 0
+      usage[@anonymous_command] += 1
+      File.write(usage_file, json_encode(usage) + "\n")
 
       if command
         command_instance = command[:klass].new(args.dup, opts.dup)
