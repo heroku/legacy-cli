@@ -48,7 +48,7 @@ module Heroku::Command
             exit(1)
           end
         else
-          error("Could not install #{plugin.name}. Please check the URL and try again")
+          error("Could not install #{plugin.name}. Please check the URL and try again.")
         end
       end
     end
