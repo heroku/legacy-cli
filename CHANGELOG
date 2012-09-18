@@ -1,3 +1,36 @@
+2.31.3 09/18/2012
+=================
+
+fix docs and options check for apps:info to use --shell
+use blocking requests for excon in status/updater
+fix punctuation for no app specified and remove helpers duplication
+retry get_transfer while polling
+remove aspen from example stack list
+remove redundant messaging on ssl endpoint cert removal
+show actual times instead of only approximate times
+update should check ENV['HEROKU_AUTOUPDATE'], not set it
+use updated heroku.rb
+simplify time_ago logic
+update time displays to consistently show same format
+remove duplication of DATABASE_URL label adding
+normalize heroku status help messages
+clarify pgbackups:capture --expire option help
+fix time value formatting display in status
+rearrange command to facilitate anonymous command capture
+clearer error messages when lacking internet connectivity
+collect usage locally, segregated by version
+allow/ignore usage writing failures
+use HerokuPostgres v11 API
+disable update when autoupdate is enabled
+fix punctuation in plugins:install messaging
+
+2.31.2 09/02/2012
+=================
+
+fix to properly reference error helpers in autoupdate
+delete autoupdate mutex with rm_f
+fix timing of autoupdate mutex
+
 2.31.1 08/28/2012
 =================
 
