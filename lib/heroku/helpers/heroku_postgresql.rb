@@ -61,6 +61,17 @@ module Heroku::Helpers::HerokuPostgresql
       @hpg_databases['DATABASE_URL'] = find_database_url_real_attachment
     end
 
+    if app_config_vars['SHARED_DATABASE_URL']
+      @hpg_databases['SHARED_DATABASE'] = Attachment.new({
+        'config_var' => 'SHARED_DATABASE',
+        'resource' => {
+            'name'  => 'SHARED_DATABASE',
+            'value' => app_config_vars['SHARED_DATABASE_URL'],
+            'type'  => 'shared:database'
+          }
+        })
+    end
+
     return @hpg_databases
   end
 
@@ -88,11 +99,13 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def match_attachments_by_name(name)
+     return [name] if hpg_databases[name]
      hpg_databases.keys.grep(%r{#{ name.split(//).join('\w*') }}i)
   end
 
   def hpg_resolve(name, default=nil)
     name = '' if name.nil?
+    name = 'DATABASE_URL' if name == 'DATABASE'
 
     if hpg_databases.empty?
       error("Your app has no databases.")
