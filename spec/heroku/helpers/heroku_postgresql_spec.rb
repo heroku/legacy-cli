@@ -37,6 +37,12 @@ describe Heroku::Helpers::HerokuPostgresql do
     att.url.should == "postgres://default"
   end
 
+  it "resolves SHARED_DATABASE" do
+    att = subject.hpg_resolve('SHARE_DATABASE')
+    att.display_name.should == "SHARED_DATABASE"
+    att.url.should == "postgres://shared"
+  end
+
   it "resolves default using NAME" do
     att = subject.hpg_resolve('IVORY')
     att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
@@ -80,14 +86,14 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   it "throws an error if it doesnt exist" do
-    subject.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+    subject.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
     subject.hpg_resolve("violet")
   end
 
   context "default" do
 
     it "errors if there is no default" do
-      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
       subject.hpg_resolve(nil)
     end
 
