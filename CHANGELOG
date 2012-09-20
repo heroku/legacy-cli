@@ -1,3 +1,10 @@
+2.32.0 09/20/2012
+=================
+
+autoupdate on by default
+make host verification more robust
+fix shared database regression in pg resolver
+
 2.31.3 09/18/2012
 =================
 
