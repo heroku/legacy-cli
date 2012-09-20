@@ -7,7 +7,8 @@ Heroku CLI Release Process
 * Update changelog.txt
 * Stage the changes `git add .`
 * Commit the changes `git commit -m "vX.Y.Z"`
-* Push the `git push origin master`
+* Tag the release `git tag vX.Y.Z`
+* Push the `git push origin master --tags`
 * Ensure CI still passes `bundle exec rake ci`
 * Ensure fisticuffs passes by starting a build at http://dx-jenkins.herokai.com/, you can open with `bundle exec rake jenkins`
 * Move to a checkout of the toolbelt repo and make sure everything is up to date `git pull`
