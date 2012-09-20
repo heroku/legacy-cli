@@ -71,28 +71,16 @@ module Heroku
       wait_for_lock(updating_lock_path, 5) do
         require "excon"
         require "heroku"
+        require "heroku/excon"
         require "tmpdir"
         require "zip/zip"
 
-        latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json', :nonblock => false).body)['version']
+        latest_version = Heroku::Helpers.json_decode(Excon.get_with_redirect('http://rubygems.org/api/v1/gems/heroku.json', :nonblock => false).body)['version']
 
         if compare_versions(latest_version, latest_local_version) > 0
           Dir.mktmpdir do |download_dir|
-
-            # follow redirect, if one exists
-            headers = Excon.head(
-              url,
-              :headers => {
-                'User-Agent' => Heroku.user_agent
-              },
-              :nonblack => false
-            ).headers
-            if headers['Location']
-              url = headers['Location']
-            end
-
             File.open("#{download_dir}/heroku.zip", "wb") do |file|
-              file.print Excon.get(url, :nonblock => false).body
+              file.print Excon.get_with_redirect(url).body
             end
 
             Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
