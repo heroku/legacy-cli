@@ -5,8 +5,8 @@ require 'heroku/helpers'
 module Heroku
   module Updater
 
-    def self.autoupdating_path
-      File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdating")
+    def self.updating_lock_path
+      File.join(Heroku::Helpers.home_directory, ".heroku", "updating")
     end
 
     def self.installed_client_path
@@ -68,13 +68,11 @@ module Heroku
     end
 
     def self.update(url, autoupdate=false)
-      wait_for_lock(autoupdating_path, 5) do
+      wait_for_lock(updating_lock_path, 5) do
         require "excon"
         require "heroku"
         require "tmpdir"
         require "zip/zip"
-
-        sleep 3
 
         latest_version = Heroku::Helpers.json_decode(Excon.get('http://rubygems.org/api/v1/gems/heroku.json', :nonblock => false).body)['version']
 
@@ -125,7 +123,7 @@ module Heroku
         end
       end
     ensure
-      FileUtils.rm_f(autoupdating_path)
+      FileUtils.rm_f(updating_lock_path)
     end
 
     def self.compare_versions(first_version, second_version)
