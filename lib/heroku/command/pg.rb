@@ -214,20 +214,19 @@ private
 
     @hpg_databases_with_info = Hash[ hpg_databases.map { |config, att| [att.display_name, hpg_info(att, options[:extended])] } ]
 
-    if app_config_vars.keys.grep /^SHARED_DATABASE/i
-      data = api.get_app(app).body
-      @hpg_databases_with_info.update('SHARED_DATABASE' => {
-        :info => [{
-          'name'    => 'Data Size',
-          'values'  => [format_bytes(data['database_size'])]
-        }]
-      })
-    end
     return @hpg_databases_with_info
   end
 
   def hpg_info(attachment, extended=false)
-    hpg_client(attachment).get_database(extended)
+    if attachment.resource_name == "SHARED_DATABASE"
+      data = api.get_app(app).body
+      {:info => [{
+        'name'    => 'Data Size',
+        'values'  => [format_bytes(data['database_size'])]
+      }]}
+    else
+      hpg_client(attachment).get_database(extended)
+    end
   end
 
   def hpg_info_display(item)
