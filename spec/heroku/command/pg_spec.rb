@@ -9,6 +9,7 @@ module Heroku::Command
       api.post_app "name" => "myapp"
       api.put_config_vars "myapp", {
         "DATABASE_URL" => "postgres://database_url",
+        "SHARED_DATABASE_URL" => "postgres://shared_database_url",
         "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
       }
@@ -118,6 +119,9 @@ PG Version:  9.1.4
 Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
+
+=== SHARED_DATABASE
+Data Size: (empty)
 
 STDOUT
       end
