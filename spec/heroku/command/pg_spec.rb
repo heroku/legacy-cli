@@ -119,9 +119,6 @@ Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
 
-=== SHARED_DATABASE
-Data Size: (empty)
-
 STDOUT
       end
     end
