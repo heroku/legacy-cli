@@ -1,3 +1,8 @@
+2.32.4 09/24/2012
+=================
+
+prevent excon from using nonblocking calls to avoid ruby 1.8.7 problems
+
 2.32.3 09/24/2012
 =================
 
