@@ -145,6 +145,7 @@ module Heroku
         return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 300
       end
       log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
+      FileUtils.mkdir_p File.dirname(log_path)
       pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
         fork do
           exec("heroku update &> #{log_path} 2>&1")
@@ -153,6 +154,7 @@ module Heroku
         spawn("heroku update", {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
+      FileUtils.mkdir_p File.dirname(last_autoupdate_path)
       FileUtils.touch last_autoupdate_path
     end
   end
