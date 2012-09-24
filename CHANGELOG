@@ -5,6 +5,16 @@ autoupdate on by default
 make host verification more robust
 fix shared database regression in pg resolver
 
+2.31.5 09/21/2012
+=================
+
+fix shared database regression in pg:info
+
+2.31.4 09/20/2012
+=================
+
+fix shared database regression in pg resolver
+
 2.31.3 09/18/2012
 =================
 
