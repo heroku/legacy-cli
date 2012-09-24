@@ -76,12 +76,12 @@ module Heroku
         require "tmpdir"
         require "zip/zip"
 
-        latest_version = Excon.get_with_redirect("http://assets.heroku.com/heroku-client/VERSION").body.chomp
+        latest_version = Excon.get_with_redirect("http://assets.heroku.com/heroku-client/VERSION", :nonblock => false).body.chomp
 
         if compare_versions(latest_version, latest_local_version) > 0
           Dir.mktmpdir do |download_dir|
             File.open("#{download_dir}/heroku.zip", "wb") do |file|
-              file.print Excon.get_with_redirect(url).body
+              file.print Excon.get_with_redirect(url, :nonblock => false).body
             end
 
             Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
