@@ -135,7 +135,15 @@ module Heroku
       background_update!
     end
 
+    def self.last_autoupdate_path
+      File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate.last")
+    end
+
     def self.background_update!
+      # if we've updated in the last 300 seconds, dont try again
+      if File.exists?(last_autoupdate_path)
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 300
+      end
       log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
       pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
         fork do
@@ -145,6 +153,7 @@ module Heroku
         spawn("heroku update", {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
+      FileUtils.touch last_autoupdate_path
     end
   end
 end
