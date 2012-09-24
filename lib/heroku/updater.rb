@@ -57,10 +57,11 @@ module Heroku
       end
       begin
         FileUtils.touch path
-        yield
+        ret = yield
       ensure
         FileUtils.rm_f path
       end
+      ret
     end
 
     def self.autoupdate?
@@ -75,7 +76,7 @@ module Heroku
         require "tmpdir"
         require "zip/zip"
 
-        latest_version = Heroku::Helpers.json_decode(Excon.get_with_redirect('http://rubygems.org/api/v1/gems/heroku.json', :nonblock => false).body)['version']
+        latest_version = Excon.get_with_redirect("http://assets.heroku.com/heroku-client/VERSION").body.chomp
 
         if compare_versions(latest_version, latest_local_version) > 0
           Dir.mktmpdir do |download_dir|

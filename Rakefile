@@ -173,7 +173,7 @@ CHANGELOG
 end
 
 desc("Release the latest version")
-task "release" => ["gem:release", "jenkins", "tgz:release", "zip:release"] do
+task "release" => ["gem:release", "jenkins", "tgz:release", "zip:release", "manifest:update"] do
   puts("Released v#{version}")
 end
 
