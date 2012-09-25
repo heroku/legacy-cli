@@ -4,28 +4,38 @@ require "heroku/command/base"
 #
 class Heroku::Command::Labs < Heroku::Command::Base
 
-  # labs [APP]
+  # labs
   #
-  # lists enabled features for an app
+  # show experimental features
   #
   #Example:
   #
-  # $ heroku labs -a myapp
-  # === myapp Enabled Features
-  # sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+  # === User Features (david@heroku.com)
+  # [+] dashboard  Use Heroku Dashboard by default
   #
-  # === email@example.com Enabled Features
-  # sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+  # === App Features (glacial-retreat-5913)
+  # [ ] preboot            Provide seamless web dyno deploys
+  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a myapp
   #
   def index
     validate_arguments!
 
-    if app
-      display_features(app, 'enabled', { 'enabled' => true, 'kind' => 'app' })
+    user_features, app_features = api.get_features(app).body.sort_by do |feature|
+      feature["name"]
+    end.partition do |feature|
+      feature["kind"] == "user"
     end
 
-    display_features(Heroku::Auth.user, 'enabled', { 'enabled' => true, 'kind' => 'user' })
+    display_app = app || "no app specified"
+
+    styled_header "User Features (#{Heroku::Auth.user})"
+    display_features user_features
+    display
+    styled_header "App Features (#{display_app})"
+    display_features app_features
   end
+
+  alias_command "labs:list", "labs"
 
   # labs:info FEATURE
   #
@@ -54,107 +64,79 @@ class Heroku::Command::Labs < Heroku::Command::Base
 
   # labs:disable FEATURE
   #
-  # disables FEATURE on an app
+  # disables an experimental feature
   #
   #Example:
   #
-  # $ heroku labs:disable user_env_compile
-  # Disabling user_env_compile for myapp... done
+  # $ heroku labs:disable ninja-power
+  # Disabling ninja-power feature for me@example.org... done
   #
   def disable
-    unless feature_name = shift_argument
-      error("Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable.")
-    end
+    feature_name = shift_argument
+    error "Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
     validate_arguments!
 
-    message = "Disabling #{feature_name}"
-    message += " for #{app}" if app
-    action(message) do
-      api.delete_feature(feature_name, app)
+    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
+    message = "Disabling #{feature_name} "
+
+    if feature["kind"] == "user"
+      message += "for #{Heroku::Auth.user}"
+    else
+      error "Must specify an app" unless app
+      message += "for #{app}"
+    end
+
+    action message do
+      api.delete_feature feature_name, app
     end
   end
 
   # labs:enable FEATURE
   #
-  # enables FEATURE on an app
+  # enables an experimental feature
   #
   #Example:
   #
-  # $ heroku labs:enable user_env_compile
-  # Enabling user_env_compile for myapp... done
-  # For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
+  # $ heroku labs:enable ninja-power
+  # Enabling ninja-power feature for me@example.org... done
   #
   def enable
-    unless feature_name = shift_argument
-      error("Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable.")
-    end
+    feature_name = shift_argument
+    error "Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable." unless feature_name
     validate_arguments!
 
-    message = "Enabling #{feature_name}"
-    message += " for #{app}" if app
-    feature_data = nil
-    action(message) do
-      feature_data = api.post_feature(feature_name, app).body
+    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
+    message = "Disabling #{feature_name} "
+
+    if feature["kind"] == "user"
+      message += "for #{Heroku::Auth.user}"
+    else
+      error "Must specify an app" unless app
+      message += "for #{app}"
     end
-    display("WARNING: This feature is experimental and may change or be removed without notice.")
-    display("For more information see: #{feature_data['docs']}")
-  end
 
-  # labs:list
-  #
-  # lists available features
-  #
-  #Example:
-  #
-  # $ heroku labs:list
-  # === App Available Features
-  # dot-profile:      Source .profile during dyno startup
-  # preboot:          Provide seamless deploys by booting web dynos with new code before killing existing web dynos.
-  # user_env_compile: Add user config vars to the environment during slug compilation
-  #
-  # === User Available Features
-  # default-heroku-postgresql-dev: Use the new heroku-postgresql:dev add-on as the default database for Cedar apps.
-  #
-  def list
-    validate_arguments!
+    feature_data = action(message) do
+      api.post_feature(feature_name, app).body
+    end
 
-    display_features('App', 'available', { 'kind' => 'app' })
-    display_features('User', 'available', { 'kind' => 'user' })
+    display "WARNING: This feature is experimental and may change or be removed without notice."
+    display "For more information see: #{feature_data["docs"]}" if feature_data["docs"]
   end
 
 private
 
+  # app is not required for these commands, so rescue if there is none
   def app
-    # app is not required for these commands, so rescue if there is none
     super
   rescue Heroku::Command::CommandFailed
     nil
   end
 
-  def display_features(type, status, attributes)
-    @features ||= api.get_features(app).body
-
-    selected_features = @features.dup
-    attributes.each do |key, value|
-      selected_features = selected_features.select {|feature| feature[key] == value}
-    end
-
-    feature_hash = {}
-    selected_features.each do |feature|
-      feature_hash[feature['name']] = feature['summary']
-    end
-
-    if feature_hash.empty?
-      case status
-      when 'available'
-        display("There are no #{type} features available.")
-      when 'enabled'
-        display("#{type} has no enabled features.")
-      end
-    else
-      styled_header("#{type} #{status.capitalize} Features")
-      styled_hash(feature_hash)
-      display
+  def display_features(features)
+    longest_name = features.map { |f| f["name"].to_s.length }.sort.last
+    features.each do |feature|
+      toggle = feature["enabled"] ? "[+]" : "[ ]"
+      display "%s %-#{longest_name}s  %s" % [ toggle, feature["name"], feature["summary"] ]
     end
   end
 
