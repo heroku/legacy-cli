@@ -6,7 +6,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
 
   # labs
   #
-  # show experimental features
+  # list experimental features
   #
   #Example:
   #
