@@ -106,7 +106,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
     validate_arguments!
 
     feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
-    message = "Disabling #{feature_name} "
+    message = "Enabling #{feature_name} "
 
     if feature["kind"] == "user"
       message += "for #{Heroku::Auth.user}"
