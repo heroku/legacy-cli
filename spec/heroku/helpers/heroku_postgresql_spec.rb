@@ -6,6 +6,7 @@ include Heroku::Helpers::HerokuPostgresql
 describe Heroku::Helpers::HerokuPostgresql do
 
   before do
+    subject.forget_config!
     subject.stub(:app_config_vars) { app_config_vars }
     subject.stub(:app_attachments) { app_attachments }
   end
@@ -38,7 +39,7 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   it "resolves SHARED_DATABASE" do
-    att = subject.hpg_resolve('SHARE_DATABASE')
+    att = subject.hpg_resolve('SHARED_DATABASE')
     att.display_name.should == "SHARED_DATABASE"
     att.url.should == "postgres://shared"
   end
@@ -97,11 +98,30 @@ describe Heroku::Helpers::HerokuPostgresql do
       subject.hpg_resolve(nil)
     end
 
-    it "uses the default if nothing specified" do
+    it "uses the default if nothing(nil) specified" do
       att = subject.hpg_resolve(nil, "DATABASE_URL")
       att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
       att.url.should == "postgres://default"
     end
+
+    it "uses the default if nothing(empty) specified" do
+      att = subject.hpg_resolve('', "DATABASE_URL")
+      att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
+      att.url.should == "postgres://default"
+    end
+
+    it 'throws an error if given an empty string and asked for the default and there is no default' do
+      app_config_vars.delete 'DATABASE_URL'
+      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+      att = subject.hpg_resolve('', "DATABASE_URL")
+    end
+
+    it 'throws an error if given an empty string and asked for the default and the default doesnt match' do
+      app_config_vars['DATABASE_URL'] = 'something different'
+      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+      att = subject.hpg_resolve('', "DATABASE_URL")
+    end
+
 
   end
 end
