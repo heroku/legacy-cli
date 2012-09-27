@@ -1,3 +1,8 @@
+2.32.5 2012-09-27
+=================
+fix corner case bug in pg resolver
+rework labs output
+
 2.32.4 09/24/2012
 =================
 
