@@ -18,13 +18,12 @@ module Heroku::Command
       stderr, stdout = execute("labs:list")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== App Available Features
-sigterm-all:      When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-user_env_compile: Add user config vars to the environment during slug compilation
+=== User Features (email@example.com)
+[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
-=== User Available Features
-sumo-rankings: Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
-
+=== App Features (myapp)
+[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+[ ] user_env_compile  Add user config vars to the environment during slug compilation
 STDOUT
     end
 
@@ -33,10 +32,12 @@ STDOUT
       stderr, stdout = execute("labs")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Enabled Features
-sigterm-all: When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+=== User Features (email@example.com)
+[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
-email@example.com has no enabled features.
+=== App Features (myapp)
+[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
+[ ] user_env_compile  Add user config vars to the environment during slug compilation
 STDOUT
     end
 
