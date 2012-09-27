@@ -99,8 +99,9 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def match_attachments_by_name(name)
+     return [] if name.empty?
      return [name] if hpg_databases[name]
-     hpg_databases.keys.grep(%r{#{ name.split(//).join('\w*') }}i)
+     hpg_databases.keys.grep(%r{#{ name }}i)
   end
 
   def hpg_resolve(name, default=nil)
@@ -111,14 +112,19 @@ module Heroku::Helpers::HerokuPostgresql
       error("Your app has no databases.")
     end
 
+    found_attachment = nil
     canidates = match_attachments_by_name(name)
-    if canidates.size == 1
-      hpg_databases[canidates.first]
-    elsif default && name.empty? && app_config_vars[default]
-      hpg_databases[default]
-    else
+    if default && name.empty? && app_config_vars[default]
+      found_attachment = hpg_databases[default]
+    elsif canidates.size == 1
+      found_attachment = hpg_databases[canidates.first]
+    end
+
+    if found_attachment.nil?
       error("Unknown database#{': ' + name unless name.empty?}. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
     end
+
+    return found_attachment
   end
 
   def hpg_translate_fork_and_follow(addon, config)

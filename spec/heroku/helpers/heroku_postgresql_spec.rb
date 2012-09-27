@@ -39,7 +39,7 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   it "resolves SHARED_DATABASE" do
-    att = subject.hpg_resolve('SHARE_DATABASE')
+    att = subject.hpg_resolve('SHARED_DATABASE')
     att.display_name.should == "SHARED_DATABASE"
     att.url.should == "postgres://shared"
   end
