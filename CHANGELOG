@@ -1,3 +1,7 @@
+2.32.6 2012-09-27
+=================
+fix bug in labs for user_env_compile
+
 2.32.5 2012-09-27
 =================
 fix corner case bug in pg resolver
