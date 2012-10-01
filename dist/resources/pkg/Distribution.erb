@@ -8,6 +8,8 @@
   </choices-outline>
   <choice id="heroku-client" title="Heroku Client">
     <pkg-ref id="com.heroku.client"/>
+    <pkg-ref id="org.ruby-lang.installer"/>
   </choice>
   <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-client.pkg</pkg-ref>
+  <pkg-ref id="org.ruby-lang.installer" installKBytes="9132" auth="Root">#ruby.pkg</pkg-ref>
 </installer-script>

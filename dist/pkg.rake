@@ -33,6 +33,10 @@ file pkg("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
       sh %{ pax -wz -x cpio . > ../pkg/heroku-client.pkg/Payload }
     end
 
+    sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/ruby.pkg -o ruby.pkg }
+    sh %{ pkgutil --expand ruby.pkg ruby }
+    mv "ruby/ruby-1.9.3-p194.pkg", "pkg/ruby.pkg"
+
     sh %{ pkgutil --flatten pkg heroku-#{version}.pkg }
 
     cp_r "heroku-#{version}.pkg", t.name
