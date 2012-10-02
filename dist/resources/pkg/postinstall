@@ -1,2 +1,36 @@
 #!/bin/sh
-ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
+
+# determine proper startup scripts per-shell
+case $(basename $SHELL) in
+  zsh)
+    startup_files=".zlogin .zshrc .zprofile .zshenv"
+    ;;
+  bash)
+    startup_files=".bash_profile .bash_login .profile"
+    ;;
+  *)
+    startup_files=""
+    ;;
+esac
+
+# if the toolbelt is not returned by `which`, let's add to the PATH
+if [[ $(which heroku) != "/usr/local/heroku/bin/heroku" ]]; then
+
+  # find the first available startup file
+  for startup_file in $startup_files; do
+
+    # if it exists and doesn't already have the Toolbelt bits
+    if [[ -f $HOME/$startup_file ]] && [[ $(grep "Added by the Heroku" $HOME/$startup_file) == "" ]]; then
+
+      # add the Toolbelt to the PATH
+      cat <<MESSAGE >>$HOME/$startup_file
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:\$PATH"
+MESSAGE
+
+      # and bail out
+      exit 0
+    fi
+  done
+fi
