@@ -222,7 +222,7 @@ module Heroku::Command
           sleep 1
           transfer = pgbackup_client.get_transfer(transfer["id"])
         rescue RestClient::ServiceUnavailable
-          (attempts += 1) <= 5 ? retry : raise
+          retry
         end
       end
 
