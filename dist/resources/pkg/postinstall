@@ -1,7 +1,9 @@
 #!/bin/sh
 
+usershell=$(dscl localhost -read /Local/Default/Users/$USER shell | sed -e 's/[^ ]* //')
+
 # determine proper startup scripts per-shell
-case $(basename $SHELL) in
+case $(basename $usershell) in
   zsh)
     startup_files=".zlogin .zshrc .zprofile .zshenv"
     ;;
@@ -9,7 +11,7 @@ case $(basename $SHELL) in
     startup_files=".bash_profile .bash_login .profile"
     ;;
   *)
-    startup_files=""
+    startup_files=".bash_profile .zshrc .profile"
     ;;
 esac
 
