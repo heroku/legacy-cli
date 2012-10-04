@@ -1,3 +1,7 @@
+2.32.8 2012-10-04
+=================
+patch release to bump debian installer
+
 2.32.7 2012-10-04
 =================
 proper error messages for labs features that do not exist
