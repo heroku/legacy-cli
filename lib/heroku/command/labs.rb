@@ -76,8 +76,10 @@ class Heroku::Command::Labs < Heroku::Command::Base
     error "Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
     validate_arguments!
 
-    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name } || {}
+    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
     message = "Disabling #{feature_name} "
+
+    error "No such feature: #{feature_name}" unless feature
 
     if feature["kind"] == "user"
       message += "for #{Heroku::Auth.user}"
@@ -105,8 +107,10 @@ class Heroku::Command::Labs < Heroku::Command::Base
     error "Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable." unless feature_name
     validate_arguments!
 
-    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name } || {}
+    feature = api.get_features.body.detect { |f| f["name"] == feature_name }
     message = "Enabling #{feature_name} "
+
+    error "No such feature: #{feature_name}" unless feature
 
     if feature["kind"] == "user"
       message += "for #{Heroku::Auth.user}"
