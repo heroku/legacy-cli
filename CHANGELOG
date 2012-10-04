@@ -1,3 +1,9 @@
+2.32.7 2012-10-04
+=================
+proper error messages for labs features that do not exist
+PATH manipulation in toolbelt packaging
+package ruby-1.9.3 with OSX toolbelt
+
 2.32.6 2012-09-27
 =================
 fix bug in labs for user_env_compile
