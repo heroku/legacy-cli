@@ -224,12 +224,17 @@ You can monitor completion by running: heroku pgbackups -a <app-name>
         update_display(transfer)
         break if transfer["finished_at"]
 
-        attempts = 0
+        sleep_time = 1
         begin
-          sleep 1
+          sleep(sleep_time)
           transfer = pgbackup_client.get_transfer(transfer["id"])
         rescue RestClient::ServiceUnavailable
-          (attempts += 1) > 50 ? poll_error : retry
+          if sleep_time > 300
+            poll_error
+          else
+            sleep_time *= 2
+            retry
+          end
         end
       end
 
