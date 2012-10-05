@@ -203,6 +203,13 @@ module Heroku::Command
       pgbackup_client.create_transfer(from_url, from_name, to_url, to_name, opts)
     end
 
+    def poll_error
+      error <<-EOM
+PGBackups returned too many errors. The backup is likely still running.
+You can monitor completion by running: heroku pgbackups -a <app-name>
+      EOM
+    end
+
     def poll_transfer!(transfer)
       display "\n"
 
@@ -217,12 +224,17 @@ module Heroku::Command
         update_display(transfer)
         break if transfer["finished_at"]
 
-        attempts = 0
+        sleep_time = 1
         begin
-          sleep 1
+          sleep(sleep_time)
           transfer = pgbackup_client.get_transfer(transfer["id"])
         rescue RestClient::ServiceUnavailable
-          (attempts += 1) <= 5 ? retry : raise
+          if sleep_time > 300
+            poll_error
+          else
+            sleep_time *= 2
+            retry
+          end
         end
       end
 
