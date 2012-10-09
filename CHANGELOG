@@ -1,3 +1,7 @@
+2.32.9 2012-10-09
+=================
+backoff retries of pgbackups status api
+
 2.32.8 2012-10-04
 =================
 patch release to bump debian installer
