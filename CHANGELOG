@@ -1,3 +1,7 @@
+2.32.10 2012-10-10
+==================
+fix useragent reporting
+
 2.32.9 2012-10-09
 =================
 backoff retries of pgbackups status api
