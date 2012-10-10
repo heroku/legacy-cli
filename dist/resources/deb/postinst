@@ -8,7 +8,7 @@ case $(basename $usershell) in
     startup_files=".zlogin .zshrc .zprofile .zshenv"
     ;;
   bash)
-    startup_files=".bash_profile .bashrc .bash_login .profile"
+    startup_files=".bashrc .bash_profile .bash_login .profile"
     ;;
   *)
     startup_files=".bash_profile .zshrc .profile"
