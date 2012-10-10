@@ -4,10 +4,10 @@ require "heroku/version"
 
 module Heroku
 
-  USER_AGENT = 'legacy' # left for backwards compatibility with old toolbelt bin files
+  USER_AGENT = "heroku-gem/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 
   def self.user_agent
-    @@user_agent ||= "heroku-gem/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+    @@user_agent ||= USER_AGENT
   end
 
   def self.user_agent=(agent)
