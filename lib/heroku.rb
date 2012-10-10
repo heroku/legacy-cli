@@ -7,12 +7,11 @@ module Heroku
   USER_AGENT = 'legacy' # left for backwards compatibility with old toolbelt bin files
 
   def self.user_agent
-    type = if ENV['GEM_HOME'] && __FILE__.include?(ENV['GEM_HOME'])
-      'gem'
-    else
-      'toolbelt'
-    end
-    "heroku-#{type}/#{Heroku::Updater.latest_local_version} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION} autoupdate"
+    @@user_agent ||= "heroku-gem/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+  end
+
+  def self.user_agent=(agent)
+    @@user_agent = agent
   end
 
 end

@@ -21,4 +21,5 @@ Heroku::Updater.disable("To update this version of the Heroku client please use
 
 # start up the CLI
 require "heroku/cli"
+Heroku.user_agent = "heroku-toolbelt/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 Heroku::CLI.start(*ARGV)

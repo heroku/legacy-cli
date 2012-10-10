@@ -13,4 +13,5 @@ Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.
 
 # start up the CLI
 require "heroku/cli"
+Heroku.user_agent = "heroku-gem/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 Heroku::CLI.start(*ARGV)
