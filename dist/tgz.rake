@@ -3,11 +3,13 @@ file pkg("heroku-#{version}.tgz") => distribution_files("tgz") do |t|
     mkchdir("heroku-client") do
       assemble_distribution
       assemble_gems
-      rm_rf "bin"
-      assemble resource("tgz/heroku"), "heroku", 0755
+      assemble resource("tgz/heroku"), "bin/heroku", 0755
     end
 
-    sh "tar czvf #{t.name} heroku-client"
+    sh "chmod -R go+r heroku-client"
+    sh "sudo chown -R 0:0 heroku-client"
+    sh "tar czf #{t.name} heroku-client"
+    sh "sudo chown -R $(whoami) heroku-client"
   end
 end
 
