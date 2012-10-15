@@ -1,3 +1,7 @@
+2.32.12 2012-10-15
+==================
+add gem deprecation warning to install output
+
 2.32.11 2012-10-10
 ==================
 fix useragent reporting
