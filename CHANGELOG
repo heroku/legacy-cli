@@ -1,3 +1,7 @@
+2.32.13 2012-10-15
+==================
+fix updater in the presence of multiple heroku binaries
+
 2.32.12 2012-10-15
 ==================
 add gem deprecation warning to install output
