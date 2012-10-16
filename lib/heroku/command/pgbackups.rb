@@ -228,7 +228,7 @@ Verify the status of your backup with `heroku pgbackups -a #{app}`
         begin
           sleep(sleep_time)
           transfer = pgbackup_client.get_transfer(transfer["id"])
-        rescue RestClient::ServiceUnavailable
+        rescue RestClient::ServiceUnavailable, RestClient::ServerBrokeConnection
           if sleep_time > 300
             poll_error(app)
           else
