@@ -20,10 +20,11 @@ module Heroku::Command
       pgbackup_client.get_transfers.each { |t|
         next unless backup_types.member?(t['to_name']) && !t['error_at'] && !t['destroyed_at']
         backups << {
-          'id' => backup_name(t['to_url']),
-          'created_at' => t['created_at'],
-          'size' => t['size'],
-          'database' => t['from_name']
+          'id'          => backup_name(t['to_url']),
+          'created_at'  => t['created_at'],
+          'status'      => transfer_status(t),
+          'size'        => t['size'],
+          'database'    => t['from_name']
         }
       }
 
@@ -32,9 +33,20 @@ module Heroku::Command
       else
         display_table(
           backups,
-          %w{ id created_at size database },
-          ["ID", "Backup Time", "Size", "Database"]
+          %w{ id created_at status size database },
+          ["ID", "Backup Time", "Status", "Size", "Database"]
         )
+      end
+    end
+
+    def transfer_status(t)
+      if t['finished_at']
+        "Finished @ #{t["finished_at"]}"
+      elsif t['started_at']
+        step = t['progress'] && t['progress'].split[0]
+        step.nil? ? 'Unknown' : step_map[step]
+      else
+        "Unknown"
       end
     end
 
@@ -243,15 +255,8 @@ Verify the status of your backup with `heroku pgbackups -a #{app}`
       return transfer
     end
 
-    def update_display(transfer)
-      @ticks            ||= 0
-      @last_updated_at  ||= 0
-      @last_logs        ||= []
-      @last_progress    ||= ["", 0]
-
-      @ticks += 1
-
-      step_map = {
+    def step_map
+      @step_map ||= {
         "dump"      => "Capturing",
         "upload"    => "Storing",
         "download"  => "Retrieving",
@@ -259,6 +264,15 @@ Verify the status of your backup with `heroku pgbackups -a #{app}`
         "gunzip"    => "Uncompressing",
         "load"      => "Restoring",
       }
+    end
+
+    def update_display(transfer)
+      @ticks            ||= 0
+      @last_updated_at  ||= 0
+      @last_logs        ||= []
+      @last_progress    ||= ["", 0]
+
+      @ticks += 1
 
       if !transfer["log"]
         @last_progress = ['pending', nil]
