@@ -21,14 +21,14 @@ class Heroku::Command::Git < Heroku::Command::Base
   def clone
     remote = options[:remote] || "heroku"
 
-    name = app rescue shift_argument
+    name = options[:app] || shift_argument || error("Usage: heroku git:clone APP [DIRECTORY]")
     directory = shift_argument
     validate_arguments!
 
     git_url = api.get_app(name).body["git_url"]
 
     puts "Cloning from app '#{name}'..."
-    system "git clone -o #{remote} #{git_url} #{directory}"
+    system "git clone -o #{remote} #{git_url} #{directory}".strip
   end
 
   alias_command "clone", "git:clone"
