@@ -4,35 +4,34 @@ require "heroku/command/base"
 #
 class Heroku::Command::Git < Heroku::Command::Base
 
-  # git:clone [OPTIONS]
+  # git:clone APP [DIRECTORY]
   #
-  # clones an app repo
+  # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
   #
-  # if OPTIONS are specified they will be passed to git clone
-  #
-  # -n, --no-remote            # don't create a git remote
-  # -r, --remote REMOTE        # the git remote to create, default "heroku"
+  # -r, --remote REMOTE  # the git remote to create, default "heroku"
   #
   #Examples:
   #
-  # $ heroku git:clone -a myapp
+  # $ heroku git:clone myapp
+  # Cloning from app 'myapp'...
   # Cloning into 'myapp'...
-  # Git remote heroku added
+  # remote: Counting objects: 42, done.
+  # ...
   #
   def clone
-    git_options = args.join(" ")
-    remote = options[:remote] || 'heroku'
+    remote = options[:remote] || "heroku"
 
-    app_data = api.get_app(app).body
+    name = app rescue shift_argument
+    directory = shift_argument
+    validate_arguments!
 
-    display git("clone #{app_data['git_url']} #{git_options}")
+    git_url = api.get_app(name).body["git_url"]
 
-    unless $?.exitstatus > 0 || options[:no_remote].is_a?(FalseClass)
-      FileUtils.chdir(app_data['name']) do
-        create_git_remote(remote, app_data['git_url'])
-      end
-    end
+    puts "Cloning from app '#{name}'..."
+    system "git clone -o #{remote} #{git_url} #{directory}"
   end
+
+  alias_command "clone", "git:clone"
 
   # git:remote [OPTIONS]
   #
