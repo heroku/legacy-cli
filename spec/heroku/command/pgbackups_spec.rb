@@ -37,8 +37,10 @@ module Heroku::Command
       stub_core
       stub_pgbackups.get_transfers.returns([{
         "created_at"  => "2012-01-01 12:00:00 +0000",
+        "started_at"  => "2012-01-01 12:00:01 +0000",
         "from_name"   => "DATABASE",
         "size"        => "1024",
+        "progress"    => "dump 2048",
         "to_name"     => "BACKUP",
         "to_url"      => "s3://bucket/userid/b001.dump"
       }])
@@ -46,9 +48,9 @@ module Heroku::Command
       stderr, stdout = execute("pgbackups")
       stderr.should == ""
       stdout.should == <<-STDOUT
-ID    Backup Time                Size  Database
-----  -------------------------  ----  --------
-b001  2012-01-01 12:00:00 +0000  1024  DATABASE
+ID    Backup Time                Status     Size  Database
+----  -------------------------  ---------  ----  --------
+b001  2012-01-01 12:00:00 +0000  Capturing  1024  DATABASE
 STDOUT
     end
 
