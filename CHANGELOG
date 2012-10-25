@@ -1,3 +1,9 @@
+2.33.0 2012-10-25
+=================
+tweak the argument format for git:clone
+verify signature for updates
+show transfer status in pgbackups list
+
 2.32.14 2012-10-16
 ==================
 fix updater process for paths with spaces
