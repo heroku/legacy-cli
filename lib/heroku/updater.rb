@@ -1,9 +1,13 @@
+require "digest"
 require "fileutils"
-
-require 'heroku/helpers'
+require "heroku/helpers"
 
 module Heroku
   module Updater
+
+    def self.error(message)
+      raise Heroku::Command::CommandFailed.new(message)
+    end
 
     def self.updating_lock_path
       File.join(Heroku::Helpers.home_directory, ".heroku", "updating")
@@ -83,6 +87,11 @@ module Heroku
             File.open("#{download_dir}/heroku.zip", "wb") do |file|
               file.print Excon.get_with_redirect(url, :nonblock => false).body
             end
+
+            hash = Digest::SHA256.file("#{download_dir}/heroku.zip").hexdigest
+            official_hash = Excon.get_with_redirect("https://toolbelt.heroku.com/update/hash", :nonblock => false).body.chomp
+
+            error "Update hash signature mismatch" unless hash == official_hash
 
             Zip::ZipFile.open("#{download_dir}/heroku.zip") do |zip|
               zip.each do |entry|
