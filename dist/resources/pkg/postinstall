@@ -2,37 +2,45 @@
 
 usershell=$(dscl localhost -read /Local/Default/Users/$USER shell | sed -e 's/[^ ]* //')
 
-# determine proper startup scripts per-shell
-case $(basename $usershell) in
-  zsh)
-    startup_files=".zlogin .zshrc .zprofile .zshenv"
-    ;;
-  bash)
-    startup_files=".bash_profile .bash_login .profile"
-    ;;
-  *)
-    startup_files=".bash_profile .zshrc .profile"
-    ;;
-esac
+startup_files() {
+  case $(basename $usershell) in
+    zsh)
+      echo ".zlogin .zshrc .zprofile .zshenv"
+      ;;
+    bash)
+      echo ".bashrc .bash_profile .bash_login .profile"
+      ;;
+    *)
+      echo ".bash_profile .zshrc .profile"
+      ;;
+  esac
+}
 
-# if the toolbelt is not returned by `which`, let's add to the PATH
-if [[ $(which heroku) != "/usr/local/heroku/bin/heroku" ]]; then
+install_path() {
+  for file in $(startup_files); do
+    echo "file:$file"
+    [ -f $HOME/$file ] || continue
+    (grep "Added by the Heroku" $HOME/$file >/dev/null) && break
 
-  # find the first available startup file
-  for startup_file in $startup_files; do
-
-    # if it exists and doesn't already have the Toolbelt bits
-    if [[ -f $HOME/$startup_file ]] && [[ $(grep "Added by the Heroku" $HOME/$startup_file) == "" ]]; then
-
-      # add the Toolbelt to the PATH
-      cat <<MESSAGE >>$HOME/$startup_file
+    cat <<MESSAGE >>$HOME/$file
 
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:\$PATH"
 MESSAGE
 
-      # and bail out
-      exit 0
-    fi
+    # done after we add to one file
+    break
   done
-fi
+}
+
+# if the toolbelt is not returned by `which`, let's add to the PATH
+case $(which heroku) in
+  /usr/bin/heroku|/usr/local/heroku/bin/heroku)
+    ;;
+  *)
+    install_path
+    ;;
+esac
+
+# symlink binary to /usr/bin/heroku
+ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
