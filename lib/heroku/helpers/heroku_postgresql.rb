@@ -132,7 +132,7 @@ module Heroku::Helpers::HerokuPostgresql
       %w[fork follow].each do |opt|
         if val = config[opt]
           unless val.is_a?(String)
-            error("--#{opt} requires a database argument")
+            error("--#{opt} requires a database argument.")
           end
 
           uri = URI.parse(val) rescue nil
@@ -140,6 +140,9 @@ module Heroku::Helpers::HerokuPostgresql
             argument_url = uri.to_s
           else
             attachment = hpg_resolve(val)
+            if attachment.starter_plan?
+              error("#{opt.tr 'f', 'F'} is only available on production databases.")
+            end
             argument_url = attachment.url
           end
 
