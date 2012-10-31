@@ -88,6 +88,9 @@ module Heroku::Helpers::HerokuPostgresql
     primary_db_url = app_config_vars['DATABASE_URL']
     return unless primary_db_url
 
+    primary_db_url = primary_db_url.split("?").first 
+    return unless primary_db_url && !primary_db_url.empty?
+
     real_config = app_config_vars.detect {|k,v| k != 'DATABASE_URL' && v == primary_db_url }
     if real_config
       real = hpg_databases[real_config.first]
@@ -113,11 +116,11 @@ module Heroku::Helpers::HerokuPostgresql
     end
 
     found_attachment = nil
-    canidates = match_attachments_by_name(name)
+    candidates = match_attachments_by_name(name)
     if default && name.empty? && app_config_vars[default]
       found_attachment = hpg_databases[default]
-    elsif canidates.size == 1
-      found_attachment = hpg_databases[canidates.first]
+    elsif candidates.size == 1
+      found_attachment = hpg_databases[candidates.first]
     end
 
     if found_attachment.nil?

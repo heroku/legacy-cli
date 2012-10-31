@@ -13,7 +13,7 @@ describe Heroku::Helpers::HerokuPostgresql do
 
   let(:app_config_vars) do
     {
-      "DATABASE_URL"                => "postgres://default",
+      "DATABASE_URL"                => "postgres://default?extra=test",
       "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
       "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default",
       "SHARED_DATABASE_URL"         => "postgres://shared"
