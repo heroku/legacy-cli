@@ -102,6 +102,7 @@ module Heroku::Command
 
       if backup["error_at"]
         message  =   "An error occurred and your backup did not finish."
+        message += "\nPlease run `heroku logs --ps pgbackups` for details."
         message += "\nThe database is not yet online. Please try again." if backup['log'] =~ /Name or service not known/
         message += "\nThe database credentials are incorrect."           if backup['log'] =~ /psql: FATAL:/
         error(message)
