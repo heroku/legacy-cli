@@ -165,6 +165,7 @@ STDERR
           stderr, stdout = execute("pgbackups:capture")
           stderr.should == <<-STDERR
  !    An error occurred and your backup did not finish.
+ !    Please run `heroku logs --ps pgbackups` for details.
 STDERR
           stdout.should == <<-STDOUT
 
@@ -179,6 +180,7 @@ STDOUT
           stderr, stdout = execute("pgbackups:capture")
           stderr.should == <<-STDERR
  !    An error occurred and your backup did not finish.
+ !    Please run `heroku logs --ps pgbackups` for details.
  !    The database is not yet online. Please try again.
 STDERR
           stdout.should == <<-STDOUT
@@ -194,6 +196,7 @@ STDOUT
           stderr, stdout = execute("pgbackups:capture")
           stderr.should == <<-STDERR
  !    An error occurred and your backup did not finish.
+ !    Please run `heroku logs --ps pgbackups` for details.
  !    The database credentials are incorrect.
 STDERR
           stdout.should == <<-STDOUT
