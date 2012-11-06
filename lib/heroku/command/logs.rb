@@ -11,7 +11,6 @@ class Heroku::Command::Logs < Heroku::Command::Base
   # -n, --num NUM        # the number of lines to display
   # -p, --ps PS          # only display logs from the given process
   # -s, --source SOURCE  # only display logs from the given source
-  # -t, --tail           # continually stream logs
   #
   #Example:
   #
@@ -23,7 +22,7 @@ class Heroku::Command::Logs < Heroku::Command::Base
     validate_arguments!
 
     opts = []
-    opts << "tail=1"                                 if options[:tail]
+    opts << "tail=1"
     opts << "num=#{options[:num]}"                   if options[:num]
     opts << "ps=#{URI.encode(options[:ps])}"         if options[:ps]
     opts << "source=#{URI.encode(options[:source])}" if options[:source]

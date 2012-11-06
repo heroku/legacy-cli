@@ -4,7 +4,7 @@ require "heroku/command/logs"
 describe Heroku::Command::Logs do
   describe "logs" do
     it "runs with no options" do
-      stub_core.read_logs("myapp", [])
+      stub_core.read_logs("myapp", ["tail=1"])
       execute "logs"
     end
 
@@ -15,12 +15,12 @@ describe Heroku::Command::Logs do
         "ps=ps.3",
         "source=source.4"
       ])
-      execute "logs --tail --num 2 --ps ps.3 --source source.4"
+      execute "logs --num 2 --ps ps.3 --source source.4"
     end
 
     describe "with log output" do
       before(:each) do
-        stub_core.read_logs("myapp", []).yields("2011-01-01T00:00:00+00:00 app[web.1]: test")
+        stub_core.read_logs("myapp", ["tail=1"]).yields("2011-01-01T00:00:00+00:00 app[web.1]: test")
       end
 
       it "prettifies tty output" do
