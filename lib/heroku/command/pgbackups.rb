@@ -39,17 +39,6 @@ module Heroku::Command
       end
     end
 
-    def transfer_status(t)
-      if t['finished_at']
-        "Finished @ #{t["finished_at"]}"
-      elsif t['started_at']
-        step = t['progress'] && t['progress'].split[0]
-        step.nil? ? 'Unknown' : step_map[step]
-      else
-        "Unknown"
-      end
-    end
-
     # pgbackups:url [BACKUP_ID]
     #
     # get a temporary URL for a backup
@@ -195,6 +184,17 @@ module Heroku::Command
     end
 
     protected
+
+    def transfer_status(t)
+      if t['finished_at']
+        "Finished @ #{t["finished_at"]}"
+      elsif t['started_at']
+        step = t['progress'] && t['progress'].split[0]
+        step.nil? ? 'Unknown' : step_map[step]
+      else
+        "Unknown"
+      end
+    end
 
     def config_vars
       @config_vars ||= api.get_config_vars(app).body
