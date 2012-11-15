@@ -1,3 +1,9 @@
+2.33.1 2012-11-15
+=================
+better pgbackups retry
+error when creating a fork or follower of a starter tier database
+bump heroku-api
+
 2.33.0 2012-10-25
 =================
 tweak the argument format for git:clone
