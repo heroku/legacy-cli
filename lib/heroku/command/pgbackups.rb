@@ -39,17 +39,6 @@ module Heroku::Command
       end
     end
 
-    def transfer_status(t)
-      if t['finished_at']
-        "Finished @ #{t["finished_at"]}"
-      elsif t['started_at']
-        step = t['progress'] && t['progress'].split[0]
-        step.nil? ? 'Unknown' : step_map[step]
-      else
-        "Unknown"
-      end
-    end
-
     # pgbackups:url [BACKUP_ID]
     #
     # get a temporary URL for a backup
@@ -196,6 +185,17 @@ module Heroku::Command
 
     protected
 
+    def transfer_status(t)
+      if t['finished_at']
+        "Finished @ #{t["finished_at"]}"
+      elsif t['started_at']
+        step = t['progress'] && t['progress'].split[0]
+        step.nil? ? 'Unknown' : step_map[step]
+      else
+        "Unknown"
+      end
+    end
+
     def config_vars
       @config_vars ||= api.get_config_vars(app).body
     end
@@ -220,6 +220,7 @@ module Heroku::Command
       error <<-EOM
 Failed to query the PGBackups status API. Your backup may still be running.
 Verify the status of your backup with `heroku pgbackups -a #{app}`
+You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
       EOM
     end
 
@@ -241,7 +242,7 @@ Verify the status of your backup with `heroku pgbackups -a #{app}`
         begin
           sleep(sleep_time)
           transfer = pgbackup_client.get_transfer(transfer["id"])
-        rescue RestClient::ServiceUnavailable, RestClient::ServerBrokeConnection
+        rescue
           if sleep_time > 300
             poll_error(app)
           else
