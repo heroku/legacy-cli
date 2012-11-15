@@ -220,6 +220,7 @@ module Heroku::Command
       error <<-EOM
 Failed to query the PGBackups status API. Your backup may still be running.
 Verify the status of your backup with `heroku pgbackups -a #{app}`
+You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
       EOM
     end
 
