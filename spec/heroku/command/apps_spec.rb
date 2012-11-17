@@ -74,7 +74,7 @@ STDOUT
           name = api.get_apps.body.first["name"]
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating #{name}... done, stack is bamboo-mri-1.9.2
+Creating app... done, stack is bamboo-mri-1.9.2
 http://#{name}.herokuapp.com/ | git@heroku.com:#{name}.git
 Git remote heroku added
 STDOUT

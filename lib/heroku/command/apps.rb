@@ -159,11 +159,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #Examples:
   #
   # $ heroku apps:create
-  # Creating floating-dragon-42... done, stack is cedar
+  # Creating app... done, stack is cedar
   # http://floating-dragon-42.heroku.com/ | git@heroku.com:floating-dragon-42.git
   #
   # $ heroku apps:create -s bamboo
-  # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
+  # Creating app... done, stack is bamboo-mri-1.9.2
   # http://floating-dragon-42.herokuapp.com/ | git@heroku.com:floating-dragon-42.git
   #
   # # specify a name
@@ -178,17 +178,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
     validate_arguments!
 
-    info    = api.post_app({ "name" => name, "stack" => options[:stack] }).body
+    info = nil
     begin
-      action("Creating #{info['name']}") do
-        if info['create_status'] == 'creating'
-          Timeout::timeout(options[:timeout].to_i) do
-            loop do
-              break if api.get_app(info['name']).body['create_status'] == 'complete'
-              sleep 1
-            end
-          end
-        end
+      action("Creating #{name || "app"}") do
+        info = api.post_app({ "name" => name, "stack" => options[:stack] }).body
         status("stack is #{info['stack']}")
       end
 
