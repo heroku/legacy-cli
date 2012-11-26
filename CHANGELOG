@@ -1,3 +1,7 @@
+2.33.2 2012-11-26
+=================
+bump excon for proxy fixes
+
 2.33.1 2012-11-15
 =================
 better pgbackups retry
