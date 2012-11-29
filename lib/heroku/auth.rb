@@ -305,7 +305,9 @@ class Heroku::Auth
     end
 
     def base_host(host)
-      URI.parse(full_host(host)).host.split(".")[-2..-1].join(".")
+      parts = URI.parse(full_host(host)).host.split(".")
+      return parts.first if parts.size == 1
+      parts[-2..-1].join(".")
     end
 
     def full_host(host)
