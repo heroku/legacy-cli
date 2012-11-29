@@ -109,6 +109,16 @@ module Heroku
       end
     end
 
+    describe "#base_host" do
+      it "returns the host without the first part" do
+        @cli.base_host("http://foo.bar.com").should == "bar.com"
+      end
+
+      it "works with localhost" do
+        @cli.base_host("http://localhost:3000").should == "localhost"
+      end
+    end
+
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       @cli.should_receive(:ask_for_credentials).and_return(["u", "p"])
