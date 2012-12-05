@@ -87,6 +87,18 @@ private
     nil
   end
 
+  def skip_namespace?(ns)
+    return true if ns[:description] =~ /DEPRECATED:/
+    return true if ns[:description] =~ /HIDDEN:/
+    false
+  end
+
+  def skip_command?(command)
+    return true if command[:help] =~ /DEPRECATED:/
+    return true if command[:help] =~ /HIDDEN:/
+    false
+  end
+
   def primary_namespaces
     PRIMARY_NAMESPACES.map { |name| namespaces[name] }.compact
   end
@@ -98,6 +110,7 @@ private
   def summary_for_namespaces(namespaces)
     size = longest(namespaces.map { |n| n[:name] })
     namespaces.sort_by {|namespace| namespace[:name]}.each do |namespace|
+      next if skip_namespace?(namespace)
       name = namespace[:name]
       namespace[:description] ||= legacy_help_for_namespace(name)
       puts "  %-#{size}s  # %s" % [ name, namespace[:description] ]
@@ -123,7 +136,7 @@ private
     unless namespace_commands.empty?
       size = longest(namespace_commands.map { |c| c[:banner] })
       namespace_commands.sort_by { |c| c[:banner].to_s }.each do |command|
-        next if command[:help] =~ /DEPRECATED/
+        next if skip_command?(command)
         command[:summary] ||= legacy_help_for_command(command[:command])
         puts "  %-#{size}s  # %s" % [ command[:banner], command[:summary] ]
       end
