@@ -125,6 +125,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       data["Owner Email"] = app_data["owner_email"]
 
+      if app_data["region"]
+        data["Region"] = app_data["region"]
+      end
+
       if app_data["repo_size"]
         data["Repo Size"] = format_bytes(app_data["repo_size"])
       end
@@ -176,9 +180,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
+    region  = options.delete(:region) # don't validate this arg
     validate_arguments!
 
-    info    = api.post_app({ "name" => name, "stack" => options[:stack] }).body
+    info    = api.post_app({
+      "name" => name,
+      "region" => region,
+      "stack" => options[:stack]
+    }).body
     begin
       action("Creating #{info['name']}") do
         if info['create_status'] == 'creating'
