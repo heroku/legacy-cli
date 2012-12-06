@@ -2,8 +2,8 @@ Heroku CLI Release Process
 ==========================
 
 ### Ensure tests are passing
-* Ensure CI is passing `bundle exec rake ci`
-* Ensure fisticuffs passes by starting a build at http://dx-jenkins.herokai.com/, you can open with `bundle exec rake jenkins`
+* `bundle exec rake spec`
+* `bundle exec rake ci`
 
 ### Prepare new version
 * Update version number in `lib/heroku/version.rb` to X.Y.Z
@@ -21,7 +21,6 @@ Heroku CLI Release Process
 * Start toolbelt-build build at http://dx-jenkins.herokai.com/ (this will be opened by rake release automatically)
 
 ### Changelog (only if there is at least one major new feature)
-
 * Create a [new changelog] => http://devcenter.heroku.com/admin/changelog_items/new, you can open with `bundle exec rake changelog`
 * Paste the contents of your clipboard (or enter text based on the following):
 * Set the title to `Heroku CLI vX.Y.Z released with #{highlights}`
