@@ -1,3 +1,9 @@
+2.33.3 2012-12-06
+=================
+add basic region support
+skip namespaces or commands that contain HIDDEN: or DEPRECATED:
+do not raise when the base host doesn't have a TLD (eg localhost)
+
 2.33.2 2012-11-26
 =================
 bump excon for proxy fixes
