@@ -180,12 +180,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
-    region  = options.delete(:region) # don't validate this arg
     validate_arguments!
 
     info    = api.post_app({
       "name" => name,
-      "region" => region,
+      "region" => options[:region],
       "stack" => options[:stack]
     }).body
     begin
