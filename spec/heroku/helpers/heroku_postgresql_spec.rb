@@ -15,8 +15,7 @@ describe Heroku::Helpers::HerokuPostgresql do
     {
       "DATABASE_URL"                => "postgres://default",
       "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
-      "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default",
-      "SHARED_DATABASE_URL"         => "postgres://shared"
+      "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default"
     }
   end
 
@@ -36,12 +35,6 @@ describe Heroku::Helpers::HerokuPostgresql do
     att = subject.hpg_resolve('DATABASE')
     att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
     att.url.should == "postgres://default"
-  end
-
-  it "resolves SHARED_DATABASE" do
-    att = subject.hpg_resolve('SHARED_DATABASE')
-    att.display_name.should == "SHARED_DATABASE"
-    att.url.should == "postgres://shared"
   end
 
   it "resolves default using NAME" do
@@ -87,14 +80,14 @@ describe Heroku::Helpers::HerokuPostgresql do
   end
 
   it "throws an error if it doesnt exist" do
-    subject.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+    subject.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
     subject.hpg_resolve("violet")
   end
 
   context "default" do
 
     it "errors if there is no default" do
-      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       subject.hpg_resolve(nil)
     end
 
@@ -112,13 +105,13 @@ describe Heroku::Helpers::HerokuPostgresql do
 
     it 'throws an error if given an empty string and asked for the default and there is no default' do
       app_config_vars.delete 'DATABASE_URL'
-      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       att = subject.hpg_resolve('', "DATABASE_URL")
     end
 
     it 'throws an error if given an empty string and asked for the default and the default doesnt match' do
       app_config_vars['DATABASE_URL'] = 'something different'
-      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL, SHARED_DATABASE")
+      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       att = subject.hpg_resolve('', "DATABASE_URL")
     end
 

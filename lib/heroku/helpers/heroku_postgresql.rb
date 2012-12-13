@@ -61,17 +61,6 @@ module Heroku::Helpers::HerokuPostgresql
       @hpg_databases['DATABASE_URL'] = find_database_url_real_attachment
     end
 
-    if app_config_vars['SHARED_DATABASE_URL']
-      @hpg_databases['SHARED_DATABASE'] = Attachment.new({
-        'config_var' => 'SHARED_DATABASE',
-        'resource' => {
-            'name'  => 'SHARED_DATABASE',
-            'value' => app_config_vars['SHARED_DATABASE_URL'],
-            'type'  => 'shared:database'
-          }
-        })
-    end
-
     return @hpg_databases
   end
 
