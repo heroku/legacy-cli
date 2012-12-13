@@ -93,15 +93,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db) unless db == "SHARED_DATABASE"
+    attachment = hpg_resolve(db)
     return unless confirm_command
 
-    if db == "SHARED_DATABASE"
-      action("Resetting SHARED_DATABASE") { heroku.database_reset(app) }
-    else
-      action("Resetting #{attachment.display_name}") do
-        hpg_client(attachment).reset
-      end
+    action("Resetting #{attachment.display_name}") do
+      hpg_client(attachment).reset
     end
   end
 
@@ -221,15 +217,7 @@ private
   end
 
   def hpg_info(attachment, extended=false)
-    if attachment.resource_name == "SHARED_DATABASE"
-      data = api.get_app(app).body
-      {:info => [{
-        'name'    => 'Data Size',
-        'values'  => [format_bytes(data['database_size'])]
-      }]}
-    else
-      hpg_client(attachment).get_database(extended)
-    end
+    hpg_client(attachment).get_database(extended)
   end
 
   def hpg_info_display(item)

@@ -72,7 +72,6 @@ BUNDLE_WITHOUT:      development:test
 DATABASE_URL:        postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
 LANG:                en_US.UTF-8
 RACK_ENV:            production
-SHARED_DATABASE_URL: postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
 STDOUT
     end
 
@@ -91,7 +90,6 @@ BUNDLE_WITHOUT=development:test
 DATABASE_URL=postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
 LANG=en_US.UTF-8
 RACK_ENV=production
-SHARED_DATABASE_URL=postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
 STDOUT
     end
   end

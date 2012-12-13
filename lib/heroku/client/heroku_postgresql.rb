@@ -18,9 +18,6 @@ class Heroku::Client::HerokuPostgresql
   attr_reader :attachment
   def initialize(attachment)
     @attachment = attachment
-    if attachment.resource_name == 'SHARED_DATABASE'
-      error('This command is not available for shared database')
-    end
     require 'rest_client'
   end
 
