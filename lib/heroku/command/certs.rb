@@ -1,10 +1,10 @@
 require "heroku/command/base"
-require "rest_client"
+require "excon"
 
 # manage ssl endpoints for an app
 #
 class Heroku::Command::Certs < Heroku::Command::Base
-  SSL_DOCTOR = RestClient::Resource.new(ENV["SSL_DOCTOR_URL"] || "https://ssl-doctor.herokuapp.com/")
+  SSL_DOCTOR = Excon.new(ENV["SSL_DOCTOR_URL"] || "https://ssl-doctor.herokuapp.com/")
 
   class UsageError < StandardError; end
 
@@ -179,10 +179,10 @@ class Heroku::Command::Certs < Heroku::Command::Base
     raise UsageError if args.size < 1
     action_text ||= "Resolving trust chain"
     action(action_text) do
-      input = args.map { |arg| File.read(arg) rescue error("Unable to read #{args[0]} file") }.join("\n")
-      SSL_DOCTOR[path].post(input, :content_type => "application/octet-stream")
+      input = args.map { |arg| File.read(arg) rescue error("Unable to reaad #{args[0]} file") }.join("\n")
+      SSL_DOCTOR.post(:path => path, :body => input, :headers => {'Content-Type' => 'application/octet-stream'}, :expects => 200).body
     end
-  rescue RestClient::BadRequest, RestClient::UnprocessableEntity => e
+  rescue Excon::Errors::BadRequest, Excon::Errors::UnprocessableEntity => e
     error(e.response.body)
   end
 
@@ -192,7 +192,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   end
 
   def read_crt_through_ssl_doctor(action_text = nil)
-    post_to_ssl_doctor("resolve-chain", action_text).body
+    post_to_ssl_doctor("resolve-chain", action_text)
   end
 
   def read_crt_and_key_bypassing_ssl_doctor
