@@ -82,6 +82,7 @@ module Heroku::Helpers::HerokuPostgresql
   def forget_config!
     @hpg_databases   = nil
     @app_config_vars = nil
+    @app_attachments = nil
   end
 
   def find_database_url_real_attachment
