@@ -17,7 +17,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def index
     command = args.join(" ")
-    error("Usage: heroku run COMMAND")if command.empty?
+    error("Usage: heroku run COMMAND") if command.empty?
     run_attached(command)
   end
 
