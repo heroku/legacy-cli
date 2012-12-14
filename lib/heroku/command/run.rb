@@ -17,7 +17,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def index
     command = args.join(" ")
-    error("Usage: heroku run COMMAND")if command.empty?
+    error("Usage: heroku run COMMAND") if command.empty?
     run_attached(command)
   end
 
@@ -33,10 +33,11 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def detached
     command = args.join(" ")
-    error("Usage: heroku run COMMAND")if command.empty?
+    error("Usage: heroku run COMMAND") if command.empty?
     opts = { :attach => false, :command => command }
+    app_name = app
     process_data = action("Running `#{command}` detached", :success => "up") do
-      process_data = api.post_ps(app, command, { :attach => false }).body
+      process_data = api.post_ps(app_name, command, { :attach => false }).body
       status(process_data['process'])
       process_data
     end
@@ -104,8 +105,9 @@ class Heroku::Command::Run < Heroku::Command::Base
 protected
 
   def run_attached(command)
+    app_name = app
     process_data = action("Running `#{command}` attached to terminal", :success => "up") do
-      process_data = api.post_ps(app, command, { :attach => true, :ps_env => get_terminal_environment }).body
+      process_data = api.post_ps(app_name, command, { :attach => true, :ps_env => get_terminal_environment }).body
       status(process_data["process"])
       process_data
     end
