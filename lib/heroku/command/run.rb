@@ -33,7 +33,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def detached
     command = args.join(" ")
-    error("Usage: heroku run COMMAND")if command.empty?
+    error("Usage: heroku run COMMAND") if command.empty?
     opts = { :attach => false, :command => command }
     process_data = action("Running `#{command}` detached", :success => "up") do
       process_data = api.post_ps(app, command, { :attach => false }).body
