@@ -14,7 +14,7 @@ require 'heroku/client/ssl_endpoint'
 #
 #   require 'heroku'
 #   heroku = Heroku::Client.new('me@example.com', 'mypass')
-#   heroku.create('myapp')
+#   heroku.create()
 #
 class Heroku::Client
 

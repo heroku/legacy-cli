@@ -46,11 +46,11 @@ class Heroku::Command::Config < Heroku::Command::Base
   #Example:
   #
   # $ heroku config:set A=one
-  # Setting config vars and restarting myapp... done, v123
+  # Setting config vars and restarting example... done, v123
   # A: one
   #
   # $ heroku config:set A=one B=two
-  # Setting config vars and restarting myapp... done, v123
+  # Setting config vars and restarting example... done, v123
   # A: one
   # B: two
   #
@@ -107,11 +107,11 @@ class Heroku::Command::Config < Heroku::Command::Base
   # unset one or more config vars
   #
   # $ heroku config:unset A
-  # Unsetting A and restarting myapp... done, v123
+  # Unsetting A and restarting example... done, v123
   #
   # $ heroku config:unset A B
-  # Unsetting A and restarting myapp... done, v123
-  # Unsetting B and restarting myapp... done, v124
+  # Unsetting A and restarting example... done, v123
+  # Unsetting B and restarting example... done, v124
   #
   def unset
     if args.empty?

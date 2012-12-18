@@ -5,58 +5,58 @@ module Heroku::Command
   describe Config do
     before(:each) do
       stub_core
-      api.post_app("name" => "myapp", "stack" => "cedar")
+      api.post_app("name" => "example", "stack" => "cedar")
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "shows all configs" do
-      api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => 'two' })
+      api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => 'two' })
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Config Vars
+=== example Config Vars
 BAZ_QUX: two
 FOO_BAR: one
 STDOUT
     end
 
     it "does not trim long values" do
-      api.put_config_vars("myapp", { 'LONG' => 'A' * 60 })
+      api.put_config_vars("example", { 'LONG' => 'A' * 60 })
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Config Vars
+=== example Config Vars
 LONG: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
 
     it "handles when value is nil" do
-      api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => nil })
+      api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => nil })
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Config Vars
+=== example Config Vars
 BAZ_QUX: 
 FOO_BAR: one
 STDOUT
     end
 
     it "handles when value is a boolean" do
-      api.put_config_vars("myapp", { 'FOO_BAR' => 'one', 'BAZ_QUX' => true })
+      api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => true })
       stderr, stdout = execute("config")
       stderr.should == ""
       stdout.should == <<-STDOUT
-=== myapp Config Vars
+=== example Config Vars
 BAZ_QUX: true
 FOO_BAR: one
 STDOUT
     end
 
     it "shows configs in a shell compatible format" do
-      api.put_config_vars("myapp", { 'A' => 'one', 'B' => 'two three' })
+      api.put_config_vars("example", { 'A' => 'one', 'B' => 'two three' })
       stderr, stdout = execute("config --shell")
       stderr.should == ""
       stdout.should == <<-STDOUT
@@ -66,7 +66,7 @@ STDOUT
     end
 
     it "shows a single config for get" do
-      api.put_config_vars("myapp", { 'LONG' => 'A' * 60 })
+      api.put_config_vars("example", { 'LONG' => 'A' * 60 })
       stderr, stdout = execute("config:get LONG")
       stderr.should == ""
       stdout.should == <<-STDOUT
@@ -80,7 +80,7 @@ STDOUT
         stderr, stdout = execute("config:set A=1 B=2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Setting config vars and restarting myapp... done, v1
+Setting config vars and restarting example... done, v1
 A: 1
 B: 2
       STDOUT
@@ -90,7 +90,7 @@ B: 2
         stderr, stdout = execute("config:set A=b=c")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Setting config vars and restarting myapp... done, v1
+Setting config vars and restarting example... done, v1
 A: b=c
 STDOUT
       end
@@ -99,7 +99,7 @@ STDOUT
         stderr, stdout = execute("config:set a=b")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Setting config vars and restarting myapp... done, v1
+Setting config vars and restarting example... done, v1
 a: b
 STDOUT
       end
@@ -123,7 +123,7 @@ STDERR
           stderr, stdout = execute("config:unset A")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Unsetting A and restarting myapp... done, v1
+Unsetting A and restarting example... done, v1
 STDOUT
         end
       end
@@ -134,8 +134,8 @@ STDOUT
           stderr, stdout = execute("config:unset A B")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Unsetting A and restarting myapp... done, v1
-Unsetting B and restarting myapp... done, v2
+Unsetting A and restarting example... done, v1
+Unsetting B and restarting example... done, v2
 STDOUT
         end
       end

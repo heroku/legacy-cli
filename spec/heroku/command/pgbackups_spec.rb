@@ -7,9 +7,9 @@ module Heroku::Command
       @pgbackups = prepare_command(Pgbackups)
       @pgbackups.heroku.stub!(:info).and_return({})
 
-      api.post_app("name" => "myapp")
+      api.post_app("name" => "example")
       api.put_config_vars(
-        "myapp",
+        "example",
         {
           "DATABASE_URL"            => "postgres://database",
           "HEROKU_POSTGRESQL_IVORY" => "postgres://database",
@@ -30,7 +30,7 @@ module Heroku::Command
     }
 
     after do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "requests a pgbackups transfer list for the index command" do
@@ -132,7 +132,7 @@ STDOUT
       end
 
       it "aborts if no database addon is present" do
-        api.delete_config_var("myapp", "DATABASE_URL")
+        api.delete_config_var("example", "DATABASE_URL")
         stub_core
         stderr, stdout = execute("pgbackups:capture")
         stderr.should == <<-STDERR

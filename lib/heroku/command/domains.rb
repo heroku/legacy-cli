@@ -13,7 +13,7 @@ module Heroku::Command
     #Examples:
     #
     # $ heroku domains
-    # === Domain names for myapp
+    # === Domain names for example
     # example.com
     #
     def index
@@ -34,7 +34,7 @@ module Heroku::Command
     #Examples:
     #
     # $ heroku domains:add example.com
-    # Adding example.com to myapp... done
+    # Adding example.com to example... done
     #
     def add
       unless domain = shift_argument
@@ -53,7 +53,7 @@ module Heroku::Command
     #Examples:
     #
     # $ heroku domains:remove example.com
-    # Removing example.com from myapp... done
+    # Removing example.com from example... done
     #
     def remove
       unless domain = shift_argument
@@ -72,7 +72,7 @@ module Heroku::Command
     #Examples:
     #
     # $ heroku domains:clear
-    # Removing all domain names for myapp... done
+    # Removing all domain names for example... done
     #
     def clear
       validate_arguments!

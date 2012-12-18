@@ -6,11 +6,11 @@ module Heroku::Command
 
     before(:each) do
       stub_core
-      api.post_app("name" => "myapp", "stack" => "cedar")
+      api.post_app("name" => "example", "stack" => "cedar")
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "displays off for maintenance mode of an app" do
@@ -22,7 +22,7 @@ STDOUT
     end
 
     it "displays on for maintenance mode of an app" do
-      api.post_app_maintenance('myapp', '1')
+      api.post_app_maintenance('example', '1')
 
       stderr, stdout = execute("maintenance")
       stderr.should == ""
@@ -35,7 +35,7 @@ STDOUT
       stderr, stdout = execute("maintenance:on")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Enabling maintenance mode for myapp... done
+Enabling maintenance mode for example... done
 STDOUT
     end
 
@@ -43,7 +43,7 @@ STDOUT
       stderr, stdout = execute("maintenance:off")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Disabling maintenance mode for myapp... done
+Disabling maintenance mode for example... done
 STDOUT
     end
 
