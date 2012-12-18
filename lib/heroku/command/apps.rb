@@ -12,11 +12,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # $ heroku apps
   # === My Apps
-  # myapp1
-  # myapp2
+  # example
+  # example2
   #
   # === Collaborated Apps
-  # theirapp1   other@owner.name
+  # theirapp   other@owner.name
   #
   def index
     validate_arguments!
@@ -51,13 +51,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #Examples:
   #
   # $ heroku apps:info
-  # === myapp
-  # Git URL:   git@heroku.com:myapp.git
+  # === example
+  # Git URL:   git@heroku.com:example.git
   # Repo Size: 5M
   # ...
   #
   # $ heroku apps:info --shell
-  # git_url=git@heroku.com:myapp.git
+  # git_url=git@heroku.com:example.git
   # repo_size=5000000
   # ...
   #
@@ -171,12 +171,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # http://floating-dragon-42.herokuapp.com/ | git@heroku.com:floating-dragon-42.git
   #
   # # specify a name
-  # $ heroku apps:create myapp
-  # Creating myapp... done, stack is cedar
-  # http://myapp.heroku.com/ | git@heroku.com:myapp.git
+  # $ heroku apps:create example
+  # Creating example... done, stack is cedar
+  # http://example.heroku.com/ | git@heroku.com:example.git
   #
   # # create a staging app
-  # $ heroku apps:create myapp-staging --remote staging
+  # $ heroku apps:create example-staging --remote staging
   #
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
@@ -230,8 +230,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku apps:rename myapp-newname
-  # http://myapp-newname.herokuapp.com/ | git@heroku.com:myapp-newname.git
+  # $ heroku apps:rename example-newname
+  # http://example-newname.herokuapp.com/ | git@heroku.com:example-newname.git
   # Git remote heroku updated
   #
   def rename
@@ -269,7 +269,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #Example:
   #
   # $ heroku apps:open
-  # Opening myapp... done
+  # Opening example... done
   #
   def open
     validate_arguments!
@@ -286,8 +286,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku apps:destroy -a myapp --confirm myapp
-  # Destroying myapp (including all add-ons)... done
+  # $ heroku apps:destroy -a example --confirm example
+  # Destroying example (including all add-ons)... done
   #
   def destroy
     @app = shift_argument || options[:app] || options[:confirm]

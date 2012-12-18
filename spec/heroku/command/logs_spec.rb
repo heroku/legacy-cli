@@ -4,12 +4,12 @@ require "heroku/command/logs"
 describe Heroku::Command::Logs do
   describe "logs" do
     it "runs with no options" do
-      stub_core.read_logs("myapp", [])
+      stub_core.read_logs("example", [])
       execute "logs"
     end
 
     it "runs with options" do
-      stub_core.read_logs("myapp", [
+      stub_core.read_logs("example", [
         "tail=1",
         "num=2",
         "ps=ps.3",
@@ -20,7 +20,7 @@ describe Heroku::Command::Logs do
 
     describe "with log output" do
       before(:each) do
-        stub_core.read_logs("myapp", []).yields("2011-01-01T00:00:00+00:00 app[web.1]: test")
+        stub_core.read_logs("example", []).yields("2011-01-01T00:00:00+00:00 app[web.1]: test")
       end
 
       it "prettifies tty output" do

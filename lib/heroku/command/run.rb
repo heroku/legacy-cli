@@ -76,7 +76,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   #Examples:
   #
   # $ heroku console
-  # Ruby console for myapp.heroku.com
+  # Ruby console for example.heroku.com
   # >>
   #
   def console

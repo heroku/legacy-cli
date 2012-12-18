@@ -13,7 +13,7 @@ module Heroku::Command
     #Example:
     #
     # $ heroku sharing
-    # === myapp Collaborators
+    # === example Collaborators
     # collaborator@example.com
     # email@example.com
     #
@@ -33,7 +33,7 @@ module Heroku::Command
     #Example:
     #
     # $ heroku sharing:add collaborator@example.com
-    # Adding collaborator@example.com to myapp collaborators... done
+    # Adding collaborator@example.com to example collaborators... done
     #
     def add
       unless email = shift_argument
@@ -53,7 +53,7 @@ module Heroku::Command
     #Example:
     #
     # $ heroku sharing:remove collaborator@example.com
-    # Removing collaborator@example.com to myapp collaborators... done
+    # Removing collaborator@example.com to example collaborators... done
     #
     def remove
       unless email = shift_argument
@@ -73,7 +73,7 @@ module Heroku::Command
     #Example:
     #
     # $ heroku sharing:transfer collaborator@example.com
-    # Transferring myapp to collaborator@example.com... done
+    # Transferring example to collaborator@example.com... done
     #
     def transfer
       unless email = shift_argument

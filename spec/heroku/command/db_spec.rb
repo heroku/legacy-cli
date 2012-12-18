@@ -55,7 +55,7 @@ module Heroku::Command
 
     it "handles both a url and a --confirm on the command line" do
       pending("requires taps") unless taps_available?
-      Heroku::Command.stub!(:current_options).and_return(:confirm => "myapp")
+      Heroku::Command.stub!(:current_options).and_return(:confirm => "example")
       @db.stub!(:args).and_return(["mysql://user:pass@host/db"])
       opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:taps_client).with(:pull, opts)
@@ -64,7 +64,7 @@ module Heroku::Command
 
     it "handles no url and --confirm on the command line" do
       pending("requires taps") unless taps_available?
-      Heroku::Command.stub!(:current_options).and_return(:confirm => "myapp")
+      Heroku::Command.stub!(:current_options).and_return(:confirm => "example")
       opts = { :database_url => 'mysql://user:pass@host/db', :default_chunksize => 1000, :indexes_first => true }
       @db.should_receive(:parse_database_yml).and_return("mysql://user:pass@host/db")
       @db.should_receive(:taps_client).with(:pull, opts)
@@ -74,7 +74,7 @@ module Heroku::Command
     it "works with a file-based url" do
       pending("requires taps") unless taps_available?
       url = "sqlite://tmp/foo.db"
-      Heroku::Command.stub(:current_options).and_return(:confirm => "myapp")
+      Heroku::Command.stub(:current_options).and_return(:confirm => "example")
       @db.stub(:args).and_return([url])
       @db.should_receive(:taps_client).with(:pull, hash_including(:database_url => url))
       @db.pull

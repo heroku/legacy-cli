@@ -12,7 +12,7 @@ module Heroku::Command
     #Example:
     #
     # $ heroku stack
-    # === myapp Available Stacks
+    # === example Available Stacks
     #   bamboo-mri-1.9.2
     #   bamboo-ree-1.8.7
     # * cedar

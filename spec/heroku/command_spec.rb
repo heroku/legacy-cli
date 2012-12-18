@@ -51,13 +51,13 @@ describe Heroku::Command do
     context "and the app is known" do
       before do
         any_instance_of(Heroku::Command::Base) do |base|
-          stub(base).app.returns("myapp")
+          stub(base).app.returns("example")
         end
       end
 
       context "and the user includes --confirm WRONGAPP" do
         it "should not allow include the option" do
-          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          stub_request(:post, %r{apps/example/addons/my_addon$}).
             with(:body => "")
           run "addons:add my_addon --confirm XXX"
         end
@@ -65,17 +65,17 @@ describe Heroku::Command do
 
       context "and the user includes --confirm APP" do
         it "should set --app to APP and not ask for confirmation" do
-          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
-            with(:body => {:confirm => 'myapp'})
+          stub_request(:post, %r{apps/example/addons/my_addon$}).
+            with(:body => {:confirm => 'example'})
 
-          run "addons:add my_addon --confirm myapp"
+          run "addons:add my_addon --confirm example"
         end
       end
 
       context "and the user didn't include a confirm flag" do
         it "should ask the user for confirmation" do
           stub(Heroku::Command).confirm_command.returns(true)
-          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          stub_request(:post, %r{apps/example/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
             to_return({:status => 200})
 
@@ -83,16 +83,16 @@ describe Heroku::Command do
         end
 
         it "should not continue if the confirmation does not match" do
-          Heroku::Command.stub(:current_options).and_return(:confirm => 'not_myapp')
+          Heroku::Command.stub(:current_options).and_return(:confirm => 'not_example')
 
           lambda do
-            Heroku::Command.confirm_command('myapp')
+            Heroku::Command.confirm_command('example')
           end.should raise_error(Heroku::Command::CommandFailed)
         end
 
         it "should not continue if the user doesn't confirm" do
           stub(Heroku::Command).confirm_command.returns(false)
-          stub_request(:post, %r{apps/myapp/addons/my_addon$}).
+          stub_request(:post, %r{apps/example/addons/my_addon$}).
             to_return(response_that_requires_confirmation).then.
             to_raise(Heroku::Command::CommandFailed)
 
