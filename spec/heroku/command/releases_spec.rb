@@ -68,10 +68,10 @@ Change: Config add FOO_BAR
 When:   2012/09/11 12:34:56 (~ 0s ago)
 
 === v1 Config Vars
-BUNDLE_WITHOUT:      development:test
-DATABASE_URL:        postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
-LANG:                en_US.UTF-8
-RACK_ENV:            production
+BUNDLE_WITHOUT: development:test
+DATABASE_URL:   postgres://username:password@ec2-123-123-123-123.compute-1.amazonaws.com/username
+LANG:           en_US.UTF-8
+RACK_ENV:       production
 STDOUT
     end
 
