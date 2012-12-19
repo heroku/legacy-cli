@@ -11,34 +11,34 @@ module Heroku::Command
     context("info") do
 
       before(:each) do
-        api.post_app("name" => "myapp", "stack" => "cedar")
+        api.post_app("name" => "example", "stack" => "cedar")
       end
 
       after(:each) do
-        api.delete_app("myapp")
+        api.delete_app("example")
       end
 
       it "displays impicit app info" do
         stderr, stdout = execute("apps:info")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== myapp
-Git URL:       git@heroku.com:myapp.git
+=== example
+Git URL:       git@heroku.com:example.git
 Owner Email:   email@example.com
 Stack:         cedar
-Web URL:       http://myapp.herokuapp.com/
+Web URL:       http://example.herokuapp.com/
 STDOUT
       end
 
       it "gets explicit app from --app" do
-        stderr, stdout = execute("apps:info --app myapp")
+        stderr, stdout = execute("apps:info --app example")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== myapp
-Git URL:       git@heroku.com:myapp.git
+=== example
+Git URL:       git@heroku.com:example.git
 Owner Email:   email@example.com
 Stack:         cedar
-Web URL:       http://myapp.herokuapp.com/
+Web URL:       http://example.herokuapp.com/
 STDOUT
       end
 
@@ -49,16 +49,16 @@ STDOUT
 create_status=complete
 created_at=\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} [+-]\\d{4}
 dynos=0
-git_url=git@heroku.com:myapp.git
+git_url=git@heroku.com:example.git
 id=\\d{1,5}
-name=myapp
+name=example
 owner_email=email@example.com
 repo_migrate_status=complete
 repo_size=
 requested_stack=
 slug_size=
 stack=cedar
-web_url=http://myapp.herokuapp.com/
+web_url=http://example.herokuapp.com/
 workers=0
 STDOUT
       end
@@ -84,40 +84,40 @@ STDOUT
 
       it "with a name" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create myapp")
+          stderr, stdout = execute("apps:create example")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 Git remote heroku added
 STDOUT
         end
-        api.delete_app("myapp")
+        api.delete_app("example")
       end
 
       it "with -a name" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create -a myapp")
+          stderr, stdout = execute("apps:create -a example")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 Git remote heroku added
 STDOUT
         end
-        api.delete_app("myapp")
+        api.delete_app("example")
       end
 
       it "with --no-remote" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create myapp --no-remote")
+          stderr, stdout = execute("apps:create example --no-remote")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 STDOUT
         end
-        api.delete_app("myapp")
+        api.delete_app("example")
       end
 
       it "with addons" do
@@ -167,20 +167,20 @@ STDOUT
     context("index") do
 
       before(:each) do
-        api.post_app("name" => "myapp", "stack" => "cedar")
+        api.post_app("name" => "example", "stack" => "cedar")
       end
 
       after(:each) do
-        api.delete_app("myapp")
+        api.delete_app("example")
       end
 
       it "succeeds" do
-        stub_core.list.returns([["myapp", "user"]])
+        stub_core.list.returns([["example", "user"]])
         stderr, stdout = execute("apps")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === My Apps
-myapp
+example
 
 STDOUT
       end
@@ -192,20 +192,20 @@ STDOUT
       context("success") do
 
         before(:each) do
-          api.post_app("name" => "myapp", "stack" => "cedar")
+          api.post_app("name" => "example", "stack" => "cedar")
         end
 
         after(:each) do
-          api.delete_app("myapp2")
+          api.delete_app("example2")
         end
 
         it "renames app" do
           with_blank_git_repository do
-            stderr, stdout = execute("apps:rename myapp2")
+            stderr, stdout = execute("apps:rename example2")
             stderr.should == ""
             stdout.should == <<-STDOUT
-Renaming myapp to myapp2... done
-http://myapp2.herokuapp.com/ | git@heroku.com:myapp2.git
+Renaming example to example2... done
+http://example2.herokuapp.com/ | git@heroku.com:example2.git
 Don't forget to update your Git remotes on any local checkouts.
 STDOUT
           end
@@ -227,32 +227,32 @@ STDERR
     context("destroy") do
 
       before(:each) do
-        api.post_app("name" => "myapp", "stack" => "cedar")
+        api.post_app("name" => "example", "stack" => "cedar")
       end
 
       it "succeeds with app explicitly specified with --app and user confirmation" do
-        stderr, stdout = execute("apps:destroy --confirm myapp")
+        stderr, stdout = execute("apps:destroy --confirm example")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Destroying myapp (including all add-ons)... done
+Destroying example (including all add-ons)... done
 STDOUT
       end
 
       context("fails") do
 
         after(:each) do
-          api.delete_app("myapp")
+          api.delete_app("example")
         end
 
         it "fails with explicit app but no confirmation" do
-          stderr, stdout = execute("apps:destroy myapp")
+          stderr, stdout = execute("apps:destroy example")
           stderr.should == <<-STDERR
- !    Confirmation did not match myapp. Aborted.
+ !    Confirmation did not match example. Aborted.
 STDERR
           stdout.should == "
  !    WARNING: Potentially Destructive Action
- !    This command will destroy myapp (including all add-ons).
- !    To proceed, type \"myapp\" or re-run this command with --confirm myapp
+ !    This command will destroy example (including all add-ons).
+ !    To proceed, type \"example\" or re-run this command with --confirm example
 
 > "
 
@@ -275,73 +275,73 @@ STDERR
 
       it "creates adding heroku to git remote" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create myapp")
+          stderr, stdout = execute("apps:create example")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 Git remote heroku added
 STDOUT
           `git remote`.strip.should match(/^heroku$/)
-          api.delete_app("myapp")
+          api.delete_app("example")
         end
       end
 
       it "creates adding a custom git remote" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create myapp --remote myremote")
+          stderr, stdout = execute("apps:create example --remote myremote")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 Git remote myremote added
 STDOUT
           `git remote`.strip.should match(/^myremote$/)
-          api.delete_app("myapp")
+          api.delete_app("example")
         end
       end
 
       it "doesn't add a git remote if it already exists" do
         with_blank_git_repository do
           `git remote add heroku /tmp/git_spec_#{Process.pid}`
-          stderr, stdout = execute("apps:create myapp")
+          stderr, stdout = execute("apps:create example")
           stderr.should == ""
           stdout.should == <<-STDOUT
-Creating myapp... done, stack is bamboo-mri-1.9.2
-http://myapp.herokuapp.com/ | git@heroku.com:myapp.git
+Creating example... done, stack is bamboo-mri-1.9.2
+http://example.herokuapp.com/ | git@heroku.com:example.git
 STDOUT
-          api.delete_app("myapp")
+          api.delete_app("example")
         end
       end
 
       it "renames updating the corresponding heroku git remote" do
         with_blank_git_repository do
           `git remote add github     git@github.com:test/test.git`
-          `git remote add production git@heroku.com:myapp.git`
-          `git remote add staging    git@heroku.com:myapp-staging.git`
+          `git remote add production git@heroku.com:example.git`
+          `git remote add staging    git@heroku.com:example-staging.git`
 
-          api.post_app("name" => "myapp", "stack" => "cedar")
-          stderr, stdout = execute("apps:rename myapp2")
-          api.delete_app("myapp2")
+          api.post_app("name" => "example", "stack" => "cedar")
+          stderr, stdout = execute("apps:rename example2")
+          api.delete_app("example2")
 
           remotes = `git remote -v`
           remotes.should == <<-REMOTES
 github\tgit@github.com:test/test.git (fetch)
 github\tgit@github.com:test/test.git (push)
-production\tgit@heroku.com:myapp2.git (fetch)
-production\tgit@heroku.com:myapp2.git (push)
-staging\tgit@heroku.com:myapp-staging.git (fetch)
-staging\tgit@heroku.com:myapp-staging.git (push)
+production\tgit@heroku.com:example2.git (fetch)
+production\tgit@heroku.com:example2.git (push)
+staging\tgit@heroku.com:example-staging.git (fetch)
+staging\tgit@heroku.com:example-staging.git (push)
 REMOTES
         end
       end
 
       it "destroys removing any remotes pointing to the app" do
         with_blank_git_repository do
-          `git remote add heroku git@heroku.com:myapp.git`
+          `git remote add heroku git@heroku.com:example.git`
 
-          api.post_app("name" => "myapp", "stack" => "cedar")
-          stderr, stdout = execute("apps:destroy --confirm myapp")
+          api.post_app("name" => "example", "stack" => "cedar")
+          stderr, stdout = execute("apps:destroy --confirm example")
 
           `git remote`.strip.should_not include('heroku')
         end

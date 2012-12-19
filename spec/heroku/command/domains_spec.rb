@@ -5,12 +5,12 @@ module Heroku::Command
   describe Domains do
 
     before(:all) do
-      api.post_app("name" => "myapp", "stack" => "cedar")
-      api.post_addon("myapp", "custom_domains:basic")
+      api.post_app("name" => "example", "stack" => "cedar")
+      api.post_addon("example", "custom_domains:basic")
     end
 
     after(:all) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     before(:each) do
@@ -23,20 +23,20 @@ module Heroku::Command
         stderr, stdout = execute("domains")
         stderr.should == ""
         stdout.should == <<-STDOUT
-myapp has no domain names.
+example has no domain names.
 STDOUT
       end
 
       it "lists domains when some exist" do
-        api.post_domain("myapp", "example.com")
+        api.post_domain("example", "example.com")
         stderr, stdout = execute("domains")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== myapp Domain Names
+=== example Domain Names
 example.com
 
 STDOUT
-        api.delete_domain("myapp", "example.com")
+        api.delete_domain("example", "example.com")
       end
 
     end
@@ -45,9 +45,9 @@ STDOUT
       stderr, stdout = execute("domains:add example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Adding example.com to myapp... done
+Adding example.com to example... done
 STDOUT
-      api.delete_domain("myapp", "example.com")
+      api.delete_domain("example", "example.com")
     end
 
     it "shows usage if no domain specified for add" do
@@ -59,11 +59,11 @@ STDOUT
     end
 
     it "removes domain names" do
-      api.post_domain("myapp", "example.com")
+      api.post_domain("example", "example.com")
       stderr, stdout = execute("domains:remove example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Removing example.com from myapp... done
+Removing example.com from example... done
 STDOUT
     end
 
@@ -76,11 +76,11 @@ STDOUT
     end
 
     it "removes all domain names" do
-      stub_core.remove_domains("myapp")
+      stub_core.remove_domains("example")
       stderr, stdout = execute("domains:clear")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Removing all domain names from myapp... done
+Removing all domain names from example... done
 STDOUT
     end
   end

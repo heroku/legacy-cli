@@ -31,7 +31,7 @@ end
 
 def prepare_command(klass)
   command = klass.new
-  command.stub!(:app).and_return("myapp")
+  command.stub!(:app).and_return("example")
   command.stub!(:ask).and_return("")
   command.stub!(:display)
   command.stub!(:hputs)
@@ -50,7 +50,7 @@ def execute(command_line)
   object, method = Heroku::Command.prepare_run(command, args)
 
   any_instance_of(Heroku::Command::Base) do |base|
-    stub(base).app.returns("myapp")
+    stub(base).app.returns("example")
   end
 
   stub(Heroku::Auth).get_credentials.returns(['email@example.com', 'apikey01'])

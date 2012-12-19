@@ -15,7 +15,7 @@ class Heroku::Command::Labs < Heroku::Command::Base
   #
   # === App Features (glacial-retreat-5913)
   # [ ] preboot            Provide seamless web dyno deploys
-  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a myapp
+  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a example
   #
   def index
     validate_arguments!

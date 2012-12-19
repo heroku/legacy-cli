@@ -8,11 +8,11 @@ describe Heroku::Command::Run do
 
   before(:each) do
     stub_core
-    api.post_app("name" => "myapp", "stack" => "cedar")
+    api.post_app("name" => "example", "stack" => "cedar")
   end
 
   after(:each) do
-    api.delete_app("myapp")
+    api.delete_app("example")
   end
 
   describe "run" do
@@ -75,7 +75,7 @@ STDOUT
     end
 
     it "runs a console command" do
-      stub_core.console("myapp", "bash foo").returns("foo_output")
+      stub_core.console("example", "bash foo").returns("foo_output")
       stderr, stdout = execute("run:console bash foo")
       stderr.should == ""
       stdout.should == <<-STDOUT

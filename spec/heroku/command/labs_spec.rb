@@ -7,11 +7,11 @@ module Heroku::Command
 
     before(:each) do
       stub_core
-      api.post_app("name" => "myapp", "stack" => "cedar")
+      api.post_app("name" => "example", "stack" => "cedar")
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "lists available features" do
@@ -21,21 +21,21 @@ module Heroku::Command
 === User Features (email@example.com)
 [ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
-=== App Features (myapp)
+=== App Features (example)
 [+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
 [ ] user_env_compile  Add user config vars to the environment during slug compilation
 STDOUT
     end
 
     it "lists enabled features" do
-      stub_core.list_features("myapp").returns([])
+      stub_core.list_features("example").returns([])
       stderr, stdout = execute("labs")
       stderr.should == ""
       stdout.should == <<-STDOUT
 === User Features (email@example.com)
 [ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
 
-=== App Features (myapp)
+=== App Features (example)
 [+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
 [ ] user_env_compile  Add user config vars to the environment during slug compilation
 STDOUT
@@ -64,7 +64,7 @@ STDERR
       stderr, stdout = execute("labs:enable user_env_compile")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Enabling user_env_compile for myapp... done
+Enabling user_env_compile for example... done
 WARNING: This feature is experimental and may change or be removed without notice.
 For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
 STDOUT
@@ -80,11 +80,11 @@ STDERR
     end
 
     it "disables a feature" do
-      api.post_feature('user_env_compile', 'myapp')
+      api.post_feature('user_env_compile', 'example')
       stderr, stdout = execute("labs:disable user_env_compile")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Disabling user_env_compile for myapp... done
+Disabling user_env_compile for example... done
 STDOUT
     end
 
