@@ -19,6 +19,7 @@ module Heroku
       heroku-postgresql
       heroku-releases
       heroku-shared-postgresql
+      heroku-sql-console
       heroku-status
       heroku-stop
       heroku-suggest
