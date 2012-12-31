@@ -13,7 +13,7 @@ describe Heroku::Helpers::HerokuPostgresql do
 
   let(:app_config_vars) do
     {
-      "DATABASE_URL"                => "postgres://default?extra=test",
+      "DATABASE_URL"                => "postgres://default",
       "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
       "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default",
       "SHARED_DATABASE_URL"         => "postgres://shared"
@@ -32,10 +32,38 @@ describe Heroku::Helpers::HerokuPostgresql do
       ]
     }
 
-  it "resolves DATABASE" do
-    att = subject.hpg_resolve('DATABASE')
-    att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
-    att.url.should == "postgres://default"
+  context "when the DATABASE_URL has query options" do
+    let(:app_config_vars) do
+      {
+        "DATABASE_URL"                => "postgres://default?pool=15",
+        "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
+        "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default",
+        "SHARED_DATABASE_URL"         => "postgres://shared"
+      }
+    end
+
+    it "resolves DATABASE" do
+      att = subject.hpg_resolve('DATABASE')
+      att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
+      att.url.should == "postgres://default"
+    end
+  end
+
+  context "when the DATABASE_URL has no query options" do
+    let(:app_config_vars) do
+      {
+        "DATABASE_URL"                => "postgres://default",
+        "HEROKU_POSTGRESQL_BLACK_URL" => "postgres://black",
+        "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://default",
+        "SHARED_DATABASE_URL"         => "postgres://shared"
+      }
+    end
+
+    it "resolves DATABASE" do
+      att = subject.hpg_resolve('DATABASE')
+      att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
+      att.url.should == "postgres://default"
+    end
   end
 
   it "resolves SHARED_DATABASE" do
