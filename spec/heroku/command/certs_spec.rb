@@ -67,7 +67,7 @@ Use `heroku certs:add PEM KEY` to add one.
         File.should_receive(:read).with("key_file").and_return("key content")
         stub_core.ssl_endpoint_add('example', 'pem content', 'key content').returns(endpoint)
 
-        stderr, stdout = execute("certs:add pem_file key_file")
+        stderr, stdout = execute("certs:add --bypass pem_file key_file")
         stdout.should == <<-STDOUT
 Adding SSL Endpoint to example... done
 example now served by tokyo-1050.herokussl.com
@@ -77,7 +77,7 @@ Certificate details:
       end
 
       it "shows usage if two arguments are not provided" do
-        lambda { execute("certs:add") }.should raise_error(CommandFailed, /Usage:/)
+        lambda { execute("certs:add --bypass") }.should raise_error(CommandFailed, /Usage:/)
       end
     end
 
@@ -134,7 +134,7 @@ Certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
         stub_core.ssl_endpoint_update('example', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
 
-        stderr, stdout = execute("certs:update pem_file key_file")
+        stderr, stdout = execute("certs:update --bypass pem_file key_file")
         stdout.should == <<-STDOUT
 Updating SSL Endpoint tokyo-1050.herokussl.com for example... done
 Updated certificate details:
@@ -145,7 +145,7 @@ Updated certificate details:
       it "shows an error if an app has no endpoints" do
         stub_core.ssl_endpoint_list("example").returns([])
 
-        stderr, stdout = execute("certs:update pem_file key_file")
+        stderr, stdout = execute("certs:update --bypass pem_file key_file")
         stderr.should == <<-STDERR
  !    example has no SSL Endpoints.
         STDERR
