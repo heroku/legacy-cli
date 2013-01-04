@@ -61,6 +61,11 @@ def execute(command_line)
   $stdin  = captured_stdin  = StringIO.new
   $stderr = captured_stderr = StringIO.new
   $stdout = captured_stdout = StringIO.new
+  class << captured_stdout
+    def tty?
+      true
+    end
+  end
 
   begin
     object.send(method)
