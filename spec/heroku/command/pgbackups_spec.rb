@@ -292,7 +292,7 @@ STDOUT
 
         it 'aborts for a generic error' do
           stub_error_backup_with_log 'something generic'
-          @pgbackups.should_receive(:error).with("An error occurred and your restore did not finish.")
+          @pgbackups.should_receive(:error).with("An error occurred and your restore did not finish.\nPlease run `heroku logs --ps pgbackups` for details.")
           @pgbackups.restore
         end
 
