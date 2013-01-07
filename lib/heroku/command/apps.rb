@@ -197,7 +197,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
             end
           end
         end
-        status("stack is #{info['stack']}")
+        if info['region']
+          status("region is #{info['region']}")
+        else
+          status("stack is #{info['stack']}")
+        end
       end
 
       (options[:addons] || "").split(",").each do |addon|
