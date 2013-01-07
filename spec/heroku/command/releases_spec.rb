@@ -10,24 +10,24 @@ describe Heroku::Command::Releases do
   describe "releases" do
 
     before(:each) do
-      api.post_app("name" => "myapp", "stack" => "cedar")
-      api.put_config_vars("myapp", { 'FOO_BAR'  => 'BAZ' })
-      api.put_config_vars("myapp", { 'BAR_BAZ'  => 'QUX' })
-      api.put_config_vars("myapp", { 'BAZ_QUX'  => 'QUUX' })
-      api.put_config_vars("myapp", { 'QUX_QUUX' => 'XYZZY' })
-      api.put_config_vars("myapp", { 'SUPER_LONG_CONFIG_VAR_TO_GET_PAST_THE_TRUNCATION_LIMIT' => 'VALUE' })
+      api.post_app("name" => "example", "stack" => "cedar")
+      api.put_config_vars("example", { 'FOO_BAR'  => 'BAZ' })
+      api.put_config_vars("example", { 'BAR_BAZ'  => 'QUX' })
+      api.put_config_vars("example", { 'BAZ_QUX'  => 'QUUX' })
+      api.put_config_vars("example", { 'QUX_QUUX' => 'XYZZY' })
+      api.put_config_vars("example", { 'SUPER_LONG_CONFIG_VAR_TO_GET_PAST_THE_TRUNCATION_LIMIT' => 'VALUE' })
       Heroku::Command::Releases.any_instance.should_receive(:time_ago).exactly(5).times.and_return('2012/09/10 11:36:44 (~ 0s ago)', '2012/09/10 11:36:43 (~ 1s ago)', '2012/09/10 11:35:44 (~ 1m ago)', '2012/09/10 10:36:44 (~ 1h ago)', '2012/01/02 12:34:56')
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "should list releases" do
       @stderr, @stdout = execute("releases")
       @stderr.should == ""
       @stdout.should == <<-STDOUT
-=== myapp Releases
+=== example Releases
 v5  Config add SUPER_LONG_CONFIG_VAR_TO_GE..  email@example.com  2012/09/10 11:36:44 (~ 0s ago)
 v4  Config add QUX_QUUX                       email@example.com  2012/09/10 11:36:43 (~ 1s ago)
 v3  Config add BAZ_QUX                        email@example.com  2012/09/10 11:35:44 (~ 1m ago)
@@ -41,12 +41,12 @@ STDOUT
 
   describe "releases:info" do
     before(:each) do
-      api.post_app("name" => "myapp", "stack" => "cedar")
-      api.put_config_vars("myapp", { 'FOO_BAR' => 'BAZ' })
+      api.post_app("name" => "example", "stack" => "cedar")
+      api.put_config_vars("example", { 'FOO_BAR' => 'BAZ' })
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "requires a release to be specified" do
@@ -96,21 +96,21 @@ STDOUT
 
   describe "rollback" do
     before(:each) do
-      api.post_app("name" => "myapp", "stack" => "cedar")
-      api.put_config_vars("myapp", { 'FOO_BAR' => 'BAZ' })
-      api.put_config_vars("myapp", { 'BAR_BAZ' => 'QUX' })
-      api.put_config_vars("myapp", { 'BAZ_QUX' => 'QUUX' })
+      api.post_app("name" => "example", "stack" => "cedar")
+      api.put_config_vars("example", { 'FOO_BAR' => 'BAZ' })
+      api.put_config_vars("example", { 'BAR_BAZ' => 'QUX' })
+      api.put_config_vars("example", { 'BAZ_QUX' => 'QUUX' })
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "rolls back to the latest release with no argument" do
       stderr, stdout = execute("releases:rollback")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Rolling back myapp... done, v2
+Rolling back example... done, v2
 STDOUT
     end
 
@@ -118,7 +118,7 @@ STDOUT
       stderr, stdout = execute("releases:rollback v1")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Rolling back myapp... done, v1
+Rolling back example... done, v1
 STDOUT
     end
   end

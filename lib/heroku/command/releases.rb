@@ -11,7 +11,7 @@ class Heroku::Command::Releases < Heroku::Command::Base
   #Example:
   #
   # $ heroku releases
-  # === myapp Releases
+  # === example Releases
   # v1 Config add FOO_BAR by email@example.com 0s ago
   # v2 Config add BAR_BAZ by email@example.com 0s ago
   # v3 Config add BAZ_QUX by email@example.com 0s ago
@@ -105,10 +105,10 @@ class Heroku::Command::Releases < Heroku::Command::Base
   #Example:
   #
   # $ heroku releases:rollback
-  # Rolling back myapp... done, v122
+  # Rolling back example... done, v122
   #
   # $ heroku releases:rollback v42
-  # Rolling back myapp to v42... done
+  # Rolling back example to v42... done
   #
   def rollback
     release = shift_argument

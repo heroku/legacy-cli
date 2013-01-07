@@ -12,9 +12,9 @@ class Heroku::Command::Git < Heroku::Command::Base
   #
   #Examples:
   #
-  # $ heroku git:clone myapp
-  # Cloning from app 'myapp'...
-  # Cloning into 'myapp'...
+  # $ heroku git:clone example
+  # Cloning from app 'example'...
+  # Cloning into 'example'...
   # remote: Counting objects: 42, done.
   # ...
   #
@@ -43,10 +43,10 @@ class Heroku::Command::Git < Heroku::Command::Base
   #
   #Examples:
   #
-  # $ heroku git:remote -a myapp
+  # $ heroku git:remote -a example
   # Git remote heroku added
   #
-  # $ heroku git:remote -a myapp
+  # $ heroku git:remote -a example
   # !    Git remote heroku already exists
   #
   def remote

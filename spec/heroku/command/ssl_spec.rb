@@ -11,7 +11,7 @@ module Heroku::Command
       File.should_receive(:exists?).with('my.key').and_return(true)
       File.should_receive(:read).with('my.key').and_return('key contents')
       expires_at = Time.now + 60 * 60 * 24 * 365
-      stub_core.add_ssl('myapp', 'crt contents', 'key contents').returns({"domain" => "example.com", "expires_at" => expires_at})
+      stub_core.add_ssl('example', 'crt contents', 'key contents').returns({"domain" => "example.com", "expires_at" => expires_at})
       stderr, stdout = execute("ssl:add my.crt my.key")
       stderr.should == ""
       stdout.should == <<-STDOUT
@@ -20,7 +20,7 @@ STDOUT
     end
 
     it "removes certificates" do
-      stub_core.remove_ssl('myapp', 'example.com')
+      stub_core.remove_ssl('example', 'example.com')
       stderr, stdout = execute("ssl:remove example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT

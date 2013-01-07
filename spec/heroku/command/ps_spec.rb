@@ -10,11 +10,11 @@ describe Heroku::Command::Ps do
   context("cedar") do
 
     before(:each) do
-      api.post_app("name" => "myapp", "stack" => "cedar")
+      api.post_app("name" => "example", "stack" => "cedar")
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     it "ps:dynos errors out on cedar apps" do
@@ -29,7 +29,7 @@ describe Heroku::Command::Ps do
 
       it "displays processes" do
         Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
-        api.post_ps_scale('myapp', 'web', 10)
+        api.post_ps_scale('example', 'web', 10)
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -50,7 +50,7 @@ STDOUT
 
       it "displays one-off processes" do
         Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('2012/09/11 12:34:56 (~ 0s ago)', '2012/09/11 12:34:56 (~ 0s ago)')
-        api.post_ps "myapp", "bash"
+        api.post_ps "example", "bash"
 
         stderr, stdout = execute("ps")
         stderr.should == ""
@@ -139,11 +139,11 @@ STDOUT
   context("non-cedar") do
 
     before(:each) do
-      api.post_app("name" => "myapp")
+      api.post_app("name" => "example")
     end
 
     after(:each) do
-      api.delete_app("myapp")
+      api.delete_app("example")
     end
 
     describe "ps:dynos" do
@@ -153,7 +153,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 ~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`
-myapp is running 0 dynos
+example is running 0 dynos
 STDOUT
       end
 
@@ -175,7 +175,7 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 ~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`
-myapp is running 0 workers
+example is running 0 workers
 STDOUT
       end
 

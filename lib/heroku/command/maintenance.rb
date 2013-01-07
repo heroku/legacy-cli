@@ -31,7 +31,7 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
   #Example:
   #
   # $ heroku maintenance:on
-  # Enabling maintenance mode for myapp
+  # Enabling maintenance mode for example
   #
   def on
     validate_arguments!
@@ -48,7 +48,7 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
   #Example:
   #
   # $ heroku maintenance:off
-  # Disabling maintenance mode for myapp
+  # Disabling maintenance mode for example
   #
   def off
     validate_arguments!

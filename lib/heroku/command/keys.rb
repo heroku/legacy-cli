@@ -95,7 +95,7 @@ module Heroku::Command
     #
     #Examples:
     #
-    # $ heroku keys:cleare
+    # $ heroku keys:clear
     # Removing all SSH keys... done
     #
     def clear

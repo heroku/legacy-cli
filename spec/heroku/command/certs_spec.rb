@@ -41,7 +41,7 @@ SSL certificate is self signed.
 
     describe "certs" do
       it "shows a list of certs" do
-        stub_core.ssl_endpoint_list("myapp").returns([endpoint, endpoint2])
+        stub_core.ssl_endpoint_list("example").returns([endpoint, endpoint2])
         stderr, stdout = execute("certs")
         stdout.should == <<-STDOUT
 Endpoint                  Common Name(s)  Expires               Trusted
@@ -52,10 +52,10 @@ STDOUT
       end
 
       it "warns about no SSL Endpoints if the app has no certs" do
-        stub_core.ssl_endpoint_list("myapp").returns([])
+        stub_core.ssl_endpoint_list("example").returns([])
         stderr, stdout = execute("certs")
         stdout.should == <<-STDOUT
-myapp has no SSL Endpoints.
+example has no SSL Endpoints.
 Use `heroku certs:add PEM KEY` to add one.
         STDOUT
       end
@@ -65,61 +65,61 @@ Use `heroku certs:add PEM KEY` to add one.
       it "adds an endpoint" do
         File.should_receive(:read).with("pem_file").and_return("pem content")
         File.should_receive(:read).with("key_file").and_return("key content")
-        stub_core.ssl_endpoint_add('myapp', 'pem content', 'key content').returns(endpoint)
+        stub_core.ssl_endpoint_add('example', 'pem content', 'key content').returns(endpoint)
 
-        stderr, stdout = execute("certs:add pem_file key_file")
+        stderr, stdout = execute("certs:add --bypass pem_file key_file")
         stdout.should == <<-STDOUT
-Adding SSL Endpoint to myapp... done
-myapp now served by tokyo-1050.herokussl.com
+Adding SSL Endpoint to example... done
+example now served by tokyo-1050.herokussl.com
 Certificate details:
 #{certificate_details}
         STDOUT
       end
 
       it "shows usage if two arguments are not provided" do
-        lambda { execute("certs:add") }.should raise_error(CommandFailed, /Usage:/)
+        lambda { execute("certs:add --bypass") }.should raise_error(CommandFailed, /Usage:/)
       end
     end
 
     describe "certs:info" do
       it "shows certificate details" do
-        stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_info('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+        stub_core.ssl_endpoint_info('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:info")
         stdout.should == <<-STDOUT
-Fetching SSL Endpoint tokyo-1050.herokussl.com info for myapp... done
+Fetching SSL Endpoint tokyo-1050.herokussl.com info for example... done
 Certificate details:
 #{certificate_details}
         STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
-        stub_core.ssl_endpoint_list("myapp").returns([])
+        stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:info")
         stderr.should == <<-STDERR
- !    myapp has no SSL Endpoints.
+ !    example has no SSL Endpoints.
         STDERR
       end
     end
 
     describe "certs:remove" do
       it "removes an endpoint" do
-        stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_remove('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+        stub_core.ssl_endpoint_remove('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:remove")
-        stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from myapp..."
+        stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from example..."
         stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
       end
 
       it "shows an error if an app has no endpoints" do
-        stub_core.ssl_endpoint_list("myapp").returns([])
+        stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:remove")
         stderr.should == <<-STDERR
- !    myapp has no SSL Endpoints.
+ !    example has no SSL Endpoints.
         STDERR
       end
     end
@@ -131,46 +131,46 @@ Certificate details:
       end
 
       it "updates an endpoint" do
-        stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_update('myapp', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+        stub_core.ssl_endpoint_update('example', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
 
-        stderr, stdout = execute("certs:update pem_file key_file")
+        stderr, stdout = execute("certs:update --bypass pem_file key_file")
         stdout.should == <<-STDOUT
-Updating SSL Endpoint tokyo-1050.herokussl.com for myapp... done
+Updating SSL Endpoint tokyo-1050.herokussl.com for example... done
 Updated certificate details:
 #{certificate_details}
         STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
-        stub_core.ssl_endpoint_list("myapp").returns([])
+        stub_core.ssl_endpoint_list("example").returns([])
 
-        stderr, stdout = execute("certs:update pem_file key_file")
+        stderr, stdout = execute("certs:update --bypass pem_file key_file")
         stderr.should == <<-STDERR
- !    myapp has no SSL Endpoints.
+ !    example has no SSL Endpoints.
         STDERR
       end
     end
 
     describe "certs:rollback" do
       it "performs a rollback on an endpoint" do
-        stub_core.ssl_endpoint_list("myapp").returns([endpoint])
-        stub_core.ssl_endpoint_rollback('myapp', 'tokyo-1050.herokussl.com').returns(endpoint)
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+        stub_core.ssl_endpoint_rollback('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:rollback")
         stdout.should == <<-STDOUT
-Rolling back SSL Endpoint tokyo-1050.herokussl.com for myapp... done
+Rolling back SSL Endpoint tokyo-1050.herokussl.com for example... done
 New active certificate details:
 #{certificate_details}
         STDOUT
       end
 
       it "shows an error if an app has no endpoints" do
-        stub_core.ssl_endpoint_list("myapp").returns([])
+        stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:rollback")
         stderr.should == <<-STDERR
- !    myapp has no SSL Endpoints.
+ !    example has no SSL Endpoints.
         STDERR
       end
     end

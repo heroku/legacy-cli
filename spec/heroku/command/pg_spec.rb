@@ -6,8 +6,8 @@ module Heroku::Command
     before do
       stub_core
 
-      api.post_app "name" => "myapp"
-      api.put_config_vars "myapp", {
+      api.post_app "name" => "example"
+      api.put_config_vars "example", {
         "DATABASE_URL" => "postgres://database_url",
         "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
@@ -35,13 +35,13 @@ module Heroku::Command
     end
 
     after do
-      api.delete_app "myapp"
+      api.delete_app "example"
     end
 
     it "resets the app's database if user confirms" do
       stub_pg.reset
 
-      stderr, stdout = execute("pg:reset RONIN --confirm myapp")
+      stderr, stdout = execute("pg:reset RONIN --confirm example")
       stderr.should == ""
       stdout.should == <<-STDOUT
 Resetting HEROKU_POSTGRESQL_RONIN_URL... done
@@ -53,12 +53,12 @@ STDOUT
 
       stderr, stdout = execute("pg:reset RONIN")
       stderr.should == <<-STDERR
- !    Confirmation did not match myapp. Aborted.
+ !    Confirmation did not match example. Aborted.
 STDERR
       stdout.should == "
  !    WARNING: Destructive Action
- !    This command will affect the app: myapp
- !    To proceed, type \"myapp\" or re-run this command with --confirm myapp
+ !    This command will affect the app: example
+ !    To proceed, type \"example\" or re-run this command with --confirm example
 
 > "
     end
@@ -147,12 +147,12 @@ STDOUT
 
     context "promotion" do
       it "promotes the specified database" do
-        stderr, stdout = execute("pg:promote RONIN --confirm myapp")
+        stderr, stdout = execute("pg:promote RONIN --confirm example")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Promoting HEROKU_POSTGRESQL_RONIN_URL to DATABASE_URL... done
 STDOUT
-        api.get_config_vars("myapp").body["DATABASE_URL"].should == "postgres://ronin_database_url"
+        api.get_config_vars("example").body["DATABASE_URL"].should == "postgres://ronin_database_url"
       end
 
       it "fails if no database is specified" do
@@ -178,7 +178,7 @@ STDOUT
 
       it "does not update DATABASE_URL if it's not the main db" do
         stub_pg.rotate_credentials
-        api.put_config_vars "myapp", {
+        api.put_config_vars "example", {
           "DATABASE_URL" => "postgres://to_reset_credentials",
           "HEROKU_POSTGRESQL_RESETME_URL" => "postgres://something_else"
         }
@@ -208,7 +208,7 @@ STDOUT
             {"name"=>"Maintenance", "values"=>["not required"]}
           ]
         )
-        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_FOLLOW_URL --confirm myapp")
+        stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_FOLLOW_URL --confirm example")
         stderr.should == ""
         stdout.should == <<-STDOUT
  !    HEROKU_POSTGRESQL_FOLLOW_URL will become writable and no longer
