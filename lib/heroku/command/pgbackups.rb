@@ -159,7 +159,11 @@ module Heroku::Command
 
         if restore["error_at"]
           message  =   "An error occurred and your restore did not finish."
-          message += "\nThe backup url is invalid. Use `pgbackups:url` to generate a new temporary URL." if restore['log'] =~ /Invalid dump format: .*: XML  document text/
+          if restore['log'] =~ /Invalid dump format: .*: XML  document text/
+            message += "\nThe backup url is invalid. Use `pgbackups:url` to generate a new temporary URL."
+          else
+            message += "\nPlease run `heroku logs --ps pgbackups` for details."
+          end
           error(message)
         end
       end
