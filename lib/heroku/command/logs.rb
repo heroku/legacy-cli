@@ -90,9 +90,8 @@ class Heroku::Command::Logs < Heroku::Command::Base
   end
 
   def parse_log(log)
-    return unless parsed = log.match(/^(.*\[(\w+)([\d\.]+)?\]:)(.*)?$/)
+    return unless parsed = log.match(/^(.*?\[(\w+)([\d\.]+)?\]:)(.*)?$/)
     [1, 2, 4].map { |i| parsed[i] }
   end
 
 end
-
