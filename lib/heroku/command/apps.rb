@@ -28,12 +28,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       unless my_apps.empty?
         styled_header("My Apps")
-        styled_array(my_apps.map { |app| app["name"] })
+        styled_array(my_apps.map { |app| regionized_app_name(app) })
       end
 
       unless collaborated_apps.empty?
         styled_header("Collaborated Apps")
-        styled_array(collaborated_apps.map { |app| [app["name"], app["owner_email"]] })
+        styled_array(collaborated_apps.map { |app| [regionized_app_name(app), app["owner_email"]] })
       end
     else
       display("You have no apps.")
@@ -319,5 +319,16 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
+
+  private
+
+  def regionized_app_name(app)
+    # temporary, show region for non-us apps
+    if app["region"] && app["region"] != 'us'
+      "#{app["name"]} (#{app["region"]})"
+    else
+      app["name"]
+    end
+  end
 
 end
