@@ -1,3 +1,21 @@
+2.34.0 2012-01-11
+=================
+update spec
+include region in app list for non-us apps
+output region instead of stack if it's returned
+suggest pgbackups logs on restore errors as well
+fix colorization when output has foo[bar] in it
+fix typo in "keys" command help text
+adds extra test coverage around stripping query data off of DATABASE_URL setting.
+allowing query options on database url for matching DATABASE_URL to attachment
+deprecate heroku-sql-console
+myapp ⇒ example
+fix clearing of caches to fix DB promotion after credential reset
+get the name before messaging to be able to give an early error message
+swap restclient for excon
+merge heroku-ssl-doctor plugin (https://github.com/heroku/heroku-ssl-doctor)
+search slightly more liberally for git remotes.
+
 2.33.5 2012-12-13
 =================
 fix region/remote collision
