@@ -37,6 +37,14 @@ Running `bin/foo` detached... up, run.1
 Use `heroku logs -p run.1` to view the output.
 STDOUT
     end
+
+    it "runs with options" do
+      stub_core.read_logs("example", [
+        "tail=1",
+        "ps=run.1"
+      ])
+      execute "run:detached bin/foo --tail"
+    end
   end
 
   describe "run:rake" do
