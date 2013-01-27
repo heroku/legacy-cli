@@ -52,6 +52,13 @@ class Heroku::Command::Git < Heroku::Command::Base
   def remote
     git_options = args.join(" ")
     remote = options[:remote] || 'heroku'
+    current_directory = Dir.pwd
+
+    Dir.chdir
+    unless Dir.entries(Dir.pwd).include?(".gitconfig")
+      error("No .gitconfig file exists in your home directory")
+    end
+    Dir.chdir(current_directory)
 
     if git('remote').split("\n").include?(remote)
       error("Git remote #{remote} already exists")

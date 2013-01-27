@@ -138,6 +138,28 @@ STDERR
         stdout.should == ""
       end
 
+      it "raises an error when gitconfig doesn't exist" do
+        current_dir = Dir.pwd
+        Dir.chdir
+        FileUtils.cp '.gitconfig', '.gitconfig_backup'
+        FileUtils.mv '.gitconfig', '.gitconfig_2'
+        Dir.chdir current_dir
+
+        any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('remote').returns("heroku")
+        end
+        stderr, stdout = execute("git:remote")
+        stderr.should == <<-STDERR
+ !    No .gitconfig file exists in your home directory
+STDERR
+        stdout.should == ""
+
+        Dir.chdir
+        FileUtils.mv '.gitconfig_2', '.gitconfig'
+        FileUtils.rm '.gitconfig_backup'
+        Dir.chdir current_dir
+      end
+
     end
 
   end
