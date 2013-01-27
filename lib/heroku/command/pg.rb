@@ -26,7 +26,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:info [DATABASE]
   #
-  # display database information
+  # display metadata about DATABASE
   #
   # -x, --extended  # show extended information
   #
@@ -63,7 +63,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:psql [DATABASE]
   #
-  # open a psql shell to the database
+  # open a psql shell to DATABASE
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
@@ -107,7 +107,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:unfollow REPLICA
   #
-  # stop a replica from following, making it a read/write database
+  # stop REPLICA from following, making it a read/write database
   #
   def unfollow
     unless db = shift_argument
@@ -135,7 +135,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:wait [DATABASE]
   #
-  # monitor database creation, exit when complete
+  # monitor creation of DATABASE, exit when complete
   #
   # defaults to all databases if no DATABASE is specified
   #
