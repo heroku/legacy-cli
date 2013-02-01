@@ -80,26 +80,12 @@ class Heroku::Command::Run < Heroku::Command::Base
   # >>
   #
   def console
-    cmd = args.join(' ').strip
-    if cmd.empty?
-      console_session(app)
-    else
-      display(heroku.console(app, cmd))
-    end
-  rescue RestClient::RequestFailed => e
-    if e.http_body =~ /For Cedar apps, use: `heroku run console`/
-      deprecate("`heroku #{current_command}` has been deprecated for Cedar apps. Please use: `heroku run console` instead.")
-      command = "console #{args.join(' ')}"
-      run_attached(command)
-    else
-      raise(e)
-    end
-  rescue RestClient::RequestTimeout
-    error("Timed out. Long running requests are not supported on the console.\nPlease consider creating a rake task instead.")
-  rescue Heroku::Client::AppCrashed => e
-    error(e.message)
+    puts "`heroku #{current_command}` has been removed. Please use: `heroku run` instead."
+    puts "For more information, please see:"
+    puts " * https://devcenter.heroku.com/articles/one-off-dynos"
+    puts " * https://devcenter.heroku.com/articles/rails3#console"
+    puts " * https://devcenter.heroku.com/articles/console-bamboo"
   end
-
   alias_command "console", "run:console"
 
 protected
