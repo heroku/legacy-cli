@@ -66,21 +66,10 @@ STDOUT
   end
 
   describe "run:console" do
-    it "runs a console session" do
-      console = stub(Heroku::Client::ConsoleSession)
-      stub_core.console.returns(console)
+    it "has been removed" do
       stderr, stdout = execute("run:console")
       stderr.should == ""
-      stdout.should == ""
-    end
-
-    it "runs a console command" do
-      stub_core.console("example", "bash foo").returns("foo_output")
-      stderr, stdout = execute("run:console bash foo")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
-foo_output
-STDOUT
+      stdout.should =~ /has been removed/
     end
   end
 end
