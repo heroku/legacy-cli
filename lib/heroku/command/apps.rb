@@ -143,6 +143,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
 
       data["Web URL"] = app_data["web_url"]
+      data["Tier"] = app_data["tier"].capitalize
 
       styled_hash(data)
     end
@@ -159,6 +160,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
+  # -t, --tier TIER            # the tier for this app
   #
   #Examples:
   #
@@ -185,7 +187,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
     info    = api.post_app({
       "name" => name,
       "region" => options[:region],
-      "stack" => options[:stack]
+      "stack" => options[:stack],
+      "tier" => options[:tier]
     }).body
     begin
       action("Creating #{info['name']}") do
@@ -319,6 +322,23 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
+
+  # apps:update
+  #
+  # update an app
+  #
+  # -t, --tier TIER            # the tier for this app
+  def update
+    tier = options[:tier]
+    error("Usage: heroku apps:update --tier TIER") unless tier
+    validate_arguments!
+
+    action("Updating #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "update", "apps:update"
 
   private
 
