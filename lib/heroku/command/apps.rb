@@ -323,22 +323,37 @@ class Heroku::Command::Apps < Heroku::Command::Base
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
 
-  # apps:update
+  # apps:upgrade TIER
   #
-  # update an app
+  # upgrade an app's pricing tier
   #
-  # -t, --tier TIER            # the tier for this app
-  def update
-    tier = options[:tier]
-    error("Usage: heroku apps:update --tier TIER") unless tier
+  def upgrade
+    tier = shift_argument
+    error("Usage: heroku apps:upgrade TIER\nMust specify TIER to upgrade.") if tier.nil? || tier.empty?
     validate_arguments!
 
-    action("Updating #{app} to #{tier}") do
+    action("Upgrading #{app} to #{tier}") do
       api.put_app(app, "tier" => tier)
     end
   end
 
-  alias_command "update", "apps:update"
+  alias_command "upgrade", "apps:upgrade"
+
+  # apps:downgrade TIER
+  #
+  # downgrade an app's pricing tier
+  #
+  def downgrade
+    tier = shift_argument
+    error("Usage: heroku apps:downgrade TIER\nMust specify TIER to downgrade.") if tier.nil? || tier.empty?
+    validate_arguments!
+
+    action("Upgrading #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "downgrade", "apps:downgrade"
 
   private
 
