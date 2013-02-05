@@ -143,6 +143,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
 
       data["Web URL"] = app_data["web_url"]
+      data["Tier"] = app_data["tier"].capitalize
 
       styled_hash(data)
     end
@@ -159,6 +160,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
+  # -t, --tier TIER            # the tier for this app
   #
   #Examples:
   #
@@ -185,7 +187,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
     info    = api.post_app({
       "name" => name,
       "region" => options[:region],
-      "stack" => options[:stack]
+      "stack" => options[:stack],
+      "tier" => options[:tier]
     }).body
     begin
       action("Creating #{info['name']}") do
@@ -319,6 +322,38 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
+
+  # apps:upgrade TIER
+  #
+  # upgrade an app's pricing tier
+  #
+  def upgrade
+    tier = shift_argument
+    error("Usage: heroku apps:upgrade TIER\nMust specify TIER to upgrade.") if tier.nil? || tier.empty?
+    validate_arguments!
+
+    action("Upgrading #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "upgrade", "apps:upgrade"
+
+  # apps:downgrade TIER
+  #
+  # downgrade an app's pricing tier
+  #
+  def downgrade
+    tier = shift_argument
+    error("Usage: heroku apps:downgrade TIER\nMust specify TIER to downgrade.") if tier.nil? || tier.empty?
+    validate_arguments!
+
+    action("Upgrading #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "downgrade", "apps:downgrade"
 
   private
 
