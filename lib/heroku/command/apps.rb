@@ -159,6 +159,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
+  #     --region REGION        # HIDDEN: specify region for this app to run on
   #
   #Examples:
   #

@@ -152,7 +152,10 @@ private
       puts "Usage: heroku #{command[:banner]}"
 
       if command[:help].strip.length > 0
-        puts command[:help].split("\n")[1..-1].join("\n")
+        help = command[:help].split("\n").reject do |line|
+          line =~ /HIDDEN/
+        end
+        puts help[1..-1].join("\n")
       else
         puts
         puts " " + legacy_help_for_command(name).to_s

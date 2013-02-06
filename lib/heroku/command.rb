@@ -108,7 +108,6 @@ module Heroku
     global_option :confirm, "--confirm APP"
     global_option :help,    "-h", "--help"
     global_option :remote,  "-r", "--remote REMOTE"
-    global_option :region,  "--region REGION"
 
     def self.prepare_run(cmd, args=[])
       command = parse(cmd)
