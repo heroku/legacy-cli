@@ -95,7 +95,7 @@ private
 
   def skip_command?(command)
     return true if command[:help] =~ /DEPRECATED:/
-    return true if command[:help] =~ /HIDDEN:/
+    return true if command[:help] =~ /^ HIDDEN:/
     false
   end
 
