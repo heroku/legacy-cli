@@ -18,7 +18,7 @@ Heroku CLI Release Process
 * Move to a checkout of the toolbelt repo and make sure everything is up to date `git pull`
   - If this is a new checkout, run `git submodule init` and `git submodule update`
 * Move to the components/heroku directory, `git fetch` and `git reset --hard HASH` where HASH is commit hash of vX.Y.Z
-* Stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
+* Move back to the root dir of the toolbelt repo, stage `git add .`, commit `git commit -m "bump heroku submodule to vX.Y.Z"`, and push `git push` submodule changes
 * Start toolbelt-build build at http://dx-jenkins.herokai.com/ (this will be opened by rake release automatically)
 
 ### Changelog (only if there is at least one major new feature)
