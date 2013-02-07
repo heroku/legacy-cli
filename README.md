@@ -68,6 +68,4 @@ Released under the MIT license; see the file License.
 
 Created by Adam Wiggins
 
-Maintained by Wesley Beary
-
 [Other Contributors](https://github.com/heroku/heroku/contributors)
