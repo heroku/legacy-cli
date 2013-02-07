@@ -1,4 +1,11 @@
-2.34.0 2012-01-11
+2.35.0 2013-02-06
+=================
+don't hide the command if an opt is hidden
+fixing hidden help
+update specs for run:console
+fully deprecate `heroku console`
+
+2.34.0 2013-01-11
 =================
 update spec
 include region in app list for non-us apps
