@@ -181,6 +181,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
       uri = URI.parse( attachment.url )
       display "Connection info string:"
       display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
+      display "Connection URL:"
+      display "    " + attachment.url
+
     end
   end
 
