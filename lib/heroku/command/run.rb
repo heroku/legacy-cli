@@ -1,5 +1,6 @@
 require "readline"
 require "heroku/command/base"
+require "heroku/helpers/log_displayer"
 
 # run one-off commands (console, rake)
 #
@@ -25,6 +26,8 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   # run a detached process, where output is sent to your logs
   #
+  # -t, --tail           # stream logs for the process
+  #
   #Example:
   #
   # $ heroku run:detached ls
@@ -41,7 +44,15 @@ class Heroku::Command::Run < Heroku::Command::Base
       status(process_data['process'])
       process_data
     end
-    display("Use `heroku logs -p #{process_data['process']}` to view the output.")
+    if options[:tail]
+      opts = []
+      opts << "tail=1"
+      opts << "ps=#{process_data['process']}"
+      log_displayer = ::Heroku::Helpers::LogDisplayer.new(heroku, app, opts)
+      log_displayer.display_logs
+    else
+      display("Use `heroku logs -p #{process_data['process']}` to view the output.")
+    end
   end
 
   # run:rake COMMAND
