@@ -56,7 +56,7 @@ STDOUT
         stderr, stdout = execute("certs")
         stdout.should == <<-STDOUT
 example has no SSL Endpoints.
-Use `heroku certs:add PEM KEY` to add one.
+Use `heroku certs:add CRT KEY` to add one.
         STDOUT
       end
     end

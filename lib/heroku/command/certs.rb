@@ -17,7 +17,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
     if endpoints.empty?
       display "#{app} has no SSL Endpoints."
-      display "Use `heroku certs:add PEM KEY` to add one."
+      display "Use `heroku certs:add CRT KEY` to add one."
     else
       endpoints.map! do |endpoint|
         {
@@ -35,7 +35,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     end
   end
 
-  # certs:chain PEM [PEM ...]
+  # certs:chain CRT [CRT ...]
   #
   # Print the ordered and complete chain for the given certificate.
   #
@@ -45,10 +45,10 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def chain
     puts read_crt_through_ssl_doctor
   rescue UsageError
-    fail("Usage: heroku certs:chain PEM [PEM ...]\nMust specify at least one certificate file.")
+    fail("Usage: heroku certs:chain CRT [CRT ...]\nMust specify at least one certificate file.")
   end
 
-  # certs:key PEM KEY [KEY ...]
+  # certs:key CRT KEY [KEY ...]
   #
   # Print the correct key for the given certificate.
   #
@@ -59,10 +59,10 @@ class Heroku::Command::Certs < Heroku::Command::Base
     crt, key = read_crt_and_key_through_ssl_doctor("Testing for signing key")
     puts key
   rescue UsageError
-    fail("Usage: heroku certs:key PEM KEY [KEY ...]\nMust specify one certificate file and at least one key file.")
+    fail("Usage: heroku certs:key CRT KEY [KEY ...]\nMust specify one certificate file and at least one key file.")
   end
 
-  # certs:add PEM KEY
+  # certs:add CRT KEY
   #
   # Add an ssl endpoint to an app.
   #
@@ -76,10 +76,10 @@ class Heroku::Command::Certs < Heroku::Command::Base
     display "Certificate details:"
     display_certificate_info(endpoint)
   rescue UsageError
-    fail("Usage: heroku certs:add PEM KEY\nMust specify PEM and KEY to add cert.")
+    fail("Usage: heroku certs:add CRT KEY\nMust specify CRT and KEY to add cert.")
   end
 
-  # certs:update PEM KEY
+  # certs:update CRT KEY
   #
   # Update an SSL Endpoint on an app.
   #
@@ -93,7 +93,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     display "Updated certificate details:"
     display_certificate_info(endpoint)
   rescue UsageError
-    fail("Usage: heroku certs:update PEM KEY\nMust specify PEM and KEY to update cert.")
+    fail("Usage: heroku certs:update CRT KEY\nMust specify CRT and KEY to update cert.")
   end
 
   # certs:info
@@ -197,7 +197,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   def read_crt_and_key_bypassing_ssl_doctor
     raise UsageError if args.size != 2
-    crt = File.read(args[0]) rescue error("Unable to read #{args[0]} PEM")
+    crt = File.read(args[0]) rescue error("Unable to read #{args[0]} CRT")
     key = File.read(args[1]) rescue error("Unable to read #{args[1]} KEY")
     [crt, key]
   end
