@@ -10,7 +10,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs
   #
-  # list ssl endpoints for an app
+  # List ssl endpoints for an app.
   #
   def index
     endpoints = heroku.ssl_endpoint_list(app)
@@ -98,7 +98,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:info
   #
-  # show certificate information for an ssl endpoint
+  # Show certificate information for an ssl endpoint.
   #
   def info
     cname = options[:endpoint] || current_endpoint
@@ -112,7 +112,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:remove
   #
-  # remove an SSL Endpoint from an app
+  # Remove an SSL Endpoint from an app.
   #
   def remove
     cname = options[:endpoint] || current_endpoint
@@ -124,7 +124,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
 
   # certs:rollback
   #
-  # rollback an SSL Endpoint for an app
+  # Rollback an SSL Endpoint for an app.
   #
   def rollback
     cname = options[:endpoint] || current_endpoint
