@@ -27,8 +27,28 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
 
       unless my_apps.empty?
-        styled_header("My Apps")
-        styled_array(my_apps.map { |app| regionized_app_name(app) })
+        non_legacy_apps = my_apps.select do |app|
+          app["tier"] != "legacy"
+        end
+
+        unless non_legacy_apps.empty?
+          production_basic_apps, dev_legacy_apps = my_apps.partition do |app|
+            ["production", "basic"].include?(app["tier"])
+          end
+
+          unless production_basic_apps.empty?
+            styled_header("Basic & Production Apps")
+            styled_array(production_basic_apps.map { |app| regionized_app_name(app) })
+          end
+
+          unless dev_legacy_apps.empty?
+            styled_header("Dev & Legacy Apps")
+            styled_array(dev_legacy_apps.map { |app| regionized_app_name(app) })
+          end
+        else
+          styled_header("My Apps")
+          styled_array(my_apps.map { |app| regionized_app_name(app) })
+        end
       end
 
       unless collaborated_apps.empty?
@@ -143,6 +163,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
 
       data["Web URL"] = app_data["web_url"]
+      data["Tier"] = app_data["tier"].capitalize
 
       styled_hash(data)
     end
@@ -160,6 +181,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
   #     --region REGION        # HIDDEN: specify region for this app to run on
+  # -t, --tier TIER            # HIDDEN: the tier for this app
   #
   #Examples:
   #
@@ -186,7 +208,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
     info    = api.post_app({
       "name" => name,
       "region" => options[:region],
-      "stack" => options[:stack]
+      "stack" => options[:stack],
+      "tier" => options[:tier]
     }).body
     begin
       action("Creating #{info['name']}") do
@@ -320,6 +343,38 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
+
+  # apps:upgrade TIER
+  #
+  # HIDDEN: upgrade an app's pricing tier
+  #
+  def upgrade
+    tier = shift_argument
+    error("Usage: heroku apps:upgrade TIER\nMust specify TIER to upgrade.") if tier.nil? || tier.empty?
+    validate_arguments!
+
+    action("Upgrading #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "upgrade", "apps:upgrade"
+
+  # apps:downgrade TIER
+  #
+  # HIDDEN: downgrade an app's pricing tier
+  #
+  def downgrade
+    tier = shift_argument
+    error("Usage: heroku apps:downgrade TIER\nMust specify TIER to downgrade.") if tier.nil? || tier.empty?
+    validate_arguments!
+
+    action("Upgrading #{app} to #{tier}") do
+      api.put_app(app, "tier" => tier)
+    end
+  end
+
+  alias_command "downgrade", "apps:downgrade"
 
   private
 
