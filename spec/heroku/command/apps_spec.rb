@@ -181,7 +181,7 @@ STDOUT
         stderr, stdout = execute("apps")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== My Apps
+=== Dev & Legacy Apps
 example
 
 STDOUT
