@@ -8,7 +8,7 @@ module Heroku::Command
 
     # ssl
     #
-    # list certificates for an app
+    # list legacy certificates for an app
     #
     def index
       api.get_domains(app).body.each do |domain|
@@ -31,7 +31,7 @@ module Heroku::Command
 
     # ssl:clear
     #
-    # remove all ssl certificates from an app
+    # remove legacy ssl certificates from an app
     #
     def clear
       heroku.clear_ssl(app)
