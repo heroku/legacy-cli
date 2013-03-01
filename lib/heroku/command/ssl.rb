@@ -22,11 +22,11 @@ module Heroku::Command
 
     # ssl:add PEM KEY
     #
-    # deprecated, see `heroku certs:add` instead
+    # DEPRECATED: see `heroku certs:add` instead
     #
     def add
-      display "`heroku ssl:add` has been deprecated. Please use the SSL Endpoint add-on and the `heroku certs` commands instead."
-      display "SSL Endpoint documentation is available at: https://devcenter.heroku.com/articles/ssl-endpoint"
+      $stderr.puts " !    `heroku ssl:add` has been deprecated. Please use the SSL Endpoint add-on and the `heroku certs` commands instead."
+      $stderr.puts " !    SSL Endpoint documentation is available at: https://devcenter.heroku.com/articles/ssl-endpoint"
     end
 
     # ssl:clear
