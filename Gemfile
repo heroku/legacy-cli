@@ -19,5 +19,6 @@ group :test do
   gem "rr",    "~> 1.0.2"
   gem "rspec", ">= 2.0"
   gem "taps",  ">= 0.3.23"
+  gem "sqlite3"
   gem "webmock"
 end

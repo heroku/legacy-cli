@@ -57,6 +57,7 @@ GEM
     sequel (3.20.0)
     sinatra (1.0)
       rack (>= 1.0)
+    sqlite3 (1.3.7)
     taps (0.3.24)
       rack (>= 1.0.1)
       rest-client (>= 1.4.0, < 1.7.0)
@@ -82,5 +83,6 @@ DEPENDENCIES
   rr (~> 1.0.2)
   rspec (>= 2.0)
   rubyzip
+  sqlite3
   taps (>= 0.3.23)
   webmock
