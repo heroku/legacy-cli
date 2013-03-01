@@ -22,21 +22,11 @@ module Heroku::Command
 
     # ssl:add PEM KEY
     #
-    # add an ssl certificate to an app
+    # deprecated, see `heroku certs:add` instead
     #
     def add
-      pem_file = args.shift
-      key_file = args.shift
-      fail "Usage: heroku ssl:add PEM KEY" unless pem_file && key_file
-      raise CommandFailed, "Missing pem file." unless pem_file
-      raise CommandFailed, "Missing key file." unless key_file
-      raise CommandFailed, "Could not find pem in #{pem_file}"  unless File.exists?(pem_file)
-      raise CommandFailed, "Could not find key in #{key_file}"  unless File.exists?(key_file)
-
-      pem  = File.read(pem_file)
-      key  = File.read(key_file)
-      info = heroku.add_ssl(app, pem, key)
-      display "Added certificate to #{info['domain']}, expiring at #{info['expires_at']}"
+      display "`heroku ssl:add` has been deprecated. Please use the SSL Endpoint add-on and the `heroku certs` commands instead."
+      display "SSL Endpoint documentation is available at: https://devcenter.heroku.com/articles/ssl-endpoint"
     end
 
     # ssl:clear
