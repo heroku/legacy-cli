@@ -39,16 +39,6 @@ module Heroku::Command
       display "Added certificate to #{info['domain']}, expiring at #{info['expires_at']}"
     end
 
-    # ssl:remove DOMAIN
-    #
-    # remove an ssl certificate from an app
-    #
-    def remove
-      raise CommandFailed, "Missing domain. Usage:\nheroku ssl:remove <domain>" unless domain = args.shift
-      heroku.remove_ssl(app, domain)
-      display "Removed certificate from #{domain}"
-    end
-
     # ssl:clear
     #
     # remove all ssl certificates from an app
