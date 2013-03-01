@@ -224,7 +224,9 @@ module Heroku
       end
     rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized
       puts "Authentication failure"
-      unless ENV['HEROKU_API_KEY']
+      if ENV['HEROKU_API_KEY']
+        exit 1
+      else
         run "login"
         retry
       end
