@@ -91,7 +91,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   # >>
   #
   def console
-    deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku run rake` instead.")
+    deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku run console` instead.")
     command = "console #{args.join(' ')}"
     run_attached(command)
   end
