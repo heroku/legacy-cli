@@ -2,6 +2,8 @@ require "heroku/command/base"
 
 module Heroku::Command
 
+  # DEPRECATED: see `heroku certs` instead
+  #
   # manage ssl certificates for an app
   #
   class Ssl < Base
