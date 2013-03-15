@@ -24,7 +24,6 @@ Heroku CLI Release Process
 
 ### Changelog (only if there is at least one major new feature)
 * Create a [new changelog](http://devcenter.heroku.com/admin/changelog_items/new)
-* Paste the contents of your clipboard (or enter text based on the following):
 * Set the title to `Heroku CLI vX.Y.Z released with #{highlights}`
 * Set the description to:
 
