@@ -5,10 +5,10 @@ Heroku CLI Release Process
 * `bundle exec rake spec`
 
 ### Prepare new version
-* Update version number in `lib/heroku/version.rb` to X.Y.Z
+* Update version number in `lib/heroku/version.rb` to `X.Y.Z`
 * Run `bundle install` to update the version of heroku in the Gemfile.lock
 * Update `CHANGELOG`
-* Commit the changes `git commit -m "vX.Y.Z"` -a
+* Commit the changes `git commit -m "vX.Y.Z" -a`
 
 ### Release the gem
 * Release the gem `bundle exec rake release`
