@@ -3,7 +3,6 @@ Heroku CLI Release Process
 
 ### Ensure tests are passing
 * `bundle exec rake spec`
-* `bundle exec rake ci`
 
 ### Prepare new version
 * Update version number in `lib/heroku/version.rb` to X.Y.Z
