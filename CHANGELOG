@@ -1,3 +1,7 @@
+2.36.0 2013-03-22
+=================
+merge heroku-fork plugin into CLI
+
 2.35.0 2013-02-06
 =================
 don't hide the command if an opt is hidden
