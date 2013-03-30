@@ -10,9 +10,18 @@ module Heroku
       Plugin.directory.should == '/home/user/.heroku/plugins'
     end
 
-    it "extracts the name from git urls" do
-      Plugin.new('git://github.com/heroku/plugin.git').name.should == 'plugin'
+    describe "initialization" do
+
+      it "extracts the name from git urls" do
+        Plugin.new('git://github.com/heroku/plugin.git').name.should == 'plugin'
+      end
+
+      it "accepts a user/repo pair as an alernative to a full git url" do
+        Plugin.new('zeke/geek').uri.should == 'git://github.com/zeke/geek.git'
+      end
+
     end
+
 
     describe "management" do
       before(:each) do

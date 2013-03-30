@@ -91,6 +91,11 @@ module Heroku
     end
 
     def initialize(uri)
+      # Account for shorthand notation
+      unless uri.include?("://") || uri.include?("heroku_plugin")
+        uri = "git://github.com/#{uri}.git"
+      end
+
       @uri = uri
       guess_name(uri)
     end
