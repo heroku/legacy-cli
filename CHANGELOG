@@ -1,3 +1,7 @@
+2.36.1 2013-04-02
+=================
+bump release version to force gem push of pre-release 2.36.0
+
 2.36.0 2013-03-22
 =================
 merge heroku-fork plugin into CLI
