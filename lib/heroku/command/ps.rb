@@ -99,12 +99,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
     processes.each do |process|
       name    = process["process"].split(".").first
       elapsed = time_ago(Time.now - process['elapsed'])
+      size    = process.fetch("size", 1)
 
       if name == "run"
         key  = "run: one-off processes"
-        item = "%s: %s %s: `%s`" % [ process["process"], process["state"], elapsed, process["command"] ]
+        item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
       else
-        key  = "#{name}: `#{process["command"]}`"
+        key  = "#{name} (#{size}X): `#{process["command"]}`"
         item = "%s: %s %s" % [ process["process"], process["state"], elapsed ]
       end
 
@@ -229,4 +230,49 @@ class Heroku::Command::Ps < Heroku::Command::Base
   end
 
   alias_command "stop", "ps:stop"
+
+  # ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]
+  #
+  # resize dynos to the given size
+  #
+  # Example:
+  #
+  # $ heroku ps:resize web=2X worker=1X
+  # Resizing dynos and restarting specified processes... done
+  # web dynos now 2X ($0.10/dyno-hour)
+  # worker dynos now 1X ($0.05/dyno-hour)
+  #
+  def resize
+    app
+    changes = {}
+    args.each do |arg|
+      if arg =~ /^([a-zA-Z0-9_]+)=(\d+)([xX]?)$/
+        changes[$1] = { "size" => $2.to_i }
+      end
+    end
+
+    if changes.empty?
+      message = [
+          "Usage: heroku ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]",
+          "Must specify PROCESS and SIZE to resize."
+      ]
+      error(message.join("\n"))
+    end
+
+    action("Resizing dynos and restarting specified processes") do
+      api.request(
+        :expects  => 200,
+        :method   => :put,
+        :path     => "/apps/#{app}/formation",
+        :body     => json_encode(changes)
+      )
+    end
+    changes.each do |type, options|
+      size  = options["size"]
+      price = sprintf("%.2f", 0.05 * size)
+      display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
+    end
+  end
+
+  alias_command "resize", "ps:resize"
 end
