@@ -1,3 +1,9 @@
+2.37.0 2013-04-03
+=================
+heroku ps now shows dyno sizes
+support heroku ps:resize to change dyno sizes
+support heroku run --size to run on a different dyno size
+
 2.36.1 2013-04-02
 =================
 bump release version to force gem push of pre-release 2.36.0
