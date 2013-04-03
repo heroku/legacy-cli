@@ -93,18 +93,30 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def index
     validate_arguments!
+    formation = {}
+
+    formation = api.request(
+      :expects  => 200,
+      :method   => :get,
+      :path     => "/apps/#{app}/formation"
+    ).body.inject({}) do |hash, process|
+      hash[process["type"]] = process
+      hash
+    end
+
     processes = api.get_ps(app).body
 
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
     processes.each do |process|
       name    = process["process"].split(".").first
       elapsed = time_ago(Time.now - process['elapsed'])
+      size    = process.fetch("size", 1)
 
       if name == "run"
         key  = "run: one-off processes"
-        item = "%s: %s %s: `%s`" % [ process["process"], process["state"], elapsed, process["command"] ]
+        item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
       else
-        key  = "#{name}: `#{process["command"]}`"
+        key  = "#{name} (#{size}X): `#{process["command"]}`"
         item = "%s: %s %s" % [ process["process"], process["state"], elapsed ]
       end
 

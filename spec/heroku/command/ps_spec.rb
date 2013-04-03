@@ -3,6 +3,26 @@ require "heroku/command/ps"
 
 describe Heroku::Command::Ps do
 
+  before do
+    t = Time.now.strftime("%Y/%m/%d %H:%M:%S %z")
+    processes = [
+      {
+          "command"     => "bundle exec thin start -p $PORT",
+          "created_at"  => t,
+          "quantity"    => 1,
+          "size"        => 1,
+          "type"        => "web",
+          "updated_at"  => t,
+      }
+    ]
+    Excon.stub(:expects => 200, :method => :get, :path => %r{^/apps/([^/]+)/formation}) do |params|
+      {
+        :body   => Heroku::API::OkJson.encode(processes),
+        :status => 200
+      }
+    end
+  end
+
   before(:each) do
     stub_core
   end
@@ -33,7 +53,7 @@ describe Heroku::Command::Ps do
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== web: `bundle exec thin start -p $PORT`
+=== web (1X): `bundle exec thin start -p $PORT`
 web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 web.2: created 2012/09/11 12:34:56 (~ 0s ago)
 web.3: created 2012/09/11 12:34:56 (~ 0s ago)
@@ -56,9 +76,9 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 === run: one-off processes
-run.1: created 2012/09/11 12:34:56 (~ 0s ago): `bash`
+run.1 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
 
-=== web: `bundle exec thin start -p $PORT`
+=== web (1X): `bundle exec thin start -p $PORT`
 web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 
 STDOUT
