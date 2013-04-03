@@ -241,4 +241,48 @@ class Heroku::Command::Ps < Heroku::Command::Base
   end
 
   alias_command "stop", "ps:stop"
+
+  # ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]
+  #
+  # resize dynos to the given size
+  #
+  # Example:
+  #
+  # $ heroku ps:resize web=2X worker=1X
+  # Resizing web dynos to 2X ($0.10/dyno-hour)... done, now 2X
+  # Resizing worker dynos to 1X ($0.05/dyno-hour)... done, now 1X
+  #
+  def resize
+    app
+    changes = {}
+    args.each do |arg|
+      if arg =~ /^([a-zA-Z0-9_]+)=(\d+)([xX]?)$/
+        changes[$1] = { "size" => $2.to_i }
+      end
+    end
+
+    if changes.empty?
+      message = [
+          "Usage: heroku ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]",
+          "Must specify PROCESS and SIZE to resize."
+      ]
+      error(message.join("\n"))
+    end
+
+    action("Resizing dynos and restarting specified processes") do
+      api.request(
+        :expects  => 200,
+        :method   => :put,
+        :path     => "/apps/#{app}/formation",
+        :body     => json_encode(changes)
+      )
+    end
+    changes.each do |type, options|
+      size  = options["size"]
+      price = sprintf("%.2f", 0.05 * size)
+      display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
+    end
+  end
+
+  alias_command "resize", "ps:resize"
 end
