@@ -238,8 +238,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Example:
   #
   # $ heroku ps:resize web=2X worker=1X
-  # Resizing web dynos to 2X ($0.10/dyno-hour)... done, now 2X
-  # Resizing worker dynos to 1X ($0.05/dyno-hour)... done, now 1X
+  # Resizing dynos and restarting specified processes... done
+  # web dynos now 2X ($0.10/dyno-hour)
+  # worker dynos now 1X ($0.05/dyno-hour)
   #
   def resize
     app
