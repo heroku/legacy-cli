@@ -3,26 +3,6 @@ require "heroku/command/ps"
 
 describe Heroku::Command::Ps do
 
-  before do
-    t = Time.now.strftime("%Y/%m/%d %H:%M:%S %z")
-    processes = [
-      {
-          "command"     => "bundle exec thin start -p $PORT",
-          "created_at"  => t,
-          "quantity"    => 1,
-          "size"        => 1,
-          "type"        => "web",
-          "updated_at"  => t,
-      }
-    ]
-    Excon.stub(:expects => 200, :method => :get, :path => %r{^/apps/([^/]+)/formation}) do |params|
-      {
-        :body   => Heroku::API::OkJson.encode(processes),
-        :status => 200
-      }
-    end
-  end
-
   before(:each) do
     stub_core
   end

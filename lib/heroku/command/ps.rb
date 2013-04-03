@@ -93,17 +93,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    formation = {}
-
-    formation = api.request(
-      :expects  => 200,
-      :method   => :get,
-      :path     => "/apps/#{app}/formation"
-    ).body.inject({}) do |hash, process|
-      hash[process["type"]] = process
-      hash
-    end
-
     processes = api.get_ps(app).body
 
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
