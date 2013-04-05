@@ -1,4 +1,8 @@
-2.37.0 2013-04-04
+2.37.2 2013-04-04
+=================
+fix issue with heroku ps sorting
+
+2.37.1 2013-04-04
 =================
 deprecate plugin heroku-dyno-size
 
