@@ -112,9 +112,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
       processes_by_command[key] << item
     end
 
+    extract_run_id = /\.(\d+).*:/
     processes_by_command.keys.each do |key|
       processes_by_command[key] = processes_by_command[key].sort do |x,y|
-        x.match(/\.(\d+):/).captures.first.to_i <=> y.match(/\.(\d+):/).captures.first.to_i
+        x.match(extract_run_id).captures.first.to_i <=> y.match(extract_run_id).captures.first.to_i
       end
     end
 
