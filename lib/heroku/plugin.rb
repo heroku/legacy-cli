@@ -11,6 +11,7 @@ module Heroku
       heroku-cedar
       heroku-certs
       heroku-credentials
+      heroku-dyno-size
       heroku-kill
       heroku-labs
       heroku-logging
