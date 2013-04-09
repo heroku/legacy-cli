@@ -1,3 +1,7 @@
+2.39.1 2013-04-25
+=================
+Correct "process" to "dyno" in output
+
 2.39.0 2013-04-24
 =================
 enable region support
