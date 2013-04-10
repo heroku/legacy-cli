@@ -239,7 +239,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Example:
   #
   # $ heroku ps:resize web=2X worker=1X
-  # Resizing dynos and restarting specified dynos... done
+  # Resizing and restarting the specified dynos... done
   # web dynos now 2X ($0.10/dyno-hour)
   # worker dynos now 1X ($0.05/dyno-hour)
   #
@@ -260,7 +260,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
       error(message.join("\n"))
     end
 
-    action("Resizing dynos and restarting specified dynos") do
+    action("Resizing and restarting the specified dynos") do
       api.request(
         :expects  => 200,
         :method   => :put,
