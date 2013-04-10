@@ -60,7 +60,14 @@ STDOUT
     end
 
     describe "list" do
-      before do
+
+      it "sends options to the server" do
+        stub_request(:get, %r{/addons\?foo=bar$}).
+          to_return(:body => Heroku::OkJson.encode([]))
+        execute("addons:list --foo=bar")
+      end
+
+      it "lists available addons" do
         stub_core.addons.returns([
           { "name" => "cloudcounter:basic", "state" => "alpha" },
           { "name" => "cloudcounter:pro", "state" => "public" },
@@ -68,9 +75,6 @@ STDOUT
           { "name" => "cloudcounter:old", "state" => "disabled" },
           { "name" => "cloudcounter:platinum", "state" => "beta" }
         ])
-      end
-
-      it "lists available addons" do
         stderr, stdout = execute("addons:list")
         stderr.should == ""
         stdout.should == <<-STDOUT

@@ -546,8 +546,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     delete("/apps/#{app_name}/logs/drains?url=#{URI.escape(url)}").to_s
   end
 
-  def addons
-    json_decode get("/addons", :accept => 'application/json').to_s
+  def addons(filters = {})
+    url = "/addons"
+    params = filters.map{|k,v| "#{k}=#{v}"}.join("&")
+    json_decode get([url,params].join("?"), :accept => 'application/json').to_s
   end
 
   def installed_addons(app_name)
