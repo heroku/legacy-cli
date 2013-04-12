@@ -37,7 +37,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
     validate_arguments!
 
     if db
-      attachment = hpg_resolve(db)
+      @resolver = generate_resolver
+      attachment = @resolver.resolve(db)
       display_db attachment.display_name, hpg_info(attachment, options[:extended])
     else
       index
@@ -54,7 +55,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db)
+    attachment = generate_resolver.resolve(db)
 
     action "Promoting #{attachment.display_name} to DATABASE_URL" do
       hpg_promote(attachment.url)
@@ -68,7 +69,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
   def psql
-    attachment = hpg_resolve(shift_argument, "DATABASE_URL")
+    attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
 
     uri = URI.parse( attachment.url )
@@ -93,7 +94,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db)
+    resolver = generate_resolver
+    attachment = resolver.resolve(db)
+    @app = resolver.app_name if @app.nil?
+
     return unless confirm_command
 
     action("Resetting #{attachment.display_name}") do
@@ -111,14 +115,17 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    replica = hpg_resolve(db)
+    resolver = generate_resolver
+    replica = resolver.resolve(db)
+    @app = resolver.app_name if @app.nil?
+
     replica_info = hpg_info(replica)
 
     unless replica_info[:following]
       error("#{replica.display_name} is not following another database.")
     end
     origin_url = replica_info[:following]
-    origin_name = database_name_from_url(origin_url)
+    origin_name = resolver.database_name_from_url(origin_url)
 
     output_with_bang "#{replica.display_name} will become writable and no longer"
     output_with_bang "follow #{origin_name}. This cannot be undone."
@@ -140,9 +147,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     validate_arguments!
 
     if db
-      wait_for hpg_resolve(db)
+      wait_for generate_resolver.resolve(db)
     else
-      hpg_databases.values.each do |attach|
+      generate_resolver.all_databases.values.each do |attach|
         wait_for(attach)
       end
     end
@@ -160,15 +167,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = hpg_resolve(db)
+    attachment = generate_resolver.resolve(db)
 
     if options[:reset]
       action "Resetting credentials for #{attachment.display_name}" do
         hpg_client(attachment).rotate_credentials
       end
       if attachment.primary_attachment?
-        forget_config!
-        attachment = hpg_resolve(db)
+        attachment = generate_resolver.resolve(db)
         action "Promoting #{attachment.display_name}" do
           hpg_promote(attachment.url)
         end
@@ -185,14 +191,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
 private
 
-  def database_name_from_url(url)
-    vars = app_config_vars.reject {|key,value| key == 'DATABASE_URL'}
-    if var = vars.invert[url]
-      var.gsub(/_URL$/, '')
-    else
-      uri = URI.parse(url)
-      "Database on #{uri.host}:#{uri.port || 5432}#{uri.path}"
-    end
+  def generate_resolver
+    app_name = app rescue nil # will raise if no app, but calling app reads in arguments
+    Resolver.new(app_name, api)
   end
 
   def display_db(name, db)
@@ -211,7 +212,9 @@ private
   def hpg_databases_with_info
     return @hpg_databases_with_info if @hpg_databases_with_info
 
-    @hpg_databases_with_info = Hash[ hpg_databases.map { |config, att| [att.display_name, hpg_info(att, options[:extended])] } ]
+    @resolver = generate_resolver
+    dbs = @resolver.all_databases
+    @hpg_databases_with_info = Hash[ dbs.map { |config, att| [att.display_name, hpg_info(att, options[:extended])] } ]
 
     return @hpg_databases_with_info
   end
@@ -224,7 +227,7 @@ private
     item["values"] = [item["value"]] if item["value"]
     item["values"].map do |value|
       if item["resolve_db_name"]
-        database_name_from_url(value)
+        @resolver.database_name_from_url(value)
       else
         value
       end

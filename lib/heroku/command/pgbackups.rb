@@ -71,7 +71,7 @@ module Heroku::Command
     # -e, --expire  # if no slots are available, destroy the oldest manual backup to make room
     #
     def capture
-      attachment = hpg_resolve(shift_argument, "DATABASE_URL")
+      attachment = resolve(shift_argument, "DATABASE_URL")
       validate_arguments!
 
       from_name = attachment.display_name
@@ -107,17 +107,17 @@ module Heroku::Command
     #
     def restore
       if 0 == args.size
-        attachment = hpg_resolve(nil, "DATABASE_URL")
+        attachment = resolve(nil, "DATABASE_URL")
         to_name = attachment.display_name
         to_url  = attachment.url
         backup_id = :latest
       elsif 1 == args.size
-        attachment = hpg_resolve(shift_argument)
+        attachment = resolve(shift_argument)
         to_name = attachment.display_name
         to_url  = attachment.url
         backup_id = :latest
       else
-        attachment = hpg_resolve(shift_argument)
+        attachment = resolve(shift_argument)
         to_name = attachment.display_name
         to_url  = attachment.url
         backup_id = shift_argument
@@ -312,6 +312,10 @@ You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
     end
 
     private
+
+    def resolve(identifer, default=nil)
+      Resolver.new(app, api).resolve(identifer, default)
+    end
 
     def no_backups_error!
       error("No backups. Capture one with `heroku pgbackups:capture`.")
