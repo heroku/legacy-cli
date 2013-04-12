@@ -3,12 +3,12 @@ require "heroku/helpers/heroku_postgresql"
 
 include Heroku::Helpers::HerokuPostgresql
 
-describe Heroku::Helpers::HerokuPostgresql do
+describe Heroku::Helpers::HerokuPostgresql::Resolver do
 
   before do
-    subject.forget_config!
-    subject.stub(:app_config_vars) { app_config_vars }
-    subject.stub(:app_attachments) { app_attachments }
+    @resolver = described_class.new('appname', mock(:api))
+    @resolver.stub(:app_config_vars) { app_config_vars }
+    @resolver.stub(:app_attachments) { app_attachments }
   end
 
   let(:app_config_vars) do
@@ -42,8 +42,26 @@ describe Heroku::Helpers::HerokuPostgresql do
     end
 
     it "resolves DATABASE" do
-      att = subject.hpg_resolve('DATABASE')
+      att = @resolver.resolve('DATABASE')
       att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
+      att.url.should == "postgres://default"
+    end
+  end
+
+  context "when the identifier has ::" do
+    it 'changes the resolver app to the left of the ::' do
+      @resolver.app_name.should == 'appname'
+      att = @resolver.resolve('app2::black')
+      @resolver.app_name.should == 'app2'
+    end
+
+    it 'resolves database names on the right of the ::' do
+      att = @resolver.resolve('app2::black')
+      att.url.should == "postgres://black" # since we're mocking out the app_config_vars
+    end
+
+    it 'looks allows nothing after the :: to use the default' do
+      att = @resolver.resolve('app2::', 'DATABASE_URL')
       att.url.should == "postgres://default"
     end
   end
@@ -59,88 +77,88 @@ describe Heroku::Helpers::HerokuPostgresql do
     end
 
     it "resolves DATABASE" do
-      att = subject.hpg_resolve('DATABASE')
+      att = @resolver.resolve('DATABASE')
       att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
       att.url.should == "postgres://default"
     end
   end
 
   it "resolves default using NAME" do
-    att = subject.hpg_resolve('IVORY')
+    att = @resolver.resolve('IVORY')
     att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
     att.url.should == "postgres://default"
   end
 
   it "resolves non-default using NAME" do
-    att = subject.hpg_resolve('BLACK')
+    att = @resolver.resolve('BLACK')
     att.display_name.should == "HEROKU_POSTGRESQL_BLACK_URL"
     att.url.should == "postgres://black"
   end
 
   it "resolves default using NAME_URL" do
-    att = subject.hpg_resolve('IVORY_URL')
+    att = @resolver.resolve('IVORY_URL')
     att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
     att.url.should == "postgres://default"
   end
 
   it "resolves non-default using NAME_URL" do
-    att = subject.hpg_resolve('BLACK_URL')
+    att = @resolver.resolve('BLACK_URL')
     att.display_name.should == "HEROKU_POSTGRESQL_BLACK_URL"
     att.url.should == "postgres://black"
   end
 
   it "resolves default using lowercase" do
-    att = subject.hpg_resolve('ivory')
+    att = @resolver.resolve('ivory')
     att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
     att.url.should == "postgres://default"
   end
 
   it "resolves non-default using lowercase" do
-    att = subject.hpg_resolve('black')
+    att = @resolver.resolve('black')
     att.display_name.should == "HEROKU_POSTGRESQL_BLACK_URL"
     att.url.should == "postgres://black"
   end
 
   it "resolves non-default using part of name" do
-    att = subject.hpg_resolve('bla')
+    att = @resolver.resolve('bla')
     att.display_name.should == "HEROKU_POSTGRESQL_BLACK_URL"
     att.url.should == "postgres://black"
   end
 
   it "throws an error if it doesnt exist" do
-    subject.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
-    subject.hpg_resolve("violet")
+    @resolver.should_receive(:error).with("Unknown database: violet. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+    @resolver.resolve("violet")
   end
 
   context "default" do
 
     it "errors if there is no default" do
-      subject.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
-      subject.hpg_resolve(nil)
+      @resolver.should_receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      @resolver.resolve(nil)
     end
 
     it "uses the default if nothing(nil) specified" do
-      att = subject.hpg_resolve(nil, "DATABASE_URL")
+      att = @resolver.resolve(nil, "DATABASE_URL")
       att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
       att.url.should == "postgres://default"
     end
 
     it "uses the default if nothing(empty) specified" do
-      att = subject.hpg_resolve('', "DATABASE_URL")
+      att = @resolver.resolve('', "DATABASE_URL")
       att.display_name.should == "HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)"
       att.url.should == "postgres://default"
     end
 
     it 'throws an error if given an empty string and asked for the default and there is no default' do
       app_config_vars.delete 'DATABASE_URL'
-      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
-      att = subject.hpg_resolve('', "DATABASE_URL")
+      @resolver.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      att = @resolver.resolve('', "DATABASE_URL")
     end
 
     it 'throws an error if given an empty string and asked for the default and the default doesnt match' do
       app_config_vars['DATABASE_URL'] = 'something different'
-      subject.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
-      att = subject.hpg_resolve('', "DATABASE_URL")
+      @resolver.should_receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      att = @resolver.resolve('', "DATABASE_URL")
     end
 
 
