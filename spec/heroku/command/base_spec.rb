@@ -47,6 +47,11 @@ STDERR
         @base.app.should == "example"
       end
 
+      it "attempts to find the app via the --app option case-insensitively" do
+        @base.stub!(:options).and_return(:app => "ExAmPlE")
+        @base.app.should == "example"
+      end
+
       it "attempts to find the app via the --confirm option" do
         @base.stub!(:options).and_return(:confirm => "myconfirmapp")
         @base.app.should == "myconfirmapp"
