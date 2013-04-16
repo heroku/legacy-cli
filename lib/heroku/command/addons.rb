@@ -43,7 +43,8 @@ module Heroku::Command
     # list all available addons
     #
     def list
-      addons = heroku.addons
+      config = parse_options(args)
+      addons = heroku.addons(config)
       if addons.empty?
         display "No addons available currently"
       else
