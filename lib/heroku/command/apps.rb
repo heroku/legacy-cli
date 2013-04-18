@@ -183,7 +183,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
-  #     --region REGION        # HIDDEN: specify region for this app to run on
+  #     --region REGION        # specify region for this app to run in
   # -t, --tier TIER            # HIDDEN: the tier for this app
   #
   #Examples:
@@ -203,6 +203,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # # create a staging app
   # $ heroku apps:create example-staging --remote staging
+  #
+  # # create an app in the eu region
+  # $ heroku apps:create --region eu
   #
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']

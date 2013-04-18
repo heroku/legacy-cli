@@ -1,3 +1,7 @@
+2.39.0 2013-04-24
+=================
+enable region support
+
 2.38.2 2013-04-23
 =================
 disable use of sslv2 to rendezvous by forcing tlsv1
