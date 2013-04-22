@@ -1,3 +1,7 @@
+2.38.0 2013-04-22
+=================
+send command options on addons:list
+
 2.37.2 2013-04-04
 =================
 fix issue with heroku ps sorting
