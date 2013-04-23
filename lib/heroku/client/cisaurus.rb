@@ -20,7 +20,6 @@ class Heroku::Client::Cisaurus
   end
 
   def job_done?(job_location)
-    done = authenticated_resource(job_location).get.code
-    done == 202
+    202 != authenticated_resource(job_location).get.code
   end
 end
