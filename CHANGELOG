@@ -1,3 +1,7 @@
+2.38.2 2013-04-23
+=================
+disable use of sslv2 to rendezvous by forcing tlsv1
+
 2.38.1 2013-04-23
 =================
 check for proper cisaurus job response code
