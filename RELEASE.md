@@ -13,6 +13,7 @@ Heroku CLI Release Process
 * Run `bundle install` to update the version of heroku in the Gemfile.lock
 * Update `CHANGELOG`
 * Commit the changes `git commit -m "vX.Y.Z" -a`
+* Push changes to master `git push origin master`
 
 ### Release the gem
 
@@ -22,6 +23,8 @@ Heroku CLI Release Process
   * `HEROKU_RELEASE_ACCESS` and `HEROKU_RELEASE_SECRET` config var values (export values in terminal)
   * Access and permissions to run builds on http://dx-jenkins.herokai.com/
 * Release the gem `bundle exec rake release`
+  * Enter password for `sudo` during release
+  * Confirm gem release at http://rubygems.org/gems/heroku/versions
 
 ### Release the toolbelt
 
