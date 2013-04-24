@@ -12,6 +12,7 @@ module Heroku
       heroku-certs
       heroku-credentials
       heroku-dyno-size
+      heroku-fork
       heroku-kill
       heroku-labs
       heroku-logging
@@ -27,7 +28,6 @@ module Heroku
       heroku-suggest
       pgbackups-automate
       pgcmd
-      heroku-fork
     )
 
     attr_reader :name, :uri
