@@ -8,9 +8,9 @@ class Heroku::Command::Run < Heroku::Command::Base
 
   # run COMMAND
   #
-  # run an attached process
+  # run an attached dyno
   #
-  # -s, --size SIZE      # specifiy dyno size for process
+  # -s, --size SIZE      # specify dyno size
   #
   #Example:
   #
@@ -26,10 +26,10 @@ class Heroku::Command::Run < Heroku::Command::Base
 
   # run:detached COMMAND
   #
-  # run a detached process, where output is sent to your logs
+  # run a detached dyno, where output is sent to your logs
   #
-  # -s, --size SIZE      # specifiy dyno size for process
-  # -t, --tail           # stream logs for the process
+  # -s, --size SIZE      # specify dyno size
+  # -t, --tail           # stream logs for the dyno
   #
   #Example:
   #
