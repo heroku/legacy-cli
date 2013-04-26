@@ -1,6 +1,10 @@
+2.39.2 2013-04-26
+=================
+show --regions info in addons:list help output
+
 2.39.1 2013-04-25
 =================
-Correct "process" to "dyno" in output
+correct "process" to "dyno" in output
 
 2.39.0 2013-04-24
 =================
