@@ -61,10 +61,10 @@ STDOUT
 
     describe "list" do
 
-      it "sends options to the server" do
-        stub_request(:get, %r{/addons\?foo=bar$}).
+      it "sends region option to the server" do
+        stub_request(:get, %r{/addons\?region=eu$}).
           to_return(:body => Heroku::OkJson.encode([]))
-        execute("addons:list --foo=bar")
+        execute("addons:list --region=eu")
       end
 
       it "lists available addons" do

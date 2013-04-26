@@ -42,9 +42,17 @@ module Heroku::Command
     #
     # list all available addons
     #
+    # --region REGION      # specify a region for addon availability
+    #
+    #Example:
+    #
+    # $ heroku addons:list --region eu
+    # === available
+    # adept-scale:battleship, corvette...
+    # adminium:enterprise, petproject...
+    #
     def list
-      config = parse_options(args)
-      addons = heroku.addons(config)
+      addons = heroku.addons(options)
       if addons.empty?
         display "No addons available currently"
       else
