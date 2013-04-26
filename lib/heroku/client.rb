@@ -249,13 +249,13 @@ class Heroku::Client
     doc.elements["//app/workers"].text.to_i
   end
 
-  # Scales the web processes.
+  # Scales the web dynos.
   def set_dynos(app_name, qty)
     deprecate # 07/31/2012
     put("/apps/#{app_name}/dynos", :dynos => qty).to_s
   end
 
-  # Scales the background processes.
+  # Scales the background dynos.
   def set_workers(app_name, qty)
     deprecate # 07/31/2012
     put("/apps/#{app_name}/workers", :workers => qty).to_s

@@ -1,6 +1,6 @@
 require "heroku/command/base"
 
-# manage processes (dynos, workers)
+# manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
 
@@ -80,12 +80,12 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   # ps
   #
-  # list processes for an app
+  # list dynos for an app
   #
   #Example:
   #
   # $ heroku ps
-  # === run: one-off processes
+  # === run: one-off dyno
   # run.1: up for 5m: `bash`
   #
   # === web: `bundle exec thin start -p $PORT`
@@ -125,36 +125,36 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
   end
 
-  # ps:restart [PROCESS]
+  # ps:restart [DYNO]
   #
-  # restart an app process
+  # restart an app dyno
   #
-  # if PROCESS is not specified, restarts all processes on the app
+  # if DYNO is not specified, restarts all dynos on the app
   #
   #Examples:
   #
   # $ heroku ps:restart web.1
-  # Restarting web.1 process... done
+  # Restarting web.1 dyno... done
   #
   # $ heroku ps:restart web
-  # Restarting web processes... done
+  # Restarting web dyno... done
   #
   # $ heroku ps:restart
-  # Restarting processes... done
+  # Restarting dynos... done
   #
   def restart
-    process = shift_argument
+    dyno = shift_argument
     validate_arguments!
 
-    message, options = case process
+    message, options = case dyno
     when NilClass
-      ["Restarting processes", {}]
+      ["Restarting dynos", {}]
     when /.+\..+/
       ps = args.first
-      ["Restarting #{ps} process", { :ps => ps }]
+      ["Restarting #{ps} dyno", { :ps => ps }]
     else
       type = args.first
-      ["Restarting #{type} processes", { :type => type }]
+      ["Restarting #{type} dynos", { :type => type }]
     end
 
     action(message) do
@@ -164,15 +164,15 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "restart", "ps:restart"
 
-  # ps:scale PROCESS1=AMOUNT1 [PROCESS2=AMOUNT2 ...]
+  # ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]
   #
-  # scale processes by the given amount
+  # scale dynos by the given amount
   #
   #Examples:
   #
   # $ heroku ps:scale web=3 worker+1
-  # Scaling web processes... done, now running 3
-  # Scaling worker processes... done, now running 1
+  # Scaling web dynos... done, now running 3
+  # Scaling worker dynos... done, now running 1
   #
   def scale
     changes = {}
@@ -183,14 +183,14 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     if changes.empty?
-      error("Usage: heroku ps:scale PROCESS1=AMOUNT1 [PROCESS2=AMOUNT2 ...]\nMust specify PROCESS and AMOUNT to scale.")
+      error("Usage: heroku ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
     end
 
-    changes.keys.sort.each do |process|
-      amount = changes[process]
-      action("Scaling #{process} processes") do
+    changes.keys.sort.each do |dyno|
+      amount = changes[dyno]
+      action("Scaling #{dyno} dynos") do
         amount.gsub!("=", "")
-        new_qty = api.post_ps_scale(app, process, amount).body
+        new_qty = api.post_ps_scale(app, dyno, amount).body
         status("now running #{new_qty}")
       end
     end
@@ -198,31 +198,31 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "scale", "ps:scale"
 
-  # ps:stop PROCESS
+  # ps:stop DYNOS
   #
-  # stop an app process
+  # stop an app dyno
   #
   # Examples:
   #
   # $ heroku stop run.3
-  # Stopping run.3 process... done
+  # Stopping run.3 dyno... done
   #
   # $ heroku stop run
-  # Stopping run processes... done
+  # Stopping run dynos... done
   #
   def stop
-    process = shift_argument
+    dyno = shift_argument
     validate_arguments!
 
-    message, options = case process
+    message, options = case dyno
     when NilClass
-      error("Usage: heroku ps:stop PROCESS\nMust specify PROCESS to stop.")
+      error("Usage: heroku ps:stop DYNO\nMust specify DYNO to stop.")
     when /.+\..+/
       ps = args.first
-      ["Stopping #{ps} process", { :ps => ps }]
+      ["Stopping #{ps} dyno", { :ps => ps }]
     else
       type = args.first
-      ["Stopping #{type} processes", { :type => type }]
+      ["Stopping #{type} dynos", { :type => type }]
     end
 
     action(message) do
@@ -232,14 +232,14 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "stop", "ps:stop"
 
-  # ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]
+  # ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]
   #
   # resize dynos to the given size
   #
   # Example:
   #
   # $ heroku ps:resize web=2X worker=1X
-  # Resizing dynos and restarting specified processes... done
+  # Resizing and restarting the specified dynos... done
   # web dynos now 2X ($0.10/dyno-hour)
   # worker dynos now 1X ($0.05/dyno-hour)
   #
@@ -254,13 +254,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     if changes.empty?
       message = [
-          "Usage: heroku ps:resize PROCESS1=1X|2X [PROCESS2=1X|2X ...]",
-          "Must specify PROCESS and SIZE to resize."
+          "Usage: heroku ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]",
+          "Must specify DYNO and SIZE to resize."
       ]
       error(message.join("\n"))
     end
 
-    action("Resizing dynos and restarting specified processes") do
+    action("Resizing and restarting the specified dynos") do
       api.request(
         :expects  => 200,
         :method   => :put,

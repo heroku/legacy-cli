@@ -68,27 +68,27 @@ STDOUT
 
     describe "ps:restart" do
 
-      it "restarts all processes with no args" do
+      it "restarts all dynos with no args" do
         stderr, stdout = execute("ps:restart")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Restarting processes... done
+Restarting dynos... done
 STDOUT
       end
 
-      it "restarts one process" do
+      it "restarts one dyno" do
         stderr, stdout = execute("ps:restart web.1")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Restarting web.1 process... done
+Restarting web.1 dyno... done
 STDOUT
       end
 
-      it "restarts a type of process" do
+      it "restarts a type of dyno" do
         stderr, stdout = execute("ps:restart web")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Restarting web processes... done
+Restarting web dynos... done
 STDOUT
       end
 
@@ -100,7 +100,7 @@ STDOUT
         stderr, stdout = execute("ps:scale web=5")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web processes... done, now running 5
+Scaling web dynos... done, now running 5
 STDOUT
       end
 
@@ -108,7 +108,7 @@ STDOUT
         stderr, stdout = execute("ps:scale web+2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web processes... done, now running 3
+Scaling web dynos... done, now running 3
 STDOUT
       end
 
@@ -116,19 +116,19 @@ STDOUT
 
     describe "ps:stop" do
 
-      it "restarts one process" do
+      it "restarts one dyno" do
         stderr, stdout = execute("ps:restart ps.1")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Restarting ps.1 process... done
+Restarting ps.1 dyno... done
 STDOUT
       end
 
-      it "restarts a type of process" do
+      it "restarts a type of dyno" do
         stderr, stdout = execute("ps:restart ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Restarting ps processes... done
+Restarting ps dynos... done
 STDOUT
       end
 

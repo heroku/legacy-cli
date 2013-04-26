@@ -157,12 +157,12 @@ describe Heroku::Command do
 
   context "help" do
     it "works as a prefix" do
-      heroku("help ps:scale").should =~ /scale processes by/
+      heroku("help ps:scale").should =~ /scale dynos by/
     end
 
     it "works as an option" do
-      heroku("ps:scale -h").should =~ /scale processes by/
-      heroku("ps:scale --help").should =~ /scale processes by/
+      heroku("ps:scale -h").should =~ /scale dynos by/
+      heroku("ps:scale --help").should =~ /scale dynos by/
     end
   end
 
