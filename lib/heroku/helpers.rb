@@ -154,7 +154,7 @@ module Heroku
 
     def create_git_remote(remote, url)
       return if git('remote').split("\n").include?(remote)
-      return unless File.exists?(".git")
+      error("Not a git repository!") and return unless File.exists?(".git")
       git "remote add #{remote} #{url}"
       display "Git remote #{remote} added"
     end
