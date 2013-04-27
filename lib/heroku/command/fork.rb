@@ -12,8 +12,8 @@ module Heroku::Command
     # Fork an existing app -- copy config vars and Heroku Postgres data, and re-provision add-ons to a new app.
     # New app name should not be an existing app. The new app will be created as part of the forking process.
     #
-    # -s, --stack  STACK   # specify a stack
-    # --region REGION      # HIDDEN: specify a region
+    # -s, --stack  STACK   # specify a stack for the new app
+    # --region REGION      # specify a region
     #
     def index
       
@@ -35,7 +35,6 @@ module Heroku::Command
         job_location = cisaurus_client.copy_slug(from, to)
         loop do
           break if cisaurus_client.job_done?(job_location)
-          print "."
           sleep 1
         end
       end
@@ -103,7 +102,7 @@ module Heroku::Command
     def migrate_db(from_addon, from, to_addon, to)
       transfer = nil
 
-      action("Creating database backup from #{from}") do
+      action("Creating database backup from #{from} (this can take some time)") do
         from_config = api.get_config_vars(from).body
         from_attachment = from_addon["attachment_name"]
         pgb = Heroku::Client::Pgbackups.new(from_config["PGBACKUPS_URL"])
@@ -114,12 +113,11 @@ module Heroku::Command
           error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
           break if transfer["finished_at"]
           sleep 1
-          print "."
         end
         print " "
       end
 
-      action("Restoring database backup to #{to}") do
+      action("Restoring database backup to #{to} (this can take some time)") do
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
         pgb = Heroku::Client::Pgbackups.new(to_config["PGBACKUPS_URL"])
@@ -130,7 +128,6 @@ module Heroku::Command
           error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
           break if transfer["finished_at"]
           sleep 1
-          print "."
         end
         print " "
       end
@@ -144,12 +141,11 @@ module Heroku::Command
     def wait_for_db(app, attachment)
       attachments = api.get_attachments(app).body.inject({}) { |ax,att| ax.update(att["name"] => att["resource"]["name"]) }
       attachment_name = attachment["message"].match(/Attached as (\w+)_URL\n/)[1]
-      action("Waiting for database to be ready") do
+      action("Waiting for database to be ready (this can take some time)") do
         loop do
           begin
             waiting = json_decode(pg_api["#{attachments[attachment_name]}/wait_status"].get.to_s)["waiting?"]
             break unless waiting
-            print "."
             sleep 5
           rescue RestClient::ResourceNotFound
           rescue Interrupt

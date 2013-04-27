@@ -1,18 +1,19 @@
 require "heroku/command/base"
 
-# HIDDEN: get info on available regions
+# list available regions
 #
 class Heroku::Command::Regions < Heroku::Command::Base
 
   # regions
   #
-  # HIDDEN: List available regions for deployment
+  # List available regions for deployment
   #
   #Example:
   #
   # $ heroku regions
   # === Regions
   # us
+  # eu
   def index
     regions = json_decode(heroku.get("/regions"))
     styled_header("Regions")

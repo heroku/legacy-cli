@@ -249,13 +249,13 @@ class Heroku::Client
     doc.elements["//app/workers"].text.to_i
   end
 
-  # Scales the web processes.
+  # Scales the web dynos.
   def set_dynos(app_name, qty)
     deprecate # 07/31/2012
     put("/apps/#{app_name}/dynos", :dynos => qty).to_s
   end
 
-  # Scales the background processes.
+  # Scales the background dynos.
   def set_workers(app_name, qty)
     deprecate # 07/31/2012
     put("/apps/#{app_name}/workers", :workers => qty).to_s
@@ -546,8 +546,11 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     delete("/apps/#{app_name}/logs/drains?url=#{URI.escape(url)}").to_s
   end
 
-  def addons
-    json_decode get("/addons", :accept => 'application/json').to_s
+  def addons(filters = {})
+    url = "/addons"
+    params = filters.map{|k,v| "#{k}=#{v}"}.join("&")
+    params = nil if params.empty?
+    json_decode get([url,params].compact.join("?"), :accept => 'application/json').to_s
   end
 
   def installed_addons(app_name)
