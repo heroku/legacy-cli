@@ -543,7 +543,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def remove_drain(app_name, url)
-    delete("/apps/#{app_name}/logs/drains?url=#{URI.escape(url)}").to_s
+    delete("/apps/#{app_name}/logs/drains?url=#{CGI.escape(url)}").to_s
   end
 
   def addons(filters = {})
