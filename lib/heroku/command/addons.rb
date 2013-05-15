@@ -186,7 +186,7 @@ module Heroku::Command
     end
 
     def app_addon_url(addon)
-      "https://api.#{heroku.host}/apps/#{app}/addons/#{addon}"
+      "https://addons-sso.heroku.com/apps/#{app}/addons/#{addon}"
     end
 
     def partition_addons(addons)

@@ -51,7 +51,7 @@ deployhooks:http
 heroku-postgresql:ronin  HEROKU_POSTGRESQL_RED
 
 === example Add-ons to Configure
-deployhooks:email  https://api.heroku.com/apps/example/addons/deployhooks:email
+deployhooks:email  https://addons-sso.heroku.com/apps/example/addons/deployhooks:email
 
 STDOUT
         Excon.stubs.shift
@@ -542,7 +542,7 @@ STDERR
       it "opens the addon if only one matches" do
         api.post_addon('example', 'redistogo:nano')
         require("launchy")
-        Launchy.should_receive(:open).with("https://api.#{@addons.heroku.host}/apps/example/addons/redistogo:nano").and_return(Thread.new {})
+        Launchy.should_receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/redistogo:nano").and_return(Thread.new {})
         stderr, stdout = execute('addons:open redistogo:nano')
         stderr.should == ''
         stdout.should == <<-STDOUT
