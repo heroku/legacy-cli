@@ -1,3 +1,7 @@
+2.39.3 2013-05-15
+=================
+change the URL used for SSO with add-ons
+
 2.39.2 2013-04-26
 =================
 show --regions info in addons:list help output
