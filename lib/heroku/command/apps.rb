@@ -227,7 +227,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
             end
           end
         end
-        if info['region']
+        if options[:region]
           status("region is #{info['region']}")
         else
           status("stack is #{info['stack']}")
