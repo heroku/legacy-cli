@@ -6,7 +6,7 @@ module Heroku
     extend self
 
     def home_directory
-      running_on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
+      running_on_windows? ? (ENV['HEROKU_HOME'] || ENV['USERPROFILE']).gsub("\\","/") : ENV['HOME']
     end
 
     def running_on_windows?
