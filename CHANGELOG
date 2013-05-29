@@ -1,3 +1,7 @@
+2.39.4 2013-05-29
+=================
+only show app region on heroku create when specified
+
 2.39.3 2013-05-15
 =================
 change the URL used for SSO with add-ons
