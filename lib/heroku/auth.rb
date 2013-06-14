@@ -1,3 +1,4 @@
+require "rbconfig"
 require "cgi"
 require "heroku"
 require "heroku/client"
@@ -332,7 +333,8 @@ class Heroku::Auth
         :host             => uri.host,
         :port             => uri.port.to_s,
         :scheme           => uri.scheme,
-        :ssl_verify_peer  => verify_host?(host)
+        :ssl_verify_peer  => verify_host?(host) &&
+          RbConfig::CONFIG['host_os'] !~ /mswin|win32|dos|cygwin|mingw/i,
       }
     end
   end
