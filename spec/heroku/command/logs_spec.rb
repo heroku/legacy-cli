@@ -24,25 +24,19 @@ describe Heroku::Command::Logs do
       end
 
       it "prettifies tty output" do
-        old_stdout_isatty = $stdout.isatty
-        stub($stdout).isatty.returns(true)
-        stderr, stdout = execute("logs")
+        stderr, stdout = execute("logs") { |sin, sout, serr| sout.stub!(:isatty).and_return(true) }
         stderr.should == ""
         stdout.should == <<-STDOUT
 \e[36m2011-01-01T00:00:00+00:00 app[web.1]:\e[0m test
 STDOUT
-        stub($stdout).isatty.returns(old_stdout_isatty)
       end
 
       it "does not use ansi if stdout is not a tty" do
-        old_stdout_isatty = $stdout.isatty
-        stub($stdout).isatty.returns(false)
-        stderr, stdout = execute("logs")
+        stderr, stdout = execute("logs") { |sin, sout, serr| sout.stub!(:isatty).and_return(false) }
         stderr.should == ""
         stdout.should == <<-STDOUT
 2011-01-01T00:00:00+00:00 app[web.1]: test
 STDOUT
-        stub($stdout).isatty.returns(old_stdout_isatty)
       end
 
       it "does not use ansi if TERM is not set" do
