@@ -32,7 +32,7 @@ Setup
   </tr>
   <tr>
     <td>Gentoo Linux</td>
-    <td style="text-align: left"><a href="https://github.com/rpisarev/heroku/blob/gentoo/gentoo/heroku-2.39.4.ebuild" ebuild for Gentoo</a></td>
+    <td style="text-align: left"><a href="https://github.com/rpisarev/heroku/blob/gentoo/gentoo/heroku-2.39.4.ebuild"> ebuild for Gentoo</a></td>
   </tr>
   <tr>
     <td>Other</td>
