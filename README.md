@@ -52,7 +52,7 @@ Press enter at the prompt to upload your existing `SSH` key or create a new one,
 API
 ---
 
-Heroku API documentation can be found at <https://api-docs.heroku.com>
+For additional information about the API see [Heroku API Quickstart](https://devcenter.heroku.com/articles/platform-api-quickstart) and [Heroku API Reference](https://devcenter.heroku.com/articles/platform-api-reference).
 
 Development
 -----------
