@@ -56,6 +56,8 @@ class Heroku::Client::Rendezvous
             begin
               data = input.readpartial(10000)
             rescue EOFError
+              ssl_socket.write(4.chr)
+              ssl_socket.flush
               readables.delete(input)
               next
             end
