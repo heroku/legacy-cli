@@ -169,7 +169,7 @@ class Heroku::Client
   def list_domains(app_name)
     deprecate # 08/02/2012
     doc = xml(get("/apps/#{app_name}/domains").to_s)
-    doc.elements.to_a("//domain-names/*").map do |d|
+    doc.elements.to_a("//domains/*").map do |d|
       attrs = { :domain => d.elements['domain'].text }
       if cert = d.elements['cert']
         attrs[:cert] = {

@@ -267,10 +267,10 @@ describe Heroku::Client do
     it "list(app_name) -> list app domain names" do
       stub_api_request(:get, "/apps/example/domains").to_return(:body => <<-EOXML)
         <?xml version="1.0" encoding="UTF-8"?>
-        <domain-names type="array">
+        <domains type="array">
           <domain-name><domain>example1.com</domain></domain-name>
           <domain-name><domain>example2.com</domain></domain-name>
-        </domain-names>
+        </domains>
       EOXML
       capture_stderr do # capture deprecation message
         @client.list_domains('example').should == [{:domain => 'example1.com'}, {:domain => 'example2.com'}]
