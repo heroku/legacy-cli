@@ -1,3 +1,7 @@
+2.39.5 2013-07-11
+=================
+add ps:types for retrieving process types
+
 2.39.4 2013-05-29
 =================
 only show app region on heroku create when specified

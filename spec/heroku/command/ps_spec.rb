@@ -134,6 +134,18 @@ STDOUT
 
     end
 
+    describe "ps:types" do
+
+      it "displays the process types for an app" do
+        stderr, stdout = execute("ps:types")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+console
+STDOUT
+      end
+
+    end  
+
   end
 
   context("non-cedar") do
