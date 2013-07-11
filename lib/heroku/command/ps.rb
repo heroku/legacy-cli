@@ -198,6 +198,24 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "scale", "ps:scale"
 
+
+  # ps:types
+  #
+  # lists process types defined in the app
+  #
+  # Example:
+  #
+  # $ heroku types
+  # web
+  # worker
+  #
+  def types
+    types = api.get_types(app).body
+    types.each do |type|
+      display type["name"]
+    end
+  end
+
   # ps:stop DYNOS
   #
   # stop an app dyno
