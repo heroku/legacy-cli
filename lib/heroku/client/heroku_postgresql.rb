@@ -23,12 +23,12 @@ class Heroku::Client::HerokuPostgresql
 
   def heroku_postgresql_host
     if attachment.starter_plan?
-      ENV["HEROKU_POSTGRESQL_HOST"] || "postgres-starter-api"
+      determine_host(ENV["HEROKU_POSTGRESQL_HOST"], "postgres-starter-api.heroku.com")
     else
       if ENV['SHOGUN']
-        "shogun-#{ENV['SHOGUN']}"
+        "shogun-#{ENV['SHOGUN']}.herokuapp.com"
       else
-        ENV["HEROKU_POSTGRESQL_HOST"] || "postgres-api"
+        determine_host(ENV["HEROKU_POSTGRESQL_HOST"], "postgres-api.heroku.com")
       end
     end
   end
@@ -39,7 +39,7 @@ class Heroku::Client::HerokuPostgresql
 
   def heroku_postgresql_resource
     RestClient::Resource.new(
-      "https://#{heroku_postgresql_host}.heroku.com/client/v11/databases",
+      "https://#{heroku_postgresql_host}/client/v11/databases",
       :user => Heroku::Auth.user,
       :password => Heroku::Auth.password,
       :headers => self.class.headers
@@ -124,6 +124,16 @@ class Heroku::Client::HerokuPostgresql
       response = heroku_postgresql_resource[path].put(json_encode(payload))
       display_heroku_warning response
       sym_keys(json_decode(response.to_s))
+    end
+  end
+
+  private
+
+  def determine_host(value, default)
+    if value.nil?
+      default
+    else
+      "#{value}.herokuapp.com"
     end
   end
 end
