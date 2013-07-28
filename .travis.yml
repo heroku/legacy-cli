@@ -15,4 +15,8 @@ rvm:
   - 1.9.2
   - 1.9.3
 
+before_install:
+  - git config --global user.name "Travis CI"
+  - git config --global user.email "user@example.com"
+
 script: bundle exec rspec -bfs spec
