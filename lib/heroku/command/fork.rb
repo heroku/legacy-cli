@@ -14,9 +14,10 @@ module Heroku::Command
     #
     # -s, --stack  STACK   # specify a stack for the new app
     # --region REGION      # specify a region
+    # --skip-addons        # do not install addons to the fork
     #
     def index
-      
+
       from = app
       to = shift_argument || "#{from}-#{(rand*1000).to_i}"
 
@@ -40,34 +41,37 @@ module Heroku::Command
       end
 
       from_config = api.get_config_vars(from).body
-      from_addons = api.get_addons(from).body
 
-      from_addons.each do |addon|
-        print "Adding #{addon["name"]}... "
-        begin
-          to_addon = api.post_addon(to, addon["name"]).body
-          puts "done"
-        rescue Heroku::API::Errors::RequestFailed => ex
-          puts "skipped (%s)" % json_decode(ex.response.body)["error"]
-        rescue Heroku::API::Errors::NotFound
-          puts "skipped (not found)"
-        end
-        if addon["name"] =~ /^heroku-postgresql:/
-          from_var_name = "#{addon["attachment_name"]}_URL"
-          from_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
-          if from_config[from_var_name] == from_config["DATABASE_URL"]
-            from_config["DATABASE_URL"] = api.get_config_vars(to).body["#{from_attachment}_URL"]
+      unless options[:skip_addons]
+        from_addons = api.get_addons(from).body
+
+        from_addons.each do |addon|
+          print "Adding #{addon["name"]}... "
+          begin
+            to_addon = api.post_addon(to, addon["name"]).body
+            puts "done"
+          rescue Heroku::API::Errors::RequestFailed => ex
+            puts "skipped (%s)" % json_decode(ex.response.body)["error"]
+          rescue Heroku::API::Errors::NotFound
+            puts "skipped (not found)"
           end
-          from_config.delete(from_var_name)
+          if addon["name"] =~ /^heroku-postgresql:/
+            from_var_name = "#{addon["attachment_name"]}_URL"
+            from_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
+            if from_config[from_var_name] == from_config["DATABASE_URL"]
+              from_config["DATABASE_URL"] = api.get_config_vars(to).body["#{from_attachment}_URL"]
+            end
+            from_config.delete(from_var_name)
 
-          plan = addon["name"].split(":").last
-          unless %w(dev basic).include? plan
-            wait_for_db to, to_addon
+            plan = addon["name"].split(":").last
+            unless %w(dev basic).include? plan
+              wait_for_db to, to_addon
+            end
+
+            check_for_pgbackups! from
+            check_for_pgbackups! to
+            migrate_db addon, from, to_addon, to
           end
-
-          check_for_pgbackups! from
-          check_for_pgbackups! to
-          migrate_db addon, from, to_addon, to
         end
       end
 

@@ -55,7 +55,7 @@ STDOUT
       it "does not re-provisions add-ons with flag" do
         addons = ["pgbackups:basic", "deployhooks:http"].sort
         addons.each { |a| api.post_addon("example", a) }
-        execute("fork example-fork --no-addons")
+        execute("fork example-fork --skip-addons")
         api.get_addons("example-fork").body.collect { |info| info["name"] }.sort.should == []
       end
     end
