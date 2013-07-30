@@ -113,6 +113,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
         data["Addons"] = addons_data
       end
 
+      if app_data["archived_at"]
+        data["Archived At"] = format_date(app_data["archived_at"])
+      end
+
       data["Collaborators"] = collaborators_data
 
       if app_data["create_status"] && app_data["create_status"] != "complete"
