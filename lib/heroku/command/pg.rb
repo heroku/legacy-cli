@@ -10,7 +10,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg
   #
-  # List databases for an app
+  # list databases for an app
   #
   def index
     validate_arguments!
@@ -26,11 +26,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:info [DATABASE]
   #
-  #   -x, --extended  # Show extended information
+  # display metadata about DATABASE
   #
-  # Display database information
+  # -x, --extended  # show extended information
   #
-  # If DATABASE is not specified, displays all databases
+  # if DATABASE is not specified, displays all databases
   #
   def info
     db = shift_argument
@@ -47,7 +47,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:promote DATABASE
   #
-  # Sets DATABASE as your DATABASE_URL
+  # set DATABASE as your DATABASE_URL
   #
   def promote
     unless db = shift_argument
@@ -64,7 +64,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:psql [DATABASE]
   #
-  # Open a psql shell to the database
+  # open a psql shell to DATABASE
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
@@ -86,7 +86,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:reset DATABASE
   #
-  # Delete all data in DATABASE
+  # delete all data in DATABASE
   #
   def reset
     unless db = shift_argument
@@ -107,7 +107,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:unfollow REPLICA
   #
-  # stop a replica from following and make it a read/write database
+  # stop REPLICA from following, making it a read/write database
   #
   def unfollow
     unless db = shift_argument
@@ -138,7 +138,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:wait [DATABASE]
   #
-  # monitor database creation, exit when complete
+  # monitor creation of DATABASE, exit when complete
   #
   # defaults to all databases if no DATABASE is specified
   #
@@ -157,9 +157,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:credentials DATABASE
   #
-  # Display the DATABASE credentials.
+  # display DATABASE credentials
   #
-  #   --reset  # Reset credentials on the specified database.
+  #   --reset  # reset credentials on the specified database
   #
   def credentials
     unless db = shift_argument

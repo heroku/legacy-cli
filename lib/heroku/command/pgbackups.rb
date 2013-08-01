@@ -4,7 +4,7 @@ require "heroku/helpers/heroku_postgresql"
 
 module Heroku::Command
 
-  # manage backups of heroku postgresql databases
+  # manage backups of heroku-postgresql databases
   class Pgbackups < Base
 
     include Heroku::Helpers::HerokuPostgresql
