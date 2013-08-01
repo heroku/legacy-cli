@@ -188,7 +188,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     end
   end
-  
+
   # pg:ps [DATABASE]
   #
   # view active queries with execution time
@@ -201,19 +201,19 @@ class Heroku::Command::Pg < Heroku::Command::Base
       age(now(),query_start) AS running_for,
       waiting,
       #{query_column} AS query
-   FROM pg_stat_activity
-   WHERE
-     #{query_column} <> '<insufficient privilege>'
-     #{
-        if nine_two?
-          "AND state <> 'idle'"
-        else
-          "AND current_query <> '<IDLE>'"
-        end
-     }
-     AND #{pid_column} <> pg_backend_pid()
-     ORDER BY query_start DESC
-   )
+     FROM pg_stat_activity
+     WHERE
+       #{query_column} <> '<insufficient privilege>'
+       #{
+          if nine_two?
+            "AND state <> 'idle'"
+          else
+            "AND current_query <> '<IDLE>'"
+          end
+       }
+       AND #{pid_column} <> pg_backend_pid()
+       ORDER BY query_start DESC
+     )
 
     puts exec_sql(sql)
   end
@@ -321,7 +321,7 @@ private
   def find_uri
     return @uri if defined? @uri
 
-    attachment = safe_resolve
+    attachment =  generate_resolver.resolve(shift_argument, "DATABASE_URL")
     if attachment.kind_of? Array
       uri = URI.parse( attachment.last )
     else
@@ -331,16 +331,6 @@ private
     @uri = uri
   end
 
-  def safe_resolve
-    # handle both the pre- and post-app::db shorthand resolver cases
-    db = shift_argument
-    if defined?(generate_resolver)
-      generate_resolver.resolve(db, "DATABASE_URL") # new resolver
-    else
-      hpg_resolve(db, "DATABASE_URL") # old resolver
-    end
-  end
-
   def version
     return @version if defined? @version
     @version = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)[1]
@@ -348,7 +338,7 @@ private
 
   def nine_two?
     return @nine_two if defined? @nine_two
-    @nine_two = Gem::Version.new(version) >= Gem::Version.new("9.2.0")
+    @nine_two = version.to_f >= 9.2
   end
 
   def pid_column
