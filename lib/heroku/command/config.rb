@@ -46,7 +46,7 @@ class Heroku::Command::Config < Heroku::Command::Base
               u.password = "(redacted)"
             end
             redacted[k] = u.to_s
-          rescue
+          rescue URI::Error
             redacted[k] = v
           end
         end
