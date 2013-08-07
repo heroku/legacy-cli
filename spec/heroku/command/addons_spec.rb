@@ -199,8 +199,8 @@ STDOUT
 
       it "should translate --fork and --follow" do
         %w{fork follow}.each do |switch|
-          @addons.stub!(:app_config_vars).and_return({})
-          @addons.stub!(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
+          Heroku::Helpers::HerokuPostgresql::Resolver.any_instance.stub(:app_config_vars).and_return({})
+          Heroku::Helpers::HerokuPostgresql::Resolver.any_instance.stub(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
               'config_var' => 'HEROKU_POSTGRESQL_RED_URL',
               'resource' => {'name'  => 'loudly-yelling-1232',
                              'value' => 'postgres://red_url',

@@ -2,6 +2,19 @@ require "spec_helper"
 require "heroku/command/pgbackups"
 
 module Heroku::Command
+  describe Pgbackups, 'with no databases' do
+    it "aborts if no database addon is present" do
+        api.post_app("name" => "example")
+        stub_core
+        stderr, stdout = execute("pgbackups:capture")
+        stderr.should == <<-STDERR
+ !    Your app has no databases.
+STDERR
+        stdout.should == ""
+        api.delete_app("example")
+    end
+  end
+
   describe Pgbackups do
     before do
       @pgbackups = prepare_command(Pgbackups)
@@ -16,7 +29,10 @@ module Heroku::Command
           "PGBACKUPS_URL"           => "https://ip:password@pgbackups.heroku.com/client"
         }
       )
-      @pgbackups.stub :app_attachments => mock_attachments
+      any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
+        stub(pg).app_attachments.returns(mock_attachments)
+        stub(pg).api.returns(api)
+      end
     end
 
     let(:mock_attachments) {
@@ -59,7 +75,7 @@ STDOUT
       let(:from_url)   { "postgres://from/bar" }
       let(:attachment) { double('attachment', :display_name => from_name, :url => from_url ) }
       before do
-        @pgbackups.stub!(:hpg_resolve).and_return(attachment)
+        @pgbackups.stub!(:resolve).and_return(attachment)
       end
 
       it "gets the url for the latest backup if nothing is specified" do
@@ -131,15 +147,6 @@ Destroying b001... done
 STDOUT
       end
 
-      it "aborts if no database addon is present" do
-        api.delete_config_var("example", "DATABASE_URL")
-        stub_core
-        stderr, stdout = execute("pgbackups:capture")
-        stderr.should == <<-STDERR
- !    Your app has no databases.
-STDERR
-        stdout.should == ""
-      end
 
       context "on errors" do
         def stub_failed_capture(log)
@@ -214,12 +221,12 @@ STDOUT
       before do
         from_name, from_url = "FROM_NAME", "postgres://fromhost/database"
 
-        @pgbackups_client = mock("pgbackups_client")
+        @pgbackups_client = RSpec::Mocks::Mock.new("pgbackups_client") # avoid double r mock
         @pgbackups.stub!(:pgbackup_client).and_return(@pgbackups_client)
       end
 
       it "should receive a confirm_command on restore" do
-        @pgbackups_client.stub!(:get_latest_backup).and_return({"to_url" => "s3://bucket/user/bXXX.dump"})
+        @pgbackups_client.stub!(:get_latest_backup) { {"to_url" => "s3://bucket/user/bXXX.dump"} }
 
         @pgbackups.should_receive(:confirm_command).and_return(false)
         @pgbackups_client.should_not_receive(:transfer!)
@@ -228,7 +235,7 @@ STDOUT
       end
 
       it "aborts if no database addon is present" do
-        @pgbackups.should_receive(:hpg_resolve).and_raise(SystemExit)
+        @pgbackups.should_receive(:resolve).and_raise(SystemExit)
         lambda { @pgbackups.restore }.should raise_error(SystemExit)
       end
 
@@ -248,7 +255,7 @@ STDOUT
 
         it "should default to the latest backup" do
           @pgbackups.stub(:args).and_return([])
-          @pgbackups_client.should_receive(:get_latest_backup).and_return(@backup_obj)
+          mock(@pgbackups_client).get_latest_backup.returns(@backup_obj)
           @pgbackups.restore
         end
 
@@ -258,8 +265,8 @@ STDOUT
           args = ['DATABASE', name]
           @pgbackups.stub(:args).and_return(args)
           @pgbackups.stub(:shift_argument).and_return(*args)
-          @pgbackups.stub(:hpg_resolve).and_return(attachment)
-          @pgbackups_client.should_receive(:get_backup).with(name).and_return(@backup_obj)
+          @pgbackups.stub(:resolve).and_return(attachment)
+          mock(@pgbackups_client).get_backup.with(name).returns(@backup_obj)
           @pgbackups.restore
         end
 
@@ -267,7 +274,7 @@ STDOUT
           args = ['db_name_gets_shifted_out_in_resolve_db', 'http://external/file.dump']
           @pgbackups.stub(:args).and_return(args)
           @pgbackups.stub(:shift_argument).and_return(*args)
-          @pgbackups.stub(:hpg_resolve).and_return(attachment)
+          @pgbackups.stub(:resolve).and_return(attachment)
           @pgbackups_client.should_not_receive(:get_backup)
           @pgbackups_client.should_not_receive(:get_latest_backup)
           @pgbackups.restore
@@ -276,8 +283,8 @@ STDOUT
 
       context "on errors" do
         before(:each) do
-          @pgbackups_client.stub!(:get_latest_backup).and_return({"to_url" => "s3://bucket/user/bXXX.dump"})
-          @pgbackups.stub!(:confirm_command).and_return(true)
+          @pgbackups_client.stub!(:get_latest_backup => {"to_url" => "s3://bucket/user/bXXX.dump"} )
+          @pgbackups.stub!(:confirm_command => true)
         end
 
         def stub_error_backup_with_log(log)
@@ -286,8 +293,8 @@ STDOUT
             "log" => log
           }
 
-          @pgbackups_client.should_receive(:create_transfer).and_return(@backup_obj)
-          @pgbackups.stub!(:poll_transfer!).and_return(@backup_obj)
+          @pgbackups_client.should_receive(:create_transfer) { @backup_obj }
+          @pgbackups.stub!(:poll_transfer!) { @backup_obj }
         end
 
         it 'aborts for a generic error' do

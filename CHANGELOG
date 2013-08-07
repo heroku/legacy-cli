@@ -1,3 +1,14 @@
+2.40.0 2013-08-05
+=================
+bring commands pg:ps, pg:kill and pg:killall from pg-extras plugin
+add shorthand database identifiers
+show info on archived apps
+
+2.39.5 2013-07-25
+=================
+allow stdin pipe to `heroku run`
+fix Heroku::Client#list_domains
+
 2.39.4 2013-05-29
 =================
 only show app region on heroku create when specified

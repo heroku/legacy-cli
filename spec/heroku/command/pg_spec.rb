@@ -13,7 +13,7 @@ module Heroku::Command
         "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
       }
 
-      any_instance_of(Heroku::Command::Pg) do |pg|
+      any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
         stub(pg).app_attachments.returns([
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
             'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
