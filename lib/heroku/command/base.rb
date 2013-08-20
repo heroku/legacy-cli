@@ -94,7 +94,7 @@ protected
   # Parse the caller format and identify the file and line number as identified
   # in : http://www.ruby-doc.org/core/classes/Kernel.html#M001397.  This will
   # look for a colon followed by a digit as the delimiter.  The biggest
-  # complication is windows paths, which have a color after the drive letter.
+  # complication is windows paths, which have a colon after the drive letter.
   # This regex will match paths as anything from the beginning to a colon
   # directly followed by a number (the line number).
   #
