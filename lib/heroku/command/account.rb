@@ -19,6 +19,5 @@ class Heroku::Command::Account < Heroku::Command::Base
     validate_arguments!
     Heroku::Helpers.confirm_billing
   end
-  alias_command "account:confirm-billing", "account:confirm_billing"
 
 end

@@ -78,6 +78,8 @@ protected
       :description => extract_description(help),
       :options     => extract_options(help)
     )
+
+    alias_command command.gsub(/_/, '-'), command if command =~ /_/
   end
 
   def self.alias_command(new, old)
