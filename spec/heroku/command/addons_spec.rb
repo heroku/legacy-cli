@@ -272,6 +272,17 @@ Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
       end
 
+      it "excludes addon plan from docs message" do
+        stub_core.install_addon("example", "my_addon:test", {}).returns({ "price" => "free", "message" => "foo" })
+        stderr, stdout = execute("addons:add my_addon:test")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+Adding my_addon:test on example... done, v99 (free)
+foo
+Use `heroku addons:docs my_addon` to view documentation.
+OUTPUT
+      end
+
       it "adds an addon with a price and multiline message" do
         stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
         stderr, stdout = execute("addons:add my_addon")
