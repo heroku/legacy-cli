@@ -274,7 +274,7 @@ module Heroku::Command
       display(messages[:attachment]) unless messages[:attachment].to_s.strip == ""
       display(messages[:message]) unless messages[:message].to_s.strip == ""
 
-      addon, _ = addon.split(':') if addon.include?(':')
+      addon, _ = addon.split(':')
       display("Use `heroku addons:docs #{addon}` to view documentation.")
     end
 
