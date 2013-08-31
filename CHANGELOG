@@ -1,3 +1,7 @@
+2.40.1 2013-08-31
+=================
+change commands to use dashes instead of underscores
+
 2.40.0 2013-08-05
 =================
 bring commands pg:ps, pg:kill and pg:killall from pg-extras plugin
