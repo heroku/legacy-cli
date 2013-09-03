@@ -176,11 +176,11 @@ module Heroku
     end
 
     def json_encode(object)
-      MultiJson.dump(object)
+      MultiJson.encode(object)
     end
 
     def json_decode(json)
-      MultiJson.parse(json)
+      MultiJson.decode(json)
     end
 
     def set_buffer(enable)

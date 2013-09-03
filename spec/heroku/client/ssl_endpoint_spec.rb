@@ -29,7 +29,8 @@ describe Heroku::Client, "ssl endpoints" do
   end
 
   it "removes an ssl endpoint" do
-    stub_request(:delete, "https://api.heroku.com/apps/example/ssl-endpoints/tokyo-1050")
+    stub_request(:delete, "https://api.heroku.com/apps/example/ssl-endpoints/tokyo-1050").
+      to_return(body: MultiJson.encode({}))
     @client.ssl_endpoint_remove("example", "tokyo-1050")
   end
 
