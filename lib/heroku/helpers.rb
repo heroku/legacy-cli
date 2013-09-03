@@ -17,6 +17,18 @@ module Heroku
       RUBY_PLATFORM =~ /-darwin\d/
     end
 
+    def has_json?
+      if @has_json.nil?
+        begin
+          require 'json'
+          @has_json = true
+        rescue LoadError => e
+          @has_json = false
+        end
+      end
+      @has_json
+    end
+
     def display(msg="", new_line=true)
       if new_line
         puts(msg)
@@ -188,15 +200,35 @@ module Heroku
     end
 
     def json_encode(object)
-      Heroku::OkJson.encode(object)
-    rescue Heroku::OkJson::Error
-      nil
+      if has_json?
+        begin
+          object.to_json unless object.nil?
+        rescue JSON::JSONError
+          nil
+        end
+      else
+        begin
+          Heroku::OkJson.encode(object)
+        rescue Heroku::OkJson::Error
+          nil
+        end
+      end
     end
 
     def json_decode(json)
-      Heroku::OkJson.decode(json)
-    rescue Heroku::OkJson::Error
-      nil
+      if has_json?
+        begin
+          JSON.parse(json) unless json.nil?
+        rescue JSON::JSONError
+          nil
+        end
+      else
+        begin
+          Heroku::OkJson.decode(json)
+        rescue Heroku::OkJson::Error
+          nil
+        end
+      end
     end
 
     def set_buffer(enable)
