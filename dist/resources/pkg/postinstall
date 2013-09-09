@@ -18,7 +18,6 @@ startup_files() {
 
 install_path() {
   for file in $(startup_files); do
-    echo "file:$file"
     [ -f $HOME/$file ] || continue
     (grep "Added by the Heroku" $HOME/$file >/dev/null) && break
 
