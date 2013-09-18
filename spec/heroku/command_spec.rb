@@ -208,4 +208,27 @@ STDERR
     end
 
   end
+
+  describe "when the user's account is delinquent" do
+
+    let(:delinquent_response) do
+      {:status => 402,
+       :headers => { :location => 'https://vault.heroku.com/pay-balance' },
+       :body => 'delinquent account'}
+    end
+
+    it "should show delinquency message to user" do
+      stub_request(:post, %r{apps/example/addons/my_addon$}).
+        to_return(delinquent_response)
+
+      capture_stderr do
+        run "addons:add my_addon --app example"
+      end.should == <<-eos
+ !    Your account is not authorized due to suspended status.
+ !    Please visit https://vault.heroku.com/pay-balance to pay any past due invoices.
+ !    Once your account is paid in full, your account will be reinstated.
+      eos
+    end
+
+  end
 end

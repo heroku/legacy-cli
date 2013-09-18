@@ -250,10 +250,9 @@ module Heroku::Command
       error Heroku::Command.extract_error(e.http_body) {
         e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
-    rescue RestClient::Locked => ex
+    rescue RestClient::Locked, RestClient::PaymentRequired => ex
       raise
     rescue RestClient::RequestFailed => e
-      retry if e.http_code == 402 && confirm_billing
       error Heroku::Command.extract_error(e.http_body)
     end
 

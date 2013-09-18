@@ -223,8 +223,12 @@ module Heroku
         run "login"
         retry
       end
-    rescue Heroku::API::Errors::VerificationRequired, RestClient::PaymentRequired => e
-      retry if Heroku::Helpers.confirm_billing
+    rescue Heroku::API::Errors::PaymentRequired, RestClient::PaymentRequired => e
+      error(<<-eos)
+Your account is not authorized due to suspended status.
+Please visit #{e.response.headers[:location]} to pay any past due invoices.
+Once your account is paid in full, your account will be reinstated.
+      eos
     rescue Heroku::API::Errors::NotFound => e
       error extract_error(e.response.body) {
         e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"

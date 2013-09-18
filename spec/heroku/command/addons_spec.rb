@@ -417,17 +417,6 @@ OUTPUT
       end
     end
 
-    it "asks the user to confirm billing when API responds with 402" do
-      @addons.stub!(:args).and_return(%w( addon1 ))
-      e = RestClient::RequestFailed.new
-      e.stub!(:http_code).and_return(402)
-      e.stub!(:http_body).and_return('{"error":"test"}')
-      @addons.heroku.should_receive(:install_addon).and_raise(e)
-      @addons.should_receive(:confirm_billing).and_return(false)
-      STDERR.should_receive(:puts).with(" !    test")
-      lambda { @addons.add }.should raise_error(SystemExit)
-    end
-
     it "does not remove addons with no confirm" do
       @addons.stub!(:args).and_return(%w( addon1 ))
       @addons.should_receive(:confirm_command).once.and_return(false)
