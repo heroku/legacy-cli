@@ -1,3 +1,8 @@
+2.41.0 2013-09-18
+=================
+certs:remove, certs:rollback, certs:update now require confirmation
+certs:info, certs:remove, certs:rollback, certs:update now take optional --endpoint
+
 2.40.1 2013-08-31
 =================
 change commands to use dashes instead of underscores
