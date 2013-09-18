@@ -2,6 +2,8 @@ source "http://rubygems.org"
 
 gemspec
 
+gem "heroku-api", git: "https://github.com/heroku/heroku.rb", branch: "brandur-reclaim-402"
+
 group :development do
   gem "aws-s3"
   gem "rake",  ">= 0.8.7"
