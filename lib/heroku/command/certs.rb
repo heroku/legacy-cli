@@ -88,7 +88,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def update
     crt, key = read_crt_and_key
     cname    = options[:endpoint] || current_endpoint
-    message = "WARNING: Potentially Destructive Action\nThis command will change the certificate of #{cname} on #{app}."
+    message = "WARNING: Potentially Destructive Action\nThis command will change the certificate of endpoint #{cname} on #{app}."
     return unless confirm_command(app, message)
     endpoint = action("Updating SSL Endpoint #{cname} for #{app}") { heroku.ssl_endpoint_update(app, cname, crt, key) }
     display_warnings(endpoint)
