@@ -225,7 +225,7 @@ STDERR
         run "addons:add my_addon --app example"
       end.should == <<-eos
  !    Your account is not authorized due to suspended status.
- !    Please visit https://vault.heroku.com/pay-balance to pay any past due invoices.
+ !    Please visit https://vault.heroku.com/pay-balance to pay overdue invoices.
  !    Once your account is paid in full, your account will be reinstated.
       eos
     end
