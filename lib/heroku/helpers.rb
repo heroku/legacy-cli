@@ -1,3 +1,4 @@
+require 'multi_json'
 module Heroku
   module Helpers
 
