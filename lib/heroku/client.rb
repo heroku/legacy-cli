@@ -570,14 +570,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     configure_addon :uninstall, app_name, addon, options
   end
 
-  def database_session(app_name)
-    json_decode(post("/apps/#{app_name}/database/session2", '', :x_taps_version => ::Taps.version).to_s)
-  end
-
-  def database_reset(app_name)
-    post("/apps/#{app_name}/database/reset", '').to_s
-  end
-
   def httpcache_purge(app_name)
     delete("/apps/#{app_name}/httpcache").to_s
   end
