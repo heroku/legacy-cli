@@ -64,6 +64,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:psql [DATABASE]
   #
+  #  -c, --command COMMAND      # optional SQL command to run
+  #
   # Open a psql shell to the database
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
@@ -76,7 +78,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
     begin
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
-      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}"
+      if command = options[:command]
+        command = "-c '#{command}'"
+      end
+      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{command} #{uri.path[1..-1]}"
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
