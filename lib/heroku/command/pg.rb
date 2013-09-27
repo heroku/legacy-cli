@@ -1,6 +1,7 @@
 require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
+require "heroku/helpers/pg_dump_restore"
 
 # manage heroku-postgresql databases
 #
@@ -255,6 +256,57 @@ class Heroku::Command::Pg < Heroku::Command::Base
     puts exec_sql(sql)
   end
 
+
+  # pg:push <LOCAL_SOURCE_DATABASE> <REMOTE_TARGET_DATABASE>
+  #
+  # Push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
+  # REMOTE_TARGET_DATABASE must be empty.
+  def push
+    local, remote = shift_argument, shift_argument
+    unless [remote, local].all?
+      Heroku::Command.run(current_command, ['--help'])
+      exit(1)
+    end
+    if local =~ %r(://)
+      error "LOCAL_SOURCE_DATABASE is not a valid database name"
+    end
+
+    remote_uri = generate_resolver.resolve(remote).url
+    local_uri = "postgres:///#{local}"
+
+    pgdr = PgDumpRestore.new(
+      local_uri,
+      remote_uri,
+      self)
+
+    pgdr.execute
+  end
+
+  # pg:pull <REMOTE_SOURCE_DATABASE> <LOCAL_TARGET_DATABASE>
+  #
+  # Pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
+  # LOCAL_TARGET_DATABASE must not already exist.
+  def pull
+    remote, local = shift_argument, shift_argument
+    unless [remote, local].all?
+      Heroku::Command.run(current_command, ['--help'])
+      exit(1)
+    end
+    if local =~ %r(://)
+      error "LOCAL_TARGET_DATABASE is not a valid database name"
+    end
+
+    remote_uri = generate_resolver.resolve(remote).url
+    local_uri = "postgres:///#{local}"
+
+    pgdr = PgDumpRestore.new(
+      remote_uri,
+      local_uri,
+      self)
+
+    pgdr.execute
+  end
+
 private
 
   def generate_resolver
@@ -364,14 +416,19 @@ private
 
   def exec_sql(sql)
     uri = find_uri
+    exec_sql_on_uri(sql, uri)
+  end
+
+  def exec_sql_on_uri(sql,uri)
     begin
-      ENV["PGPASSWORD"] = uri.password
-      ENV["PGSSLMODE"]  = 'require'
-      `psql -c "#{sql}" -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
+      sslmode = (uri.host == 'localhost' ?  'prefer' : 'require' )
+      user_part = uri.user ? "-U #{uri.user}" : ""
+      `env PGPASSWORD=#{uri.password} PGSSLMODE=#{sslmode} psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
       abort
     end
   end
+
 end
