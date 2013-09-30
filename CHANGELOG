@@ -1,3 +1,7 @@
+3.0.0 2013-09-30
+================
+drop support for Taps (db:push/pull), users should use pg:push/pull instead
+
 2.41.0 2013-09-18
 =================
 certs:remove, certs:rollback, certs:update now require confirmation
