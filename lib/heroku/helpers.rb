@@ -22,8 +22,8 @@ module Heroku
         puts(msg)
       else
         print(msg)
-        $stdout.flush
       end
+      $stdout.flush
     end
 
     def redisplay(line, line_break = false)
