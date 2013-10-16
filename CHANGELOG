@@ -1,3 +1,7 @@
+3.0.1 2013-10-16
+================
+Support rollback flag for Postgres addons
+
 3.0.0 2013-09-30
 ================
 drop support for Taps (db:push/pull), users should use pg:push/pull instead
