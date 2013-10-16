@@ -259,13 +259,13 @@ module Heroku::Command
 
     def configure_addon(label, &install_or_upgrade)
       addon = args.shift
-      raise CommandFailed.new("Missing add-on name") if addon.nil? || ["--fork", "--follow"].include?(addon)
+      raise CommandFailed.new("Missing add-on name") if addon.nil? || %w{--fork --follow --rollback}.include?(addon)
 
       config = parse_options(args)
       config.merge!(:confirm => app) if app == options[:confirm]
       raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
 
-      hpg_translate_fork_and_follow(addon, config)
+      hpg_translate_db_opts_to_urls(addon, config)
 
       messages = nil
       action("#{label} #{addon} on #{app}") do
