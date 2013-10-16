@@ -162,10 +162,15 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def hpg_translate_fork_and_follow(addon, config)
+    $stderr.puts " !    #hpg_translate_fork_and_follow is deprecated. Update your plugins."
+    hpg_translate_db_opts_to_urls(addon, config)
+  end
+
+  def hpg_translate_db_opts_to_urls(addon, config)
     app_name = app rescue nil
     resolver = Resolver.new(app, api)
     if addon =~ /^#{resolver.hpg_addon_name}/
-      %w[fork follow].each do |opt|
+      %w[fork follow rollback].each do |opt|
         if val = config[opt]
           unless val.is_a?(String)
             error("--#{opt} requires a database argument.")
