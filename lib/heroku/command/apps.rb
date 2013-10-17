@@ -314,10 +314,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # Opening example... done
   #
   def open
+    path = shift_argument
     validate_arguments!
 
     app_data = api.get_app(app).body
-    launchy("Opening #{app}", app_data['web_url'])
+
+    url = [app_data['web_url'], path].join('/').squeeze('/')
+    launchy("Opening #{app}", url)
   end
 
   alias_command "open", "apps:open"
