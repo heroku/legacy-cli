@@ -319,7 +319,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
     app_data = api.get_app(app).body
 
-    url = [app_data['web_url'], path].join('/').squeeze('/')
+    url = [app_data['web_url'], path].join
     launchy("Opening #{app}", url)
   end
 
