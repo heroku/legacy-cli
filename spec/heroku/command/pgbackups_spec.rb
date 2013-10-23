@@ -66,7 +66,7 @@ STDERR
       stdout.should == <<-STDOUT
 ID    Backup Time                Status     Size  Database
 ----  -------------------------  ---------  ----  --------
-b001  2012-01-01 12:00:00 +0000  Capturing  1024  DATABASE
+b001  2012-01-01 12:00:01 +0000  Capturing  1024  DATABASE
 STDOUT
     end
 
