@@ -334,7 +334,8 @@ private
     dbs = @resolver.all_databases
 
     @hpg_databases_with_info = Hash[ 
-      dbs.reject{|config, att| 'DATABASE_URL' == config}.map do |config, att|
+      dbs.map do |config, att|
+        next if 'DATABASE_URL' == config
         [att.display_name, hpg_info(att, options[:extended])] 
       end
     ]
