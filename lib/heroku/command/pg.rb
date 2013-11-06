@@ -82,7 +82,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       if command = options[:command]
         command = "-c '#{command}'"
       end
-      puts "---> Connecting to #{attachment.addon_name}"
+      puts "---> Connecting to #{attachment.display_name}"
       exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{command} #{uri.path[1..-1]}"
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
