@@ -23,6 +23,10 @@ module Heroku::Helpers::HerokuPostgresql
       config_var + (primary_attachment? ? " (DATABASE_URL)"  : '')
     end
 
+    def addon_name
+      @raw['name'].gsub(/_URL/, '')
+    end
+
     def primary_attachment!
       @primary_attachment = true
     end
