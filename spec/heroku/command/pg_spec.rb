@@ -62,6 +62,17 @@ STDERR
 
 > "
     end
+    context "psql" do
+      it "outputs the database name" do
+        # the uri in above configs isn't valid and URI.parse blows up at it
+        uri = URI.parse("postgres://user:password@hostaddress.com:5432/database")
+        stub(URI).parse.returns(uri)
+        stub(Kernel).exec
+
+        _, stdout = execute("pg:psql")
+        stdout.should == "---> Connecting to HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)\n"
+      end
+    end
 
     context "index" do
       it "requests the info from the server" do
