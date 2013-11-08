@@ -1,3 +1,7 @@
+before_script:
+  - git config --global user.email "bot@heroku.com"
+  - git config --global user.name "Heroku Bot (Travis CI)"
+
 bundler_args: --without development
 
 language: ruby

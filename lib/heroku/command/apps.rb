@@ -113,6 +113,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
         data["Addons"] = addons_data
       end
 
+      if app_data["archived_at"]
+        data["Archived At"] = format_date(app_data["archived_at"])
+      end
+
       data["Collaborators"] = collaborators_data
 
       if app_data["create_status"] && app_data["create_status"] != "complete"
@@ -155,6 +159,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       if app_data["slug_size"]
         data["Slug Size"] = format_bytes(app_data["slug_size"])
+      end
+
+      if app_data["cache_size"]
+        data["Cache Size"] = format_bytes(app_data["cache_size"])
       end
 
       data["Stack"] = app_data["stack"]
@@ -306,10 +314,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # Opening example... done
   #
   def open
+    path = shift_argument
     validate_arguments!
 
     app_data = api.get_app(app).body
-    launchy("Opening #{app}", app_data['web_url'])
+
+    url = [app_data['web_url'], path].join
+    launchy("Opening #{app}", url)
   end
 
   alias_command "open", "apps:open"

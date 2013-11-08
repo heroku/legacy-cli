@@ -357,22 +357,6 @@ describe Heroku::Client do
       end
     end
 
-    it "database_session(app_name) -> creates a taps database session" do
-      module ::Taps
-        def self.version
-          "0.3.0"
-        end
-      end
-
-      stub_api_request(:post, "/apps/example/database/session2").to_return(:body => "{\"session_id\":\"x234\"}")
-      @client.database_session('example')
-    end
-
-    it "database_reset(app_name) -> reset an app's database" do
-      stub_api_request(:post, "/apps/example/database/reset")
-      @client.database_reset('example')
-    end
-
     it "maintenance(app_name, :on) -> sets maintenance mode for an app" do
       stub_api_request(:post, "/apps/example/server/maintenance").with(:body => "maintenance_mode=1")
       capture_stderr do # capture deprecation message

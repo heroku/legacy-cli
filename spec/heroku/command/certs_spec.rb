@@ -94,6 +94,17 @@ Certificate details:
         STDOUT
       end
 
+      it "allows an endpoint to be specified" do
+        stub_core.ssl_endpoint_info('example', 'tokyo-1050').returns(endpoint)
+
+        stderr, stdout = execute("certs:info --endpoint tokyo-1050")
+        stdout.should == <<-STDOUT
+Fetching SSL Endpoint tokyo-1050 info for example... done
+Certificate details:
+#{certificate_details}
+        STDOUT
+      end
+
       it "shows an error if an app has no endpoints" do
         stub_core.ssl_endpoint_list("example").returns([])
 
@@ -109,9 +120,25 @@ Certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
         stub_core.ssl_endpoint_remove('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
-        stderr, stdout = execute("certs:remove")
+        stderr, stdout = execute("certs:remove --confirm example")
         stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from example..."
         stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
+      end
+
+      it "allows an endpoint to be specified" do
+        stub_core.ssl_endpoint_remove('example', 'tokyo-1050').returns(endpoint)
+
+        stderr, stdout = execute("certs:remove --confirm example --endpoint tokyo-1050")
+        stdout.should include "Removing SSL Endpoint tokyo-1050 from example..."
+        stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
+      end
+
+      it "requires confirmation" do
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+
+        stderr, stdout = execute("certs:remove")
+        stdout.should include "WARNING: Potentially Destructive Action"
+        stdout.should include "This command will remove the endpoint tokyo-1050.herokussl.com from example."
       end
 
       it "shows an error if an app has no endpoints" do
@@ -134,12 +161,31 @@ Certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
         stub_core.ssl_endpoint_update('example', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
 
-        stderr, stdout = execute("certs:update --bypass pem_file key_file")
+        stderr, stdout = execute("certs:update --confirm example --bypass pem_file key_file")
         stdout.should == <<-STDOUT
 Updating SSL Endpoint tokyo-1050.herokussl.com for example... done
 Updated certificate details:
 #{certificate_details}
         STDOUT
+      end
+
+      it "allows an endpoint to be specified" do
+        stub_core.ssl_endpoint_update('example', 'tokyo-1050', 'pem content', 'key content').returns(endpoint)
+
+        stderr, stdout = execute("certs:update --confirm example --bypass --endpoint tokyo-1050 pem_file key_file")
+        stdout.should == <<-STDOUT
+Updating SSL Endpoint tokyo-1050 for example... done
+Updated certificate details:
+#{certificate_details}
+        STDOUT
+      end
+
+      it "requires confirmation" do
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+
+        stderr, stdout = execute("certs:update --bypass pem_file key_file")
+        stdout.should include "WARNING: Potentially Destructive Action"
+        stdout.should include "This command will change the certificate of endpoint tokyo-1050.herokussl.com on example."
       end
 
       it "shows an error if an app has no endpoints" do
@@ -157,12 +203,31 @@ Updated certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
         stub_core.ssl_endpoint_rollback('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
-        stderr, stdout = execute("certs:rollback")
+        stderr, stdout = execute("certs:rollback --confirm example")
         stdout.should == <<-STDOUT
 Rolling back SSL Endpoint tokyo-1050.herokussl.com for example... done
 New active certificate details:
 #{certificate_details}
         STDOUT
+      end
+
+      it "allows an endpoint to be specified" do
+        stub_core.ssl_endpoint_rollback('example', 'tokyo-1050').returns(endpoint)
+
+        stderr, stdout = execute("certs:rollback --confirm example --endpoint tokyo-1050")
+        stdout.should == <<-STDOUT
+Rolling back SSL Endpoint tokyo-1050 for example... done
+New active certificate details:
+#{certificate_details}
+        STDOUT
+      end
+
+      it "requires confirmation" do
+        stub_core.ssl_endpoint_list("example").returns([endpoint])
+
+        stderr, stdout = execute("certs:rollback")
+        stdout.should include "WARNING: Potentially Destructive Action"
+        stdout.should include "This command will rollback the certificate of endpoint tokyo-1050.herokussl.com on example."
       end
 
       it "shows an error if an app has no endpoints" do

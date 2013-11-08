@@ -14,6 +14,7 @@ module Heroku
         require file
       end
       Heroku::Plugin.load!
+      unregister_commands_made_private_after_the_fact
     end
 
     def self.commands
@@ -34,6 +35,12 @@ module Heroku
 
     def self.register_command(command)
       commands[command[:command]] = command
+    end
+
+    def self.unregister_commands_made_private_after_the_fact
+      commands.values \
+        .select { |c| c[:klass].private_method_defined? c[:method] } \
+        .each   { |c| commands.delete c[:command] }
     end
 
     def self.register_namespace(namespace)

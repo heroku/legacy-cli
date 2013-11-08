@@ -1,3 +1,26 @@
+3.0.1 2013-10-16
+================
+Support rollback flag for Postgres addons
+
+3.0.0 2013-09-30
+================
+drop support for Taps (db:push/pull), users should use pg:push/pull instead
+
+2.41.0 2013-09-18
+=================
+certs:remove, certs:rollback, certs:update now require confirmation
+certs:info, certs:remove, certs:rollback, certs:update now take optional --endpoint
+
+2.40.1 2013-08-31
+=================
+change commands to use dashes instead of underscores
+
+2.40.0 2013-08-05
+=================
+bring commands pg:ps, pg:kill and pg:killall from pg-extras plugin
+add shorthand database identifiers
+show info on archived apps
+
 2.39.5 2013-07-25
 =================
 allow stdin pipe to `heroku run`

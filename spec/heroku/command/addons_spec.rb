@@ -187,9 +187,9 @@ STDOUT
       end
     end
 
-    describe "fork and follow switches" do
+    describe "fork, follow, and rollback switches" do
       it "should only resolve for heroku-postgresql addon" do
-        %w{fork follow}.each do |switch|
+        %w{fork follow rollback}.each do |switch|
           @addons.stub!(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
           @addons.heroku.should_receive(:install_addon).
             with('example', 'addon', {switch => 'HEROKU_POSTGRESQL_RED'})
@@ -197,10 +197,10 @@ STDOUT
         end
       end
 
-      it "should translate --fork and --follow" do
-        %w{fork follow}.each do |switch|
-          @addons.stub!(:app_config_vars).and_return({})
-          @addons.stub!(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
+      it "should translate --fork, --follow, and --rollback" do
+        %w{fork follow rollback}.each do |switch|
+          Heroku::Helpers::HerokuPostgresql::Resolver.any_instance.stub(:app_config_vars).and_return({})
+          Heroku::Helpers::HerokuPostgresql::Resolver.any_instance.stub(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
               'config_var' => 'HEROKU_POSTGRESQL_RED_URL',
               'resource' => {'name'  => 'loudly-yelling-1232',
                              'value' => 'postgres://red_url',
@@ -267,6 +267,17 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-OUTPUT
 Adding my_addon on example... done, v99 (free)
+foo
+Use `heroku addons:docs my_addon` to view documentation.
+OUTPUT
+      end
+
+      it "excludes addon plan from docs message" do
+        stub_core.install_addon("example", "my_addon:test", {}).returns({ "price" => "free", "message" => "foo" })
+        stderr, stdout = execute("addons:add my_addon:test")
+        stderr.should == ""
+        stdout.should == <<-OUTPUT
+Adding my_addon:test on example... done, v99 (free)
 foo
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT

@@ -16,7 +16,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    update_from_url("https://toolbelt.herokuapp.com/download/zip")
+    update_from_url("https://toolbelt.heroku.com/download/zip")
   end
 
   # update:beta
@@ -28,7 +28,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def beta
     validate_arguments!
-    update_from_url("https://toolbelt.herokuapp.com/download/beta-zip")
+    update_from_url("https://toolbelt.heroku.com/download/beta-zip")
   end
 
 private

@@ -66,7 +66,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   # Add an ssl endpoint to an app.
   #
-  #   --bypass  # bypass the trust chain completion step
+  #   --bypass                 # bypass the trust chain completion step
   #
   def add
     crt, key = read_crt_and_key
@@ -83,11 +83,14 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   # Update an SSL Endpoint on an app.
   #
-  #   --bypass  # bypass the trust chain completion step
+  #   --bypass                 # bypass the trust chain completion step
+  #   -e, --endpoint ENDPOINT  # name of the endpoint to update
   #
   def update
     crt, key = read_crt_and_key
     cname    = options[:endpoint] || current_endpoint
+    message = "WARNING: Potentially Destructive Action\nThis command will change the certificate of endpoint #{cname} on #{app}."
+    return unless confirm_command(app, message)
     endpoint = action("Updating SSL Endpoint #{cname} for #{app}") { heroku.ssl_endpoint_update(app, cname, crt, key) }
     display_warnings(endpoint)
     display "Updated certificate details:"
@@ -99,6 +102,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
   # certs:info
   #
   # Show certificate information for an ssl endpoint.
+  #
+  #   -e, --endpoint ENDPOINT  # name of the endpoint to check info on
   #
   def info
     cname = options[:endpoint] || current_endpoint
@@ -114,8 +119,12 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   # Remove an SSL Endpoint from an app.
   #
+  #   -e, --endpoint ENDPOINT  # name of the endpoint to remove
+  #
   def remove
     cname = options[:endpoint] || current_endpoint
+    message = "WARNING: Potentially Destructive Action\nThis command will remove the endpoint #{cname} from #{app}."
+    return unless confirm_command(app, message)
     action("Removing SSL Endpoint #{cname} from #{app}") do
       heroku.ssl_endpoint_remove(app, cname)
     end
@@ -126,8 +135,13 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #
   # Rollback an SSL Endpoint for an app.
   #
+  #   -e, --endpoint ENDPOINT  # name of the endpoint to rollback
+  #
   def rollback
     cname = options[:endpoint] || current_endpoint
+
+    message = "WARNING: Potentially Destructive Action\nThis command will rollback the certificate of endpoint #{cname} on #{app}."
+    return unless confirm_command(app, message)
 
     endpoint = action("Rolling back SSL Endpoint #{cname} for #{app}") do
       heroku.ssl_endpoint_rollback(app, cname)
