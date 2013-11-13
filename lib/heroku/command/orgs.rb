@@ -49,10 +49,8 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     launchy("Opening web interface for #{org}", "https://dashboard.heroku.com/orgs/#{org}/apps")
   end
 
-  # TODO: update sudo plugin to set Heroku::Org.headers directly. Then this can be removed.
   def self.add_headers(headers)
-    Heroku::Org.headers = headers
+    Heroku::Client::Organizations.headers = headers
   end
-
 
 end
