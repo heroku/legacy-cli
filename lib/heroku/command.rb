@@ -112,6 +112,10 @@ module Heroku
       raise OptionParser::InvalidOption.new(app) if app == "pp"
     end
 
+    global_option :org, "-o", "--org ORG" do |org|
+      raise OptionParser::InvalidOption.new(org) if org == "rg"
+    end
+
     global_option :confirm, "--confirm APP"
     global_option :help,    "-h", "--help"
     global_option :remote,  "-r", "--remote REMOTE"

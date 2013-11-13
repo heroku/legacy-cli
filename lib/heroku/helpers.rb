@@ -513,5 +513,13 @@ module Heroku
       end
     end
 
+    def org_host
+      ENV["HEROKU_ORG_HOST"] || default_org_host
+    end
+
+    def default_org_host
+      "herokumanager.com"
+    end
+
   end
 end

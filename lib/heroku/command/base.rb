@@ -32,7 +32,20 @@ class Heroku::Command::Base
       app_from_dir
     else
       # raise instead of using error command to enable rescuing when app is optional
-      raise Heroku::Command::CommandFailed.new("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.")
+      raise Heroku::Command::CommandFailed.new("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.") unless options[:ignore_no_app]
+    end
+  end
+
+  def org
+    options[:ignore_no_app] = true
+
+    @org ||= if options[:org].is_a?(String)
+      options[:org]
+    elsif org_from_app = extract_org_from_app
+      org_from_app
+    else
+      # raise instead of using error command to enable rescuing when app is optional
+      raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.")
     end
   end
 
@@ -197,6 +210,17 @@ protected
   def extract_app_from_git_config
     remote = git("config heroku.remote")
     remote == "" ? nil : remote
+  end
+
+  def extract_org_from_app
+    return unless app
+
+    owner = api.get_app(app).body["owner_email"].split("@")
+    if owner.last == Heroku::Helpers.org_host
+      owner.first
+    else
+      nil
+    end
   end
 
   def git_remotes(base_dir=Dir.pwd)
