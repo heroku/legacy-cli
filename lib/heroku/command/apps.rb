@@ -361,6 +361,82 @@ class Heroku::Command::Apps < Heroku::Command::Base
   alias_command "destroy", "apps:destroy"
   alias_command "apps:delete", "apps:destroy"
 
+  # apps:join --app APP
+  #
+  # adds current user to an app
+  #
+  # -a, --app APP  # the app
+  def join
+    begin
+      action("Joining application #{app}") {
+        Heroku::Client::Organizations.join_app(app)
+      }
+    rescue Excon::Errors::NotFound
+      error("Application #{app} not found.")
+    rescue Excon::Errors::Conflict
+      error("This is a legacy private-beta org that does not support join/leave functionality")
+    end
+  end
+
+  alias_command "join", "apps:join"
+
+  # apps:leave --app APP
+  #
+  # removes current user from an app
+  #
+  # -a, --app APP  # the app
+  def leave
+    begin
+      action("Leaving application #{app}") {
+        Heroku::Client::Organizations.leave_app(app)
+      }
+    rescue Excon::Errors::NotFound
+      error("Application #{app} not found")
+    rescue Excon::Errors::Conflict
+      error("This is a legacy private-beta org that does not support join/leave functionality")
+    end
+  end
+
+  alias_command "leave", "apps:leave"
+
+  # apps:lock --app APP
+  #
+  # lock an app so that only existing collaborators can add new collaborators
+  #
+  def lock
+    begin
+      action("Locking #{app}") {
+        Heroku::Client::Organizations.lock_app(app)
+      }
+      display("Organization members must be invited this app.")
+    rescue Excon::Errors::BadRequest
+      error("This organization does not support lock/unlock app")
+    rescue Excon::Errors::NotFound
+      error("#{app} was not found")
+    end
+  end
+
+  alias_command "lock", "apps:lock"
+
+  # apps:unlock --app APP
+  #
+  # unlock an app so that any org member can join it.
+  #
+  def unlock
+    begin
+      action("Unlocking #{app}") {
+        Heroku::Client::Organizations.unlock_app(app)
+      }
+      display("All organization members can join this app.")
+    rescue Excon::Errors::BadRequest
+      error("This organization does not support lock/unlock app")
+    rescue Excon::Errors::NotFound
+      error("#{app} was not found")
+    end
+  end
+
+  alias_command "unlock", "apps:unlock"
+
   # apps:upgrade TIER
   #
   # HIDDEN: upgrade an app's pricing tier

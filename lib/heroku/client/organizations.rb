@@ -31,5 +31,37 @@ class Heroku::Client::Organizations
       end
     end
 
+    def join_app(app)
+      api.request(
+        :expects => 200,
+        :method => :post,
+        :path => "/v1/app/#{app}/join"
+      )
+    end
+
+    def leave_app(app)
+      api.request(
+        :expects => 204,
+        :method => :delete,
+        :path => "/v1/app/#{app}/join"
+      )
+    end
+
+    def lock_app(app)
+      api.request(
+        :expects => 200,
+        :method => :post,
+        :path => "/v1/app/#{app}/lock"
+      )
+    end
+
+    def unlock_app(app)
+      api.request(
+        :expects => 204,
+        :method => :delete,
+        :path => "/v1/app/#{app}/lock"
+      )
+    end
+
   end
 end
