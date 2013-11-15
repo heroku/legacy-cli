@@ -63,5 +63,15 @@ class Heroku::Client::Organizations
       )
     end
 
+
+    def get_members(org)
+      Heroku::Helpers.json_decode(
+        api.request(
+          :expects => 200,
+          :method => :get,
+          :path => "/v1/organization/#{org}/user"
+        ).body
+      )
+    end
   end
 end
