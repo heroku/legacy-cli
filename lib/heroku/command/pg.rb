@@ -204,8 +204,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     sql = %Q(
     SELECT
       #{pid_column},
+      #{"state," if nine_two?}
       application_name AS source,
-      age(now(),query_start) AS running_for,
+      age(now(),xact_start) AS running_for,
       waiting,
       #{query_column} AS query
      FROM pg_stat_activity
