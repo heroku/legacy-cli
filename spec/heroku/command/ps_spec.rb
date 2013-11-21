@@ -117,7 +117,8 @@ STDOUT
         stderr.should == ""
         stdout.should == <<-STDOUT
 Scaling web dynos... done, now running 4
-web dynos now running at 2X ($0.10/dyno-hour)
+Resizing and restarting the specified dynos... done
+web dynos now 2X ($0.10/dyno-hour)
 STDOUT
       end
 

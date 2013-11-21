@@ -192,7 +192,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         new_qty = api.post_ps_scale(app, dyno, amount.sub(/^=?/, '')).body
         status("now running #{new_qty}")
       end
-      size_changes[dyno] = { "size" => size.to_i } if size
+      size_changes[dyno] = { "size" => size } if size
     end
 
     do_resize(size_changes) unless size_changes.empty?
@@ -281,7 +281,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     changes.each do |type, options|
       size  = options["size"]
-      price = sprintf("%.2f", 0.05 * size)
+      price = sprintf("%.2f", 0.05 * size.to_i)
       display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
     end
   end
