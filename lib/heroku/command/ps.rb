@@ -177,7 +177,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   def scale
     size_changes = {}
     changes = args.map do |arg|
-      arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
+      arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
     end.compact
 
     if changes.empty?
@@ -185,9 +185,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     changes.each do |change|
-      dyno, _, amount, _, size = change
+      dyno, amount, _, size = change
       action("Scaling #{dyno} dynos") do
-        new_qty = api.post_ps_scale(app, dyno, amount).body
+        new_qty = api.post_ps_scale(app, dyno, amount.sub(/^=?/, '')).body
         status("now running #{new_qty}")
       end
       size_changes[dyno] = { "size" => size.to_i } if size
