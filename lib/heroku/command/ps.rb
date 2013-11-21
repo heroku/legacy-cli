@@ -168,6 +168,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # scale dynos by the given amount
   #
+  # appending a size (eg. web=2:2X) allows simultaneous scaling and resizing
+  #
   #Examples:
   #
   # $ heroku ps:scale web=3:2X worker+1
