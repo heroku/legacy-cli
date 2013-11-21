@@ -12,6 +12,11 @@ describe PgDumpRestore, 'pull' do
     expect { PgDumpRestore.new(@remotedb, @localdb, mock) }.to_not raise_error
   end
 
+  it 'uses PGPORT from ENV to set local port' do
+    ENV['PGPORT'] = '15432'
+    expect(PgDumpRestore.new(@remotedb, @localdb, mock).instance_variable_get('@target').port).to eq 15432
+  end
+
   it 'on pulls, prepare requires the local database to not exist' do
     mock_command = mock
     mock_command.should_receive(:error).once
