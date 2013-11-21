@@ -175,6 +175,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # $ heroku ps:scale web=3:2X worker+1
   # Scaling web dynos... done, now running 3
   # Scaling worker dynos... done, now running 1
+  # Resizing and restarting the specified dynos... done
+  # web dynos now 2X ($0.10/dyno-hour)
   #
   def scale
     size_changes = {}
