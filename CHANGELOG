@@ -1,3 +1,11 @@
+3.1.0 2013-11-22
+================
+Support resizing in ps:scale
+Allow env var PGPORT to indicate port used by Postgres locally
+Enhanced output of pg:ps
+Avoid redundant API calls
+Take optional path on apps:open
+
 3.0.1 2013-10-16
 ================
 Support rollback flag for Postgres addons
