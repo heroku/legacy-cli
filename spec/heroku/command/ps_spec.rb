@@ -112,6 +112,16 @@ Scaling web dynos... done, now running 3
 STDOUT
       end
 
+      it "can resize while scaling" do
+        stderr, stdout = execute("ps:scale web=4:2X")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Scaling web dynos... done, now running 4
+Resizing and restarting the specified dynos... done
+web dynos now 2X ($0.10/dyno-hour)
+STDOUT
+      end
+
     end
 
     describe "ps:stop" do

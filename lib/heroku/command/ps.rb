@@ -106,7 +106,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
       else
         key  = "#{name} (#{size}X): `#{process["command"]}`"
-        item = "%s: %s %s" % [ process["process"], process["state"], elapsed ]
+        item = "%s: %s %s" % [ process['process'], process['state'], elapsed ]
       end
 
       processes_by_command[key] << item
@@ -168,32 +168,36 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # scale dynos by the given amount
   #
+  # appending a size (eg. web=2:2X) allows simultaneous scaling and resizing
+  #
   #Examples:
   #
-  # $ heroku ps:scale web=3 worker+1
+  # $ heroku ps:scale web=3:2X worker+1
   # Scaling web dynos... done, now running 3
   # Scaling worker dynos... done, now running 1
+  # Resizing and restarting the specified dynos... done
+  # web dynos now 2X ($0.10/dyno-hour)
   #
   def scale
-    changes = {}
-    args.each do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
-        changes[$1] = $2
-      end
-    end
+    size_changes = {}
+    changes = args.map do |arg|
+      arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
+    end.compact
 
     if changes.empty?
       error("Usage: heroku ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
     end
 
-    changes.keys.sort.each do |dyno|
-      amount = changes[dyno]
+    changes.each do |change|
+      dyno, amount, _, size = change
       action("Scaling #{dyno} dynos") do
-        amount.gsub!("=", "")
-        new_qty = api.post_ps_scale(app, dyno, amount).body
+        new_qty = api.post_ps_scale(app, dyno, amount.sub(/^=?/, '')).body
         status("now running #{new_qty}")
       end
+      size_changes[dyno] = { "size" => size } if size
     end
+
+    do_resize(size_changes) unless size_changes.empty?
   end
 
   alias_command "scale", "ps:scale"
@@ -260,6 +264,14 @@ class Heroku::Command::Ps < Heroku::Command::Base
       error(message.join("\n"))
     end
 
+    do_resize(changes)
+  end
+
+  alias_command "resize", "ps:resize"
+
+  private
+
+  def do_resize(changes)
     action("Resizing and restarting the specified dynos") do
       api.request(
         :expects  => 200,
@@ -268,12 +280,11 @@ class Heroku::Command::Ps < Heroku::Command::Base
         :body     => json_encode(changes)
       )
     end
+
     changes.each do |type, options|
       size  = options["size"]
-      price = sprintf("%.2f", 0.05 * size)
+      price = sprintf("%.2f", 0.05 * size.to_i)
       display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
     end
   end
-
-  alias_command "resize", "ps:resize"
 end
