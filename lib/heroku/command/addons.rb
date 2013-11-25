@@ -103,6 +103,9 @@ module Heroku::Command
 
       args.each do |name|
         messages = nil
+        if name.start_with? "HEROKU_POSTGRESQL_"
+          name = name.chomp("_URL").freeze
+        end
         action("Removing #{name} on #{app}") do
           messages = addon_run { heroku.uninstall_addon(app, name, :confirm => app) }
         end
