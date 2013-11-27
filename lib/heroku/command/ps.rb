@@ -268,14 +268,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
       error(message.join("\n"))
     end
 
-    do_resize(changes)
-  end
-
-  alias_command "resize", "ps:resize"
-
-  private
-
-  def do_resize(changes)
     action("Resizing and restarting the specified dynos") do
       api.request(
         :expects  => 200,
@@ -291,4 +283,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
       display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
     end
   end
+
+  alias_command "resize", "ps:resize"
 end
