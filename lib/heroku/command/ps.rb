@@ -181,7 +181,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   def scale
     size_changes = {}
     changes = args.map do |arg|
-      arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
+      arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
     end.compact
 
     if changes.empty?
@@ -189,15 +189,19 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     changes.each do |change|
-      dyno, amount, _, size = change
-      action("Scaling #{dyno} dynos") do
-        new_qty = api.post_ps_scale(app, dyno, amount.sub(/^=?/, '')).body
-        status("now running #{new_qty}")
+      formation, _, quantity, _, size = change
+      action("Scaling #{formation} dynos") do
+        # The V3 API supports atomic scale+resize, so we make a raw request here
+        # since the heroku-api gem still only supports V2.
+        resp = api.request(:expects => 200, :method => :patch,
+                           :path => "/apps/#{app}/formation/#{formation}",
+                           :body => {:quantity => quantity.to_i, :size => size.to_i}.to_json,
+                           :headers => {
+                             "Accept" => "application/vnd.heroku+json; version=3",
+                             "Content-Type" => "application/json"})
+        status("now running #{resp.body['quantity']} at #{resp.body['size']}X.")
       end
-      size_changes[dyno] = { "size" => size } if size
     end
-
-    do_resize(size_changes) unless size_changes.empty?
   end
 
   alias_command "scale", "ps:scale"
