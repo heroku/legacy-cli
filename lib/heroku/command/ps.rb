@@ -195,7 +195,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         # since the heroku-api gem still only supports V2.
         resp = api.request(:expects => 200, :method => :patch,
                            :path => "/apps/#{app}/formation/#{formation}",
-                           :body => {:quantity => quantity.to_i, :size => size.to_i}.to_json,
+                           :body => { :quantity => quantity, :size => size }.to_json,
                            :headers => {
                              "Accept" => "application/vnd.heroku+json; version=3",
                              "Content-Type" => "application/json"})
