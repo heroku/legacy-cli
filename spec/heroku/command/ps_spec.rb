@@ -97,35 +97,32 @@ STDOUT
     describe "ps:scale" do
 
       it "can scale using key/value format" do
-        stub_api_request(:patch, "/apps/example/formation/web").
-          with(:body => { :quantity => "5" }).to_return(:body => {"quantity" => "5",
-                                                          "size" => "1"})
+        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
+                   {:body => {"quantity" => "5", "size" => "1"}, :status => 200})
         stderr, stdout = execute("ps:scale web=5")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 5 at 1X
+Scaling web dynos... done, now running 5 at 1X.
 STDOUT
       end
 
       it "can scale relative amounts" do
-        stub_api_request(:patch, "/apps/example/formation/web").
-          with(:body => { :quantity => "+2" }).to_return(:body => {"quantity" => "3",
-                                                           "size" => "1"})
+        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
+                   {:body => {"quantity" => "3", "size" => "1"}, :status => 200})
         stderr, stdout = execute("ps:scale web+2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 3 at 1X
+Scaling web dynos... done, now running 3 at 1X.
 STDOUT
       end
 
       it "can resize while scaling" do
-        stub_api_request(:patch, "/apps/example/formation/web").
-          with(:body => { :quantity => "4",
-                 :size => "2" }).to_return(:body => {"quantity" => "4", "size" => "2"})
+        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
+                   {:body => {"quantity" => 4, "size" => 2}, :status => 200})
         stderr, stdout = execute("ps:scale web=4:2X")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 4 at 2X
+Scaling web dynos... done, now running 4 at 2X.
 STDOUT
       end
 
