@@ -339,7 +339,7 @@ private
       dbs.map do |config, att|
         next if 'DATABASE_URL' == config
         [att.display_name, hpg_info(att, options[:extended])] 
-      end
+      end.compact
     ]
 
     return @hpg_databases_with_info
