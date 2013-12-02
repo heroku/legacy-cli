@@ -97,35 +97,49 @@ STDOUT
     describe "ps:scale" do
 
       it "can scale using key/value format" do
-        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
-                   {:body => {"quantity" => "5", "size" => "1"}, :status => 200})
+        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
+                   { :body => [{"quantity" => "5", "size" => "1", "type" => "web"}],
+                     :status => 200})
         stderr, stdout = execute("ps:scale web=5")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 5 at 1X.
+Scaling dynos... done, now running web at 5:1X.
 STDOUT
       end
 
       it "can scale relative amounts" do
-        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
-                   {:body => {"quantity" => "3", "size" => "1"}, :status => 200})
+        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
+                   { :body => [{"quantity" => "3", "size" => "1", "type" => "web"}],
+                     :status => 200})
         stderr, stdout = execute("ps:scale web+2")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 3 at 1X.
+Scaling dynos... done, now running web at 3:1X.
 STDOUT
       end
 
       it "can resize while scaling" do
-        Excon.stub({:method => :patch, :path => "/apps/example/formation/web"},
-                   {:body => {"quantity" => 4, "size" => 2}, :status => 200})
+        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
+                   { :body => [{"quantity" => 4, "size" => 2, "type" => "web"}],
+                     :status => 200})
         stderr, stdout = execute("ps:scale web=4:2X")
         stderr.should == ""
         stdout.should == <<-STDOUT
-Scaling web dynos... done, now running 4 at 2X.
+Scaling dynos... done, now running web at 4:2X.
 STDOUT
       end
 
+      it "can scale multiple types in one call" do
+        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
+                   { :body => [{"quantity" => 4, "size" => 1, "type" => "web"},
+                               {"quantity" => 2, "size" => 2, "type" => "worker"}],
+                     :status => 200})
+        stderr, stdout = execute("ps:scale web=4:1X worker=2:2X")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Scaling dynos... done, now running web at 4:1X, worker at 2:2X.
+STDOUT
+      end
     end
 
     describe "ps:stop" do

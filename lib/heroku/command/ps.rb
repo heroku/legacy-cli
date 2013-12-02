@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "json"
 
 # manage dynos (dynos, workers)
 #
@@ -173,34 +174,31 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #Examples:
   #
   # $ heroku ps:scale web=3:2X worker+1
-  # Scaling web dynos... done, now running 3
-  # Scaling worker dynos... done, now running 1
-  # Resizing and restarting the specified dynos... done
-  # web dynos now 2X ($0.10/dyno-hour)
+  # Scaling dynos... done, now running web at 3:1X, worker at 1:1X.
   #
   def scale
-    size_changes = {}
     changes = args.map do |arg|
-      arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
+        formation, _, quantity, _, size = change
+        {:process => formation, :quantity => quantity, :size => size}
+      end
     end.compact
 
     if changes.empty?
-      error("Usage: heroku ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
+      error("Usage: heroku ps:scale DYNO1=AMOUNT1[:SIZE] [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
     end
 
-    changes.each do |change|
-      formation, _, quantity, _, size = change
-      action("Scaling #{formation} dynos") do
-        # The V3 API supports atomic scale+resize, so we make a raw request here
-        # since the heroku-api gem still only supports V2.
-        resp = api.request(:expects => 200, :method => :patch,
-                           :path => "/apps/#{app}/formation/#{formation}",
-                           :body => { :quantity => quantity, :size => size }.to_json,
-                           :headers => {
-                             "Accept" => "application/vnd.heroku+json; version=3",
-                             "Content-Type" => "application/json"})
-        status("now running #{resp.body['quantity']} at #{resp.body['size']}X.")
-      end
+    action("Scaling dynos") do
+      # The V3 API supports atomic scale+resize, so we make a raw request here
+      # since the heroku-api gem still only supports V2.
+      resp = api.request(:expects => 200, :method => :patch,
+                         :path => "/apps/#{app}/formation",
+                         :body => {:updates => changes}.to_json,
+                         :headers => {
+                           "Accept" => "application/vnd.heroku+json; version=3",
+                           "Content-Type" => "application/json"})
+      new_scales = resp.body.map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
+      status("now running " + new_scales.join(", ") + ".")
     end
   end
 
