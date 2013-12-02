@@ -132,7 +132,8 @@ STDOUT
       it "can scale multiple types in one call" do
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
                    { :body => [{"quantity" => 4, "size" => 1, "type" => "web"},
-                               {"quantity" => 2, "size" => 2, "type" => "worker"}],
+                               {"quantity" => 2, "size" => 2, "type" => "worker"},
+                               {"quantity" => 0, "size" => 1, "type" => "dummy"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web=4:1X worker=2:2X")
         stderr.should == ""

@@ -177,9 +177,12 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Scaling dynos... done, now running web at 3:1X, worker at 1:1X.
   #
   def scale
+    change_map = {}
+
     changes = args.map do |arg|
       if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
         formation, _, quantity, _, size = change
+        change_map[formation] = [quantity, size]
         {:process => formation, :quantity => quantity, :size => size}
       end
     end.compact
@@ -197,7 +200,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
                          :headers => {
                            "Accept" => "application/vnd.heroku+json; version=3",
                            "Content-Type" => "application/json"})
-      new_scales = resp.body.map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
+      new_scales = resp.body.
+        select {|p| change_map[p['type']] }.
+        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
       status("now running " + new_scales.join(", ") + ".")
     end
   end
