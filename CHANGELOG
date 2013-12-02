@@ -1,3 +1,8 @@
+3.1.1 2013-12-02
+================
+Use bulk scale+resize API in ps:scale
+Default to primary database plan if no plan specified in fork/follow/rollback
+
 3.1.0 2013-11-22
 ================
 Support resizing in ps:scale
@@ -8,7 +13,7 @@ Take optional path on apps:open
 
 3.0.1 2013-10-16
 ================
-Support rollback flag for Postgres addons
+support rollback flag for Postgres addons
 
 3.0.0 2013-09-30
 ================
