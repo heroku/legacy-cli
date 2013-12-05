@@ -14,6 +14,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # List databases for an app
   #
   def index
+    app
     validate_arguments!
 
     if hpg_databases_with_info.empty?
@@ -34,6 +35,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # If DATABASE is not specified, displays all databases
   #
   def info
+    app
     db = shift_argument
     validate_arguments!
 
@@ -51,6 +53,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Sets DATABASE as your DATABASE_URL
   #
   def promote
+    app
     unless db = shift_argument
       error("Usage: heroku pg:promote DATABASE\nMust specify DATABASE to promote.")
     end
@@ -72,6 +75,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
   def psql
+    app
     attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
 
@@ -96,6 +100,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Delete all data in DATABASE
   #
   def reset
+    app
     unless db = shift_argument
       error("Usage: heroku pg:reset DATABASE\nMust specify DATABASE to reset.")
     end
@@ -117,6 +122,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # stop a replica from following and make it a read/write database
   #
   def unfollow
+    app
     unless db = shift_argument
       error("Usage: heroku pg:unfollow REPLICA\nMust specify REPLICA to unfollow.")
     end
@@ -150,6 +156,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to all databases if no DATABASE is specified
   #
   def wait
+    app
     db = shift_argument
     validate_arguments!
 
@@ -169,6 +176,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #   --reset  # Reset credentials on the specified database.
   #
   def credentials
+    app
     unless db = shift_argument
       error("Usage: heroku pg:credentials DATABASE\nMust specify DATABASE to display credentials.")
     end
@@ -201,6 +209,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # view active queries with execution time
   #
   def ps
+    app
     sql = %Q(
     SELECT
       #{pid_column},
@@ -264,6 +273,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
   # REMOTE_TARGET_DATABASE must be empty.
   def push
+    app
     local, remote = shift_argument, shift_argument
     unless [remote, local].all?
       Heroku::Command.run(current_command, ['--help'])
@@ -289,6 +299,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # Pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
   # LOCAL_TARGET_DATABASE must not already exist.
   def pull
+    app
     remote, local = shift_argument, shift_argument
     unless [remote, local].all?
       Heroku::Command.run(current_command, ['--help'])
@@ -423,6 +434,7 @@ private
   end
 
   def exec_sql(sql)
+    app
     uri = find_uri
     exec_sql_on_uri(sql, uri)
   end
