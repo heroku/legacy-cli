@@ -402,7 +402,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "leave", "apps:leave"
 
-  # apps:lock --app APP
+  # apps:lock
   #
   # lock an app so that only existing collaborators can add new collaborators
   #
@@ -421,7 +421,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "lock", "apps:lock"
 
-  # apps:unlock --app APP
+  # apps:unlock
   #
   # unlock an app so that any org member can join it.
   #
