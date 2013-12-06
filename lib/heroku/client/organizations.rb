@@ -88,7 +88,7 @@ class Heroku::Client::Organizations
         :expects => 201,
         :method => :post,
         :path => "/v1/organization/#{org}/create-app",
-        :body => Heroku::Helpers.json_encode(params), 
+        :body => Heroku::Helpers.json_encode(params),
         :headers => {"Content-Type" => "application/json"}
       )
     end
@@ -147,7 +147,7 @@ class Heroku::Client::Organizations
 
     def set_member(org, member, role)
       api.request(
-        :expects => 200,
+        :expects => [200, 304],
         :method => :put,
         :path => "/v1/organization/#{org}/user/#{CGI.escape(member)}",
         :body => Heroku::Helpers.json_encode( { "role" => role } ),
