@@ -89,6 +89,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
       styled_header(app_data["name"])
     end
 
+    if app_data['owner_email'] =~ /^.*@herokumanager.com$/
+      app_data['owner'] = app_data['owner_email'].gsub(/^(.*)@herokumanager.com$/,'\1')
+      app_data.delete("owner_email")
+    end
+
     addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
     collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
@@ -147,23 +152,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
 
-      data["Owner Email"] = app_data["owner_email"]
-
-      if app_data["region"]
-        data["Region"] = app_data["region"]
-      end
-
-      if app_data["repo_size"]
-        data["Repo Size"] = format_bytes(app_data["repo_size"])
-      end
-
-      if app_data["slug_size"]
-        data["Slug Size"] = format_bytes(app_data["slug_size"])
-      end
-
-      if app_data["cache_size"]
-        data["Cache Size"] = format_bytes(app_data["cache_size"])
-      end
+      data["Owner Email"] = app_data["owner_email"] if app_data["owner_email"]
+      data["Owner"] = app_data["owner"] if app_data["owner"]
+      data["Region"] = app_data["region"] if app_data["region"]
+      data["Repo Size"] = format_bytes(app_data["repo_size"]) if app_data["repo_size"]
+      data["Slug Size"] = format_bytes(app_data["slug_size"]) if app_data["slug_size"]
+      data["Cache Size"] = format_bytes(app_data["cache_size"]) if app_data["cache_size"]
 
       data["Stack"] = app_data["stack"]
       if data["Stack"] != "cedar"
