@@ -1,6 +1,7 @@
 require "fileutils"
 require "heroku/auth"
 require "heroku/client/rendezvous"
+require "heroku/client/organizations"
 require "heroku/command"
 
 class Heroku::Command::Base
@@ -51,6 +52,10 @@ class Heroku::Command::Base
 
   def api
     Heroku::Auth.api
+  end
+
+  def org_api
+    Heroku::Client::Organizations.api
   end
 
   def heroku

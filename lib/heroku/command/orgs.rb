@@ -1,5 +1,4 @@
 require "heroku/command/base"
-require "heroku/client/organizations"
 require "base64"
 require "excon"
 
@@ -13,7 +12,7 @@ class Heroku::Command::Orgs < Heroku::Command::Base
   #
   #
   def index
-    response = Heroku::Client::Organizations.get_orgs
+    response = org_api.get_orgs
 
     orgs = []
     response.fetch('organizations', []).each do |org|
@@ -47,10 +46,6 @@ class Heroku::Command::Orgs < Heroku::Command::Base
   #
   def open
     launchy("Opening web interface for #{org}", "https://dashboard.heroku.com/orgs/#{org}/apps")
-  end
-
-  def self.add_headers(headers)
-    Heroku::Client::Organizations.headers = headers
   end
 
 end

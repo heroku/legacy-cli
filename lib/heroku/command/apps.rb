@@ -369,7 +369,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def join
     begin
       action("Joining application #{app}") {
-        Heroku::Client::Organizations.join_app(app)
+        org_api.join_app(app)
       }
     rescue Excon::Errors::NotFound
       error("Application #{app} not found.")
@@ -388,7 +388,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def leave
     begin
       action("Leaving application #{app}") {
-        Heroku::Client::Organizations.leave_app(app)
+        org_api.leave_app(app)
       }
     rescue Excon::Errors::NotFound
       error("Application #{app} not found")
@@ -406,7 +406,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def lock
     begin
       action("Locking #{app}") {
-        Heroku::Client::Organizations.lock_app(app)
+        org_api.lock_app(app)
       }
       display("Organization members must be invited this app.")
     rescue Excon::Errors::BadRequest
@@ -425,7 +425,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def unlock
     begin
       action("Unlocking #{app}") {
-        Heroku::Client::Organizations.unlock_app(app)
+        org_api.unlock_app(app)
       }
       display("All organization members can join this app.")
     rescue Excon::Errors::BadRequest

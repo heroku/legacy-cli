@@ -1,5 +1,4 @@
 require "heroku/command/base"
-require "heroku/client/organizations"
 require "base64"
 require "excon"
 
@@ -15,7 +14,7 @@ class Heroku::Command::Members < Heroku::Command::Base
   #
   #
   def index
-    resp = Heroku::Client::Organizations.get_members(org)
+    resp = org_api.get_members(org)
     resp = resp.select { |m| m['role'] == options[:role] } if options[:role]
     list = resp.map { |m| [m['email'] , m['role']] }
 
@@ -39,7 +38,29 @@ class Heroku::Command::Members < Heroku::Command::Base
     role = options.fetch(:role, 'member')
 
     action("Adding #{member} as #{role} to organization #{org}") do
-      Heroku::Client::Organizations.add_member(org, member, role)
+      org_api.add_member(org, member, role)
+    end
+  end
+
+  # members:set NAME [--org ORG] [--role ROLE]
+  #
+  # change role of member in org
+  #
+  # -r, --role ROLE  # the new role for this member. One of 'admin' or 'member'
+  #
+  #
+  def set
+    unless member = shift_argument
+      error("Usage: heroku members:set EMAIL\nMust specify EMAIL to update.")
+    end
+
+    role = options[:role] || 'member'
+    unless %w(admin member).include?(role)
+      error("Invalid role. Must be one of 'admin' or 'member'")
+    end
+
+    action("Setting role of #{member} to #{role} in organization #{org} to #{role}") do
+      org_api.set_member(org, member, role)
     end
   end
 
@@ -54,7 +75,7 @@ class Heroku::Command::Members < Heroku::Command::Base
     end
 
     action("Removing #{member} from organization #{org}") do
-      Heroku::Client::Organizations.remove_member(org, member)
+      org_api.remove_member(org, member)
     end
   end
 
