@@ -16,13 +16,13 @@ module Heroku::Command
     # --region REGION      # specify a region
     #
     def index
-      
+
       from = app
       to = shift_argument || "#{from}-#{(rand*1000).to_i}"
 
       from_info = api.get_app(from).body
 
-      to_info = action("Creating fork #{to}", org: !!org) do
+      to_info = action("Creating fork #{to}", :org => !!org) do
         params = {
           "name"    => to,
           "region"  => options[:region] || from_info["region"],

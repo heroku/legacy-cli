@@ -229,7 +229,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     begin
-      action("Creating #{info['name']}", org: !!org) do
+      action("Creating #{info['name']}", :org => !!org) do
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
