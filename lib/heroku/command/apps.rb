@@ -89,14 +89,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
       styled_header(app_data["name"])
     end
 
+    addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
+    collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
+    collaborators_data.reject! {|email| email == app_data["owner_email"]}
+
     if app_data['owner_email'] =~ /^.*@herokumanager.com$/
       app_data['owner'] = app_data['owner_email'].gsub(/^(.*)@herokumanager.com$/,'\1')
       app_data.delete("owner_email")
     end
-
-    addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
-    collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
-    collaborators_data.reject! {|email| email == app_data["owner_email"]}
 
     if options[:shell]
       if app_data['domain_name']
@@ -229,7 +229,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     begin
-      action("Creating #{info['name']}") do
+      action("Creating #{info['name']}", org: !!org) do
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
