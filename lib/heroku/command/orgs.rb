@@ -12,7 +12,7 @@ class Heroku::Command::Orgs < Heroku::Command::Base
   #
   #
   def index
-    response = org_api.get_orgs
+    response = org_api.get_orgs.body
 
     orgs = []
     response.fetch('organizations', []).each do |org|

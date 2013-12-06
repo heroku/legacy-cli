@@ -19,7 +19,7 @@ class Heroku::Client::Organizations
 
     def request params
       begin
-        @connection.request params
+        response = @connection.request(params)
       rescue Excon::Errors::HTTPStatusError => error
         klass = case error.response.status
           when 401 then Heroku::API::Errors::Unauthorized
@@ -44,6 +44,20 @@ class Heroku::Client::Organizations
         reerror.set_backtrace(error.backtrace)
         raise(reerror)
       end
+
+      if response.body && !response.body.empty?
+        decompress_response!(response)
+        begin
+          response.body = Heroku::API::OkJson.decode(response.body)
+        rescue
+          # leave non-JSON body as is
+        end
+      end
+
+      # reset (non-persistent) connection
+      # @connection.reset
+
+      response
     end
 
     def headers=(headers)
@@ -54,11 +68,11 @@ class Heroku::Client::Organizations
     #################################
     def get_orgs
       begin
-        Heroku::Helpers.json_decode(api.request(
+        api.request(
           :expects => 200,
           :path => "/v1/user/info",
           :method => :get
-          ).body)
+        )
       rescue Excon::Errors::NotFound
         # user is not a member of any organization
         { 'user' => {} }
@@ -67,6 +81,18 @@ class Heroku::Client::Organizations
 
     # Apps
     #################################
+    def post_app(params, org)
+      params["app_name"] = params.delete["name"] if params["name"]
+
+      api.request(
+        :expects => 201,
+        :method => :post,
+        :path => "/v1/organization/#{org}/create-app",
+        :body => Heroku::Helpers.json_encode(params), 
+        :headers => {"Content-Type" => "application/json"}
+      )
+    end
+
     def join_app(app)
       api.request(
         :expects => 200,
@@ -102,12 +128,10 @@ class Heroku::Client::Organizations
     # Members
     #################################
     def get_members(org)
-      Heroku::Helpers.json_decode(
-        api.request(
-          :expects => 200,
-          :method => :get,
-          :path => "/v1/organization/#{org}/user"
-        ).body
+      api.request(
+        :expects => 200,
+        :method => :get,
+        :path => "/v1/organization/#{org}/user"
       )
     end
 

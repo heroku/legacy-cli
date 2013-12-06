@@ -192,6 +192,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
   # -s, --stack STACK          # the stack on which to create the app
   #     --region REGION        # specify region for this app to run in
+  # -l, --locked               # lock the app
   # -t, --tier TIER            # HIDDEN: the tier for this app
   #
   #Examples:
@@ -218,13 +219,21 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
     validate_arguments!
+    options[:ignore_no_org] = true
 
-    info    = api.post_app({
+    params = {
       "name" => name,
       "region" => options[:region],
       "stack" => options[:stack],
-      "tier" => options[:tier]
-    }).body
+      "locked" => options[:locked]
+    }
+
+    info = if org
+      org_api.post_app(params, org).body
+    else
+      api.post_app(params).body
+    end
+
     begin
       action("Creating #{info['name']}") do
         if info['create_status'] == 'creating'

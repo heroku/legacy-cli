@@ -115,6 +115,7 @@ module Heroku
     global_option :org, "-o", "--org ORG" do |org|
       raise OptionParser::InvalidOption.new(org) if org == "rg"
     end
+    global_option :personal, "-p", "--personal"
 
     global_option :confirm, "--confirm APP"
     global_option :help,    "-h", "--help"

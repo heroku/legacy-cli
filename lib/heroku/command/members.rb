@@ -14,7 +14,7 @@ class Heroku::Command::Members < Heroku::Command::Base
   #
   #
   def index
-    resp = org_api.get_members(org)
+    resp = org_api.get_members(org).body
     resp = resp.select { |m| m['role'] == options[:role] } if options[:role]
     list = resp.map { |m| [m['email'] , m['role']] }
 
