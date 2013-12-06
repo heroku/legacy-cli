@@ -43,8 +43,12 @@ module Heroku::Command
       end
       validate_arguments!
 
-      action("Adding #{email} to #{app} collaborators") do
-        api.post_collaborator(app, email)
+      action("Adding #{email} to #{app} collaborators", :org => !!org) do
+        if org && org_api.get_members(org).body.map { |m| m['email'] }.include?(email)
+          org_api.post_collaborator(org, app, email)
+        else
+          api.post_collaborator(app, email)
+        end
       end
     end
 

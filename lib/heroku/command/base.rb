@@ -38,11 +38,12 @@ class Heroku::Command::Base
   end
 
   def org
+    @nil = false
     options[:ignore_no_app] = true
 
     @org ||= if options[:org].is_a?(String)
       options[:org]
-    elsif options[:personal]
+    elsif options[:personal] || @nil
       nil
     elsif org_from_app = extract_org_from_app
       org_from_app
@@ -56,6 +57,9 @@ class Heroku::Command::Base
         raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.") unless options[:ignore_no_org]
       end
     end
+
+    @nil = true if @org == nil
+    @org
   end
 
   def api

@@ -111,6 +111,16 @@ class Heroku::Client::Organizations
       )
     end
 
+    def post_collaborator(org, app, user)
+      api.request(
+        :expects => 201,
+        :method => :post,
+        :path => "v1/organization/#{org}/app/#{app}/developer",
+        :body => Heroku::Helpers.json_encode({ "email" => user }),
+        :headers => {"Content-Type" => "application/json"}
+      )
+    end
+
     def join_app(app)
       api.request(
         :expects => 200,
