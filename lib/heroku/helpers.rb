@@ -522,5 +522,9 @@ module Heroku
       "herokumanager.com"
     end
 
+    def org? email
+      email =~ /^.*@#{org_host}$/
+    end
+
   end
 end

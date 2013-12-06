@@ -22,8 +22,10 @@ module Heroku::Command
 
       # this is never empty, as it always includes the owner
       collaborators = api.get_collaborators(app).body
-      styled_header("#{app} Collaborators")
-      styled_array(collaborators.map {|collaborator| collaborator["email"]})
+      collaborators = collaborators.delete_if { |collaborator| org? collaborator["email"] }
+
+      styled_header("#{app} Access List")
+      styled_array(collaborators.map {|collaborator| [collaborator["email"], collaborator.fetch("role", "collaborator")] })
     end
 
     # sharing:add EMAIL
