@@ -82,7 +82,7 @@ class Heroku::Client::Organizations
     # Apps
     #################################
     def post_app(params, org)
-      params["app_name"] = params.delete["name"] if params["name"]
+      params["app_name"] = params.delete("name") if params["name"]
 
       api.request(
         :expects => 201,
