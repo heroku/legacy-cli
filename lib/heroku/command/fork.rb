@@ -22,13 +22,19 @@ module Heroku::Command
 
       from_info = api.get_app(from).body
 
-      to_info = action("Creating fork #{to}") do
-        api.post_app({
-          :name   => to,
-          :region => options[:region] || from_info["region"],
-          :stack  => options[:stack] || from_info["stack"],
-          :tier   => from_info["tier"] == "legacy" ? "production" : from_info["tier"]
-        }).body
+      to_info = action("Creating fork #{to}", org: !!org) do
+        params = {
+          "name"    => to,
+          "region"  => options[:region] || from_info["region"],
+          "stack"   => options[:stack] || from_info["stack"],
+          "tier"    => from_info["tier"] == "legacy" ? "production" : from_info["tier"]
+        }
+
+        info = if org
+          org_api.post_app(params, org).body
+        else
+          api.post_app(params).body
+        end
       end
 
       action("Copying slug") do
