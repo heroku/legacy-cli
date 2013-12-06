@@ -7,8 +7,8 @@ require "excon"
 class Heroku::Command::Members < Heroku::Command::Base
 
   # members [--org ORG]
-  # 
-  # lists members in an org 
+  #
+  # lists members in an org
   #
   # -r, --role ROLE  # list only members in ROLE
   #
@@ -59,7 +59,7 @@ class Heroku::Command::Members < Heroku::Command::Base
       error("Invalid role. Must be one of 'admin' or 'member'")
     end
 
-    action("Setting role of #{member} to #{role} in organization #{org} to #{role}") do
+    action("Setting role of #{member} in organization #{org} to #{role}") do
       org_api.set_member(org, member, role)
     end
   end
