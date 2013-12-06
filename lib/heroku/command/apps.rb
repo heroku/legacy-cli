@@ -93,8 +93,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
     collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
 
-    if app_data['owner_email'] =~ /^.*@herokumanager.com$/
-      app_data['owner'] = app_data['owner_email'].gsub(/^(.*)@herokumanager.com$/,'\1')
+    if org? app_data['owner_email']
+      app_data['owner'] = app_data['owner_email'].gsub(/^(.*)@#{org_host}$/,'\1')
       app_data.delete("owner_email")
     end
 
