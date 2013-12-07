@@ -28,7 +28,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     apps = if org
       org_api.get_apps(org).body
     else
-      api.get_apps.body
+      api.get_apps.body.select { |app| !org?(app["owner_email"]) }
     end
 
     unless apps.empty?
@@ -39,8 +39,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
         unless joined.empty?
           styled_array(joined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
         else
-          display("You haven't joined any apps")
-          display("Use --all to see unjoined apps") unless options[:all]
+          display("You haven't joined any apps.")
+          display("Use --all to see unjoined apps.") unless options[:all]
           display
         end
 
@@ -49,14 +49,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
           unless unjoined.empty?
             styled_array(unjoined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
           else
-            display("There are no apps to join")
+            display("There are no apps to join.")
             display
           end
         end
       else
-        my_apps, collaborated_apps = apps.
-          select { |app| !org?(app["owner_email"]) }.
-          partition { |app| app["owner_email"] == Heroku::Auth.user }
+        my_apps, collaborated_apps = apps.partition { |app| app["owner_email"] == Heroku::Auth.user }
 
         unless my_apps.empty?
           styled_header("My Apps")
@@ -69,7 +67,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      org ? display("There are no apps in organization #{org}") : display("You have no apps.")
+      org ? display("There are no apps in organization #{org}.") : display("You have no apps.")
     end
   end
 
