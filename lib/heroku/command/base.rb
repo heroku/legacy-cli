@@ -232,10 +232,14 @@ protected
   def extract_org_from_app
     return unless app
 
-    owner = api.get_app(app).body["owner_email"].split("@")
-    if owner.last == Heroku::Helpers.org_host
-      owner.first
-    else
+    begin
+      owner = api.get_app(app).body["owner_email"].split("@")
+      if owner.last == Heroku::Helpers.org_host
+        owner.first
+      else
+        nil
+      end
+    rescue
       nil
     end
   end
