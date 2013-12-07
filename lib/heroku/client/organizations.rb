@@ -111,6 +111,16 @@ class Heroku::Client::Organizations
       )
     end
 
+    def transfer_app(to_org, app, locked)
+      api.request(
+        :expects => 200,
+        :method => :put,
+        :path => "/v1/app/#{app}",
+        :body => Heroku::Helpers.json_encode( { "owner" => to_org, "locked" => locked || 'false' } ),
+        :headers => {"Content-Type" => "application/json"}
+      )
+    end
+
     def post_collaborator(org, app, user)
       api.request(
         :expects => 201,
