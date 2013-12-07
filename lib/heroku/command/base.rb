@@ -240,6 +240,11 @@ protected
     end
   end
 
+  def org_from_app!
+    options[:org] = extract_org_from_app
+    options[:personal] = true unless options[:org]
+  end
+
   def git_remotes(base_dir=Dir.pwd)
     remotes = {}
     original_dir = Dir.pwd

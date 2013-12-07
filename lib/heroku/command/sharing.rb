@@ -14,8 +14,8 @@ module Heroku::Command
     #
     # $ heroku sharing
     # === example Collaborators
-    # collaborator@example.com
-    # email@example.com
+    # collaborator@example.com  collaborator
+    # email@example.com         owner
     #
     def index
       validate_arguments!
@@ -42,6 +42,7 @@ module Heroku::Command
         error("Usage: heroku sharing:add EMAIL\nMust specify EMAIL to add sharing.")
       end
       validate_arguments!
+      org_from_app!
 
       action("Adding #{email} to #{app} collaborators", :org => !!org) do
         if org && org_api.get_members(org).body.map { |m| m['email'] }.include?(email)
@@ -82,13 +83,13 @@ module Heroku::Command
     # Transferring example to collaborator@example.com... done
     #
     def transfer
-      unless email = shift_argument
+      unless target = shift_argument
         error("Usage: heroku sharing:transfer EMAIL\nMust specify EMAIL to transfer an app.")
       end
       validate_arguments!
 
-      action("Transferring #{app} to #{email}") do
-        api.put_app(app, "transfer_owner" => email)
+      action("Transferring #{app} to #{target}") do
+        api.put_app(app, "transfer_owner" => target)
       end
     end
   end
