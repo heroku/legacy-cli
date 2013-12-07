@@ -99,6 +99,14 @@ class Heroku::Client::Organizations
 
     # Apps
     #################################
+    def get_apps(org)
+      api.request(
+        :expects => 200,
+        :method => :get,
+        :path => "/v1/organization/#{org}/app"
+      )
+    end
+
     def post_app(params, org)
       params["app_name"] = params.delete("name") if params["name"]
 

@@ -8,6 +8,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # list your apps
   #
+  # -o, --org ORG  # the org to list the apps for
+  # -A, --all      # list all apps in the org. Not just joined apps
+  # -p, --personal # list apps in personal account when a default org is set
+  #
   #Example:
   #
   # $ heroku apps
@@ -20,43 +24,51 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    apps = api.get_apps.body
-    unless apps.empty?
-      my_apps, collaborated_apps = apps.partition do |app|
-        app["owner_email"] == Heroku::Auth.user
-      end
 
-      unless my_apps.empty?
-        non_legacy_apps = my_apps.select do |app|
-          app["tier"] != "legacy"
+    apps = if org
+      org_api.get_apps(org).body
+    else
+      api.get_apps.body
+    end
+
+    unless apps.empty?
+      if org
+        joined, unjoined = apps.partition { |app| app['joined'] == true }
+
+        styled_header("Apps joined in organization #{org}")
+        unless joined.empty?
+          styled_array(joined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
+        else
+          display("You haven't joined any apps")
+          display
         end
 
-        unless non_legacy_apps.empty?
-          production_basic_apps, dev_legacy_apps = my_apps.partition do |app|
-            ["production", "basic"].include?(app["tier"])
+        if options[:all]
+          styled_header("Apps available to join in organization #{org}")
+          unless unjoined.empty?
+            styled_array(unjoined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
+          else
+            display("There are no apps to join")
+            display
           end
+        end
+      else
+        my_apps, collaborated_apps = apps.
+          select { |app| !org?(app["owner_email"]) }.
+          partition { |app| app["owner_email"] == Heroku::Auth.user }
 
-          unless production_basic_apps.empty?
-            styled_header("Basic & Production Apps")
-            styled_array(production_basic_apps.map { |app| regionized_app_name(app) })
-          end
-
-          unless dev_legacy_apps.empty?
-            styled_header("Dev & Legacy Apps")
-            styled_array(dev_legacy_apps.map { |app| regionized_app_name(app) })
-          end
-        else
+        unless my_apps.empty?
           styled_header("My Apps")
           styled_array(my_apps.map { |app| regionized_app_name(app) })
         end
-      end
 
-      unless collaborated_apps.empty?
-        styled_header("Collaborated Apps")
-        styled_array(collaborated_apps.map { |app| [regionized_app_name(app), app["owner_email"]] })
+        unless collaborated_apps.empty?
+          styled_header("Collaborated Apps")
+          styled_array(collaborated_apps.map { |app| [regionized_app_name(app), app["owner_email"]] })
+        end
       end
     else
-      display("You have no apps.")
+      org ? display("There are no apps in organization #{org}") : display("You have no apps.")
     end
   end
 
@@ -239,7 +251,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
           end
         end
         if options[:region]
-          status("region is #{info['region']}")
+          status("region is #{region_from_app(info)}")
         else
           status("stack is #{info['stack']}")
         end
@@ -475,12 +487,18 @@ class Heroku::Command::Apps < Heroku::Command::Base
   private
 
   def regionized_app_name(app)
+    region = region_from_app(app)
+
     # temporary, show region for non-us apps
-    if app["region"] && app["region"] != 'us'
-      "#{app["name"]} (#{app["region"]})"
+    if app["region"] && region != 'us'
+      "#{app["name"]} (#{region})"
     else
       app["name"]
     end
+  end
+
+  def region_from_app app
+    region = app["region"].is_a?(Hash) ? app["region"]["name"] : app["region"]
   end
 
 end
