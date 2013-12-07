@@ -40,6 +40,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
           styled_array(joined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
         else
           display("You haven't joined any apps")
+          display("Use --all to see unjoined apps") unless options[:all]
           display
         end
 
