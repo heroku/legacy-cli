@@ -60,6 +60,8 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     options[:ignore_no_org] = true
     if target = shift_argument
       options[:org] = target
+    else
+      error("Usage: heroku orgs:default TARGET\nMust specify TARGET to set as default organization.")
     end
 
     if org == "personal" || options[:personal]
