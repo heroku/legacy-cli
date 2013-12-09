@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "json"
 
 # manage dynos (dynos, workers)
 #
@@ -106,7 +107,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
       else
         key  = "#{name} (#{size}X): `#{process["command"]}`"
-        item = "%s: %s %s" % [ process["process"], process["state"], elapsed ]
+        item = "%s: %s %s" % [ process['process'], process['state'], elapsed ]
       end
 
       processes_by_command[key] << item
@@ -168,31 +169,41 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   # scale dynos by the given amount
   #
+  # appending a size (eg. web=2:2X) allows simultaneous scaling and resizing
+  #
   #Examples:
   #
-  # $ heroku ps:scale web=3 worker+1
-  # Scaling web dynos... done, now running 3
-  # Scaling worker dynos... done, now running 1
+  # $ heroku ps:scale web=3:2X worker+1
+  # Scaling dynos... done, now running web at 3:1X, worker at 1:1X.
   #
   def scale
-    changes = {}
-    args.each do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)([=+-]\d+)$/
-        changes[$1] = $2
+    change_map = {}
+
+    changes = args.map do |arg|
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
+        formation, _, quantity, _, size = change
+        change_map[formation] = [quantity, size]
+        {:process => formation, :quantity => quantity, :size => size}
       end
-    end
+    end.compact
 
     if changes.empty?
-      error("Usage: heroku ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
+      error("Usage: heroku ps:scale DYNO1=AMOUNT1[:SIZE] [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
     end
 
-    changes.keys.sort.each do |dyno|
-      amount = changes[dyno]
-      action("Scaling #{dyno} dynos") do
-        amount.gsub!("=", "")
-        new_qty = api.post_ps_scale(app, dyno, amount).body
-        status("now running #{new_qty}")
-      end
+    action("Scaling dynos") do
+      # The V3 API supports atomic scale+resize, so we make a raw request here
+      # since the heroku-api gem still only supports V2.
+      resp = api.request(:expects => 200, :method => :patch,
+                         :path => "/apps/#{app}/formation",
+                         :body => {:updates => changes}.to_json,
+                         :headers => {
+                           "Accept" => "application/vnd.heroku+json; version=3",
+                           "Content-Type" => "application/json"})
+      new_scales = resp.body.
+        select {|p| change_map[p['type']] }.
+        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
+      status("now running " + new_scales.join(", ") + ".")
     end
   end
 
@@ -268,9 +279,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
         :body     => json_encode(changes)
       )
     end
+
     changes.each do |type, options|
       size  = options["size"]
-      price = sprintf("%.2f", 0.05 * size)
+      price = sprintf("%.2f", 0.05 * size.to_i)
       display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
     end
   end

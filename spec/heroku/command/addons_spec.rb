@@ -207,7 +207,7 @@ STDOUT
                              'type'  => 'heroku-postgresql:ronin' }})
           ])
           @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
-          @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql', {switch => 'postgres://red_url'})
+          @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://red_url'})
           @addons.add
         end
       end
@@ -216,9 +216,18 @@ STDOUT
         %w{fork follow}.each do |switch|
           @addons.stub!(:app_config_vars).and_return({})
           @addons.stub!(:app_attachments).and_return([])
-          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
-          @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql', {switch => 'postgres://foo:yeah@awesome.com:234/bestdb'})
+          @addons.stub!(:args).and_return("heroku-postgresql:ronin --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
+          @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://foo:yeah@awesome.com:234/bestdb'})
           @addons.add
+        end
+      end
+
+      it "should fail if fork / follow across applications and no plan is specified" do
+        %w{fork follow}.each do |switch|
+          @addons.stub!(:app_config_vars).and_return({})
+          @addons.stub!(:app_attachments).and_return([])
+          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
+          lambda { @addons.add }.should raise_error(CommandFailed)
         end
       end
     end

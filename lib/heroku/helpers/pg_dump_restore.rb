@@ -75,7 +75,7 @@ class PgDumpRestore
   def fill_in_shorthand_uris!
     [@target, @source].each do |uri|
       uri.host ||= 'localhost'
-      uri.port ||= 5432
+      uri.port ||= Integer(ENV['PGPORT'] || 5432)
     end
   end
 
