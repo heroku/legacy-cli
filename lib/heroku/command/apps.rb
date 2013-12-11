@@ -401,12 +401,14 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def leave
     begin
       action("Leaving application #{app}") do
-        org_api.leave_app(app)
+        if org_from_app = extract_org_from_app
+          org_api.leave_app(app)
+        else
+          api.delete_collaborator(app, Heroku::Auth.user)
+        end
       end
     rescue Heroku::API::Errors::Forbidden
       display("done")
-    rescue Heroku::API::Errors::NotFound
-      error("Application does not belong to an org.")
     end
   end
 
