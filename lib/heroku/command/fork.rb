@@ -16,6 +16,7 @@ module Heroku::Command
     # --region REGION      # specify a region
     #
     def index
+      options[:ignore_no_org] = true
 
       from = app
       to = shift_argument || "#{from}-#{(rand*1000).to_i}"

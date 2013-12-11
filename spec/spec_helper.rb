@@ -25,6 +25,10 @@ def api
   Heroku::API.new(:api_key => "pass", :mock => true)
 end
 
+def org_api
+  Heroku::Client::Organizations.api(:mock => true)
+end
+
 def stub_api_request(method, path)
   stub_request(method, "https://api.heroku.com#{path}")
 end
@@ -173,6 +177,16 @@ def stub_cisaurus
   end
 end
 
+def stub_organizations
+  @stub_organizations ||= begin
+    stub_organizations = nil
+    any_instance_of(Heroku::Client::Organizations) do |organizations|
+      stub_organizations = stub(organizations)
+    end
+    stub_organizations
+  end
+end
+
 def with_blank_git_repository(&block)
   sandbox = File.join(Dir.tmpdir, "heroku", Process.pid.to_s)
   FileUtils.mkdir_p(sandbox)
@@ -204,6 +218,7 @@ module Heroku::Helpers
 end
 
 require "support/display_message_matcher"
+require "support/organizations_mock_helper"
 
 RSpec.configure do |config|
   config.color_enabled = true

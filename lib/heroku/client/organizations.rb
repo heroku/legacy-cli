@@ -6,14 +6,14 @@ class Heroku::Client::Organizations
 
   class << self
 
-    def api
+    def api options = {}
       @api ||= begin
         require("excon")
         manager_url = ENV['HEROKU_MANAGER_URL'] || "https://manager-api.heroku.com"
         key = Heroku::Auth.get_credentials[1]
         auth = "Basic #{Base64.encode64(':' + key).gsub("\n", '')}"
         hdrs = headers.merge( {"Authorization" => auth } )
-        @connection = Excon.new(manager_url, :headers => hdrs)
+        @connection = Excon.new(manager_url, options.merge(:headers => hdrs))
       end
 
       self
@@ -79,9 +79,10 @@ class Heroku::Client::Organizations
           :path => "/v1/user/info",
           :method => :get
         )
-      rescue Excon::Errors::NotFound
-        # user is not a member of any organization
-        { 'user' => {:not_found => true} }
+
+      # user is not a member of any organization
+      rescue Heroku::API::Errors::NotFound
+        Excon::Response.new(:body => { 'user' => {:not_found => true} })
       end
     end
 

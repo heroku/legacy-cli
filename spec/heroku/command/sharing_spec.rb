@@ -20,9 +20,9 @@ module Heroku::Command
         stderr, stdout = execute("sharing")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== example Collaborators
-collaborator@example.com
-email@example.com
+=== example Access List
+collaborator@example.com  collaborator
+email@example.com         collaborator
 
 STDOUT
       end
