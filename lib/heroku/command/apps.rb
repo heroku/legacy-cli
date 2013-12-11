@@ -24,6 +24,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def index
     validate_arguments!
+    options[:ignore_no_org] = true
 
     apps = if org
       org_api.get_apps(org).body

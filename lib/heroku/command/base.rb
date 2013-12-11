@@ -52,9 +52,11 @@ class Heroku::Command::Base
       default = response['user']['default_organization']
       if default
         default
+      elsif options[:ignore_no_org]
+        nil
       else
         # raise instead of using error command to enable rescuing when app is optional
-        raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.") unless options[:ignore_no_org]
+        raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.")
       end
     end
 
