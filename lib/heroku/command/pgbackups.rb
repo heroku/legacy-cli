@@ -238,14 +238,18 @@ You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
         abort
       end
 
+      transfer_id = transfer["id"]
+
       while true
-        update_display(transfer)
-        break if transfer["finished_at"]
+        unless transfer.nil?
+          update_display(transfer)
+          break if transfer["finished_at"]
+        end
 
         sleep_time = 1
         begin
           sleep(sleep_time)
-          transfer = pgbackup_client.get_transfer(transfer["id"])
+          transfer = pgbackup_client.get_transfer(transfer_id)
         rescue
           if sleep_time > 300
             poll_error(app)
