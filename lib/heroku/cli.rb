@@ -30,7 +30,7 @@ class Heroku::CLI
       error("Command cancelled.")
     rescue => error
       styled_error(error)
-      exit(1)
+      exit(false)
     end
   end
 
