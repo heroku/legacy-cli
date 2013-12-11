@@ -199,12 +199,42 @@ module Heroku
       nil
     end
 
-    def set_buffer(enable)
-      with_tty do
-        if enable
-          `stty icanon echo`
+    if defined?($stdin.noecho)
+      def noecho_tty(&block)
+        $stdin.noecho {yield true}
+      rescue Errno::ENOTTY
+        yield false
+      end
+
+      def raw_tty(&block)
+        $stdin.noecho {yield true}
+      rescue Errno::ENOTTY
+        yield false
+      end
+    else
+      def noecho_tty(&block)
+        if $stdin.tty?
+          begin
+            `stty echo`
+            yield
+          ensure
+            `stty -echo`
+          end
         else
-          `stty -icanon -echo`
+          yield
+        end
+      end
+
+      def raw_tty(&block)
+        if $stdin.tty?
+          begin
+            `stty icanon echo`
+            yield
+          ensure
+            `stty -icanon -echo`
+          end
+        else
+          yield
         end
       end
     end
