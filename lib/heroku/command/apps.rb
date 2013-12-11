@@ -378,7 +378,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   # apps:join --app APP
   #
-  # adds current user to an app
+  # add yourself to an organization app
   #
   # -a, --app APP  # the app
   def join
@@ -395,7 +395,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   # apps:leave --app APP
   #
-  # removes current user from an app
+  # remove yourself from an organization app
   #
   # -a, --app APP  # the app
   def leave
@@ -414,7 +414,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   # apps:lock
   #
-  # lock an app so that only existing collaborators can add new collaborators
+  # lock an organization app to restrict access
   #
   def lock
     begin
@@ -433,7 +433,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   # apps:unlock
   #
-  # unlock an app so that any org member can join it.
+  # unlock an organization app so that any org member can join it
   #
   def unlock
     begin
