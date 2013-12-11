@@ -383,13 +383,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -a, --app APP  # the app
   def join
     begin
-      action("Joining application #{app}") {
+      action("Joining application #{app}") do
         org_api.join_app(app)
-      }
-    rescue Excon::Errors::NotFound
-      error("Application #{app} not found.")
-    rescue Excon::Errors::Conflict
-      error("This is a legacy private-beta org that does not support join/leave functionality")
+      end
+    rescue Heroku::API::Errors::NotFound
+      error("Application does not belong to an org.")
     end
   end
 
@@ -402,13 +400,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -a, --app APP  # the app
   def leave
     begin
-      action("Leaving application #{app}") {
+      action("Leaving application #{app}") do
         org_api.leave_app(app)
-      }
-    rescue Excon::Errors::NotFound
-      error("Application #{app} not found")
-    rescue Excon::Errors::Conflict
-      error("This is a legacy private-beta org that does not support join/leave functionality")
+      end
+    rescue Heroku::API::Errors::Forbidden
+      display("done")
+    rescue Heroku::API::Errors::NotFound
+      error("Application does not belong to an org.")
     end
   end
 
