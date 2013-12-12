@@ -407,8 +407,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
           api.delete_collaborator(app, Heroku::Auth.user)
         end
       end
-    rescue Heroku::API::Errors::Forbidden
-      display("done")
     end
   end
 
@@ -424,8 +422,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
         org_api.lock_app(app)
       }
       display("Organization members must be invited this app.")
-    rescue Excon::Errors::BadRequest
-      error("This organization does not support lock/unlock app")
     rescue Excon::Errors::NotFound
       error("#{app} was not found")
     end
@@ -443,8 +439,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
         org_api.unlock_app(app)
       }
       display("All organization members can join this app.")
-    rescue Excon::Errors::BadRequest
-      error("This organization does not support lock/unlock app")
     rescue Excon::Errors::NotFound
       error("#{app} was not found")
     end
