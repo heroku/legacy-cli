@@ -39,7 +39,7 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     end
   end
 
-  # orgs:open ORG
+  # orgs:open --org ORG
   #
   # opens the org interface in a browser
   #
