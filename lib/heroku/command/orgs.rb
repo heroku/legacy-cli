@@ -48,7 +48,7 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     launchy("Opening web interface for #{org}", "https://dashboard.heroku.com/orgs/#{org}/apps")
   end
 
-  # orgs:default TARGET
+  # orgs:default [TARGET]
   #
   # sets the default org.
   # TARGET can be an org you belong to or it can be "personal"
@@ -60,26 +60,20 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     options[:ignore_no_org] = true
     if target = shift_argument
       options[:org] = target
-    else
-      error("Usage: heroku orgs:default TARGET\nMust specify TARGET to set as default organization.")
     end
 
     if org == "personal" || options[:personal]
       action("Setting personal account as default") do
         org_api.remove_default_org
       end
-    elsif org
+    elsif org && !options[:using_default_org]
       action("Setting #{org} as the default organization") do
         org_api.set_default_org(org)
       end
+    elsif org
+      display("#{org} is the default organization.")
     else
-      response = org_api.get_orgs.body
-      default = response['user']['default_organization']
-      if default
-        display("#{default} is the default organization.")
-      else
-        display("Personal account is default.")
-      end
+      display("Personal account is default.")
     end
   end
 

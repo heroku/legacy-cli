@@ -51,6 +51,7 @@ class Heroku::Command::Base
       response = org_api.get_orgs.body
       default = response['user']['default_organization']
       if default
+        options[:using_default_org] = true
         default
       elsif options[:ignore_no_org]
         nil
