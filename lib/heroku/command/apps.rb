@@ -29,7 +29,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     apps = if org
       org_api.get_apps(org).body
     else
-      api.get_apps.body.select { |app| !org?(app["owner_email"]) }
+      api.get_apps.body.select { |app| options[:all] ? true : !org?(app["owner_email"]) }
     end
 
     unless apps.empty?
@@ -64,7 +64,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
         unless collaborated_apps.empty?
           styled_header("Collaborated Apps")
-          styled_array(collaborated_apps.map { |app| [regionized_app_name(app), app["owner_email"]] })
+          styled_array(collaborated_apps.map { |app| [regionized_app_name(app), app_owner(app["owner_email"])] })
         end
       end
     else
@@ -106,7 +106,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
 
     if org? app_data['owner_email']
-      app_data['owner'] = app_data['owner_email'].gsub(/^(.*)@#{org_host}$/,'\1')
+      app_data['owner'] = app_owner(app_data['owner_email'])
       app_data.delete("owner_email")
     end
 

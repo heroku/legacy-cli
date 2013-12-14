@@ -526,5 +526,9 @@ module Heroku
       email =~ /^.*@#{org_host}$/
     end
 
+    def app_owner email
+      org?(email) ? email.gsub(/^(.*)@#{org_host}$/,'\1') : email
+    end
+
   end
 end
