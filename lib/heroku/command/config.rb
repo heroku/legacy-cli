@@ -152,18 +152,16 @@ class Heroku::Command::Config < Heroku::Command::Base
     vars = api.get_config_vars(app).body
     old_key, value = vars.detect {|k,v| k == old_key}
     new_vars = { new_key => value }
-  
-    args.each do |key|
-      action("Renaming #{old_key} to #{new_key} and restarting #{app}") do
-        api.put_config_vars(app, new_vars)
-        api.delete_config_var(app, old_key)
 
-        @status = begin
-          if release = api.get_release(app, 'current').body
-            release['name']
-          end
-        rescue Heroku::API::Errors::RequestFailed => e
+    action("Renaming #{old_key} to #{new_key} and restarting #{app}") do
+      api.put_config_vars(app, new_vars)
+      api.delete_config_var(app, old_key)
+
+      @status = begin
+        if release = api.get_release(app, 'current').body
+          release['name']
         end
+      rescue Heroku::API::Errors::RequestFailed => e
       end
     end
 
