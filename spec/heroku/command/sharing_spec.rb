@@ -33,7 +33,7 @@ STDOUT
       stderr, stdout = execute("sharing:add collaborator@example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Adding collaborator@example.com to example collaborators... done
+Adding collaborator@example.com to example as collaborator... done
 STDOUT
     end
 
