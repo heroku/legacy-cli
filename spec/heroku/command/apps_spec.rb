@@ -6,6 +6,7 @@ module Heroku::Command
 
     before(:each) do
       stub_core
+      stub_organizations
     end
 
     context("info") do
@@ -188,6 +189,67 @@ example
 STDOUT
       end
 
+    end
+
+    context("index with orgs") do
+      context("when you are a member of the org") do
+        before(:each) do
+          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => Heroku::API::OkJson.encode({
+            "user" => {"default_organization" => "test-org"}
+          })})
+        end
+
+        after(:each) do
+          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 404 })
+        end
+
+        it "displays a message when the org has no apps" do
+          Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => Heroku::API::OkJson.encode([]) })
+          stderr, stdout = execute("apps")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+There are no apps in organization test-org.
+STDOUT
+
+        end
+
+        context("and the org has apps") do
+          before(:each) do
+            Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' },
+              {
+                :body   => Heroku::API::OkJson.encode([
+                  {"name" => "org-app-1", "joined" => true},
+                  {"name" => "org-app-2"}
+                ]),
+                :status => 200
+              }
+            )
+          end
+
+          it "lists joined apps in an organization" do
+            stderr, stdout = execute("apps")
+            stderr.should == ""
+            stdout.should == <<-STDOUT
+=== Apps joined in organization test-org
+org-app-1
+
+STDOUT
+          end
+
+          it "list all apps in an organization with the --all flag" do
+            stderr, stdout = execute("apps --all")
+            stderr.should == ""
+            stdout.should == <<-STDOUT
+=== Apps joined in organization test-org
+org-app-1
+
+=== Apps available to join in organization test-org
+org-app-2
+
+STDOUT
+          end
+        end
+      end
     end
 
     context("rename") do

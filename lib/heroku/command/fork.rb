@@ -16,19 +16,26 @@ module Heroku::Command
     # --region REGION      # specify a region
     #
     def index
-      
+      options[:ignore_no_org] = true
+
       from = app
       to = shift_argument || "#{from}-#{(rand*1000).to_i}"
 
       from_info = api.get_app(from).body
 
-      to_info = action("Creating fork #{to}") do
-        api.post_app({
-          :name   => to,
-          :region => options[:region] || from_info["region"],
-          :stack  => options[:stack] || from_info["stack"],
-          :tier   => from_info["tier"] == "legacy" ? "production" : from_info["tier"]
-        }).body
+      to_info = action("Creating fork #{to}", :org => !!org) do
+        params = {
+          "name"    => to,
+          "region"  => options[:region] || from_info["region"],
+          "stack"   => options[:stack] || from_info["stack"],
+          "tier"    => from_info["tier"] == "legacy" ? "production" : from_info["tier"]
+        }
+
+        info = if org
+          org_api.post_app(params, org).body
+        else
+          api.post_app(params).body
+        end
       end
 
       action("Copying slug") do

@@ -1,6 +1,7 @@
 require "fileutils"
 require "heroku/auth"
 require "heroku/client/rendezvous"
+require "heroku/client/organizations"
 require "heroku/command"
 
 class Heroku::Command::Base
@@ -32,12 +33,46 @@ class Heroku::Command::Base
       app_from_dir
     else
       # raise instead of using error command to enable rescuing when app is optional
-      raise Heroku::Command::CommandFailed.new("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.")
+      raise Heroku::Command::CommandFailed.new("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.") unless options[:ignore_no_app]
     end
+  end
+
+  def org
+    @nil = false
+    options[:ignore_no_app] = true
+
+    @org ||= if skip_org?
+      nil
+    elsif options[:org].is_a?(String)
+      options[:org]
+    elsif options[:personal] || @nil
+      nil
+    elsif org_from_app = extract_org_from_app
+      org_from_app
+    else
+      response = org_api.get_orgs.body
+      default = response['user']['default_organization']
+      if default
+        options[:using_default_org] = true
+        default
+      elsif options[:ignore_no_org]
+        nil
+      else
+        # raise instead of using error command to enable rescuing when app is optional
+        raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.")
+      end
+    end
+
+    @nil = true if @org == nil
+    @org
   end
 
   def api
     Heroku::Auth.api
+  end
+
+  def org_api
+    Heroku::Client::Organizations.api
   end
 
   def heroku
@@ -189,7 +224,7 @@ protected
       if apps.size == 1
         apps.first
       else
-        raise(Heroku::Command::CommandFailed, "Multiple apps in folder and no app specified.\nSpecify app with --app APP.")
+        raise(Heroku::Command::CommandFailed, "Multiple apps in folder and no app specified.\nSpecify app with --app APP.") unless options[:ignore_no_app]
       end
     end
   end
@@ -197,6 +232,32 @@ protected
   def extract_app_from_git_config
     remote = git("config heroku.remote")
     remote == "" ? nil : remote
+  end
+
+  def extract_org_from_app
+    return unless app
+
+    begin
+      owner = api.get_app(app).body["owner_email"].split("@")
+      if owner.last == Heroku::Helpers.org_host
+        owner.first
+      else
+        nil
+      end
+    rescue
+      nil
+    end
+  end
+
+  def org_from_app!
+    options[:org] = extract_org_from_app
+    options[:personal] = true unless options[:org]
+  end
+
+  def skip_org?
+    return false if ENV['HEROKU_CLOUD'].nil? || ENV['HEROKU_MANAGER_URL']
+
+    !%w{default production prod}.include? ENV['HEROKU_CLOUD']
   end
 
   def git_remotes(base_dir=Dir.pwd)

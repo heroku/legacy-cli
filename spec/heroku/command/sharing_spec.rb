@@ -20,9 +20,9 @@ module Heroku::Command
         stderr, stdout = execute("sharing")
         stderr.should == ""
         stdout.should == <<-STDOUT
-=== example Collaborators
-collaborator@example.com
-email@example.com
+=== example Access List
+collaborator@example.com  collaborator
+email@example.com         collaborator
 
 STDOUT
       end
@@ -33,7 +33,7 @@ STDOUT
       stderr, stdout = execute("sharing:add collaborator@example.com")
       stderr.should == ""
       stdout.should == <<-STDOUT
-Adding collaborator@example.com to example collaborators... done
+Adding collaborator@example.com to example as collaborator... done
 STDOUT
     end
 

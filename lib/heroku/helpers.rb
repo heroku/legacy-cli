@@ -231,6 +231,7 @@ module Heroku
     ## DISPLAY HELPERS
 
     def action(message, options={})
+      message = "#{message} in organzation #{org}" if options[:org]
       display("#{message}... ", false)
       Heroku::Helpers.error_with_failure = true
       ret = yield
@@ -511,6 +512,22 @@ module Heroku
       else
         nil
       end
+    end
+
+    def org_host
+      ENV["HEROKU_ORG_HOST"] || default_org_host
+    end
+
+    def default_org_host
+      "herokumanager.com"
+    end
+
+    def org? email
+      email =~ /^.*@#{org_host}$/
+    end
+
+    def app_owner email
+      org?(email) ? email.gsub(/^(.*)@#{org_host}$/,'\1') : email
     end
 
   end

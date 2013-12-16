@@ -27,6 +27,7 @@ module Heroku
       pgbackups-automate
       pgcmd
       heroku-fork
+      heroku-orgs
     )
 
     attr_reader :name, :uri
