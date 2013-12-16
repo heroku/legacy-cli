@@ -9,7 +9,6 @@ class Heroku::Client::Organizations
     def api options = {}
       @api ||= begin
         require("excon")
-        manager_url = ENV['HEROKU_MANAGER_URL'] || "https://manager-api.heroku.com"
         key = Heroku::Auth.get_credentials[1]
         auth = "Basic #{Base64.encode64(':' + key).gsub("\n", '')}"
         hdrs = headers.merge( {"Authorization" => auth } )
@@ -221,6 +220,10 @@ class Heroku::Client::Organizations
     def decompress_response!(response)
       return unless response.headers['Content-Encoding'] == 'gzip'
       response.body = Zlib::GzipReader.new(StringIO.new(response.body)).read
+    end
+
+    def manager_url
+      ENV['HEROKU_MANAGER_URL'] || "https://manager-api.heroku.com"
     end
 
   end
