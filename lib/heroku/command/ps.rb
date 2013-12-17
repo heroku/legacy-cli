@@ -180,8 +180,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
     change_map = {}
 
     changes = args.map do |arg|
-      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-](\d+))(:(\d+)X)?$/).first
-        formation, _, quantity, _, size = change
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
+        formation, quantity, _, size = change
+        quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
         {:process => formation, :quantity => quantity, :size => size}
       end
