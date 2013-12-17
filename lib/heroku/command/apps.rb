@@ -387,7 +387,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         org_api.join_app(app)
       end
     rescue Heroku::API::Errors::NotFound
-      error("Application does not belong to an org.")
+      error("Application does not exist or does not belong to an org that you have access to.")
     end
   end
 
