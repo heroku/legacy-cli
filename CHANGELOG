@@ -1,3 +1,7 @@
+3.2.1 2013-12-18
+================
+fix ps:scale with relative values (eg: web+2)
+
 3.2.0 2013-12-06
 ================
 merge heroku-orgs plugin
