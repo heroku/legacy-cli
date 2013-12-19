@@ -335,13 +335,13 @@ private
     @resolver = generate_resolver
     dbs = @resolver.all_databases
 
-    @hpg_databases_with_info = Hash[
-      dbs.map do |config, att|
-        next if 'DATABASE_URL' == config
-        [att.display_name, hpg_info(att, options[:extended])]
-      end.compact
-    ]
+    db_infos = dbs.reject { |config, att|
+                 'DATABASE_URL' == config
+               }.map { |config, att|
+                 [att.display_name, hpg_info(att, options[:extended])]
+               }
 
+    @hpg_databases_with_info = Hash[db_infos]
     return @hpg_databases_with_info
   end
 
