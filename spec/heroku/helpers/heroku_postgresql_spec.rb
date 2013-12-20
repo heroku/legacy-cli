@@ -48,6 +48,17 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
     end
   end
 
+  context "when no app is specified or inferred, and identifier does not have app::db shorthand" do
+    it 'exits, complaining about the missing app' do
+      api = mock('api')
+      api.stub(:get_attachments).and_raise("getting this far will cause an inaccurate 'internal server error' message")
+
+      no_app_resolver = described_class.new(nil, api)
+      no_app_resolver.should_receive(:error).with { |msg| expect(msg).to match(/No app specified/) }.and_raise(SystemExit)
+      expect { no_app_resolver.resolve('black') }.to raise_error(SystemExit)
+    end
+  end
+
   context "when the identifier has ::" do
     it 'changes the resolver app to the left of the ::' do
       @resolver.app_name.should == 'appname'

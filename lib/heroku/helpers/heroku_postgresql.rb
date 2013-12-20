@@ -80,11 +80,20 @@ module Heroku::Helpers::HerokuPostgresql
 
     private
 
+    def protect_missing_app
+      # in the case where --app was left out, AND app::db shorthand was not used, AND no app autodetect
+      unless app_name
+        error("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.")
+      end
+    end
+
     def app_config_vars
+      protect_missing_app
       @app_config_vars ||= api.get_config_vars(app_name).body
     end
 
     def app_attachments
+      protect_missing_app
       @app_attachments ||= api.get_attachments(app_name).body.map { |raw| Attachment.new(raw) }
     end
 
