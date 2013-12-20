@@ -11,7 +11,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg
   #
-  # List databases for an app
+  # list databases for an app
   #
   def index
     validate_arguments!
@@ -29,7 +29,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   #   -x, --extended  # Show extended information
   #
-  # Display database information
+  # display database information
   #
   # If DATABASE is not specified, displays all databases
   #
@@ -48,7 +48,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:promote DATABASE
   #
-  # Sets DATABASE as your DATABASE_URL
+  # sets DATABASE as your DATABASE_URL
   #
   def promote
     unless db = shift_argument
@@ -67,7 +67,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   #  -c, --command COMMAND      # optional SQL command to run
   #
-  # Open a psql shell to the database
+  # open a psql shell to the database
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
@@ -93,7 +93,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:reset DATABASE
   #
-  # Delete all data in DATABASE
+  # delete all data in DATABASE
   #
   def reset
     unless db = shift_argument
@@ -164,7 +164,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:credentials DATABASE
   #
-  # Display the DATABASE credentials.
+  # display the DATABASE credentials.
   #
   #   --reset  # Reset credentials on the specified database.
   #
@@ -261,7 +261,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:push <LOCAL_SOURCE_DATABASE> <REMOTE_TARGET_DATABASE>
   #
-  # Push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
+  # push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
   # REMOTE_TARGET_DATABASE must be empty.
   def push
     local, remote = shift_argument, shift_argument
@@ -286,7 +286,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:pull <REMOTE_SOURCE_DATABASE> <LOCAL_TARGET_DATABASE>
   #
-  # Pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
+  # pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
   # LOCAL_TARGET_DATABASE must not already exist.
   def pull
     remote, local = shift_argument, shift_argument
