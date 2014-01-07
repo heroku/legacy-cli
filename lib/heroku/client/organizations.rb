@@ -137,11 +137,19 @@ class Heroku::Client::Organizations
 
     def post_collaborator(org, app, user)
       api.request(
-        :expects => 201,
+        :expects => 200,
         :method => :post,
-        :path => "v1/organization/#{org}/app/#{app}/developer",
+        :path => "v1/organization/#{org}/app/#{app}/collaborators",
         :body => Heroku::Helpers.json_encode({ "email" => user }),
         :headers => {"Content-Type" => "application/json"}
+      )
+    end
+
+    def delete_collaborator(org, app, user)
+      api.request(
+        :expects => 200,
+        :method => :delete,
+        :path => "v1/organization/#{org}/app/#{app}/collaborators/#{user}"
       )
     end
 
