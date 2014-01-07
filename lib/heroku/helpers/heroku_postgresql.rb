@@ -33,7 +33,7 @@ module Heroku::Helpers::HerokuPostgresql
   end
 
   def hpg_resolve(identifier, default=nil)
-    $stderr.puts " !    #hpg_resolve is deprecated. Update your plugins."
+    $stderr.puts " !    #hpg_resolve is deprecated. Please run `heroku plugins:update` to update your plugins."
     $stderr.puts " !    from: #{caller.first}"
     Resolver.new(app, api).resolve(identifier , default)
   end
