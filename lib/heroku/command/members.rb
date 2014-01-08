@@ -38,7 +38,10 @@ class Heroku::Command::Members < Heroku::Command::Base
     role = options.fetch(:role, 'member')
 
     action("Adding #{member} as #{role} to organization #{org}") do
-      org_api.add_member(org, member, role)
+      response = org_api.add_member(org, member, role)
+      if response.status == 302
+        org_api.set_member(org, member, role)
+      end
     end
   end
 

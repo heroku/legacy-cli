@@ -197,7 +197,7 @@ class Heroku::Client::Organizations
 
     def add_member(org, member, role)
       api.request(
-        :expects => 201,
+        :expects => [201, 302],
         :method => :post,
         :path => "/v1/organization/#{org}/user",
         :body => Heroku::Helpers.json_encode( { "email" => member, "role" => role } ),
