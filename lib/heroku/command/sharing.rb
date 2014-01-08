@@ -67,9 +67,14 @@ module Heroku::Command
         error("Usage: heroku sharing:remove EMAIL\nMust specify EMAIL to remove sharing.")
       end
       validate_arguments!
+      org_from_app!
 
       action("Removing #{email} from #{app} collaborators") do
-        api.delete_collaborator(app, email)
+        if org && org_api.get_members(org).body.map { |m| m['email'] }.include?(email)
+          org_api.delete_collaborator(org, app, email)
+        else
+          api.delete_collaborator(app, email)
+        end
       end
     end
 
