@@ -1,3 +1,7 @@
+3.2.2 2014-01-08
+================
+bugfix for some orgs and pg commands
+
 3.2.1 2013-12-18
 ================
 fix ps:scale with relative values (eg: web+2)
