@@ -168,7 +168,7 @@ module Heroku::Helpers::HerokuPostgresql
 
   def hpg_translate_db_opts_to_urls(addon, config)
     app_name = app rescue nil
-    resolver = Resolver.new(app, api)
+    resolver = Resolver.new(app_name, api)
     if addon =~ /^#{resolver.hpg_addon_name}/
       %w[fork follow rollback].each do |opt|
         if val = config[opt]
