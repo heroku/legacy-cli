@@ -292,7 +292,7 @@ module Heroku
       when Array
         json.first.join(' ') # message like [['base', 'message']]
       when Hash
-        json['error'] || json['error_message']  # message like {'error' => 'message'}
+        json['error'] || json['error_message'] || json['message'] # message like {'error' => 'message'}
       else
         nil
       end
