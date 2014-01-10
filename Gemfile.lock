@@ -9,7 +9,7 @@ PATH
       rubyzip
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     addressable (2.3.2)
     arr-pm (0.0.7)
