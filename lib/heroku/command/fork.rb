@@ -68,7 +68,7 @@ module Heroku::Command
           from_config.delete(from_var_name)
 
           plan = addon["name"].split(":").last
-          unless %w(dev basic).include? plan
+          unless %w(dev basic hobby-dev hobby-basic).include? plan
             wait_for_db to, to_addon
           end
 
@@ -140,8 +140,8 @@ module Heroku::Command
       end
     end
 
-    def pg_api(starter=false)
-      host = starter ? "postgres-starter-api.heroku.com" : "postgres-api.heroku.com"
+    def pg_api
+      host = "postgres-api.heroku.com"
       RestClient::Resource.new "https://#{host}/client/v11/databases", Heroku::Auth.user, Heroku::Auth.password
     end
 
