@@ -178,10 +178,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
       data["Web URL"] = app_data["web_url"]
 
-      if app_data["tier"]
-        data["Tier"] = app_data["tier"].capitalize
-      end
-
       styled_hash(data)
     end
   end
