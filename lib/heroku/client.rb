@@ -574,10 +574,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     delete("/apps/#{app_name}/httpcache").to_s
   end
 
-  def confirm_billing
-    post("/user/#{escape(@user)}/confirm_billing").to_s
-  end
-
   def on_warning(&blk)
     @warning_callback = blk
   end

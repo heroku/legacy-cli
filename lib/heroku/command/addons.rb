@@ -256,7 +256,6 @@ module Heroku::Command
     rescue RestClient::Locked => ex
       raise
     rescue RestClient::RequestFailed => e
-      retry if e.http_code == 402 && confirm_billing
       error Heroku::Command.extract_error(e.http_body)
     end
 
