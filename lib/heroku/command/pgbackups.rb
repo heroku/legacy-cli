@@ -205,7 +205,7 @@ module Heroku::Command
     end
 
     def pgbackup_client
-      pgbackups_url = ENV["PGBACKUPS_URL"] || config_vars["PGBACKUPS_URL"]
+      pgbackups_url = config_vars["PGBACKUPS_URL"]
       error("Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
       @pgbackup_client ||= Heroku::Client::Pgbackups.new(pgbackups_url)
     end
