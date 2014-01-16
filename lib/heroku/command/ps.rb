@@ -174,7 +174,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #Examples:
   #
   # $ heroku ps:scale web=3:2X worker+1
-  # Scaling dynos... done, now running web at 3:1X, worker at 1:1X.
+  # Scaling dynos... done, now running web at 3:2X, worker at 1:1X.
   #
   def scale
     change_map = {}
