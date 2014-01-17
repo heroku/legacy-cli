@@ -244,16 +244,16 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "stop", "ps:stop"
 
-  # ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]
+  # ps:resize DYNO1=1X|2X|PX [DYNO2=1X|2X|PX ...]
   #
   # resize dynos to the given size
   #
   # Example:
   #
-  # $ heroku ps:resize web=2X worker=1X
+  # $ heroku ps:resize web=PX worker=2X
   # Resizing and restarting the specified dynos... done
-  # web dynos now 2X ($0.10/dyno-hour)
-  # worker dynos now 1X ($0.05/dyno-hour)
+  # web dynos now PX ($0.80/dyno-hour)
+  # worker dynos now 2X ($0.10/dyno-hour)
   #
   def resize
     app
