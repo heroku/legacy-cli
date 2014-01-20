@@ -46,6 +46,7 @@ STDOUT
       stderr.should == ""
       stdout.should == <<-STDOUT
 Adding example.com to example... done
+
 STDOUT
       api.delete_domain("example", "example.com")
     end

@@ -109,6 +109,7 @@ module Heroku::Command
 
       def dns_advice(app, domain)
         _app_info = app_info(app)
+        return if _app_info[:domain].nil?
         _ssl_endpoints = ssl_endpoints(app)
 
         result = []
@@ -139,11 +140,12 @@ module Heroku::Command
 
       def app_info(app)
         _info = api.get_app(app).body
-        return {
+        ret = {
               cedar: _info['stack'],
-              region: _info['region'],
-              domain: _info['domain_name']['domain']
+              region: _info['region']
             }
+        ret[:domain] = _info['domain_name']['domain'] rescue nil
+        return ret
       end
 
       def ssl_endpoints(app)
