@@ -35,7 +35,7 @@ STDOUT
             :path => %r{^/apps/example/addons$}
           },
           {
-            :body   => Heroku::API::OkJson.encode([
+            :body   => Heroku::OkJson.encode([
               { 'configured' => false, 'name' => 'deployhooks:email' },
               { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' },
               { 'configured' => true, 'name' => 'deployhooks:http' }
@@ -112,7 +112,7 @@ STDOUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -242,7 +242,7 @@ STDOUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -320,7 +320,7 @@ OUTPUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -378,7 +378,7 @@ OUTPUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::API::OkJson.encode({ 'name' => 'v99' }),
+            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -485,7 +485,7 @@ STDOUT
             :path => %r{^/addons$}
           },
           {
-            :body   => Heroku::API::OkJson.encode([
+            :body   => Heroku::OkJson.encode([
               { 'name' => 'qux:foo' },
               { 'name' => 'quux:bar' }
             ]),
@@ -567,7 +567,7 @@ STDOUT
             :path => %r{^/apps/example/addons$}
           },
           {
-            :body   => Heroku::API::OkJson.encode([
+            :body   => Heroku::OkJson.encode([
               { 'name' => 'deployhooks:email' },
               { 'name' => 'deployhooks:http' }
             ]),
