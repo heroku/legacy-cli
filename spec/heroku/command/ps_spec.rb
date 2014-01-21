@@ -202,7 +202,7 @@ STDOUT
           ],
           :status => 200
         )
-        stderr, stdout = execute("ps:scale web=4:1X worker=2:2X")
+        stderr, stdout = execute("ps:scale web=4:1X worker=2:2x")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Scaling dynos... done, now running web at 4:1X, worker at 2:2X.
