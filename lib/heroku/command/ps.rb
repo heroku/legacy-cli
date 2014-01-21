@@ -4,6 +4,9 @@ require "json"
 # manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
+  PRICES = {
+    "P" => 0.8
+  }
 
   # ps:dynos [QTY]
   #
@@ -100,7 +103,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     processes.each do |process|
       name    = process["process"].split(".").first
       elapsed = time_ago(Time.now - process['elapsed'])
-      size    = process.fetch("size", 1)
+      size    = process["size"] || 1
 
       if name == "run"
         key  = "run: one-off processes"
@@ -180,7 +183,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     change_map = {}
 
     changes = args.map do |arg|
-      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:([(?:\d+)P])X)?$/).first
         formation, quantity, _, size = change
         quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
@@ -259,8 +262,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
     app
     changes = {}
     args.each do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)=(\d+)([xX]?)$/
-        changes[$1] = { "size" => $2.to_i }
+      if arg =~ /^([a-zA-Z0-9_]+)=([(?:\d+)P])([xX]?)$/
+        changes[$1] = { "size" => $2 }
       end
     end
 
@@ -283,7 +286,11 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     changes.each do |type, options|
       size  = options["size"]
-      price = sprintf("%.2f", 0.05 * size.to_i)
+      price = if size.to_i > 0
+                sprintf("%.2f", 0.05 * size.to_i)
+              else
+                sprintf("%.2f", PRICES[size])
+              end
       display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
     end
   end
