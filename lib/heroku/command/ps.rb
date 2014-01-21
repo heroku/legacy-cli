@@ -103,7 +103,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     processes.each do |process|
       name    = process["process"].split(".").first
       elapsed = time_ago(Time.now - process['elapsed'])
-      size    = process["size"] || 1
+      size    = process["size"] || "1"
 
       if name == "run"
         key  = "run: one-off processes"
