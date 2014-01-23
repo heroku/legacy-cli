@@ -5,7 +5,8 @@ require "json"
 #
 class Heroku::Command::Ps < Heroku::Command::Base
   PRICES = {
-    "P" => 0.8
+    "P"  => 0.8,
+    "PX" => 0.8,
   }
 
   # ps:dynos [QTY]
@@ -183,8 +184,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
     change_map = {}
 
     changes = args.map do |arg|
-      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:([(?:\d+)P])[xX])?$/).first
-        formation, quantity, _, size = change
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::(\w+))?$/).first
+        formation, quantity, size = change
         quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
         {:process => formation, :quantity => quantity, :size => size}
@@ -262,7 +263,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     app
     changes = {}
     args.each do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)=([(?:\d+)P])([xX]?)$/
+      if arg =~ /^([a-zA-Z0-9_]+)=(\w+)$/
         changes[$1] = { "size" => $2 }
       end
     end
