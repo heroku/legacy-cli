@@ -270,7 +270,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
     if changes.empty?
       message = [
-          "Usage: heroku ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]",
+          "Usage: heroku ps:resize DYNO1=1X|2X|PX [DYNO2=1X|2X|PX ...]",
           "Must specify DYNO and SIZE to resize."
       ]
       error(message.join("\n"))
