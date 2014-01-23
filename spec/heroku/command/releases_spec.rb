@@ -37,6 +37,19 @@ v1  Config add FOO_BAR                        email@example.com  2012/01/02 12:3
 STDOUT
     end
 
+    it "should list a specified number of releases" do
+      @stderr, @stdout = execute("releases -n 5")
+      @stderr.should == ""
+      @stdout.should == <<-STDOUT
+=== example Releases
+v5  Config add SUPER_LONG_CONFIG_VAR_TO_GE..  email@example.com  2012/09/10 11:36:44 (~ 0s ago)
+v4  Config add QUX_QUUX                       email@example.com  2012/09/10 11:36:43 (~ 1s ago)
+v3  Config add BAZ_QUX                        email@example.com  2012/09/10 11:35:44 (~ 1m ago)
+v2  Config add BAR_BAZ                        email@example.com  2012/09/10 10:36:44 (~ 1h ago)
+v1  Config add FOO_BAR                        email@example.com  2012/01/02 12:34:56
+
+STDOUT
+    end
   end
 
   describe "releases:info" do

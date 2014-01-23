@@ -8,6 +8,8 @@ class Heroku::Command::Releases < Heroku::Command::Base
   #
   # list releases
   #
+  # -n, --num NUM # number of releases to show, maximum 50
+  #
   #Example:
   #
   # $ heroku releases
@@ -18,10 +20,11 @@ class Heroku::Command::Releases < Heroku::Command::Base
   #
   def index
     validate_arguments!
+    release_count = options[:num].nil? ? 15 : options[:num].to_i 
 
     releases_data = api.get_releases(app).body.sort_by do |release|
       release["name"][1..-1].to_i
-    end.reverse.slice(0, 15)
+    end.reverse.slice(0, release_count)
 
     unless releases_data.empty?
       releases = releases_data.map do |release|
