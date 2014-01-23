@@ -146,7 +146,7 @@ STDOUT
 
       it "can scale using key/value format" do
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => "5", "size" => "1", "type" => "web"}],
+                   { :body => [{"quantity" => "5", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web=5")
         stderr.should == ""
@@ -157,7 +157,7 @@ STDOUT
 
       it "can scale relative amounts" do
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => "3", "size" => "1", "type" => "web"}],
+                   { :body => [{"quantity" => "3", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web+2")
         stderr.should == ""
@@ -171,10 +171,10 @@ STDOUT
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => "4", "size" => "2"}]
+              "updates" => [{"process" => "web", "quantity" => "4", "size" => "2X"}]
             }.to_json
           },
-          :body => [{"quantity" => 4, "size" => 2, "type" => "web"}],
+          :body => [{"quantity" => 4, "size" => "2X", "type" => "web"}],
           :status => 200
         )
         stderr, stdout = execute("ps:scale web=4:2X")
@@ -190,15 +190,15 @@ STDOUT
             :method => :patch, :path => "/apps/example/formation",
             :body => {
               "updates" => [
-                {"process" => "web",    "quantity" => "4", "size" => "1"},
-                {"process" => "worker", "quantity" => "2", "size" => "2"},
+                {"process" => "web",    "quantity" => "4", "size" => "1X"},
+                {"process" => "worker", "quantity" => "2", "size" => "2X"},
               ]
             }.to_json
           },
           :body => [
-            {"quantity" => 4, "size" => 1, "type" => "web"},
-            {"quantity" => 2, "size" => 2, "type" => "worker"},
-            {"quantity" => 0, "size" => 1, "type" => "dummy"}
+            {"quantity" => 4, "size" => "1X", "type" => "web"},
+            {"quantity" => 2, "size" => "2X", "type" => "worker"},
+            {"quantity" => 0, "size" => "1X", "type" => "dummy"}
           ],
           :status => 200
         )
@@ -209,15 +209,15 @@ Scaling dynos... done, now running web at 4:1X, worker at 2:2X.
 STDOUT
       end
 
-      it "accepts P as a valid size" do
+      it "accepts PX as a valid size" do
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => "4", "size" => "P"}]
+              "updates" => [{"process" => "web", "quantity" => "4", "size" => "PX"}]
             }.to_json
           },
-          :body => [{"quantity" => 4, "size" => "P", "type" => "web"}],
+          :body => [{"quantity" => 4, "size" => "PX", "type" => "web"}],
           :status => 200
         )
         stderr, stdout = execute("ps:scale web=4:PX")

@@ -207,7 +207,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
                            "Content-Type" => "application/json"})
       new_scales = resp.body.
         select {|p| change_map[p['type']] }.
-        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
+        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
       status("now running " + new_scales.join(", ") + ".")
     end
   end
@@ -292,7 +292,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
               else
                 sprintf("%.2f", PRICES[size])
               end
-      display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
+      display "#{type} dynos now #{size} ($#{price}/dyno-hour)"
     end
   end
 
