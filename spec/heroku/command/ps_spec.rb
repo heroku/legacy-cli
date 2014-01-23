@@ -191,7 +191,7 @@ STDOUT
             :body => {
               "updates" => [
                 {"process" => "web",    "quantity" => "4", "size" => "1X"},
-                {"process" => "worker", "quantity" => "2", "size" => "2X"},
+                {"process" => "worker", "quantity" => "2", "size" => "2x"},
               ]
             }.to_json
           },
@@ -231,6 +231,16 @@ STDOUT
     describe "ps:resize" do
 
       it "can resize using a key/value format" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [{"process" => "web", "size" => "2X"}]
+            }.to_json
+          },
+          :body => [{"quantity" => 2, "size" => "2X", "type" => "web"}],
+          :status => 200
+        )
         stderr, stdout = execute("ps:resize web=2X")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -240,6 +250,22 @@ STDOUT
       end
 
       it "can resize multiple types in one call" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [
+                {"process" => "web", "size" => "4x"},
+                {"process" => "worker", "size" => "2X"}
+              ]
+            }.to_json
+          },
+          :body => [
+            {"quantity" => 2, "size" => "4X", "type" => "web"},
+            {"quantity" => 1, "size" => "2X", "type" => "worker"}
+          ],
+          :status => 200
+        )
         stderr, stdout = execute("ps:resize web=4x worker=2X")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -250,6 +276,22 @@ STDOUT
       end
 
       it "accepts P as a valid size, with a price of $0.80/hour" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [
+                {"process" => "web", "size" => "PX"},
+                {"process" => "worker", "size" => "Px"}
+              ]
+            }.to_json
+          },
+          :body => [
+            {"quantity" => 2, "size" => "PX", "type" => "web"},
+            {"quantity" => 1, "size" => "PX", "type" => "worker"}
+          ],
+          :status => 200
+        )
         stderr, stdout = execute("ps:resize web=PX worker=Px")
         stderr.should == ""
         stdout.should == <<-STDOUT

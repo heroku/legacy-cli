@@ -261,12 +261,14 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def resize
     app
-    changes = {}
-    args.each do |arg|
+    change_map = {}
+
+    changes = args.map do |arg|
       if arg =~ /^([a-zA-Z0-9_]+)=(\w+)$/
-        changes[$1] = { "size" => $2 }
+        change_map[$1] = $2
+        { "process" => $1, "size" => $2 }
       end
-    end
+    end.compact
 
     if changes.empty?
       message = [
@@ -276,23 +278,26 @@ class Heroku::Command::Ps < Heroku::Command::Base
       error(message.join("\n"))
     end
 
+    resp = nil
     action("Resizing and restarting the specified dynos") do
-      api.request(
+      resp = api.request(
         :expects  => 200,
-        :method   => :put,
+        :method   => :patch,
         :path     => "/apps/#{app}/formation",
-        :body     => json_encode(changes)
+        :body     => { "updates" => changes }.to_json,
+        :headers  => { "Accept" => "application/vnd.heroku+json; version=3",
+                       "Content-Type" => "application/json" }
       )
     end
 
-    changes.each do |type, options|
-      size  = options["size"]
+    resp.body.select {|p| change_map.key?(p['type']) }.each do |p|
+      size = p["size"]
       price = if size.to_i > 0
                 sprintf("%.2f", 0.05 * size.to_i)
               else
                 sprintf("%.2f", PRICES[size])
               end
-      display "#{type} dynos now #{size} ($#{price}/dyno-hour)"
+      display "#{p["type"]} dynos now #{size} ($#{price}/dyno-hour)"
     end
   end
 
