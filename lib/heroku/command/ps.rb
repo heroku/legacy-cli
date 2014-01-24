@@ -98,20 +98,30 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    processes = api.get_ps(app).body
+    resp = api.request(
+      :expects => 200, :method => :get,
+      :path => "/apps/#{app}/dynos",
+      :headers => {
+        "Accept"       => "application/vnd.heroku+json; version=3",
+        "Content-Type" => "application/json"
+      }
+    )
+    processes = resp.body
 
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
     processes.each do |process|
-      name    = process["process"].split(".").first
-      elapsed = time_ago(Time.now - process['elapsed'])
-      size    = process["size"] || "1"
+      now     = Time.now
+      type    = process["type"]
+      elapsed = now - Time.iso8601(process['updated_at'])
+      since   = time_ago(now - elapsed)
+      size    = process["size"] || "1X"
 
-      if name == "run"
+      if type == "run"
         key  = "run: one-off processes"
-        item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
+        item = "%s (%s): %s %s: `%s`" % [ process["name"], size, process["state"], since, process["command"] ]
       else
-        key  = "#{name} (#{size}X): `#{process["command"]}`"
-        item = "%s: %s %s" % [ process['process'], process['state'], elapsed ]
+        key  = "#{type} (#{size}): `#{process["command"]}`"
+        item = "%s: %s %s" % [ process['name'], process['state'], since ]
       end
 
       processes_by_command[key] << item
