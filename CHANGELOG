@@ -1,3 +1,15 @@
+3.2.3 2014-01-24
+================
+Add a `-n`, `--num` flag to the `releases` index command, to specify the number of releases to be shown.
+Exit value 1 with authentication failure from an API key.
+Fix inaccurate 'internal server error' message when using some pg commands outside of a project. 
+Fix issue where forking an application with a Hobby database would timeout and fail.
+Uses secure RubyGems URL
+
+Full changes here https://github.com/heroku/heroku/compare/v3.2.2...v3.2.3
+
+
+
 3.2.2 2014-01-08
 ================
 bugfix for some orgs and pg commands
