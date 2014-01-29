@@ -99,8 +99,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
   def index
     validate_arguments!
     resp = api.request(
-      :expects => 200, :method => :get,
-      :path => "/apps/#{app}/dynos",
+      :expects => 200,
+      :method  => :get,
+      :path    => "/apps/#{app}/dynos",
       :headers => {
         "Accept"       => "application/vnd.heroku+json; version=3",
         "Content-Type" => "application/json"
@@ -209,12 +210,16 @@ class Heroku::Command::Ps < Heroku::Command::Base
     action("Scaling dynos") do
       # The V3 API supports atomic scale+resize, so we make a raw request here
       # since the heroku-api gem still only supports V2.
-      resp = api.request(:expects => 200, :method => :patch,
-                         :path => "/apps/#{app}/formation",
-                         :body => {:updates => changes}.to_json,
-                         :headers => {
-                           "Accept" => "application/vnd.heroku+json; version=3",
-                           "Content-Type" => "application/json"})
+      resp = api.request(
+          :expects => 200,
+          :method  => :patch,
+          :path    => "/apps/#{app}/formation",
+          :body    => {:updates => changes}.to_json,
+          :headers => {
+            "Accept"       => "application/vnd.heroku+json; version=3",
+            "Content-Type" => "application/json"
+          }
+      )
       new_scales = resp.body.
         select {|p| change_map[p['type']] }.
         map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
@@ -291,12 +296,14 @@ class Heroku::Command::Ps < Heroku::Command::Base
     resp = nil
     action("Resizing and restarting the specified dynos") do
       resp = api.request(
-        :expects  => 200,
-        :method   => :patch,
-        :path     => "/apps/#{app}/formation",
-        :body     => { "updates" => changes }.to_json,
-        :headers  => { "Accept" => "application/vnd.heroku+json; version=3",
-                       "Content-Type" => "application/json" }
+        :expects => 200,
+        :method  => :patch,
+        :path    => "/apps/#{app}/formation",
+        :body    => { "updates" => changes }.to_json,
+        :headers => {
+          "Accept"       => "application/vnd.heroku+json; version=3",
+          "Content-Type" => "application/json"
+        }
       )
     end
 
