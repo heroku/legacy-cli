@@ -1,3 +1,7 @@
+3.2.4 2014-01-29
+================
+Improved ps commands to support PX dynos
+
 3.2.3 2014-01-24
 ================
 Add a `-n`, `--num` flag to the `releases` index command, to specify the number of releases to be shown.
