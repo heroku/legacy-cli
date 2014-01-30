@@ -4,6 +4,10 @@ require "json"
 # manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
+  PRICES = {
+    "P"  => 0.8,
+    "PX" => 0.8,
+  }
 
   # ps:dynos [QTY]
   #
@@ -94,20 +98,31 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    processes = api.get_ps(app).body
+    resp = api.request(
+      :expects => 200,
+      :method  => :get,
+      :path    => "/apps/#{app}/dynos",
+      :headers => {
+        "Accept"       => "application/vnd.heroku+json; version=3",
+        "Content-Type" => "application/json"
+      }
+    )
+    processes = resp.body
 
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
     processes.each do |process|
-      name    = process["process"].split(".").first
-      elapsed = time_ago(Time.now - process['elapsed'])
-      size    = process.fetch("size", 1)
+      now     = Time.now
+      type    = process["type"]
+      elapsed = now - Time.iso8601(process['updated_at'])
+      since   = time_ago(now - elapsed)
+      size    = process["size"] || "1X"
 
-      if name == "run"
+      if type == "run"
         key  = "run: one-off processes"
-        item = "%s (%sX): %s %s: `%s`" % [ process["process"], size, process["state"], elapsed, process["command"] ]
+        item = "%s (%s): %s %s: `%s`" % [ process["name"], size, process["state"], since, process["command"] ]
       else
-        key  = "#{name} (#{size}X): `#{process["command"]}`"
-        item = "%s: %s %s" % [ process['process'], process['state'], elapsed ]
+        key  = "#{type} (#{size}): `#{process["command"]}`"
+        item = "%s: %s %s" % [ process['name'], process['state'], since ]
       end
 
       processes_by_command[key] << item
@@ -180,8 +195,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
     change_map = {}
 
     changes = args.map do |arg|
-      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(:(\d+)X)?$/).first
-        formation, quantity, _, size = change
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::(\w+))?$/).first
+        formation, quantity, size = change
         quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
         {:process => formation, :quantity => quantity, :size => size}
@@ -195,15 +210,19 @@ class Heroku::Command::Ps < Heroku::Command::Base
     action("Scaling dynos") do
       # The V3 API supports atomic scale+resize, so we make a raw request here
       # since the heroku-api gem still only supports V2.
-      resp = api.request(:expects => 200, :method => :patch,
-                         :path => "/apps/#{app}/formation",
-                         :body => {:updates => changes}.to_json,
-                         :headers => {
-                           "Accept" => "application/vnd.heroku+json; version=3",
-                           "Content-Type" => "application/json"})
+      resp = api.request(
+        :expects => 200,
+        :method  => :patch,
+        :path    => "/apps/#{app}/formation",
+        :body    => {:updates => changes}.to_json,
+        :headers => {
+          "Accept"       => "application/vnd.heroku+json; version=3",
+          "Content-Type" => "application/json"
+        }
+      )
       new_scales = resp.body.
         select {|p| change_map[p['type']] }.
-        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}X" }
+        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
       status("now running " + new_scales.join(", ") + ".")
     end
   end
@@ -244,47 +263,58 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "stop", "ps:stop"
 
-  # ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]
+  # ps:resize DYNO1=1X|2X|PX [DYNO2=1X|2X|PX ...]
   #
   # resize dynos to the given size
   #
   # Example:
   #
-  # $ heroku ps:resize web=2X worker=1X
+  # $ heroku ps:resize web=PX worker=2X
   # Resizing and restarting the specified dynos... done
-  # web dynos now 2X ($0.10/dyno-hour)
-  # worker dynos now 1X ($0.05/dyno-hour)
+  # web dynos now PX ($0.80/dyno-hour)
+  # worker dynos now 2X ($0.10/dyno-hour)
   #
   def resize
     app
-    changes = {}
-    args.each do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)=(\d+)([xX]?)$/
-        changes[$1] = { "size" => $2.to_i }
+    change_map = {}
+
+    changes = args.map do |arg|
+      if arg =~ /^([a-zA-Z0-9_]+)=(\w+)$/
+        change_map[$1] = $2
+        { "process" => $1, "size" => $2 }
       end
-    end
+    end.compact
 
     if changes.empty?
       message = [
-          "Usage: heroku ps:resize DYNO1=1X|2X [DYNO2=1X|2X ...]",
+          "Usage: heroku ps:resize DYNO1=1X|2X|PX [DYNO2=1X|2X|PX ...]",
           "Must specify DYNO and SIZE to resize."
       ]
       error(message.join("\n"))
     end
 
+    resp = nil
     action("Resizing and restarting the specified dynos") do
-      api.request(
-        :expects  => 200,
-        :method   => :put,
-        :path     => "/apps/#{app}/formation",
-        :body     => json_encode(changes)
+      resp = api.request(
+        :expects => 200,
+        :method  => :patch,
+        :path    => "/apps/#{app}/formation",
+        :body    => { "updates" => changes }.to_json,
+        :headers => {
+          "Accept"       => "application/vnd.heroku+json; version=3",
+          "Content-Type" => "application/json"
+        }
       )
     end
 
-    changes.each do |type, options|
-      size  = options["size"]
-      price = sprintf("%.2f", 0.05 * size.to_i)
-      display "#{type} dynos now #{size}X ($#{price}/dyno-hour)"
+    resp.body.select {|p| change_map.key?(p['type']) }.each do |p|
+      size = p["size"]
+      price = if size.to_i > 0
+                sprintf("%.2f", 0.05 * size.to_i)
+              else
+                sprintf("%.2f", PRICES[size])
+              end
+      display "#{p["type"]} dynos now #{size} ($#{price}/dyno-hour)"
     end
   end
 

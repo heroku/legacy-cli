@@ -28,8 +28,23 @@ describe Heroku::Command::Ps do
     describe "ps" do
 
       it "displays processes" do
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 10.times.map do |i|
+            {
+              "size"       => "1X",
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bundle exec thin start -p $PORT",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => SecureRandom.uuid,
+              "name"       => "web.#{i+1}",
+              "state"      => "created",
+              "type"       => "web"
+            }
+          end.to_json,
+          :status => 200
+        )
         Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
-        api.post_ps_scale('example', 'web', 10)
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -49,19 +64,121 @@ STDOUT
       end
 
       it "displays one-off processes" do
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).and_return('2012/09/11 12:34:56 (~ 0s ago)', '2012/09/11 12:34:56 (~ 0s ago)')
-        api.post_ps "example", "bash"
-
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 2.times.map do |i|
+            {
+              "size"       => "1X",
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bash",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => SecureRandom.uuid,
+              "name"       => "run.#{i+1}",
+              "state"      => "created",
+              "type"       => "run"
+            }
+          end.to_json,
+          :status => 200
+        )
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
         stderr, stdout = execute("ps")
         stderr.should == ""
         stdout.should == <<-STDOUT
 === run: one-off processes
 run.1 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
-
-=== web (1X): `bundle exec thin start -p $PORT`
-web.1: created 2012/09/11 12:34:56 (~ 0s ago)
+run.2 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
 
 STDOUT
+      end
+
+      it "displays 2X sizes" do
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 2.times.map do |i|
+            {
+              "size"       => "2X",
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bundle exec thin start -p $PORT",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => SecureRandom.uuid,
+              "name"       => "web.#{i+1}",
+              "state"      => "created",
+              "type"       => "web"
+            }
+          end.to_json,
+          :status => 200
+        )
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+
+        stderr, stdout = execute("ps")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== web (2X): `bundle exec thin start -p $PORT`
+web.1: created 2012/09/11 12:34:56 (~ 0s ago)
+web.2: created 2012/09/11 12:34:56 (~ 0s ago)
+
+STDOUT
+      end
+
+      it "displays PX sizes" do
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 2.times.map do |i|
+            {
+              "size"       => "PX",
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bundle exec thin start -p $PORT",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => SecureRandom.uuid,
+              "name"       => "web.#{i+1}",
+              "state"      => "created",
+              "type"       => "web"
+            }
+          end.to_json,
+          :status => 200
+        )
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+
+        stderr, stdout = execute("ps")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== web (PX): `bundle exec thin start -p $PORT`
+web.1: created 2012/09/11 12:34:56 (~ 0s ago)
+web.2: created 2012/09/11 12:34:56 (~ 0s ago)
+
+STDOUT
+      end
+
+      it "displays multiple sizes for one-offs" do
+        sizes = ["PX", "2X", "4X", "1X"]
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 4.times.map do |i|
+            {
+              "size"       => sizes[i],
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bash",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => SecureRandom.uuid,
+              "name"       => "run.#{i+1}",
+              "state"      => "created",
+              "type"       => "run"
+            }
+          end.to_json,
+          :status => 200
+        )
+        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        stderr, stdout = execute("ps")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+=== run: one-off processes
+run.1 (PX): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
+run.2 (2X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
+run.3 (4X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
+run.4 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
+
+STDOUT
+
       end
 
     end
@@ -98,7 +215,7 @@ STDOUT
 
       it "can scale using key/value format" do
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => "5", "size" => "1", "type" => "web"}],
+                   { :body => [{"quantity" => "5", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web=5")
         stderr.should == ""
@@ -109,7 +226,7 @@ STDOUT
 
       it "can scale relative amounts" do
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => "3", "size" => "1", "type" => "web"}],
+                   { :body => [{"quantity" => "3", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web+2")
         stderr.should == ""
@@ -119,9 +236,16 @@ STDOUT
       end
 
       it "can resize while scaling" do
-        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => 4, "size" => 2, "type" => "web"}],
-                     :status => 200})
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [{"process" => "web", "quantity" => "4", "size" => "2X"}]
+            }.to_json
+          },
+          :body => [{"quantity" => 4, "size" => "2X", "type" => "web"}],
+          :status => 200
+        )
         stderr, stdout = execute("ps:scale web=4:2X")
         stderr.should == ""
         stdout.should == <<-STDOUT
@@ -130,17 +254,122 @@ STDOUT
       end
 
       it "can scale multiple types in one call" do
-        Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
-                   { :body => [{"quantity" => 4, "size" => 1, "type" => "web"},
-                               {"quantity" => 2, "size" => 2, "type" => "worker"},
-                               {"quantity" => 0, "size" => 1, "type" => "dummy"}],
-                     :status => 200})
-        stderr, stdout = execute("ps:scale web=4:1X worker=2:2X")
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [
+                {"process" => "web",    "quantity" => "4", "size" => "1X"},
+                {"process" => "worker", "quantity" => "2", "size" => "2x"},
+              ]
+            }.to_json
+          },
+          :body => [
+            {"quantity" => 4, "size" => "1X", "type" => "web"},
+            {"quantity" => 2, "size" => "2X", "type" => "worker"},
+            {"quantity" => 0, "size" => "1X", "type" => "dummy"}
+          ],
+          :status => 200
+        )
+        stderr, stdout = execute("ps:scale web=4:1X worker=2:2x")
         stderr.should == ""
         stdout.should == <<-STDOUT
 Scaling dynos... done, now running web at 4:1X, worker at 2:2X.
 STDOUT
       end
+
+      it "accepts PX as a valid size" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [{"process" => "web", "quantity" => "4", "size" => "PX"}]
+            }.to_json
+          },
+          :body => [{"quantity" => 4, "size" => "PX", "type" => "web"}],
+          :status => 200
+        )
+        stderr, stdout = execute("ps:scale web=4:PX")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Scaling dynos... done, now running web at 4:PX.
+STDOUT
+      end
+    end
+
+    describe "ps:resize" do
+
+      it "can resize using a key/value format" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [{"process" => "web", "size" => "2X"}]
+            }.to_json
+          },
+          :body => [{"quantity" => 2, "size" => "2X", "type" => "web"}],
+          :status => 200
+        )
+        stderr, stdout = execute("ps:resize web=2X")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Resizing and restarting the specified dynos... done
+web dynos now 2X ($0.10/dyno-hour)
+STDOUT
+      end
+
+      it "can resize multiple types in one call" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [
+                {"process" => "web", "size" => "4x"},
+                {"process" => "worker", "size" => "2X"}
+              ]
+            }.to_json
+          },
+          :body => [
+            {"quantity" => 2, "size" => "4X", "type" => "web"},
+            {"quantity" => 1, "size" => "2X", "type" => "worker"}
+          ],
+          :status => 200
+        )
+        stderr, stdout = execute("ps:resize web=4x worker=2X")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Resizing and restarting the specified dynos... done
+web dynos now 4X ($0.20/dyno-hour)
+worker dynos now 2X ($0.10/dyno-hour)
+STDOUT
+      end
+
+      it "accepts P as a valid size, with a price of $0.80/hour" do
+        Excon.stub(
+          {
+            :method => :patch, :path => "/apps/example/formation",
+            :body => {
+              "updates" => [
+                {"process" => "web", "size" => "PX"},
+                {"process" => "worker", "size" => "Px"}
+              ]
+            }.to_json
+          },
+          :body => [
+            {"quantity" => 2, "size" => "PX", "type" => "web"},
+            {"quantity" => 1, "size" => "PX", "type" => "worker"}
+          ],
+          :status => 200
+        )
+        stderr, stdout = execute("ps:resize web=PX worker=Px")
+        stderr.should == ""
+        stdout.should == <<-STDOUT
+Resizing and restarting the specified dynos... done
+web dynos now PX ($0.80/dyno-hour)
+worker dynos now PX ($0.80/dyno-hour)
+STDOUT
+      end
+
     end
 
     describe "ps:stop" do

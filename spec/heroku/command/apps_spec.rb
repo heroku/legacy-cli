@@ -27,7 +27,6 @@ module Heroku::Command
 Git URL:       git@heroku.com:example.git
 Owner Email:   email@example.com
 Stack:         cedar
-Tier:          Legacy
 Web URL:       http://example.herokuapp.com/
 STDOUT
       end
@@ -40,7 +39,6 @@ STDOUT
 Git URL:       git@heroku.com:example.git
 Owner Email:   email@example.com
 Stack:         cedar
-Tier:          Legacy
 Web URL:       http://example.herokuapp.com/
 STDOUT
       end
@@ -61,7 +59,6 @@ repo_size=
 requested_stack=
 slug_size=
 stack=cedar
-tier=legacy
 web_url=http://example.herokuapp.com/
 workers=0
 STDOUT
@@ -194,7 +191,7 @@ STDOUT
     context("index with orgs") do
       context("when you are a member of the org") do
         before(:each) do
-          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => Heroku::API::OkJson.encode({
+          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => Heroku::OkJson.encode({
             "user" => {"default_organization" => "test-org"}
           })})
         end
@@ -204,7 +201,7 @@ STDOUT
         end
 
         it "displays a message when the org has no apps" do
-          Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => Heroku::API::OkJson.encode([]) })
+          Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => Heroku::OkJson.encode([]) })
           stderr, stdout = execute("apps")
           stderr.should == ""
           stdout.should == <<-STDOUT
@@ -217,7 +214,7 @@ STDOUT
           before(:each) do
             Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' },
               {
-                :body   => Heroku::API::OkJson.encode([
+                :body   => Heroku::OkJson.encode([
                   {"name" => "org-app-1", "joined" => true},
                   {"name" => "org-app-2"}
                 ]),
