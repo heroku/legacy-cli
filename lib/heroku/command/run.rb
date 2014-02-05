@@ -120,8 +120,7 @@ protected
   end
 
   def rendezvous_session(rendezvous_url, &on_connect)
-    begin
-      set_buffer(false)
+    raw_tty do
       rendezvous = Heroku::Client::Rendezvous.new(
         :rendezvous_url => rendezvous_url,
         :connect_timeout => (ENV["HEROKU_CONNECT_TIMEOUT"] || 120).to_i,
@@ -130,16 +129,14 @@ protected
         :output => $stdout)
       rendezvous.on_connect(&on_connect)
       rendezvous.start
-    rescue Timeout::Error
-      error "\nTimeout awaiting process"
-    rescue OpenSSL::SSL::SSLError
-      error "Authentication error"
-    rescue Errno::ECONNREFUSED, Errno::ECONNRESET
-      error "\nError connecting to process"
-    rescue Interrupt
-    ensure
-      set_buffer(true)
     end
+  rescue Timeout::Error
+    error "\nTimeout awaiting process"
+  rescue OpenSSL::SSL::SSLError
+    error "Authentication error"
+  rescue Errno::ECONNREFUSED, Errno::ECONNRESET
+    error "\nError connecting to process"
+  rescue Interrupt
   end
 
   def console_history_dir

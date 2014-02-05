@@ -27,11 +27,10 @@ class Heroku::CLI
       Heroku::Command.load
       Heroku::Command.run(command, args)
     rescue Interrupt
-      `stty icanon echo`
       error("Command cancelled.")
     rescue => error
       styled_error(error)
-      exit(1)
+      exit(false)
     end
   end
 
