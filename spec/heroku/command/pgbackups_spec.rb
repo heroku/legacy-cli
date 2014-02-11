@@ -38,6 +38,8 @@ STDERR
     let(:mock_attachments) {
       [
         Heroku::Helpers::HerokuPostgresql::Attachment.new({
+          'app' => {'name' => 'sushi'},
+          'name' => 'HEROKU_POSTGRESQL_IVORY',
           'config_var' => 'HEROKU_POSTGRESQL_IVORY',
           'resource' => {'name'  => 'softly-mocking-123',
                          'value' => 'postgres://database',

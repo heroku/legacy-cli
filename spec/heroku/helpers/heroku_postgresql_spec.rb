@@ -20,14 +20,18 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
   end
 
     let(:app_attachments) {
-      [ Attachment.new({ 'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
-          'resource' => {'name'  => 'softly-mocking-123',
-                         'value' => 'postgres://default',
-                         'type'  => 'heroku-postgresql:baku' }}),
-        Attachment.new({ 'config_var' => 'HEROKU_POSTGRESQL_BLACK_URL',
-          'resource' => {'name'  => 'quickly-yelling-2421',
-                         'value' => 'postgres://black',
-                         'type'  => 'heroku-postgresql:zilla' }})
+      [ Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_IVORY',
+                         'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
+                         'app' => {'name' => 'sushi' },
+                         'resource' => {'name'  => 'softly-mocking-123',
+                                        'value' => 'postgres://default',
+                                        'type'  => 'heroku-postgresql:baku' }}),
+        Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_BLACK',
+                         'config_var' => 'HEROKU_POSTGRESQL_BLACK_URL',
+                         'app' => {'name' => 'sushi' },
+                         'resource' => {'name'  => 'quickly-yelling-2421',
+                                        'value' => 'postgres://black',
+                                        'type'  => 'heroku-postgresql:zilla' }})
       ]
     }
 
