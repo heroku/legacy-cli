@@ -6,9 +6,11 @@ module Heroku::Helpers::HerokuPostgresql
   extend Heroku::Helpers
 
   class Attachment
-    attr_reader :config_var, :resource_name, :url, :addon, :plan
+    attr_reader :app, :name, :config_var, :resource_name, :url, :addon, :plan
     def initialize(raw)
       @raw = raw
+      @app           = raw['app']['name']
+      @name          = raw['name']
       @config_var    = raw['config_var']
       @resource_name = raw['resource']['name']
       @url           = raw['resource']['value']

@@ -16,16 +16,22 @@ module Heroku::Command
       any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
         stub(pg).app_attachments.returns([
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => 'HEROKU_POSTGRESQL_IVORY',
             'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
                            'value' => 'postgres://database_url',
                            'type'  => 'heroku-postgresql:ronin' }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => 'HEROKU_POSTGRESQL_RONIN',
             'config_var' => 'HEROKU_POSTGRESQL_RONIN_URL',
             'resource' => {'name'  => 'softly-mocking-123',
                            'value' => 'postgres://ronin_database_url',
                            'type'  => 'heroku-postgresql:ronin' }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => 'HEROKU_POSTGRESQL_FOLLOW',
             'config_var' => 'HEROKU_POSTGRESQL_FOLLOW_URL',
             'resource' => {'name'  => 'whatever-somethign-2323',
                            'value' => 'postgres://follow_database_url',

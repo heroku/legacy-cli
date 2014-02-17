@@ -82,8 +82,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
       if command = options[:command]
         command = "-c '#{command}'"
       end
+
+      shorthand = "#{attachment.app}::#{attachment.name.sub(/^HEROKU_POSTGRESQL_/,'')}"
+      prompt_expr = "#{shorthand}%R%# "
+      prompt_flags = "--set PROMPT1='#{prompt_expr}' --set PROMPT2='#{prompt_expr}'"
       puts "---> Connecting to #{attachment.display_name}"
-      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{command} #{uri.path[1..-1]}"
+      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{prompt_flags} #{command} #{uri.path[1..-1]}"
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
