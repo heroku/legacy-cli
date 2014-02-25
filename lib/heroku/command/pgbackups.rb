@@ -187,6 +187,52 @@ module Heroku::Command
       end
     end
 
+    # pgbackups:transfer [SOURCE DATABASE] DESTINATION DATABASE
+    #
+    # direct database-to-database transfer
+    #
+    # If no DATABASE is specified, defaults to DATABASE_URL.
+    # The pgbackups add-on is required to use direct transfers
+    #
+    #Example:
+    #
+    #$ heroku pgbackups:transfer green teal --app example
+    #
+    # note that both the FROM and TO database must be accessible to the pgbackups service
+    #$ heroku pgbackups:transfer DATABASE postgres://user:password@host/dbname --app example
+    #
+    def transfer
+      db1 = shift_argument
+      db2 = shift_argument
+
+      if db1.nil?
+        error("pgbackups:transfer requires at least one argument")
+      end
+
+      if db2.nil?
+        db2 = db1
+        db1 = "DATABASE_URL"
+      end
+
+      from_url, from_name = resolve_transfer(db1)
+      to_url, to_name = resolve_transfer(db2)
+
+      validate_arguments!
+
+      opts      = {}
+
+      if confirm_command(app, "WARNING: Destructive Action\nTransfering data from #{from_name} to #{to_name}")
+        backup = transfer!(from_url, from_name, to_url, to_name, opts)
+        backup = poll_transfer!(backup)
+
+        if backup["error_at"]
+          message  =   "An error occurred and your backup did not finish."
+          message += "\nThe database is not yet online. Please try again." if backup['log'] =~ /Name or service not known/
+          message += "\nThe database credentials are incorrect."           if backup['log'] =~ /psql: FATAL:/
+          error(message)
+        end
+      end
+    end
     protected
 
     def transfer_status(t)
@@ -316,6 +362,18 @@ You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
     end
 
     private
+
+    #
+    # resolve the given database identifier
+    def resolve_transfer(db)
+      if /^postgres:/ =~ db
+        uri = URI.parse(db)
+        [uri, "Database on #{uri.host}:#{uri.port || 5432}#{uri.path}"]
+      else
+        attachment = resolve(db)
+        [attachment.url, db.upcase]
+      end
+    end
 
     def resolve(identifer, default=nil)
       Resolver.new(app, api).resolve(identifer, default)
