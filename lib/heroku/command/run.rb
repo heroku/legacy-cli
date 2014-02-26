@@ -130,7 +130,7 @@ protected
         :output => $stdout)
       rendezvous.on_connect(&on_connect)
       rendezvous.start
-    rescue Timeout::Error
+    rescue Timeout::Error, Errno::ETIMEDOUT
       error "\nTimeout awaiting process"
     rescue OpenSSL::SSL::SSLError
       error "Authentication error"
