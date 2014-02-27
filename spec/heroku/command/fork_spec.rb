@@ -13,7 +13,10 @@ module Heroku::Command
 
     after(:each) do
       api.delete_app("example")
-      api.delete_app("example-fork")
+      begin
+        api.delete_app("example-fork")
+      rescue Heroku::API::Errors::NotFound
+      end
     end
 
     context "successfully" do
@@ -32,6 +35,14 @@ Copying slug... done
 Copying config vars... done
 Fork complete, view it at http://example-fork.herokuapp.com/
 STDOUT
+      end
+
+      it "deletes fork app on error, before re-raising" do
+        stub_cisaurus.copy_slug { raise SocketError }
+        lambda do
+          execute("fork example-fork")
+        end.should raise_error(SocketError)
+        api.get_apps.body.map { |app| app["name"] }.should == %w( example )
       end
 
       it "copies config vars" do
