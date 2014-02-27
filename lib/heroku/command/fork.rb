@@ -89,6 +89,16 @@ module Heroku::Command
       end
 
       puts "Fork complete, view it at #{to_info['web_url']}"
+    rescue Exception => e
+      puts "Fork failed!"
+      action("Clearing up resources") do
+        begin
+          api.delete_app(to)
+        rescue Heroku::API::Errors::NotFound
+        end
+      end
+      puts "Original exception below:"
+      raise e
     end
 
   private
