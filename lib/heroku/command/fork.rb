@@ -109,26 +109,20 @@ module Heroku::Command
     def migrate_db(from_addon, from, to_addon, to)
       transfer = nil
 
-      action("Creating database backup from #{from} (this can take some time)") do
+      action("Transferring database (this can take some time)") do
         from_config = api.get_config_vars(from).body
         from_attachment = from_addon["attachment_name"]
-        pgb = Heroku::Client::Pgbackups.new(from_config["PGBACKUPS_URL"])
-        transfer = pgb.create_transfer(from_config["#{from_attachment}_URL"], from_attachment, nil, "BACKUP", :expire => "true")
-        error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
-        loop do
-          transfer = pgb.get_transfer(transfer["id"])
-          error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
-          break if transfer["finished_at"]
-          sleep 1
-        end
-        print " "
-      end
-
-      action("Restoring database backup to #{to} (this can take some time)") do
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
-        pgb = Heroku::Client::Pgbackups.new(to_config["PGBACKUPS_URL"])
-        transfer = pgb.create_transfer(transfer["public_url"], "EXTERNAL_BACKUP", to_config["#{to_attachment}_URL"], to_attachment)
+
+        pgb = Heroku::Client::Pgbackups.new(from_config["PGBACKUPS_URL"])
+        transfer = pgb.create_transfer(
+          from_config["#{from_attachment}_URL"],
+          from_attachment,
+          to_config["#{to_attachment}_URL"],
+          to_attachment,
+          :expire => "true")
+
         error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
         loop do
           transfer = pgb.get_transfer(transfer["id"])
