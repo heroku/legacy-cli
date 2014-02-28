@@ -1,3 +1,12 @@
+3.4.0 2014-02-28
+================
+Add pgbackups:transfer, for direct database to database transfers
+Use app::color-style prompt for psql
+Improvements to Heroku Fork:
+  - Collapse pgbackups steps into one direct transfer
+  - Clear fork app on error
+
+
 3.3.0 2014-01-30
 ================
 Improved ps commands to support PX dynos
@@ -6,7 +15,7 @@ Improved ps commands to support PX dynos
 ================
 Add a `-n`, `--num` flag to the `releases` index command, to specify the number of releases to be shown.
 Exit value 1 with authentication failure from an API key.
-Fix inaccurate 'internal server error' message when using some pg commands outside of a project. 
+Fix inaccurate 'internal server error' message when using some pg commands outside of a project.
 Fix issue where forking an application with a Hobby database would timeout and fail.
 Uses secure RubyGems URL
 
