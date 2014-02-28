@@ -1,4 +1,4 @@
-3.4.0 2014-02-28
+3.4.1 2014-02-28
 ================
 Add pgbackups:transfer, for direct database to database transfers
 Use app::color-style prompt for psql
