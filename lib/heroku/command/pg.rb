@@ -83,7 +83,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
         command = "-c '#{command}'"
       end
 
-      shorthand = "#{attachment.app}::#{attachment.name.sub(/^HEROKU_POSTGRESQL_/,'')}"
+      shorthand = "#{attachment.app}::#{attachment.name.sub(/^HEROKU_POSTGRESQL_/,'').gsub(/\W+/, '-')}"
       prompt_expr = "#{shorthand}%R%# "
       prompt_flags = "--set PROMPT1='#{prompt_expr}' --set PROMPT2='#{prompt_expr}'"
       puts "---> Connecting to #{attachment.display_name}"
