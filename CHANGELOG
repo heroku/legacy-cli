@@ -1,3 +1,7 @@
+3.4.2 2014-03-04
+================
+Fix quoting style originally used to set the nice prompt with `pg:psql` on Windows 
+
 3.4.1 2014-02-28
 ================
 Add pgbackups:transfer, for direct database to database transfers
