@@ -521,6 +521,9 @@ Check the output of "heroku ps" and "heroku logs" for more information.
       begin
         http.start do
           http.request_get(uri.path + (uri.query ? "?" + uri.query : "")) do |request|
+            if request["Log-History"] == "none"
+              $stderr.puts "Warning: log history discarded due to excessive volume."
+            end
             request.read_body do |chunk|
               yield chunk
             end
