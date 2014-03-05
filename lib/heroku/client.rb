@@ -520,9 +520,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
 
       begin
         http.start do
-          http.request_get(uri.path + (uri.query ? "?" + uri.query : "")) do |request|
-            request["Tail-warning"] && $stderr.puts(request["Tail-warning"])
-            request.read_body do |chunk|
+          http.request_get(uri.path + (uri.query ? "?" + uri.query : "")) do |response|
+            error(response.message) if response.is_a? Net::HTTPServerError
+            response["Tail-warning"] && $stderr.puts(response["Tail-warning"])
+            response.read_body do |chunk|
               yield chunk
             end
           end
