@@ -1,6 +1,10 @@
+3.4.3 2014-03-06
+================
+Show server-side warnings when tailing logs.
+
 3.4.2 2014-03-04
 ================
-Fix quoting style originally used to set the nice prompt with `pg:psql` on Windows 
+Fix quoting style originally used to set the nice prompt with `pg:psql` on Windows.
 
 3.4.1 2014-02-28
 ================
