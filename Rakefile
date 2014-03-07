@@ -132,9 +132,9 @@ Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
 end
 
 def poll_ci
-  require("vendor/heroku/okjson")
+  require("multi_json")
   require("net/http")
-  data = Heroku::OkJson.decode(Net::HTTP.get("travis-ci.org", "/heroku/heroku.json"))
+  data = MultiJson.parse(Net::HTTP.get("travis-ci.org", "/heroku/heroku.json"))
   case data["last_build_status"]
   when nil
     print(".")
