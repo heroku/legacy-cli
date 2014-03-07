@@ -93,9 +93,11 @@ module Heroku::Command
 
       puts "Fork complete, view it at #{to_info['web_url']}"
     rescue Exception => e
-      puts "Fork failed!"
-      if to != from
-        action("Clearing up resources") do
+      raise if e.is_a?(Heroku::Command::CommandFailed)
+
+      puts "Failed to fork app #{from} to #{to}."
+      if confirm("Delete app #{to} and associated add-ons? (y/n)")
+        action("Deleting #{to}") do
           begin
             api.delete_app(to)
           rescue Heroku::API::Errors::NotFound

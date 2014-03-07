@@ -63,7 +63,20 @@ STDOUT
         end.should raise_error(Heroku::Command::CommandFailed, /same app/)
       end
 
+      it "confirms before deleting the app" do
+        stub_cisaurus.copy_slug { raise SocketError }
+        begin
+          execute("fork example-fork")
+        rescue SocketError
+        end
+        api.get_apps.body.map { |app| app["name"] }.should ==
+          %w( example example-fork )
+      end
+
       it "deletes fork app on error, before re-raising" do
+        any_instance_of(Heroku::Command::Base) do |runner|
+          stub(runner).confirm(anything) { true }
+        end
         stub_cisaurus.copy_slug { raise SocketError }
         lambda do
           execute("fork example-fork")
