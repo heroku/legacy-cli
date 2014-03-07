@@ -37,14 +37,6 @@ Fork complete, view it at http://example-fork.herokuapp.com/
 STDOUT
       end
 
-      it "deletes fork app on error, before re-raising" do
-        stub_cisaurus.copy_slug { raise SocketError }
-        lambda do
-          execute("fork example-fork")
-        end.should raise_error(SocketError)
-        api.get_apps.body.map { |app| app["name"] }.should == %w( example )
-      end
-
       it "copies config vars" do
         config_vars = {
             "SECRET"     => "imasecret",
@@ -61,6 +53,30 @@ STDOUT
         addons.each { |a| api.post_addon("example", a) }
         execute("fork example-fork")
         api.get_addons("example-fork").body.collect { |info| info["name"] }.sort.should == addons
+      end
+    end
+
+    describe "error handling" do
+      it "doesn't attempt to fork to the same app" do
+        lambda do
+          execute("fork example")
+        end.should raise_error(Heroku::Command::CommandFailed, /same app/)
+      end
+
+      it "confirms before deleting the app" do
+        stub_cisaurus.copy_slug { raise SocketError }
+        begin
+          execute("fork example-fork")
+        rescue SocketError
+        end
+        api.get_apps.body.map { |app| app["name"] }.should ==
+          %w( example example-fork )
+      end
+
+      it "deletes fork app on error, before re-raising" do
+        stub(Heroku::Command).confirm_command.returns(true)
+        stub_cisaurus.copy_slug { raise SocketError }
+        api.get_apps.body.map { |app| app["name"] }.should == %w( example )
       end
     end
   end

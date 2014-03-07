@@ -20,6 +20,9 @@ module Heroku::Command
 
       from = app
       to = shift_argument || "#{from}-#{(rand*1000).to_i}"
+      if from == to
+        raise Heroku::Command::CommandFailed.new("Cannot fork to the same app.")
+      end
 
       from_info = api.get_app(from).body
 
@@ -90,11 +93,17 @@ module Heroku::Command
 
       puts "Fork complete, view it at #{to_info['web_url']}"
     rescue Exception => e
-      puts "Fork failed!"
-      action("Clearing up resources") do
-        begin
-          api.delete_app(to)
-        rescue Heroku::API::Errors::NotFound
+      raise if e.is_a?(Heroku::Command::CommandFailed)
+
+      puts "Failed to fork app #{from} to #{to}."
+      message = "WARNING: Potentially Destructive Action\nThis command will destroy #{to} (including all add-ons)."
+
+      if confirm_command(to, message)
+        action("Deleting #{to}") do
+          begin
+            api.delete_app(to)
+          rescue Heroku::API::Errors::NotFound
+          end
         end
       end
       puts "Original exception below:"
