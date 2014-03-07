@@ -96,7 +96,9 @@ module Heroku::Command
       raise if e.is_a?(Heroku::Command::CommandFailed)
 
       puts "Failed to fork app #{from} to #{to}."
-      if confirm("Delete app #{to} and associated add-ons? (y/n)")
+      message = "WARNING: Potentially Destructive Action\nThis command will destroy #{to} (including all add-ons)."
+
+      if confirm_command(to, message)
         action("Deleting #{to}") do
           begin
             api.delete_app(to)
