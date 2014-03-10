@@ -1,3 +1,8 @@
+3.5.0 2014-03-10
+================
+Fixed bug in Heroku Fork that could cause it to delete the source app
+Added multi_json so a faster encoder is used when available
+
 3.4.3 2014-03-06
 ================
 Show server-side warnings when tailing logs.
