@@ -4,11 +4,15 @@ PROJECT_ROOT = File.expand_path("..", __FILE__)
 $:.unshift "#{PROJECT_ROOT}/lib"
 
 require "heroku/version"
-require "rspec/core/rake_task"
+begin
+  require "rspec/core/rake_task"
 
-desc "Run all specs"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.verbose = true
+  desc "Run all specs"
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.verbose = true
+  end
+rescue LoadError
+  # The test gem group fails to install on the platform for some reason
 end
 
 task :default => :spec
