@@ -129,6 +129,7 @@ class Heroku::Auth
 
     def read_credentials
       if ENV['HEROKU_API_KEY']
+        output_with_bang("Using HEROKU_API_KEY from environment")
         ['', ENV['HEROKU_API_KEY']]
       else
         # convert legacy credentials to netrc
