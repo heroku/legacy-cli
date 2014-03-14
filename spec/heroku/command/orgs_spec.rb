@@ -25,7 +25,7 @@ STDOUT
       it "lists orgs with roles that the user belongs to" do
         Excon.stub({ :method => :get, :path   => '/v1/user/info' },
           {
-            :body   => MultiJson.encode({"organizations" => [{"organization_name" => "test-org", "role" => "collaborator"}, {"organization_name" => "test-org2", "role" => "admin"}], "user" => {}}),
+            :body   => Heroku::OkJson.encode({"organizations" => [{"organization_name" => "test-org", "role" => "collaborator"}, {"organization_name" => "test-org2", "role" => "admin"}], "user" => {}}),
             :status => 200
           }
         )
@@ -42,7 +42,7 @@ STDOUT
       it "labels a user's default organization" do
         Excon.stub({ :method => :get, :path   => '/v1/user/info' },
           {
-            :body   => MultiJson.encode({"organizations" => [{"organization_name" => "test-org", "role" => "collaborator"}, {"organization_name" => "test-org2", "role" => "admin"}], "user" => {"default_organization" => "test-org2"}}),
+            :body   => Heroku::OkJson.encode({"organizations" => [{"organization_name" => "test-org", "role" => "collaborator"}, {"organization_name" => "test-org2", "role" => "admin"}], "user" => {"default_organization" => "test-org2"}}),
             :status => 200
           }
         )
@@ -92,7 +92,7 @@ STDOUT
         it "displays the default organization when present" do
           Excon.stub({ :method => :get, :path   => '/v1/user/info' },
             {
-              :body   => MultiJson.encode({"user" => {"default_organization" => "test-org"}}),
+              :body   => Heroku::OkJson.encode({"user" => {"default_organization" => "test-org"}}),
               :status => 200
             }
           )
@@ -130,7 +130,7 @@ STDOUT
       it "opens the default org" do
         Excon.stub({ :method => :get, :path   => '/v1/user/info' },
           {
-            :body   => MultiJson.encode({"organizations" => [{"organization_name" => "test-org"}], "user" => {"default_organization" => "test-org"}}),
+            :body   => Heroku::OkJson.encode({"organizations" => [{"organization_name" => "test-org"}], "user" => {"default_organization" => "test-org"}}),
             :status => 200
           }
         )

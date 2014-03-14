@@ -191,7 +191,7 @@ STDOUT
     context("index with orgs") do
       context("when you are a member of the org") do
         before(:each) do
-          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => MultiJson.encode({
+          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => Heroku::OkJson.encode({
             "user" => {"default_organization" => "test-org"}
           })})
         end
@@ -201,7 +201,7 @@ STDOUT
         end
 
         it "displays a message when the org has no apps" do
-          Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => MultiJson.encode([]) })
+          Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => Heroku::OkJson.encode([]) })
           stderr, stdout = execute("apps")
           stderr.should == ""
           stdout.should == <<-STDOUT
@@ -214,7 +214,7 @@ STDOUT
           before(:each) do
             Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' },
               {
-                :body   => MultiJson.encode([
+                :body   => Heroku::OkJson.encode([
                   {"name" => "org-app-1", "joined" => true},
                   {"name" => "org-app-2"}
                 ]),

@@ -19,7 +19,7 @@ describe Heroku::Client::Pgbackups do
     end
 
     it 'includes the heroku gem version' do
-      stub_request(:get, transfer_path).to_return(body: MultiJson.encode({}))
+      stub_request(:get, transfer_path)
       client.get_transfers
       a_request(:get, transfer_path).with(
         :headers => {'X-Heroku-Gem-Version' => version}

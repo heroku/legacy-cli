@@ -1,4 +1,5 @@
-require 'multi_json'
+require "vendor/heroku/okjson"
+
 module Heroku
   module Helpers
 
@@ -177,12 +178,14 @@ module Heroku
     end
 
     def json_encode(object)
-      MultiJson.encode(object)
+      Heroku::OkJson.encode(object)
+    rescue Heroku::OkJson::Error
+      nil
     end
 
     def json_decode(json)
-      MultiJson.decode(json)
-    rescue MultiJson::LoadError
+      Heroku::OkJson.decode(json)
+    rescue Heroku::OkJson::Error
       nil
     end
 
