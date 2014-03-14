@@ -1,3 +1,7 @@
+3.6.0 2014-03-14
+================
+Remove multi_json, not working well existing toolbelt environments
+
 3.5.0 2014-03-10
 ================
 Fixed bug in Heroku Fork that could cause it to delete the source app
