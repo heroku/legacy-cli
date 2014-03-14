@@ -522,7 +522,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
         http.start do
           http.request_get(uri.path + (uri.query ? "?" + uri.query : "")) do |response|
             error(response.message) if response.is_a? Net::HTTPServerError
-            response["Tail-warning"] && $stderr.puts(response["Tail-warning"])
+            response["Tail-warning"] && $stderr.puts(response["X-Heroku-Warning"])
             response.read_body do |chunk|
               yield chunk
             end
