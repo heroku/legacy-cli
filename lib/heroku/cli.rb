@@ -11,8 +11,6 @@ if RUBY_VERSION =~ /^1.8.6/
   require('rest_client')
 end
 
-require "multi_json"
-
 class Heroku::CLI
 
   extend Heroku::Helpers
@@ -25,7 +23,6 @@ class Heroku::CLI
       if $stdout.isatty
         $stdout.sync = true
       end
-      setup_multi_json
       command = args.shift.strip rescue "help"
       Heroku::Command.load
       Heroku::Command.run(command, args)
@@ -35,15 +32,6 @@ class Heroku::CLI
     rescue => error
       styled_error(error)
       exit(1)
-    end
-  end
-
-  # we have several reports of issues with the json_common
-  # adapter, just use ok_json instead of it. for more info:
-  # https://github.com/heroku/heroku/issues/1019
-  def self.setup_multi_json
-    if MultiJson.engine == :json_common
-      MultiJson.engine = :ok_json
     end
   end
 
