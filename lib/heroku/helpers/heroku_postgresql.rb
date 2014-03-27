@@ -10,7 +10,7 @@ module Heroku::Helpers::HerokuPostgresql
     def initialize(raw)
       @raw = raw
       @app           = raw['app']['name']
-      @name          = raw['name']
+      @name          = raw['name'] || raw['config_var'].sub(/_URL\Z/, '')
       @config_var    = raw['config_var']
       @resource_name = raw['resource']['name']
       @url           = raw['resource']['value']
