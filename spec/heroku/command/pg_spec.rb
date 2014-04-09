@@ -178,7 +178,6 @@ STDERR
         stderr.should == ''
         stdout.should == <<-STDOUT
 Resetting credentials for HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
-Promoting HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
 STDOUT
       end
 
@@ -192,7 +191,6 @@ STDOUT
         stderr.should == ''
         stdout.should_not include("Promoting")
       end
-
     end
 
     context "unfollow" do
