@@ -339,13 +339,22 @@ private
     @resolver = generate_resolver
     dbs = @resolver.all_databases
 
-    db_infos = dbs.reject { |config, att|
-                 'DATABASE_URL' == config
-               }.map { |config, att|
-                 [att.display_name, hpg_info(att, options[:extended])]
-               }
+    unique_dbs = dbs.reject { |config, att| 'DATABASE_URL' == config }.map{|config, att| att}.compact
 
-    @hpg_databases_with_info = Hash[db_infos]
+    db_infos = {}
+    mutex = Mutex.new
+    threads = (0..unique_dbs.size-1).map do |i|
+      Thread.new do
+        att = unique_dbs[i]
+        info = hpg_info(att, options[:extended])
+        mutex.synchronize do
+          db_infos[att.display_name] = info
+        end
+      end
+    end
+    threads.map(&:join)
+
+    @hpg_databases_with_info = db_infos
     return @hpg_databases_with_info
   end
 
