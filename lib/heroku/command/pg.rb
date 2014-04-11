@@ -322,9 +322,17 @@ private
 
   def display_db(name, db)
     styled_header(name)
-    styled_hash(db[:info].inject({}) do |hash, item|
-      hash.update(item["name"] => hpg_info_display(item))
-    end, db[:info].map {|item| item['name']})
+
+    if db
+      dsphash = db[:info].inject({}) do |hash, item|
+        hash.update(item["name"] => hpg_info_display(item))
+      end
+      dspkeys = db[:info].map {|item| item['name']}
+
+      styled_hash(dsphash, dspkeys)
+    else
+      styled_hash("Error" => "Not Found")
+    end
 
     display
   end
@@ -346,7 +354,11 @@ private
     threads = (0..unique_dbs.size-1).map do |i|
       Thread.new do
         att = unique_dbs[i]
-        info = hpg_info(att, options[:extended])
+        begin
+          info = hpg_info(att, options[:extended])
+        rescue
+          info = nil
+        end
         mutex.synchronize do
           db_infos[att.display_name] = info
         end
