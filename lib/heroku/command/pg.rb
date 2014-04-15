@@ -322,9 +322,17 @@ private
 
   def display_db(name, db)
     styled_header(name)
-    styled_hash(db[:info].inject({}) do |hash, item|
-      hash.update(item["name"] => hpg_info_display(item))
-    end, db[:info].map {|item| item['name']})
+
+    if db
+      dsphash = db[:info].inject({}) do |hash, item|
+        hash.update(item["name"] => hpg_info_display(item))
+      end
+      dspkeys = db[:info].map {|item| item['name']}
+
+      styled_hash(dsphash, dspkeys)
+    else
+      styled_hash("Error" => "Not Found")
+    end
 
     display
   end
@@ -339,13 +347,26 @@ private
     @resolver = generate_resolver
     dbs = @resolver.all_databases
 
-    db_infos = dbs.reject { |config, att|
-                 'DATABASE_URL' == config
-               }.map { |config, att|
-                 [att.display_name, hpg_info(att, options[:extended])]
-               }
+    unique_dbs = dbs.reject { |config, att| 'DATABASE_URL' == config }.map{|config, att| att}.compact
 
-    @hpg_databases_with_info = Hash[db_infos]
+    db_infos = {}
+    mutex = Mutex.new
+    threads = (0..unique_dbs.size-1).map do |i|
+      Thread.new do
+        att = unique_dbs[i]
+        begin
+          info = hpg_info(att, options[:extended])
+        rescue
+          info = nil
+        end
+        mutex.synchronize do
+          db_infos[att.display_name] = info
+        end
+      end
+    end
+    threads.map(&:join)
+
+    @hpg_databases_with_info = db_infos
     return @hpg_databases_with_info
   end
 
