@@ -193,9 +193,17 @@ class Heroku::Command::Certs < Heroku::Command::Base
     raise UsageError if args.size < 1
     action_text ||= "Resolving trust chain"
     action(action_text) do
-      input = args.map { |arg| File.read(arg) rescue error("Unable to read #{args[0]} file") }.join("\n")
+      input = args.map { |arg|
+        begin
+          certbody=File.read(arg)
+        rescue Exception => e
+          error("Unable to read #{arg} file: #{e}") 
+        end
+        certbody
+      }.join("\n")
       SSL_DOCTOR.post(:path => path, :body => input, :headers => {'Content-Type' => 'application/octet-stream'}, :expects => 200).body
     end
+
   rescue Excon::Errors::BadRequest, Excon::Errors::UnprocessableEntity => e
     error(e.response.body)
   end
