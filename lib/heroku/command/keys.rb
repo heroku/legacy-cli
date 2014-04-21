@@ -68,7 +68,7 @@ module Heroku::Command
       end
     end
 
-    # keys:remove KEY
+    # keys:remove [KEY]
     #
     # remove a key from the current user
     #
