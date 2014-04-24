@@ -221,7 +221,7 @@ module Heroku
     ## DISPLAY HELPERS
 
     def action(message, options={})
-      message = "#{message} in organzation #{org}" if options[:org]
+      message = "#{message} in organization #{org}" if options[:org]
       display("#{message}... ", false)
       Heroku::Helpers.error_with_failure = true
       ret = yield
