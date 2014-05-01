@@ -253,7 +253,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
         if options[:region]
           status("region is #{region_from_app(info)}")
         else
-          status("stack is #{info['stack']}")
+          stack = (info['stack'].is_a?(Hash) ? info['stack']["name"] : info['stack'])
+          status("stack is #{stack}")
         end
       end
 
