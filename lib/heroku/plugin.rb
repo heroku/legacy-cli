@@ -24,6 +24,7 @@ module Heroku
       heroku-status
       heroku-stop
       heroku-suggest
+      heroku-two-factor
       pgbackups-automate
       pgcmd
       heroku-fork
