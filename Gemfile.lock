@@ -6,7 +6,9 @@ PATH
       launchy (>= 0.3.2)
       netrc (~> 0.7.7)
       rest-client (~> 1.6.1)
+      rqrcode (~> 0.4.2)
       rubyzip
+      term-ansicolor (~> 1.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -25,7 +27,7 @@ GEM
     clamp (0.5.0)
     crack (0.3.2)
     diff-lcs (1.1.3)
-    excon (0.31.0)
+    excon (0.33.0)
     fakefs (0.4.2)
     fpm (0.4.6)
       arr-pm (~> 0.0.7)
@@ -33,18 +35,19 @@ GEM
       cabin (~> 0.4.3)
       clamp
       json
-    heroku-api (0.3.17)
+    heroku-api (0.3.18)
       excon (~> 0.27)
-      multi_json (~> 1.8.2)
+      multi_json (~> 1.8)
     json (1.7.7)
     launchy (2.4.2)
       addressable (~> 2.3)
     mime-types (1.21)
-    multi_json (1.8.4)
+    multi_json (1.9.3)
     netrc (0.7.7)
     rake (10.0.3)
     rest-client (1.6.7)
       mime-types (>= 1.16)
+    rqrcode (0.4.2)
     rr (1.0.4)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
@@ -57,6 +60,9 @@ GEM
     rubyzip (0.9.9)
     sqlite3 (1.3.7)
     sqlite3 (1.3.7-x86-mingw32)
+    term-ansicolor (1.3.0)
+      tins (~> 1.0)
+    tins (1.1.0)
     webmock (1.9.0)
       addressable (>= 2.2.7)
       crack (>= 0.1.7)
