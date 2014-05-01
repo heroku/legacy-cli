@@ -208,10 +208,13 @@ class Heroku::Auth
     end
 
     def ask_for_password
-      echo_off
-      password = ask
-      puts
-      echo_on
+      begin
+        echo_off
+        password = ask
+        puts
+      ensure
+        echo_on
+      end
       return password
     end
 
