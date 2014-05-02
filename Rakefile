@@ -156,11 +156,6 @@ task "ci" do
   poll_ci
 end
 
-desc("open jenkins")
-task "jenkins" do
-  `open http://dx-jenkins.herokai.com`
-end
-
 desc("Create a new changelog article")
 task "changelog" do
   changelog = <<-CHANGELOG
@@ -177,7 +172,7 @@ CHANGELOG
 end
 
 desc("Release the latest version")
-task "release" => ["gem:release", "jenkins", "tgz:release", "zip:release", "manifest:update"] do
+task "release" => ["gem:release", "tgz:release", "zip:release", "manifest:update"] do
   puts("Released v#{version}")
 end
 
