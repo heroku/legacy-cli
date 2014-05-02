@@ -152,7 +152,7 @@ module Heroku::Command
     end
 
     def support_path
-      File.expand_path('../../../..', __FILE__) + "/support"
+      File.expand_path('../../../../support', __FILE__)
     end
 
     def js_code_file
