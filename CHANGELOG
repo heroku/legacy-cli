@@ -1,3 +1,9 @@
+3.7.0 2014-05-02
+================
+Fix issue with dependencies not being packaged for auto-update
+Bring two-factor plugin in
+Several bug fixes on pg and certs commands
+
 3.6.0 2014-03-14
 ================
 Remove multi_json, not working well existing toolbelt environments
