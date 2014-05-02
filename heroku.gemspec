@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
  !    For API access, see: https://github.com/heroku/heroku.rb
   MESSAGE
 
-  gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|spec/|test/)} }
+  gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|support/|spec/|test/)} }
 
   gem.add_dependency "heroku-api",     "~> 0.3.17"
   gem.add_dependency "launchy",        ">= 0.3.2"
