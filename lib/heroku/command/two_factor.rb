@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require "heroku/command/base"
 require "rqrcode"
 require "term/ansicolor"
 
