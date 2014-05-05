@@ -88,7 +88,7 @@ module Heroku::Command
         :expects => 200,
         :method  => :delete,
         :path    => "/account/two-factor",
-        :headers => { "Heroku-Password"    => Heroku::Auth.current_session_password }
+        :headers => { "Heroku-Password" => Heroku::Auth.current_session_password }
       )
       display "Disabled two-factor authentication."
     end
@@ -106,7 +106,7 @@ module Heroku::Command
         :expects => 200,
         :method  => :post,
         :path    => "/account/two-factor/recovery-codes",
-        :headers => { "Heroku-Two-Factor-Code"            => code }
+        :headers => { "Heroku-Two-Factor-Code" => code }
       ).body
 
       display "Recovery codes:"
