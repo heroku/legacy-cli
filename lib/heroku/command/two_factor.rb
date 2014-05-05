@@ -12,9 +12,9 @@ module Heroku::Command
     #
     def index
       status = api.request(
-        expects: 200,
-        method:  :get,
-        path:    "/account/two-factor"
+        :expects => 200,
+        :method  => :get,
+        :path    => "/account/two-factor"
       ).body
 
       if status["enabled"]
@@ -36,9 +36,9 @@ module Heroku::Command
       display "WARN: this will change your API key, and expire it every 30 days!"
 
       url = api.request(
-        expects: 200,
-        method:  :post,
-        path:    "/account/two-factor/url"
+        :expects => 200,
+        :method  => :post,
+        :path    => "/account/two-factor/url"
       ).body["url"]
 
       if options[:browser]
@@ -54,10 +54,10 @@ module Heroku::Command
 
       # make the actual API call to enable two factor
       api.request(
-        expects: 200,
-        method:  :put,
-        path:    "/account/two-factor",
-        headers: { "Heroku-Two-Factor-Code" => Heroku::Auth.two_factor_code }
+        :expects => 200,
+        :method  => :put,
+        :path    => "/account/two-factor",
+        :headers => { "Heroku-Two-Factor-Code" => Heroku::Auth.two_factor_code }
       )
 
       # get a new api key using the password and two factor
@@ -86,10 +86,10 @@ module Heroku::Command
     def disable
       Heroku::Auth.safe_ask_for_password
       api.request(
-        expects: 200,
-        method:  :delete,
-        path:    "/account/two-factor",
-        headers: { "Heroku-Password" => Heroku::Auth.current_session_password }
+        :expects => 200,
+        :method  => :delete,
+        :path    => "/account/two-factor",
+        :headers => { "Heroku-Password" => Heroku::Auth.current_session_password }
       )
       display "Disabled two-factor authentication."
     end
@@ -104,10 +104,10 @@ module Heroku::Command
       code = Heroku::Auth.ask_for_second_factor
 
       recovery_codes = api.request(
-        expects: 200,
-        method:  :post,
-        path:    "/account/two-factor/recovery-codes",
-        headers: { "Heroku-Two-Factor-Code" => code }
+        :expects => 200,
+        :method  => :post,
+        :path    => "/account/two-factor/recovery-codes",
+        :headers => { "Heroku-Two-Factor-Code" => code }
       ).body
 
       display "Recovery codes:"
