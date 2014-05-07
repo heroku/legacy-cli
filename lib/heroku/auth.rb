@@ -9,7 +9,7 @@ class Heroku::Auth
   class << self
     include Heroku::Helpers
 
-    attr_accessor :credentials, :current_session_password, :two_factor_code
+    attr_accessor :credentials, :two_factor_code
 
     def api
       @api ||= begin
@@ -190,36 +190,23 @@ class Heroku::Auth
       end
     end
 
-    def ask_for_credentials(force_2fa=false)
+    def ask_for_credentials
       puts "Enter your Heroku credentials."
 
       print "Email: "
       user = ask
 
-      safe_ask_for_password
+      print "Password (typing will be hidden): "
+      password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
 
-      if force_2fa
-        ask_for_second_factor
-      end
-
-      [user, api_key(user, @current_session_password)]
+      [user, api_key(user, password)]
     end
 
     def ask_for_second_factor
-      check_accounts!
       print "Two-factor code: "
       @two_factor_code = ask
       @two_factor_code = nil if @two_factor_code == ""
       @two_factor_code
-    end
-
-    def safe_ask_for_password
-      print "Password (typing will be hidden): "
-      @current_session_password = if running_on_windows?
-        ask_for_password_on_windows
-      else
-        ask_for_password
-      end
     end
 
     def ask_for_password_on_windows
@@ -372,14 +359,6 @@ class Heroku::Auth
         :scheme           => uri.scheme,
         :ssl_verify_peer  => verify_host?(host)
       }
-    end
-
-    # 2FA is not compatible with heroku-accounts
-    def check_accounts!
-      accounts =
-      if File.exists?("#{Heroku::Helpers.home_directory}/.heroku/plugins/heroku-accounts")
-        error %{Two-factor is not compatible with the "heroku-accounts" plugin. Please remove it and try again.}
-      end
     end
   end
 end
