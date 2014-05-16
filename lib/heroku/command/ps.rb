@@ -1,5 +1,4 @@
 require "heroku/command/base"
-require "json"
 
 # manage dynos (dynos, workers)
 #
@@ -199,7 +198,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         formation, quantity, size = change
         quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
-        {:process => formation, :quantity => quantity, :size => size}
+        { "process" => formation, "quantity" => quantity, "size" => size}
       end
     end.compact
 
@@ -214,7 +213,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         :expects => 200,
         :method  => :patch,
         :path    => "/apps/#{app}/formation",
-        :body    => {:updates => changes}.to_json,
+        :body    => json_encode("updates" => changes),
         :headers => {
           "Accept"       => "application/vnd.heroku+json; version=3",
           "Content-Type" => "application/json"
@@ -299,7 +298,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         :expects => 200,
         :method  => :patch,
         :path    => "/apps/#{app}/formation",
-        :body    => { "updates" => changes }.to_json,
+        :body    => json_encode("updates" => changes),
         :headers => {
           "Accept"       => "application/vnd.heroku+json; version=3",
           "Content-Type" => "application/json"
