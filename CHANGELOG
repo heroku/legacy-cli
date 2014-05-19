@@ -1,3 +1,7 @@
+3.7.4 2014-05-19
+================
+Fix issue with json dependency in ps commands
+
 3.7.3 2014-05-05
 ================
 Fix compatibility with 1.8.7
