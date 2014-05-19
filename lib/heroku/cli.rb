@@ -11,6 +11,15 @@ if RUBY_VERSION =~ /^1.8.6/
   require('rest_client')
 end
 
+begin
+  # attempt to load the JSON parser bundled with ruby for multi_json
+  # we're doing this because several users apparently have gems broken
+  # due to OS upgrades. see: https://github.com/heroku/heroku/issues/932
+  require 'json'
+rescue LoadError
+  # let multi_json fallback to yajl/oj/okjson
+end
+
 class Heroku::CLI
 
   extend Heroku::Helpers
