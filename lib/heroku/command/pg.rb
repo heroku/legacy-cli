@@ -1,3 +1,5 @@
+require "thread"
+
 require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
