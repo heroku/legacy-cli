@@ -1,3 +1,7 @@
+3.7.5 2014-05-19
+================
+Keep using the system json gem when possible
+
 3.7.4 2014-05-19
 ================
 Fix issue with json dependency in ps commands
