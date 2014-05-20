@@ -1,3 +1,7 @@
+3.7.5 2014-05-20
+================
+Remove 2fa:enable/disable, please visit https://dashboard.heroku.com for these
+
 3.7.5 2014-05-19
 ================
 Keep using the system json gem when possible
