@@ -222,11 +222,15 @@ module Heroku
         require 'rest_client'
         raise(error)
       end
-    rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized
-      puts "Authentication failure"
+    rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized => e
       if ENV['HEROKU_API_KEY']
+        puts "Authentication failure"
         exit 1
+      end
+      if wrong_two_factor_code?(e)
+        puts "Invalid two-factor code"
       else
+        puts "Authentication failure"
         run "login"
         retry
       end
@@ -254,6 +258,13 @@ module Heroku
       end
     rescue Heroku::API::Errors::Timeout, RestClient::RequestTimeout
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
+    rescue Heroku::API::Errors::Forbidden => e
+      if e.response.headers.has_key?("Heroku-Two-Factor-Required")
+        Heroku::Auth.ask_for_second_factor
+        retry
+      else
+        error extract_error(e.response.body)
+      end
     rescue Heroku::API::Errors::ErrorWithResponse => e
       error extract_error(e.response.body)
     rescue RestClient::RequestFailed => e
@@ -299,6 +310,11 @@ module Heroku
     def self.parse_error_plain(body)
       return unless body.respond_to?(:headers) && body.headers[:content_type].to_s.include?("text/plain")
       body.to_s
+    end
+
+    def self.wrong_two_factor_code?(e)
+      error = json_decode(e.response.body)
+      error["id"] == "invalid_two_factor_code"
     end
   end
 end
