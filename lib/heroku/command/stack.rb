@@ -33,13 +33,13 @@ module Heroku::Command
       styled_array(stacks)
     end
 
-    # stack:migrate STACK
+    # stack:set STACK
     #
-    # prepare migration of this app to a new stack
+    # set new app stack
     #
     #Example:
     #
-    # $ heroku stack:migrate cedar
+    # $ heroku stack:set cedar
     # -----> Preparing to migrate evening-warrior-2345
     #        bamboo-mri-1.9.2 -> bamboo-ree-1.8.7
     #
@@ -51,12 +51,14 @@ module Heroku::Command
     # -----> Migration prepared.
     #        Run 'git push heroku master' to execute migration.
     #
-    def migrate
+    def set
       unless stack = shift_argument
-        error("Usage: heroku stack:migrate STACK.\nMust specify target stack.")
+        error("Usage: heroku stack:set STACK.\nMust specify target stack.")
       end
 
       display(api.put_stack(app, stack).body)
     end
+
+    alias_command "stack:migrate", "stack:set"
   end
 end
