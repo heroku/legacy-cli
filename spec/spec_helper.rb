@@ -3,7 +3,6 @@ $stdin = File.new("/dev/null")
 require "rubygems"
 
 require "excon"
-Excon.defaults[:mock] = true
 
 # ensure these are around for errors
 # as their require is generally deferred
@@ -20,6 +19,7 @@ require "webmock/rspec"
 include WebMock::API
 
 WebMock::HttpLibAdapters::ExconAdapter.disable!
+Excon.defaults[:mock] = true
 
 def api
   Heroku::API.new(:api_key => "pass", :mock => true)
