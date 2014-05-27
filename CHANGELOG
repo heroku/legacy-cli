@@ -1,3 +1,8 @@
+3.8.2 2014-05-27
+================
+Rename stack:migrate to stack:set
+Bug fixes for the certs commands and another issue with 1.8 compatibility
+
 3.8.1 2014-05-23
 ================
 Handle 2FA errors on all commands
