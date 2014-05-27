@@ -20,12 +20,14 @@ class Heroku::Command::Certs < Heroku::Command::Base
       display "Use `heroku certs:add CRT KEY` to add one."
     else
       endpoints.map! do |endpoint|
-        {
-          'cname'       => endpoint['cname'],
-          'domains'     => endpoint['ssl_cert']['cert_domains'].join(', '),
-          'expires_at'  => format_date(endpoint['ssl_cert']['expires_at']),
-          'ca_signed?'  => endpoint['ssl_cert']['ca_signed?'].to_s.capitalize
-        }
+        ssl_cert_attributes = {}
+        if cert = endpoint['ssl_cert']
+          ssl_cert_attributes.merge!(
+            'domains'    => cert['cert_domains'].join(', '),
+            'expires_at' => format_date(cert['expires_at']),
+            'ca_signed?' => cert['ca_signed?'].to_s.capitalize)
+        end
+        { 'cname' => endpoint['cname'] }.merge(ssl_cert_attributes)
       end
       display_table(
         endpoints,
