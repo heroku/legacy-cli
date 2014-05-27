@@ -36,7 +36,7 @@ describe Heroku::Command::Ps do
               "updated_at" => "2012-09-11T12:34:56Z",
               "command"    => "bundle exec thin start -p $PORT",
               "created_at" => "2012-09-11T12:30:56Z",
-              "id"         => SecureRandom.uuid,
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
               "name"       => "web.#{i+1}",
               "state"      => "created",
               "type"       => "web"
@@ -72,7 +72,7 @@ STDOUT
               "updated_at" => "2012-09-11T12:34:56Z",
               "command"    => "bash",
               "created_at" => "2012-09-11T12:30:56Z",
-              "id"         => SecureRandom.uuid,
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
               "name"       => "run.#{i+1}",
               "state"      => "created",
               "type"       => "run"
@@ -100,7 +100,7 @@ STDOUT
               "updated_at" => "2012-09-11T12:34:56Z",
               "command"    => "bundle exec thin start -p $PORT",
               "created_at" => "2012-09-11T12:30:56Z",
-              "id"         => SecureRandom.uuid,
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
               "name"       => "web.#{i+1}",
               "state"      => "created",
               "type"       => "web"
@@ -129,7 +129,7 @@ STDOUT
               "updated_at" => "2012-09-11T12:34:56Z",
               "command"    => "bundle exec thin start -p $PORT",
               "created_at" => "2012-09-11T12:30:56Z",
-              "id"         => SecureRandom.uuid,
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
               "name"       => "web.#{i+1}",
               "state"      => "created",
               "type"       => "web"
@@ -159,7 +159,7 @@ STDOUT
               "updated_at" => "2012-09-11T12:34:56Z",
               "command"    => "bash",
               "created_at" => "2012-09-11T12:30:56Z",
-              "id"         => SecureRandom.uuid,
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
               "name"       => "run.#{i+1}",
               "state"      => "created",
               "type"       => "run"
