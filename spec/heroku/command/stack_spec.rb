@@ -30,13 +30,8 @@ STDOUT
         stderr, stdout = execute("stack:migrate bamboo-ree-1.8.7")
         stderr.should == ""
         stdout.should == <<-STDOUT
------> Preparing to migrate example
-       bamboo-mri-1.9.2 -> bamboo-ree-1.8.7
-
-       NOTE: Additional details here
-
-       -----> Migration prepared.
-       Run 'git push heroku master' to execute migration.
+Stack set. Next release on example will use bamboo-ree-1.8.7.
+Run `git push heroku master` to create a new release on bamboo-ree-1.8.7.
 STDOUT
       end
 
