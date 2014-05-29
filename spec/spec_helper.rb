@@ -167,16 +167,6 @@ def stub_rendezvous
   end
 end
 
-def stub_cisaurus
-  @stub_cisaurus ||= begin
-    stub_cisaurus = nil
-    any_instance_of(Heroku::Client::Cisaurus) do |cisaurus|
-      stub_cisaurus = stub(cisaurus)
-    end
-    stub_cisaurus
-  end
-end
-
 def stub_organizations
   @stub_organizations ||= begin
     stub_organizations = nil
