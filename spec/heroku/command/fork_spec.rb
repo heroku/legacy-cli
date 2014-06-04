@@ -1,6 +1,6 @@
+require "heroku/api/releases_v3"
 require "spec_helper"
 require "heroku/command/fork"
-require "heroku/client/cisaurus"
 
 module Heroku::Command
 
@@ -22,8 +22,19 @@ module Heroku::Command
     context "successfully" do
 
       before(:each) do
-        stub_cisaurus.copy_slug.returns("/v1/jobs/4099d263-bf67-4c0b-80f5-64a5d25598fd")
-        stub_cisaurus.job_done?.returns(true)
+        Excon.stub({ :method => :get,
+                     :path => "/apps/example/releases" },
+                   { :body => [{"slug" => {"id" => "SLUG_ID"}}],
+                     :status => 206})
+
+        Excon.stub({ :method => :post,
+                     :path => "/apps/example-fork/releases"},
+                   { :status => 201})
+      end
+
+      after(:each) do
+        Excon.stubs.shift
+        Excon.stubs.shift
       end
 
       it "forks an app" do
@@ -35,6 +46,12 @@ Copying slug... done
 Copying config vars... done
 Fork complete, view it at http://example-fork.herokuapp.com/
 STDOUT
+      end
+
+      it "copies slug" do
+        Heroku::API.any_instance.should_receive(:get_releases_v3).with("example", "version ..; order=desc,max=1;").and_call_original
+        Heroku::API.any_instance.should_receive(:post_release_v3).with("example-fork", "SLUG_ID", "Forked from example").and_call_original
+        execute("fork example-fork")
       end
 
       it "copies config vars" do
@@ -57,6 +74,36 @@ STDOUT
     end
 
     describe "error handling" do
+      it "fails if no source release exists" do
+        begin
+          Excon.stub({ :method => :get,
+                       :path => "/apps/example/releases" },
+                     { :body => [],
+                       :status => 206})
+          execute("fork example-fork")
+          raise
+        rescue Heroku::Command::CommandFailed => e
+          e.message.should == "No releases on example"
+        ensure
+          Excon.stubs.shift
+        end
+      end
+
+      it "fails if source slug does not exist" do
+        begin
+          Excon.stub({ :method => :get,
+                       :path => "/apps/example/releases" },
+                     { :body => [{"slug" => nil}],
+                       :status => 206})
+          execute("fork example-fork")
+          raise
+        rescue Heroku::Command::CommandFailed => e
+            e.message.should == "No slug on example"
+        ensure
+          Excon.stubs.shift
+        end
+      end
+
       it "doesn't attempt to fork to the same app" do
         lambda do
           execute("fork example")
@@ -64,10 +111,12 @@ STDOUT
       end
 
       it "confirms before deleting the app" do
-        stub_cisaurus.copy_slug { raise SocketError }
+        Excon.stub({:path => "/apps/example/releases"}, {:status => 500})
         begin
           execute("fork example-fork")
-        rescue SocketError
+        rescue Heroku::API::Errors::ErrorWithResponse
+        ensure
+          Excon.stubs.shift
         end
         api.get_apps.body.map { |app| app["name"] }.should ==
           %w( example example-fork )
@@ -75,7 +124,6 @@ STDOUT
 
       it "deletes fork app on error, before re-raising" do
         stub(Heroku::Command).confirm_command.returns(true)
-        stub_cisaurus.copy_slug { raise SocketError }
         api.get_apps.body.map { |app| app["name"] }.should == %w( example )
       end
     end

@@ -1,4 +1,4 @@
-require "heroku/client/cisaurus"
+require "heroku/api/releases_v3"
 require "heroku/command/base"
 
 module Heroku::Command
@@ -42,11 +42,7 @@ module Heroku::Command
       end
 
       action("Copying slug") do
-        job_location = cisaurus_client.copy_slug(from, to)
-        loop do
-          break if cisaurus_client.job_done?(job_location)
-          sleep 1
-        end
+        copy_slug(from, to)
       end
 
       from_config = api.get_config_vars(from).body
@@ -112,9 +108,12 @@ module Heroku::Command
 
   private
 
-    def cisaurus_client
-      cisaurus_url = ENV["CISAURUS_HOST"] || "https://cisaurus.herokuapp.com"
-      @cisaurus_client ||= Heroku::Client::Cisaurus.new(cisaurus_url)
+    def copy_slug(from, to)
+      from_releases = api.get_releases_v3(from, 'version ..; order=desc,max=1;').body
+      raise Heroku::Command::CommandFailed.new("No releases on #{from}") if from_releases.empty?
+      from_slug = from_releases.first.fetch('slug', {})
+      raise Heroku::Command::CommandFailed.new("No slug on #{from}") unless from_slug
+      api.post_release_v3(to, from_slug["id"], "Forked from #{from}")
     end
 
     def check_for_pgbackups!(app)
