@@ -114,13 +114,12 @@ STDOUT
         Excon.stub({:path => "/apps/example/releases"}, {:status => 500})
         begin
           execute("fork example-fork")
-          raise
         rescue Heroku::API::Errors::ErrorWithResponse
-          api.get_apps.body.map { |app| app["name"] }.should ==
-            %w( example example-fork )
         ensure
           Excon.stubs.shift
         end
+        api.get_apps.body.map { |app| app["name"] }.should ==
+          %w( example example-fork )
       end
 
       it "deletes fork app on error, before re-raising" do

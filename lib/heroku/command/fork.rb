@@ -89,7 +89,6 @@ module Heroku::Command
 
       puts "Fork complete, view it at #{to_info['web_url']}"
     rescue Exception => e
-      raise e
       raise if e.is_a?(Heroku::Command::CommandFailed)
 
       puts "Failed to fork app #{from} to #{to}."
