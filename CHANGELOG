@@ -1,3 +1,7 @@
+3.8.3 2014-06-11
+================
+Replace Cisaurus slug copy with v3 Releases API
+
 3.8.2 2014-05-27
 ================
 Rename stack:migrate to stack:set
