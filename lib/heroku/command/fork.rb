@@ -153,6 +153,7 @@ module Heroku::Command
     end
 
     def pg_api
+      require "rest_client"
       host = "postgres-api.heroku.com"
       RestClient::Resource.new "https://#{host}/client/v11/databases", Heroku::Auth.user, Heroku::Auth.password
     end
