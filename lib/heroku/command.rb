@@ -314,7 +314,10 @@ module Heroku
 
     def self.wrong_two_factor_code?(e)
       error = json_decode(e.response.body)
-      error["id"] == "invalid_two_factor_code"
+
+      # the server could have responded with XML, in which case `error` will be
+      # `nil`
+      error && error["id"] == "invalid_two_factor_code"
     end
   end
 end
