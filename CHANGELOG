@@ -1,3 +1,8 @@
+3.8.4 2014-06-18
+================
+Fix issue with rest-client dependency
+Fix issue parsing errors from old API endpoints
+
 3.8.3 2014-06-11
 ================
 Replace Cisaurus slug copy with v3 Releases API
