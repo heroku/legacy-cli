@@ -49,20 +49,6 @@ module Heroku
         next if skip_plugins.include?(plugin)
         load_plugin(plugin)
       end
-      # check to see if we are using ddollar/heroku-accounts
-      if list.include?('heroku-accounts') && Heroku::Auth.methods.include?(:fetch_from_account)
-        # setup netrc to match the default, if one exists
-        if default_account = %x{ git config heroku.account }.chomp
-          account = Heroku::Auth.extract_account rescue nil
-          if account && Heroku::Auth.read_credentials != [Heroku::Auth.user, Heroku::Auth.password]
-            Heroku::Auth.credentials = [Heroku::Auth.user, Heroku::Auth.password]
-            Heroku::Auth.write_credentials
-            load("#{File.dirname(__FILE__)}/command/accounts.rb")
-            # kill memoization in case '--account' was passed
-            Heroku::Auth.instance_variable_set(:@account, nil)
-          end
-        end
-      end
     end
 
     def self.load_plugin(plugin)

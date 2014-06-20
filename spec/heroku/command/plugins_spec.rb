@@ -79,7 +79,7 @@ STDOUT
       end
 
       it "updates all plugins" do
-        Heroku::Plugin.should_receive(:list).and_return([], [], ['Plugin'])
+        Heroku::Plugin.stub(:list).and_return(['Plugin'])
         @plugin.should_receive(:update).and_return(true)
         stderr, stdout = execute("plugins:update")
         stderr.should == ""
