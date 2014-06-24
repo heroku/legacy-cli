@@ -5,11 +5,14 @@ require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 require "heroku/helpers/pg_dump_restore"
 
+require "heroku/helpers/pg_diagnose"
+
 # manage heroku-postgresql databases
 #
 class Heroku::Command::Pg < Heroku::Command::Base
 
   include Heroku::Helpers::HerokuPostgresql
+  include Heroku::Helpers::PgDiagnose
 
   # pg
   #
@@ -46,6 +49,17 @@ class Heroku::Command::Pg < Heroku::Command::Base
     else
       index
     end
+  end
+
+  # pg:diagnose [DATABASE|REPORT_ID]
+  #
+  # run diagnostics report on DATABASE
+  #
+  # defaults to DATABASE_URL databases if no DATABASE is specified
+  # if REPORT_ID is specified instead, a previous report is displayed
+  def diagnose
+    db_id = shift_argument
+    run_diagnose(db_id)
   end
 
   # pg:promote DATABASE

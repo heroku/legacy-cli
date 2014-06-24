@@ -50,6 +50,10 @@ class Heroku::Client::HerokuPostgresql
     http_put "#{resource_name}/ingress"
   end
 
+  def metrics
+    http_get "#{resource_name}/metrics"
+  end
+
   def reset
     http_put "#{resource_name}/reset"
   end

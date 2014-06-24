@@ -224,5 +224,57 @@ STDOUT
       end
     end
 
+    context "diagnose" do
+      it 'runs a diagnostic report' do
+        any_instance_of(Pg) do |pgc|
+          stub(pgc).warn_old_databases { nil }
+          stub(pgc).get_metrics { nil }
+          stub(pgc).color? { false }
+        end
+        Excon.stub({:method => :post, :path => '/reports'}, {
+          :body => Heroku::OkJson.encode({
+            'id' => 'abc123',
+            'app' => 'appname',
+            'created_at' => '2014-06-24 01:26:11.941197+00',
+            'database' => 'dbcolor',
+            'checks' => [
+              {'name' => 'Hit Rate', 'status' => 'green', 'results' => nil},
+              {'name' => 'Connection Count', 'status' => 'red', 'results' => [{"count" => 150}]},
+              {'name' => 'list', 'status' => 'yellow', 'results' => [
+                {"thing" => 'one'},
+                {"thing" => 'two'}
+              ]},
+              {'name' => 'Load', 'status' => 'skipped', 'results' => {
+                'error' => 'Load check not supported on this plan'
+              }}
+            ]
+          })
+        })
+
+        stderr, stdout = execute("pg:diagnose")
+        stderr.should == ''
+        stdout.should == <<-STDOUT
+Report abc123 for appname::dbcolor
+available for one month after creation on 2014-06-24 01:26:11.941197+00
+
+RED: Connection Count
+Count
+-----
+150
+
+YELLOW: list
+Thing
+-----
+one
+two
+
+GREEN: Hit Rate
+SKIPPED: Load
+  Error Load check not supported on this plan
+
+STDOUT
+      end
+    end
+
   end
 end
