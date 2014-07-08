@@ -96,7 +96,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
       if command = options[:command]
-        command = "-c '#{command}'"
+        command = %Q(-c "#{command}")
       end
 
       shorthand = "#{attachment.app}::#{attachment.name.sub(/^HEROKU_POSTGRESQL_/,'').gsub(/\W+/, '-')}"
