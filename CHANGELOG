@@ -1,3 +1,7 @@
+3.9.1 2014-07-08
+================
+Support for HEROKU_DEBUG to show backtrace even on interrupt
+
 3.9.0 2014-07-02
 ================
 Updated bundled SSL certs
