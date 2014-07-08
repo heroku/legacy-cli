@@ -35,9 +35,13 @@ class Heroku::CLI
       command = args.shift.strip rescue "help"
       Heroku::Command.load
       Heroku::Command.run(command, args)
-    rescue Interrupt
+    rescue Interrupt => e
       `stty icanon echo`
-      error("Command cancelled.")
+      if ENV["HEROKU_DEBUG"]
+        styled_error(e)
+      else
+        error("Command cancelled.")
+      end
     rescue => error
       styled_error(error)
       exit(1)
