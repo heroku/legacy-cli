@@ -24,12 +24,18 @@ module Heroku::Helpers::PgDiagnose
     end
 
     JSON.parse(response.body)
-  rescue Excon::Errors::Error
-    error("Unable to connect to PGDiagnose API, please try again later")
+  rescue Excon::Errors::Error => e
+    message = Heroku::Command.extract_error(e.response.body) do
+      "Unable to connect to PGDiagnose API, please try again later"
+    end
+
+    error(message)
   end
 
   def get_report(report_id)
-    Excon.get("#{DIAGNOSE_URL}/reports/#{report_id}", :headers => {"Content-Type" => "application/json"})
+    Excon.get("#{DIAGNOSE_URL}/reports/#{report_id}",
+              :expects => [200, 201],
+              :headers => {"Content-Type" => "application/json"})
   end
 
   def generate_report(db_id)
@@ -48,7 +54,10 @@ module Heroku::Helpers::PgDiagnose
       'database' => attachment.config_var
     }
 
-    return Excon.post("#{DIAGNOSE_URL}/reports", :body => params.to_json, :headers => {"Content-Type" => "application/json"})
+    return Excon.post("#{DIAGNOSE_URL}/reports",
+                      :expects => [200, 201],
+                      :body => params.to_json,
+                      :headers => {"Content-Type" => "application/json"})
   end
 
   def warn_old_databases(attachment)
