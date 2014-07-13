@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby1.9.1
+#!/usr/bin/env ruby
 # encoding: UTF-8
 
 # resolve bin path, ignoring symlinks
