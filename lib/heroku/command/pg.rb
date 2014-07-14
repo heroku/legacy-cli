@@ -470,9 +470,10 @@ private
 
   def exec_sql_on_uri(sql,uri)
     begin
-      sslmode = (uri.host == 'localhost' ?  'prefer' : 'require' )
+      ENV["PGPASSWORD"] = uri.password
+      ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
       user_part = uri.user ? "-U #{uri.user}" : ""
-      `env PGPASSWORD=#{uri.password} PGSSLMODE=#{sslmode} psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
+      `psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
