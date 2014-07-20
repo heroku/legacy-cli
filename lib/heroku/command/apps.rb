@@ -282,7 +282,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "create", "apps:create"
 
-  # apps:rename NEWNAME
+  # apps:rename NEWNAME --app APP
   #
   # rename the app
   #
@@ -320,7 +320,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "rename", "apps:rename"
 
-  # apps:open
+  # apps:open --app APP
   #
   # open the app in a web browser
   #
@@ -341,7 +341,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "open", "apps:open"
 
-  # apps:destroy
+  # apps:destroy --app APP
   #
   # permanently destroy an app
   #
@@ -413,7 +413,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "leave", "apps:leave"
 
-  # apps:lock
+  # apps:lock --app APP
   #
   # lock an organization app to restrict access
   #
@@ -430,7 +430,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "lock", "apps:lock"
 
-  # apps:unlock
+  # apps:unlock --app APP
   #
   # unlock an organization app so that any org member can join it
   #
@@ -447,7 +447,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "unlock", "apps:unlock"
 
-  # apps:upgrade TIER
+  # apps:upgrade TIER --app APP
   #
   # HIDDEN: upgrade an app's pricing tier
   #
@@ -463,7 +463,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
   alias_command "upgrade", "apps:upgrade"
 
-  # apps:downgrade TIER
+  # apps:downgrade TIER --app APP
   #
   # HIDDEN: downgrade an app's pricing tier
   #
