@@ -1,3 +1,8 @@
+3.9.2 2014-07-21
+================
+New pg:upgrade and pg:maintenance commands (from pg-extras)
+Fix pg:psql -c prompt quoting on windows
+
 3.9.1 2014-07-08
 ================
 Support for HEROKU_DEBUG to show backtrace even on interrupt
