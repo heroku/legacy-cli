@@ -1,3 +1,7 @@
+3.9.3 2014-07-21
+================
+Fix a bug where setting HEROKU_API_KEY would cause failures
+
 3.9.2 2014-07-21
 ================
 New pg:upgrade and pg:maintenance commands (from pg-extras)
