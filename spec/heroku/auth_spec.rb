@@ -61,24 +61,6 @@ module Heroku
       end
     end
 
-    context "API key is set via environment variable with alert" do
-      before do
-        ENV['HEROKU_API_KEY'] = "secret"
-        @cli.unstub!(:display)
-      end
-
-      it "gets credentials from environment variables in preference to credentials file" do
-        cap = capture_stdout do
-          @cli.read_credentials.should == ['', ENV['HEROKU_API_KEY']]
-        end
-        cap.should include("Using HEROKU_API_KEY from environment")
-      end
-
-      after do
-        @cli.stub!(:display)
-      end
-    end
-
     context "API key is set via environment variable" do
       before do
         ENV['HEROKU_API_KEY'] = "secret"
