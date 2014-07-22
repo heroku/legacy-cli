@@ -1,3 +1,7 @@
+3.9.5 2014-07-08
+================
+Roll back to 3.9.1 until we can determine cause of login failures
+
 3.9.1 2014-07-08
 ================
 Support for HEROKU_DEBUG to show backtrace even on interrupt
