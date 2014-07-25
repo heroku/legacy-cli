@@ -63,7 +63,7 @@ module Heroku::Helpers::PgDiagnose
   def warn_old_databases(attachment)
     @uri = URI.parse(attachment.url) # for #nine_two?
     if !nine_two?
-      warn "WARNING: pg:diagnose is only fully suppoted on Postgres version >= 9.2. Some checks will be skipped.\n\n"
+      warn "WARNING: pg:diagnose is only fully supported on Postgres version >= 9.2. Some checks will be skipped.\n\n"
     end
   end
 
