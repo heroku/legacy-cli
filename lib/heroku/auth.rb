@@ -203,7 +203,7 @@ class Heroku::Auth
     end
 
     def ask_for_second_factor
-      print "Two-factor code: "
+      display "Two-factor code: ", false
       @two_factor_code = ask
       @two_factor_code = nil if @two_factor_code == ""
       @api = nil # reset it
