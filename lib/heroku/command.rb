@@ -223,17 +223,8 @@ module Heroku
         raise(error)
       end
     rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized => e
-      if ENV['HEROKU_API_KEY']
-        puts "Authentication failure"
-        exit 1
-      end
-      if wrong_two_factor_code?(e)
-        puts "Invalid two-factor code"
-      else
-        puts "Authentication failure"
-        run "login"
-        retry
-      end
+      retry_login = handle_auth_error(e)
+      retry if retry_login
     rescue Heroku::API::Errors::VerificationRequired, RestClient::PaymentRequired => e
       retry if Heroku::Helpers.confirm_billing
     rescue Heroku::API::Errors::NotFound => e
@@ -277,6 +268,21 @@ module Heroku
       error("Unable to connect to Heroku API, please check internet connectivity and try again.")
     ensure
       display_warnings
+    end
+
+    def self.handle_auth_error(e)
+      if ENV['HEROKU_API_KEY']
+        puts "Authentication failure"
+        exit 1
+      end
+      if wrong_two_factor_code?(e)
+        puts "Invalid two-factor code"
+        false
+      else
+        puts "Authentication failure"
+        run "login"
+        true
+      end
     end
 
     def self.parse(cmd)
