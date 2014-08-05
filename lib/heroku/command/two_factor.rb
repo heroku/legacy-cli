@@ -40,8 +40,7 @@ module Heroku::Command
         :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
         :method  => :patch,
         :path    => "/account",
-        :body    => update,
-      )
+        :body    => update)
       display "Disabled two-factor authentication."
     rescue Heroku::API::Errors::RequestFailed => e
       error Heroku::Command.extract_error(e.response.body)
