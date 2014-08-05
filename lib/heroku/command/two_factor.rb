@@ -11,8 +11,7 @@ module Heroku::Command
         :expects => 200,
         :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
         :method  => :get,
-        :path    => "/account"
-      ).body
+        :path    => "/account").body
 
       if account["two_factor_authentication"]
         display "Two-factor auth is enabled."
