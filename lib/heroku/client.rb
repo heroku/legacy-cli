@@ -589,7 +589,11 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     when "https"
       https_proxy
     end
-    RestClient::Resource.new(realize_full_uri(uri), options.merge(:user => user, :password => password))
+    resource_options = options.merge(:user => user, :password => password)
+    if ENV["HEROKU_SSL_VERIFY"] == "disable"
+      resource_options.merge!(:verify_ssl => OpenSSL::SSL::VERIFY_NONE)
+    end
+    RestClient::Resource.new(realize_full_uri(uri), resource_options)
   end
 
   def get(uri, extra_headers={})    # :nodoc:
