@@ -7,13 +7,14 @@ module Heroku::Command
     # Display whether two-factor is enabled or not
     #
     def index
-      status = api.request(
+      account = api.request(
         :expects => 200,
+        :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
         :method  => :get,
-        :path    => "/account/two-factor"
+        :path    => "/account"
       ).body
 
-      if status["enabled"]
+      if account["two_factor_authentication"]
         display "Two-factor auth is enabled."
       else
         display "Two-factor is not enabled."
