@@ -214,15 +214,15 @@ module Heroku::Command
         db1 = "DATABASE_URL"
       end
 
-      from_url, from_name = resolve_transfer(db1)
-      to_url, to_name = resolve_transfer(db2)
+      from = resolve_transfer(db1)
+      to = resolve_transfer(db2)
 
       validate_arguments!
 
-      opts      = {}
-
-      if confirm_command(app, "WARNING: Destructive Action\nTransfering data from #{from_name} to #{to_name}")
-        backup = transfer!(from_url, from_name, to_url, to_name, opts)
+      opts       = {}
+      verify_app = to.app || app
+      if confirm_command(verify_app, "WARNING: Destructive Action\nTransfering data from #{from.name} to #{to.name}")
+        backup = transfer!(from.url, from.name, to.url, to.name, opts)
         backup = poll_transfer!(backup)
 
         if backup["error_at"]
@@ -363,15 +363,17 @@ You can also watch progress with `heroku logs --tail --ps pgbackups -a #{app}`
 
     private
 
+    TransferEndpoint = Struct.new(:url, :name, :app)
+
     #
     # resolve the given database identifier
     def resolve_transfer(db)
       if /^postgres:/ =~ db
         uri = URI.parse(db)
-        [uri, "Database on #{uri.host}:#{uri.port || 5432}#{uri.path}"]
+        TransferEndpoint.new(uri, "Database on #{uri.host}:#{uri.port || 5432}#{uri.path}")
       else
         attachment = resolve(db)
-        [attachment.url, db.upcase]
+        TransferEndpoint.new(attachment.url, db.upcase, attachment.app)
       end
     end
 
