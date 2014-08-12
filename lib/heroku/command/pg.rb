@@ -341,7 +341,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   def maintenance
     mode_with_argument = shift_argument || ''
     mode, mode_argument = mode_with_argument.split('=')
-    p [mode, mode_argument]
+
     db   = shift_argument
     no_maintenance = options[:force]
     if mode.nil? || db.nil? || !(%w[info run window].include? mode)
