@@ -530,7 +530,9 @@ private
 
   def version
     return @version if defined? @version
-    @version = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)[1]
+    result = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)
+    fail("Unable to determine Postgres version") unless result
+    @version = result[1]
   end
 
   def nine_two?
@@ -564,7 +566,11 @@ private
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
       user_part = uri.user ? "-U #{uri.user}" : ""
-      `psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
+      output = `psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
+      if (! $?.success?) || output.nil? || output.empty?
+        raise "psql failed. exit status #{$?.to_i}, output: #{output.inspect}"
+      end
+      output
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
