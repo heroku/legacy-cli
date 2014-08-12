@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (3.9.7.pre4)
+    heroku (3.9.7)
       excon (= 0.33.0)
       heroku-api (= 0.3.18)
       launchy (>= 0.3.2)

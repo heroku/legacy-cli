@@ -1,3 +1,8 @@
+3.9.7 2014-08-12
+================
+Bring 2fa:disable back
+Several pg and pgbackups command improvements
+
 3.9.4 2014-07-21
 ================
 Actually fix a bug where setting HEROKU_API_KEY would cause failures
