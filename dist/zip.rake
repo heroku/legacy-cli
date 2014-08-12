@@ -36,5 +36,5 @@ task "zip:release" => %w( zip:build zip:sign ) do |t|
   store pkg("heroku-#{version}.zip"), "heroku-client/heroku-client-beta.zip" if beta?
   store pkg("heroku-#{version}.zip"), "heroku-client/heroku-client.zip" unless beta?
 
-  sh "heroku config:add UPDATE_HASH=#{zip_signature} -a toolbelt"
+  sh "heroku config:add UPDATE_HASH=#{zip_signature} -a toolbelt" unless beta?
 end
