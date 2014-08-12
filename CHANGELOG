@@ -1,3 +1,7 @@
+3.9.8 2014-08-13
+================
+Upgrade heroku-api and excon
+
 3.9.7 2014-08-12
 ================
 Bring 2fa:disable back
