@@ -12,53 +12,85 @@ module Heroku::Command
 
     context("install") do
 
-      before do
-        Heroku::Plugin.should_receive(:new).with('git://github.com/heroku/Plugin.git').and_return(@plugin)
-        @plugin.should_receive(:install).and_return(true)
+      context("when a plugin URL is not specified") do
+
+        it "requires a URL to be specified" do
+          stderr, stdout = execute("plugins:install")
+          stderr.should == <<-STDERR
+ !    Usage: heroku plugins:install URL
+STDERR
+          stdout.should == ""
+        end
+
       end
 
-      it "installs plugins" do
-        Heroku::Plugin.should_receive(:load_plugin).and_return(true)
-        stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+      context("when a plugin URL is specified") do
+
+        before do
+          Heroku::Plugin.should_receive(:new).with('git://github.com/heroku/Plugin.git').and_return(@plugin)
+          @plugin.should_receive(:install).and_return(true)
+        end
+
+        it "installs plugins" do
+          Heroku::Plugin.should_receive(:load_plugin).and_return(true)
+          stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
 Installing Plugin... done
 STDOUT
-      end
+        end
 
-      it "does not install plugins that do not load" do
-        Heroku::Plugin.should_receive(:load_plugin).and_return(false)
-        @plugin.should_receive(:uninstall).and_return(true)
-        stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
-        stderr.should == '' # normally would have error, but mocks/stubs don't allow
-        stdout.should == "Installing Plugin... " # also inaccurate, would end in ' failed'
+        it "does not install plugins that do not load" do
+          Heroku::Plugin.should_receive(:load_plugin).and_return(false)
+          @plugin.should_receive(:uninstall).and_return(true)
+          stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
+          stderr.should == '' # normally would have error, but mocks/stubs don't allow
+          stdout.should == "Installing Plugin... " # also inaccurate, would end in ' failed'
+        end
+
       end
 
     end
 
     context("uninstall") do
 
-      before do
-        Heroku::Plugin.should_receive(:new).with('Plugin').and_return(@plugin)
+      context("when a plugin is not specified") do
+
+        it "requires a name to be specified" do
+          stderr, stdout = execute("plugins:uninstall")
+          stderr.should == <<-STDERR
+ !    Usage: heroku plugins:uninstall PLUGIN
+STDERR
+          stdout.should == ""
+        end
+
       end
 
-      it "uninstalls plugins" do
-        @plugin.should_receive(:uninstall).and_return(true)
-        stderr, stdout = execute("plugins:uninstall Plugin")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+      context("when a plugin is specified") do
+
+        before do
+          Heroku::Plugin.should_receive(:new).with('Plugin').and_return(@plugin)
+        end
+
+        it "uninstalls plugins" do
+          @plugin.should_receive(:uninstall).and_return(true)
+          stderr, stdout = execute("plugins:uninstall Plugin")
+          stderr.should == ""
+          stdout.should == <<-STDOUT
 Uninstalling Plugin... done
 STDOUT
-      end
+        end
 
-      it "does not uninstall plugins that do not exist" do
-        stderr, stdout = execute("plugins:uninstall Plugin")
-        stderr.should == <<-STDERR
+        it "does not uninstall plugins that do not exist" do
+          stderr, stdout = execute("plugins:uninstall Plugin")
+          stderr.should == <<-STDERR
  !    Plugin plugin not found.
 STDERR
-        stdout.should == <<-STDOUT
+          stdout.should == <<-STDOUT
 Uninstalling Plugin... failed
 STDOUT
+        end
+
       end
 
     end
