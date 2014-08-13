@@ -102,8 +102,10 @@ module Heroku
           end
 
           download_file(url, zip_filename)
-          hash = Digest::SHA256.file(zip_filename).hexdigest
-          error "Update hash signature mismatch" unless hash == official_zip_hash
+          unless prerelease
+            hash = Digest::SHA256.file(zip_filename).hexdigest
+            error "Update hash signature mismatch" unless hash == official_zip_hash
+          end
 
           extract_zip(zip_filename, download_dir)
           FileUtils.rm_f zip_filename
