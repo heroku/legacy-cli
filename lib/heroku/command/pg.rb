@@ -566,7 +566,7 @@ private
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
       user_part = uri.user ? "-U #{uri.user}" : ""
-      output = `psql -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
+      output = `#{psql_cmd} -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
       if (! $?.success?) || output.nil? || output.empty?
         raise "psql failed. exit status #{$?.to_i}, output: #{output.inspect}"
       end
@@ -578,4 +578,9 @@ private
     end
   end
 
+  def psql_cmd
+    # some people alais psql, so we need to find the real psql
+    # but windows doesn't have the command command
+    running_on_windows? ? 'psql' : 'command psql'
+  end
 end
