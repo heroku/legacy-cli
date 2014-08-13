@@ -18,16 +18,17 @@ module Heroku::Helpers
 
       heroku.read_logs(app, opts) do |chunk|
         unless chunk.empty?
-          if STDOUT.isatty && ENV.has_key?("TERM")
+          if $stdout.isatty && ENV.has_key?("TERM")
             display(colorize(chunk))
           else
             display(chunk)
+            $stdout.flush
           end
         end
       end
     rescue Errno::EPIPE
     rescue Interrupt => interrupt
-      if STDOUT.isatty && ENV.has_key?("TERM")
+      if $stdout.isatty && ENV.has_key?("TERM")
         display("\e[0m")
       end
       raise(interrupt)
