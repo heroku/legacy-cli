@@ -27,6 +27,8 @@ class Heroku::Command::Base
       options[:confirm]
     elsif options[:app].is_a?(String)
       options[:app]
+    elsif default_app = default_app_in_dir(Dir.pwd)
+      default_app
     elsif ENV.has_key?('HEROKU_APP')
       ENV['HEROKU_APP']
     elsif app_from_dir = extract_app_in_dir(Dir.pwd)
@@ -210,6 +212,13 @@ protected
 
   def validate_arguments!
     Heroku::Command.validate_arguments!
+  end
+
+  def default_app_in_dir(dir)
+    file_path = File.expand_path('.heroku_default', dir)
+    return unless File.file? file_path
+    default_app_name = File.read(file_path).strip
+    !default_app_name.empty? ? default_app_name : nil
   end
 
   def extract_app_in_dir(dir)

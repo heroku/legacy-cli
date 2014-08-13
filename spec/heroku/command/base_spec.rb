@@ -37,7 +37,7 @@ module Heroku::Command
           lambda { @base.confirm_command }.should raise_error(SystemExit)
         end.should == <<-STDERR
  !    Confirmation did not match example. Aborted.
-STDERR
+        STDERR
       end
     end
 
@@ -99,11 +99,40 @@ other\tgit@other.com:other.git (push)
         @base.app.should == 'example-staging'
       end
 
-      it "raises when cannot determine which app is it" do
-        @base.stub!(:git_remotes).and_return({ 'staging' => 'example-staging', 'production' => 'example' })
-        lambda { @base.app }.should raise_error(Heroku::Command::CommandFailed)
+      it "reads from .heroku_default if exists" do
+        FakeFS do
+          Dir.stub(:pwd) { '/myapppath' }
+          FileUtils.mkdir(Dir.pwd)
+          default_file_path = "#{Dir.pwd}/.heroku_default"
+          File.should_receive(:file?).with(default_file_path).and_return(true)
+          File.open(default_file_path, "w") do |f|
+            f.puts("default_app")
+          end
+          @base.app.should == 'default_app'
+          FileUtils.rm_rf(Dir.pwd)
+        end
       end
+
+      it "overrides .heroku_default when explicitly specified" do
+        FakeFS do
+          Dir.stub(:pwd) { '/myapppath' }
+          FileUtils.mkdir(Dir.pwd)
+          default_file_path = "#{Dir.pwd}/.heroku_default"
+          File.open(default_file_path, "w") do |f|
+            f.puts("default_app")
+          end
+          @base.stub!(:options).and_return(:app => "example")
+          @base.app.should == "example"
+          FileUtils.rm_rf(Dir.pwd)
+        end
+      end
+
     end
 
+    it "raises when cannot determine which app is it" do
+      @base.stub!(:git_remotes).and_return({ 'staging' => 'example-staging', 'production' => 'example' })
+      lambda { @base.app }.should raise_error(Heroku::Command::CommandFailed)
+    end
   end
+
 end
