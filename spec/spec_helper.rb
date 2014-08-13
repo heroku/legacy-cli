@@ -2,6 +2,9 @@ $stdin = File.new("/dev/null")
 
 require "rubygems"
 
+require "coveralls"
+Coveralls.wear!
+
 require "excon"
 
 # ensure these are around for errors
