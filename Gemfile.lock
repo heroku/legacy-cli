@@ -2,8 +2,7 @@ PATH
   remote: .
   specs:
     heroku (3.9.7)
-      excon (= 0.33.0)
-      heroku-api (= 0.3.18)
+      heroku-api (~> 0.3.19)
       launchy (>= 0.3.2)
       netrc (~> 0.7.7)
       rest-client (= 1.6.7)
@@ -26,7 +25,7 @@ GEM
     clamp (0.5.0)
     crack (0.3.2)
     diff-lcs (1.1.3)
-    excon (0.33.0)
+    excon (0.39.4)
     fakefs (0.4.2)
     fpm (0.4.6)
       arr-pm (~> 0.0.7)
@@ -34,8 +33,8 @@ GEM
       cabin (~> 0.4.3)
       clamp
       json
-    heroku-api (0.3.18)
-      excon (~> 0.27)
+    heroku-api (0.3.19)
+      excon (~> 0.38)
       multi_json (~> 1.8)
     json (1.7.7)
     launchy (2.4.2)
