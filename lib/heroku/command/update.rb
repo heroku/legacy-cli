@@ -16,7 +16,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    update_from_url("https://toolbelt.heroku.com/download/zip")
+    update_from_url(false)
   end
 
   # update:beta
@@ -28,15 +28,15 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def beta
     validate_arguments!
-    update_from_url("https://toolbelt.heroku.com/download/beta-zip")
+    update_from_url(true)
   end
 
 private
 
-  def update_from_url(url)
+  def update_from_url(prerelease)
     Heroku::Updater.check_disabled!
     action("Updating from #{Heroku::VERSION}") do
-      if new_version = Heroku::Updater.update(url)
+      if new_version = Heroku::Updater.update(prerelease)
         status("updated to #{new_version}")
       else
         status("nothing to update")
