@@ -7,8 +7,8 @@ For more about Heroku see <http://heroku.com>.
 
 To get started see <http://devcenter.heroku.com/articles/quickstart>
 
-[![Build Status](https://secure.travis-ci.org/heroku/heroku.png)](http://travis-ci.org/heroku/heroku)
-[![Dependency Status](https://gemnasium.com/heroku/heroku.png)](https://gemnasium.com/heroku/heroku)
+[![Build Status](https://travis-ci.org/heroku/heroku.svg?branch=master)](https://travis-ci.org/heroku/heroku)
+[![Dependency Status](https://gemnasium.com/heroku/heroku.svg)](https://gemnasium.com/heroku/heroku)
 
 Setup
 -----
