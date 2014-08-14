@@ -13,34 +13,34 @@ module Heroku
 
     describe('::compare_versions') do
       it 'calculates compare_versions' do
-        subject.compare_versions('1.1.1', '1.1.1').should == 0
+        expect(subject.compare_versions('1.1.1', '1.1.1')).to eq(0)
 
-        subject.compare_versions('2.1.1', '1.1.1').should == 1
-        subject.compare_versions('1.1.1', '2.1.1').should == -1
+        expect(subject.compare_versions('2.1.1', '1.1.1')).to eq(1)
+        expect(subject.compare_versions('1.1.1', '2.1.1')).to eq(-1)
 
-        subject.compare_versions('1.2.1', '1.1.1').should == 1
-        subject.compare_versions('1.1.1', '1.2.1').should == -1
+        expect(subject.compare_versions('1.2.1', '1.1.1')).to eq(1)
+        expect(subject.compare_versions('1.1.1', '1.2.1')).to eq(-1)
 
-        subject.compare_versions('1.1.2', '1.1.1').should == 1
-        subject.compare_versions('1.1.1', '1.1.2').should == -1
+        expect(subject.compare_versions('1.1.2', '1.1.1')).to eq(1)
+        expect(subject.compare_versions('1.1.1', '1.1.2')).to eq(-1)
 
-        subject.compare_versions('2.1.1', '1.2.1').should == 1
-        subject.compare_versions('1.2.1', '2.1.1').should == -1
+        expect(subject.compare_versions('2.1.1', '1.2.1')).to eq(1)
+        expect(subject.compare_versions('1.2.1', '2.1.1')).to eq(-1)
 
-        subject.compare_versions('2.1.1', '1.1.2').should == 1
-        subject.compare_versions('1.1.2', '2.1.1').should == -1
+        expect(subject.compare_versions('2.1.1', '1.1.2')).to eq(1)
+        expect(subject.compare_versions('1.1.2', '2.1.1')).to eq(-1)
 
-        subject.compare_versions('1.2.4', '1.2.3').should == 1
-        subject.compare_versions('1.2.3', '1.2.4').should == -1
+        expect(subject.compare_versions('1.2.4', '1.2.3')).to eq(1)
+        expect(subject.compare_versions('1.2.3', '1.2.4')).to eq(-1)
 
-        subject.compare_versions('1.2.1', '1.2'  ).should == 1
-        subject.compare_versions('1.2',   '1.2.1').should == -1
+        expect(subject.compare_versions('1.2.1', '1.2'  )).to eq(1)
+        expect(subject.compare_versions('1.2',   '1.2.1')).to eq(-1)
 
-        subject.compare_versions('1.1.1.pre1', '1.1.1').should == 1
-        subject.compare_versions('1.1.1', '1.1.1.pre1').should == -1
+        expect(subject.compare_versions('1.1.1.pre1', '1.1.1')).to eq(1)
+        expect(subject.compare_versions('1.1.1', '1.1.1.pre1')).to eq(-1)
 
-        subject.compare_versions('1.1.1.pre2', '1.1.1.pre1').should == 1
-        subject.compare_versions('1.1.1.pre1', '1.1.1.pre2').should == -1
+        expect(subject.compare_versions('1.1.1.pre2', '1.1.1.pre1')).to eq(1)
+        expect(subject.compare_versions('1.1.1.pre1', '1.1.1.pre2')).to eq(-1)
       end
     end
 
@@ -52,13 +52,13 @@ module Heroku
 
     shared_context 'with local version at 3.9.6' do
       before do
-        subject.stub(:latest_local_version).and_return('3.9.6')
+        allow(subject).to receive(:latest_local_version).and_return('3.9.6')
       end
     end
 
     shared_context 'with local version at 3.9.7' do
       before do
-        subject.stub(:latest_local_version).and_return('3.9.7')
+        allow(subject).to receive(:latest_local_version).and_return('3.9.7')
       end
     end
 
