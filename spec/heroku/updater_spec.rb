@@ -44,26 +44,10 @@ module Heroku
       end
     end
 
-    shared_context 'with released version at 3.9.7' do
+    describe '::update' do
       before do
         Excon.stub({:host => 'assets.heroku.com', :path => '/heroku-client/VERSION'}, {:body => "3.9.7\n"})
       end
-    end
-
-    shared_context 'with local version at 3.9.6' do
-      before do
-        allow(subject).to receive(:latest_local_version).and_return('3.9.6')
-      end
-    end
-
-    shared_context 'with local version at 3.9.7' do
-      before do
-        allow(subject).to receive(:latest_local_version).and_return('3.9.7')
-      end
-    end
-
-    describe '::update' do
-      include_context 'with released version at 3.9.7'
 
       describe 'non-beta' do
         before do
@@ -74,7 +58,9 @@ module Heroku
         end
 
         context 'with no update available' do
-          include_context 'with local version at 3.9.7'
+          before do
+            allow(subject).to receive(:latest_local_version).and_return('3.9.7')
+          end
 
           it 'does not update' do
             expect(subject.update(false)).to be_nil
@@ -82,7 +68,9 @@ module Heroku
         end
 
         context 'with an update available' do
-          include_context 'with local version at 3.9.6'
+          before do
+            allow(subject).to receive(:latest_local_version).and_return('3.9.6')
+          end
 
           it 'updates' do
             expect(subject.update(false)).to eq('3.9.7')
@@ -97,10 +85,22 @@ module Heroku
         end
 
         context 'with no update available' do
-          include_context 'with local version at 3.9.7'
+          before do
+            allow(subject).to receive(:latest_local_version).and_return('3.9.7')
+          end
 
           it 'still updates' do
             expect(subject.update(true)).to eq('3.9.7')
+          end
+        end
+
+        context 'with a beta older than what we have' do
+          before do
+            allow(subject).to receive(:latest_local_version).and_return('3.9.8')
+          end
+
+          it 'does not update' do
+            expect(subject.update(true)).to be_nil
           end
         end
       end
