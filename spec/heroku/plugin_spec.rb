@@ -6,20 +6,20 @@ module Heroku
     include SandboxHelper
 
     it "lives in ~/.heroku/plugins" do
-      Plugin.stub!(:home_directory).and_return('/home/user')
-      Plugin.directory.should == '/home/user/.heroku/plugins'
+      allow(Plugin).to receive(:home_directory).and_return('/home/user')
+      expect(Plugin.directory).to eq('/home/user/.heroku/plugins')
     end
 
     it "extracts the name from git urls" do
-      Plugin.new('git://github.com/heroku/plugin.git').name.should == 'plugin'
+      expect(Plugin.new('git://github.com/heroku/plugin.git').name).to eq('plugin')
     end
 
     describe "management" do
       before(:each) do
         @sandbox = "/tmp/heroku_plugins_spec_#{Process.pid}"
         FileUtils.mkdir_p(@sandbox)
-        Dir.stub!(:pwd).and_return(@sandbox)
-        Plugin.stub!(:directory).and_return(@sandbox)
+        allow(Dir).to receive(:pwd).and_return(@sandbox)
+        allow(Plugin).to receive(:directory).and_return(@sandbox)
       end
 
       after(:each) do
@@ -29,8 +29,8 @@ module Heroku
       it "lists installed plugins" do
         FileUtils.mkdir_p(@sandbox + '/plugin1')
         FileUtils.mkdir_p(@sandbox + '/plugin2')
-        Plugin.list.should include 'plugin1'
-        Plugin.list.should include 'plugin2'
+        expect(Plugin.list).to include 'plugin1'
+        expect(Plugin.list).to include 'plugin2'
       end
 
       it "installs pulling from the plugin url" do
@@ -38,8 +38,8 @@ module Heroku
         FileUtils.mkdir_p(plugin_folder)
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
         Plugin.new(plugin_folder).install
-        File.directory?("#{@sandbox}/heroku_plugin").should be_true
-        File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
+        expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
+        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("test\n")
       end
 
       it "reinstalls over old copies" do
@@ -48,8 +48,8 @@ module Heroku
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
         Plugin.new(plugin_folder).install
         Plugin.new(plugin_folder).install
-        File.directory?("#{@sandbox}/heroku_plugin").should be_true
-        File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
+        expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
+        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("test\n")
       end
 
       context "update" do
@@ -64,8 +64,8 @@ module Heroku
 
         it "updates existing copies" do
           Plugin.new('heroku_plugin').update
-          File.directory?("#{@sandbox}/heroku_plugin").should be_true
-          File.read("#{@sandbox}/heroku_plugin/README").should == "updated\n"
+          expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
+          expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("updated\n")
         end
 
         it "warns on legacy plugins" do
@@ -76,7 +76,7 @@ module Heroku
             rescue SystemExit
             end
           end
-          stderr.should == <<-STDERR
+          expect(stderr).to eq <<-STDERR
  !    heroku_plugin is a legacy plugin installation.
  !    Enable updating by reinstalling with `heroku plugins:install`.
 STDERR
@@ -84,7 +84,7 @@ STDERR
 
         it "raises exception on symlinked plugins" do
           `cd #{@sandbox} && ln -s heroku_plugin heroku_plugin_symlink`
-          lambda { Plugin.new('heroku_plugin_symlink').update }.should raise_error Heroku::Plugin::ErrorUpdatingSymlinkPlugin
+          expect { Plugin.new('heroku_plugin_symlink').update }.to raise_error Heroku::Plugin::ErrorUpdatingSymlinkPlugin
         end
 
       end
@@ -93,21 +93,21 @@ STDERR
       it "uninstalls removing the folder" do
         FileUtils.mkdir_p(@sandbox + '/plugin1')
         Plugin.new('git://github.com/heroku/plugin1.git').uninstall
-        Plugin.list.should == []
+        expect(Plugin.list).to eq([])
       end
 
       it "adds the lib folder in the plugin to the load path, if present" do
         FileUtils.mkdir_p(@sandbox + '/plugin/lib')
         File.open(@sandbox + '/plugin/lib/my_custom_plugin_file.rb', 'w') { |f| f.write "" }
         Plugin.load!
-        lambda { require 'my_custom_plugin_file' }.should_not raise_error(LoadError)
+        expect { require 'my_custom_plugin_file' }.not_to raise_error
       end
 
       it "loads init.rb, if present" do
         FileUtils.mkdir_p(@sandbox + '/plugin')
         File.open(@sandbox + '/plugin/init.rb', 'w') { |f| f.write "LoadedInit = true" }
         Plugin.load!
-        LoadedInit.should be_true
+        expect(LoadedInit).to be_truthy
       end
 
       describe "when there are plugin load errors" do
@@ -118,7 +118,7 @@ STDERR
 
         it "should not throw an error" do
           capture_stderr do
-            lambda { Plugin.load! }.should_not raise_error
+            expect { Plugin.load! }.not_to raise_error
           end
         end
 
@@ -126,7 +126,7 @@ STDERR
           stderr = capture_stderr do
             Plugin.load!
           end
-          stderr.should include('some_non_existant_file (LoadError)')
+          expect(stderr).to include('some_non_existant_file (LoadError)')
         end
 
         it "should still load other plugins" do
@@ -135,8 +135,8 @@ STDERR
           stderr = capture_stderr do
             Plugin.load!
           end
-          stderr.should include('some_non_existant_file (LoadError)')
-          LoadedPlugin2.should be_true
+          expect(stderr).to include('some_non_existant_file (LoadError)')
+          expect(LoadedPlugin2).to be_truthy
         end
       end
 
@@ -151,20 +151,20 @@ STDERR
 
         it "should show confirmation to remove deprecated plugins if in an interactive shell" do
           old_stdin_isatty = STDIN.isatty
-          STDIN.stub!(:isatty).and_return(true)
-          Plugin.should_receive(:confirm).with("The plugin heroku-releases has been deprecated. Would you like to remove it? (y/N)").and_return(true)
-          Plugin.should_receive(:remove_plugin).with("heroku-releases")
+          allow(STDIN).to receive(:isatty).and_return(true)
+          expect(Plugin).to receive(:confirm).with("The plugin heroku-releases has been deprecated. Would you like to remove it? (y/N)").and_return(true)
+          expect(Plugin).to receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
-          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
+          allow(STDIN).to receive(:isatty).and_return(old_stdin_isatty)
         end
 
         it "should not prompt for deprecation if not in an interactive shell" do
           old_stdin_isatty = STDIN.isatty
-          STDIN.stub!(:isatty).and_return(false)
-          Plugin.should_not_receive(:confirm)
-          Plugin.should_not_receive(:remove_plugin).with("heroku-releases")
+          allow(STDIN).to receive(:isatty).and_return(false)
+          expect(Plugin).not_to receive(:confirm)
+          expect(Plugin).not_to receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
-          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
+          allow(STDIN).to receive(:isatty).and_return(old_stdin_isatty)
         end
       end
     end

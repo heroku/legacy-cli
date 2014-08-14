@@ -7,64 +7,64 @@ describe Heroku::Command::Help do
   describe "help" do
     it "should show root help with no args" do
       stderr, stdout = execute("help")
-      stderr.should == ""
-      stdout.should include "Usage: heroku COMMAND [--app APP] [command-specific-options]"
-      stdout.should include "apps"
-      stdout.should include "help"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Usage: heroku COMMAND [--app APP] [command-specific-options]"
+      expect(stdout).to include "apps"
+      expect(stdout).to include "help"
     end
 
     it "should show command help and namespace help when ambigious" do
       stderr, stdout = execute("help apps")
-      stderr.should == ""
-      stdout.should include "heroku apps"
-      stdout.should include "list your apps"
-      stdout.should include "Additional commands"
-      stdout.should include "apps:create"
+      expect(stderr).to eq("")
+      expect(stdout).to include "heroku apps"
+      expect(stdout).to include "list your apps"
+      expect(stdout).to include "Additional commands"
+      expect(stdout).to include "apps:create"
     end
 
     it "should show only command help when not ambiguous" do
       stderr, stdout = execute("help apps:create")
-      stderr.should == ""
-      stdout.should include "heroku apps:create"
-      stdout.should include "create a new app"
-      stdout.should_not include "Additional commands"
+      expect(stderr).to eq("")
+      expect(stdout).to include "heroku apps:create"
+      expect(stdout).to include "create a new app"
+      expect(stdout).not_to include "Additional commands"
     end
 
     it "should show command help with --help" do
       stderr, stdout = execute("apps:create --help")
-      stderr.should == ""
-      stdout.should include "Usage: heroku apps:create"
-      stdout.should include "create a new app"
-      stdout.should_not include "Additional commands"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Usage: heroku apps:create"
+      expect(stdout).to include "create a new app"
+      expect(stdout).not_to include "Additional commands"
     end
 
     it "should redirect if the command is an alias" do
       stderr, stdout = execute("help create")
-      stderr.should == ""
-      stdout.should include "Alias: create redirects to apps:create"
-      stdout.should include "Usage: heroku apps:create"
-      stdout.should include "create a new app"
-      stdout.should_not include "Additional commands"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Alias: create redirects to apps:create"
+      expect(stdout).to include "Usage: heroku apps:create"
+      expect(stdout).to include "create a new app"
+      expect(stdout).not_to include "Additional commands"
     end
 
     it "should show if the command does not exist" do
       stderr, stdout = execute("help sudo:sandwich")
-      stderr.should == <<-STDERR
+      expect(stderr).to eq <<-STDERR
  !    sudo:sandwich is not a heroku command. See `heroku help`.
 STDERR
-      stdout.should == ""
+      expect(stdout).to eq("")
     end
 
     it "should show help with naked -h" do
       stderr, stdout = execute("-h")
-      stderr.should == ""
-      stdout.should include "Usage: heroku COMMAND"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Usage: heroku COMMAND"
     end
 
     it "should show help with naked --help" do
       stderr, stdout = execute("--help")
-      stderr.should == ""
-      stdout.should include "Usage: heroku COMMAND"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Usage: heroku COMMAND"
     end
 
     describe "with legacy help" do
@@ -72,21 +72,21 @@ STDERR
 
       it "displays the legacy group in the namespace list" do
         stderr, stdout = execute("help")
-        stderr.should == ""
-        stdout.should include "Foo Group"
+        expect(stderr).to eq("")
+        expect(stdout).to include "Foo Group"
       end
 
       it "displays group help" do
         stderr, stdout = execute("help foo")
-        stderr.should == ""
-        stdout.should include "do a bar to foo"
-        stdout.should include "do a baz to foo"
+        expect(stderr).to eq("")
+        expect(stdout).to include "do a bar to foo"
+        expect(stdout).to include "do a baz to foo"
       end
 
       it "displays legacy command-specific help" do
         stderr, stdout = execute("help foo:bar")
-        stderr.should == ""
-        stdout.should include "do a bar to foo"
+        expect(stderr).to eq("")
+        expect(stdout).to include "do a bar to foo"
       end
     end
   end

@@ -18,8 +18,8 @@ module Heroku::Command
       it "lists collaborators" do
         api.post_collaborator("example", "collaborator@example.com")
         stderr, stdout = execute("sharing")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === example Access List
 collaborator@example.com  collaborator
 email@example.com         collaborator
@@ -31,8 +31,8 @@ STDOUT
 
     it "adds collaborators with default access to view only" do
       stderr, stdout = execute("sharing:add collaborator@example.com")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Adding collaborator@example.com to example as collaborator... done
 STDOUT
     end
@@ -40,8 +40,8 @@ STDOUT
     it "removes collaborators" do
       api.post_collaborator("example", "collaborator@example.com")
       stderr, stdout = execute("sharing:remove collaborator@example.com")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Removing collaborator@example.com from example collaborators... done
 STDOUT
     end
@@ -49,8 +49,8 @@ STDOUT
     it "transfers ownership" do
       api.post_collaborator("example", "collaborator@example.com")
       stderr, stdout = execute("sharing:transfer collaborator@example.com")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Transferring example to collaborator@example.com... done
 STDOUT
     end

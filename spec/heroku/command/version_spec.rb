@@ -6,8 +6,8 @@ module Heroku::Command
 
     it "shows version info" do
       stderr, stdout = execute("version")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 #{Heroku.user_agent}
 STDOUT
     end

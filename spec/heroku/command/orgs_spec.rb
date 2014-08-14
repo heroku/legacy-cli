@@ -16,8 +16,8 @@ module Heroku::Command
     context(:index) do
       it "displays a message when you have no org memberships" do
         stderr, stdout = execute("orgs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 You are not a member of any organizations.
 STDOUT
       end
@@ -31,8 +31,8 @@ STDOUT
         )
 
         stderr, stdout = execute("orgs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 test-org   collaborator
 test-org2  admin
 
@@ -48,8 +48,8 @@ STDOUT
         )
 
         stderr, stdout = execute("orgs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 test-org   collaborator
 test-org2  admin, default
 
@@ -60,28 +60,28 @@ STDOUT
     context(:default) do
       context "when a target org is specified" do
         it "sets the default org to the target" do
-          org_api.should_receive(:set_default_org).with("test-org").once
+          expect(org_api).to receive(:set_default_org).with("test-org").once
           stderr, stdout = execute("orgs:default test-org")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Setting test-org as the default organization... done
 STDOUT
         end
 
         it "removes the default org when the org name is 'personal'" do
-          org_api.should_receive(:remove_default_org).once
+          expect(org_api).to receive(:remove_default_org).once
           stderr, stdout = execute("orgs:default personal")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Setting personal account as default... done
 STDOUT
         end
 
         it "removes the defautl org when the personal flag is passed" do
-          org_api.should_receive(:remove_default_org).once
+          expect(org_api).to receive(:remove_default_org).once
           stderr, stdout = execute("orgs:default --personal")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Setting personal account as default... done
 STDOUT
         end
@@ -98,16 +98,16 @@ STDOUT
           )
 
           stderr, stdout = execute("orgs:default")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 test-org is the default organization.
 STDOUT
         end
 
         it "displays personal account as default when no org present" do
           stderr, stdout = execute("orgs:default")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Personal account is default.
 STDOUT
         end
@@ -117,12 +117,12 @@ STDOUT
     context(:open) do
       before(:each) do
         require("launchy")
-        ::Launchy.should_receive(:open).with("https://dashboard.heroku.com/orgs/test-org/apps").once.and_return("")
+        expect(::Launchy).to receive(:open).with("https://dashboard.heroku.com/orgs/test-org/apps").once.and_return("")
       end
 
       it "opens the org specified in an argument" do
         stderr, stdout = execute("orgs:open --org test-org")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Opening web interface for test-org... done
 STDOUT
       end
@@ -136,7 +136,7 @@ STDOUT
         )
 
         stderr, stdout = execute("orgs:open")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Opening web interface for test-org... done
 STDOUT
       end

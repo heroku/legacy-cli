@@ -23,10 +23,10 @@ describe Heroku::Command::Releases do
     end
 
     it "should list releases" do
-      Heroku::Command::Releases.any_instance.should_receive(:time_ago).exactly(5).times.and_return('2012/09/10 11:36:44 (~ 0s ago)', '2012/09/10 11:36:43 (~ 1s ago)', '2012/09/10 11:35:44 (~ 1m ago)', '2012/09/10 10:36:44 (~ 1h ago)', '2012/01/02 12:34:56')
+      expect_any_instance_of(Heroku::Command::Releases).to receive(:time_ago).exactly(5).times.and_return('2012/09/10 11:36:44 (~ 0s ago)', '2012/09/10 11:36:43 (~ 1s ago)', '2012/09/10 11:35:44 (~ 1m ago)', '2012/09/10 10:36:44 (~ 1h ago)', '2012/01/02 12:34:56')
       @stderr, @stdout = execute("releases")
-      @stderr.should == ""
-      @stdout.should == <<-STDOUT
+      expect(@stderr).to eq("")
+      expect(@stdout).to eq <<-STDOUT
 === example Releases
 v5  Config add SUPER_LONG_CONFIG_VAR_TO_GE..  email@example.com  2012/09/10 11:36:44 (~ 0s ago)
 v4  Config add QUX_QUUX                       email@example.com  2012/09/10 11:36:43 (~ 1s ago)
@@ -38,10 +38,10 @@ STDOUT
     end
 
     it "should list a specified number of releases" do
-      Heroku::Command::Releases.any_instance.should_receive(:time_ago).exactly(3).times.and_return('2012/09/10 11:36:44 (~ 0s ago)', '2012/09/10 11:36:43 (~ 1s ago)', '2012/09/10 11:35:44 (~ 1m ago)')
+      expect_any_instance_of(Heroku::Command::Releases).to receive(:time_ago).exactly(3).times.and_return('2012/09/10 11:36:44 (~ 0s ago)', '2012/09/10 11:36:43 (~ 1s ago)', '2012/09/10 11:35:44 (~ 1m ago)')
       @stderr, @stdout = execute("releases -n 3")
-      @stderr.should == ""
-      @stdout.should == <<-STDOUT
+      expect(@stderr).to eq("")
+      expect(@stdout).to eq <<-STDOUT
 === example Releases
 v5  Config add SUPER_LONG_CONFIG_VAR_TO_GE..  email@example.com  2012/09/10 11:36:44 (~ 0s ago)
 v4  Config add QUX_QUUX                       email@example.com  2012/09/10 11:36:43 (~ 1s ago)
@@ -63,17 +63,17 @@ STDOUT
 
     it "requires a release to be specified" do
       stderr, stdout = execute("releases:info")
-      stderr.should == <<-STDERR
+      expect(stderr).to eq <<-STDERR
  !    Usage: heroku releases:info RELEASE
 STDERR
-      stdout.should == ""
+      expect(stdout).to eq("")
     end
 
     it "shows info for a single release" do
-      Heroku::Command::Releases.any_instance.should_receive(:time_ago).and_return("2012/09/11 12:34:56 (~ 0s ago)")
+      expect_any_instance_of(Heroku::Command::Releases).to receive(:time_ago).and_return("2012/09/11 12:34:56 (~ 0s ago)")
       stderr, stdout = execute("releases:info v1")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === Release v1
 By:     email@example.com
 Change: Config add FOO_BAR
@@ -88,10 +88,10 @@ STDOUT
     end
 
     it "shows info for a single release in shell compatible format" do
-      Heroku::Command::Releases.any_instance.should_receive(:time_ago).and_return("2012/09/11 12:34:56 (~ 0s ago)")
+      expect_any_instance_of(Heroku::Command::Releases).to receive(:time_ago).and_return("2012/09/11 12:34:56 (~ 0s ago)")
       stderr, stdout = execute("releases:info v1 --shell")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === Release v1
 By:     email@example.com
 Change: Config add FOO_BAR
@@ -120,16 +120,16 @@ STDOUT
 
     it "rolls back to the latest release with no argument" do
       stderr, stdout = execute("releases:rollback")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Rolling back example... done, v2
 STDOUT
     end
 
     it "rolls back to the specified release" do
       stderr, stdout = execute("releases:rollback v1")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Rolling back example... done, v1
 STDOUT
     end

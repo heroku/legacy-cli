@@ -27,8 +27,8 @@ describe Heroku::Command::Logs do
         old_stdout_isatty = $stdout.isatty
         stub($stdout).isatty.returns(true)
         stderr, stdout = execute("logs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 \e[36m2011-01-01T00:00:00+00:00 app[web.1]:\e[0m test
 STDOUT
         stub($stdout).isatty.returns(old_stdout_isatty)
@@ -38,8 +38,8 @@ STDOUT
         old_stdout_isatty = $stdout.isatty
         stub($stdout).isatty.returns(false)
         stderr, stdout = execute("logs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 2011-01-01T00:00:00+00:00 app[web.1]: test
 STDOUT
         stub($stdout).isatty.returns(old_stdout_isatty)
@@ -48,8 +48,8 @@ STDOUT
       it "does not use ansi if TERM is not set" do
         term = ENV.delete("TERM")
         stderr, stdout = execute("logs")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 2011-01-01T00:00:00+00:00 app[web.1]: test
 STDOUT
         ENV["TERM"] = term
