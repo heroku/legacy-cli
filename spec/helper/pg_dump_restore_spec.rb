@@ -19,18 +19,18 @@ describe PgDumpRestore, 'pull' do
 
   it 'on pulls, prepare requires the local database to not exist' do
     mock_command = double
-    mock_command.should_receive(:error).once
+    expect(mock_command).to receive(:error).once
     pgdr = PgDumpRestore.new(@remotedb, @localdb, mock_command)
-    pgdr.should_receive(:`).once.and_return(`false`)
+    expect(pgdr).to receive(:`).once.and_return(`false`)
 
     pgdr.prepare
   end
 
   it 'on pushes, prepare requires the remote database to be empty' do
     mock_command = double
-    mock_command.should_receive(:error).once
+    expect(mock_command).to receive(:error).once
     pgdr = PgDumpRestore.new(@localdb, @remotedb, mock_command)
-    mock_command.should_receive(:exec_sql_on_uri).once.and_return("something that isn't a true")
+    expect(mock_command).to receive(:exec_sql_on_uri).once.and_return("something that isn't a true")
     pgdr.prepare
   end
 
@@ -50,17 +50,17 @@ describe PgDumpRestore, 'pull' do
   describe 'verification' do
     it 'errors when the extensions do not match' do
       mock_command = double
-      mock_command.should_receive(:error).once
+      expect(mock_command).to receive(:error).once
       pgdr = PgDumpRestore.new(@localdb, @remotedb, mock_command)
-      mock_command.should_receive(:exec_sql_on_uri).twice.and_return("these", "don't match")
+      expect(mock_command).to receive(:exec_sql_on_uri).twice.and_return("these", "don't match")
       pgdr.verify
     end
 
     it 'is fine when the extensions match' do
       mock_command = double
-      mock_command.should_not_receive(:error)
+      expect(mock_command).not_to receive(:error)
       pgdr = PgDumpRestore.new(@localdb, @remotedb, mock_command)
-      mock_command.should_receive(:exec_sql_on_uri).twice.and_return("these match", "these match")
+      expect(mock_command).to receive(:exec_sql_on_uri).twice.and_return("these match", "these match")
       pgdr.verify
     end
   end

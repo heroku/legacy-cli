@@ -43,7 +43,7 @@ SSL certificate is self signed.
       it "shows a list of certs" do
         stub_core.ssl_endpoint_list("example").returns([endpoint, endpoint2])
         stderr, stdout = execute("certs")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Endpoint                  Common Name(s)  Expires               Trusted
 ------------------------  --------------  --------------------  -------
 tokyo-1050.herokussl.com  example.org     2013-08-01 21:34 UTC  False
@@ -54,7 +54,7 @@ STDOUT
       it "warns about no SSL Endpoints if the app has no certs" do
         stub_core.ssl_endpoint_list("example").returns([])
         stderr, stdout = execute("certs")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 example has no SSL Endpoints.
 Use `heroku certs:add CRT KEY` to add one.
         STDOUT
@@ -63,12 +63,12 @@ Use `heroku certs:add CRT KEY` to add one.
 
     describe "certs:add" do
       it "adds an endpoint" do
-        File.should_receive(:read).with("pem_file").and_return("pem content")
-        File.should_receive(:read).with("key_file").and_return("key content")
+        expect(File).to receive(:read).with("pem_file").and_return("pem content")
+        expect(File).to receive(:read).with("key_file").and_return("key content")
         stub_core.ssl_endpoint_add('example', 'pem content', 'key content').returns(endpoint)
 
         stderr, stdout = execute("certs:add --bypass pem_file key_file")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Adding SSL Endpoint to example... done
 example now served by tokyo-1050.herokussl.com
 Certificate details:
@@ -77,7 +77,7 @@ Certificate details:
       end
 
       it "shows usage if two arguments are not provided" do
-        lambda { execute("certs:add --bypass") }.should raise_error(CommandFailed, /Usage:/)
+        expect { execute("certs:add --bypass") }.to raise_error(CommandFailed, /Usage:/)
       end
     end
 
@@ -87,7 +87,7 @@ Certificate details:
         stub_core.ssl_endpoint_info('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:info")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Fetching SSL Endpoint tokyo-1050.herokussl.com info for example... done
 Certificate details:
 #{certificate_details}
@@ -98,7 +98,7 @@ Certificate details:
         stub_core.ssl_endpoint_info('example', 'tokyo-1050').returns(endpoint)
 
         stderr, stdout = execute("certs:info --endpoint tokyo-1050")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Fetching SSL Endpoint tokyo-1050 info for example... done
 Certificate details:
 #{certificate_details}
@@ -109,7 +109,7 @@ Certificate details:
         stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:info")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    example has no SSL Endpoints.
         STDERR
       end
@@ -121,31 +121,31 @@ Certificate details:
         stub_core.ssl_endpoint_remove('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:remove --confirm example")
-        stdout.should include "Removing SSL Endpoint tokyo-1050.herokussl.com from example..."
-        stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
+        expect(stdout).to include "Removing SSL Endpoint tokyo-1050.herokussl.com from example..."
+        expect(stdout).to include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
       end
 
       it "allows an endpoint to be specified" do
         stub_core.ssl_endpoint_remove('example', 'tokyo-1050').returns(endpoint)
 
         stderr, stdout = execute("certs:remove --confirm example --endpoint tokyo-1050")
-        stdout.should include "Removing SSL Endpoint tokyo-1050 from example..."
-        stdout.should include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
+        expect(stdout).to include "Removing SSL Endpoint tokyo-1050 from example..."
+        expect(stdout).to include "NOTE: Billing is still active. Remove SSL Endpoint add-on to stop billing."
       end
 
       it "requires confirmation" do
         stub_core.ssl_endpoint_list("example").returns([endpoint])
 
         stderr, stdout = execute("certs:remove")
-        stdout.should include "WARNING: Potentially Destructive Action"
-        stdout.should include "This command will remove the endpoint tokyo-1050.herokussl.com from example."
+        expect(stdout).to include "WARNING: Potentially Destructive Action"
+        expect(stdout).to include "This command will remove the endpoint tokyo-1050.herokussl.com from example."
       end
 
       it "shows an error if an app has no endpoints" do
         stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:remove")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    example has no SSL Endpoints.
         STDERR
       end
@@ -153,8 +153,8 @@ Certificate details:
 
     describe "certs:update" do
       before do
-        File.should_receive(:read).with("pem_file").and_return("pem content")
-        File.should_receive(:read).with("key_file").and_return("key content")
+        expect(File).to receive(:read).with("pem_file").and_return("pem content")
+        expect(File).to receive(:read).with("key_file").and_return("key content")
       end
 
       it "updates an endpoint" do
@@ -162,7 +162,7 @@ Certificate details:
         stub_core.ssl_endpoint_update('example', 'tokyo-1050.herokussl.com', 'pem content', 'key content').returns(endpoint)
 
         stderr, stdout = execute("certs:update --confirm example --bypass pem_file key_file")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Updating SSL Endpoint tokyo-1050.herokussl.com for example... done
 Updated certificate details:
 #{certificate_details}
@@ -173,7 +173,7 @@ Updated certificate details:
         stub_core.ssl_endpoint_update('example', 'tokyo-1050', 'pem content', 'key content').returns(endpoint)
 
         stderr, stdout = execute("certs:update --confirm example --bypass --endpoint tokyo-1050 pem_file key_file")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Updating SSL Endpoint tokyo-1050 for example... done
 Updated certificate details:
 #{certificate_details}
@@ -184,15 +184,15 @@ Updated certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
 
         stderr, stdout = execute("certs:update --bypass pem_file key_file")
-        stdout.should include "WARNING: Potentially Destructive Action"
-        stdout.should include "This command will change the certificate of endpoint tokyo-1050.herokussl.com on example."
+        expect(stdout).to include "WARNING: Potentially Destructive Action"
+        expect(stdout).to include "This command will change the certificate of endpoint tokyo-1050.herokussl.com on example."
       end
 
       it "shows an error if an app has no endpoints" do
         stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:update --bypass pem_file key_file")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    example has no SSL Endpoints.
         STDERR
       end
@@ -204,7 +204,7 @@ Updated certificate details:
         stub_core.ssl_endpoint_rollback('example', 'tokyo-1050.herokussl.com').returns(endpoint)
 
         stderr, stdout = execute("certs:rollback --confirm example")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Rolling back SSL Endpoint tokyo-1050.herokussl.com for example... done
 New active certificate details:
 #{certificate_details}
@@ -215,7 +215,7 @@ New active certificate details:
         stub_core.ssl_endpoint_rollback('example', 'tokyo-1050').returns(endpoint)
 
         stderr, stdout = execute("certs:rollback --confirm example --endpoint tokyo-1050")
-        stdout.should == <<-STDOUT
+        expect(stdout).to eq <<-STDOUT
 Rolling back SSL Endpoint tokyo-1050 for example... done
 New active certificate details:
 #{certificate_details}
@@ -226,15 +226,15 @@ New active certificate details:
         stub_core.ssl_endpoint_list("example").returns([endpoint])
 
         stderr, stdout = execute("certs:rollback")
-        stdout.should include "WARNING: Potentially Destructive Action"
-        stdout.should include "This command will rollback the certificate of endpoint tokyo-1050.herokussl.com on example."
+        expect(stdout).to include "WARNING: Potentially Destructive Action"
+        expect(stdout).to include "This command will rollback the certificate of endpoint tokyo-1050.herokussl.com on example."
       end
 
       it "shows an error if an app has no endpoints" do
         stub_core.ssl_endpoint_list("example").returns([])
 
         stderr, stdout = execute("certs:rollback")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    example has no SSL Endpoints.
         STDERR
       end

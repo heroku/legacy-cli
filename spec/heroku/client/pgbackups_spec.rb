@@ -14,16 +14,16 @@ describe Heroku::Client::Pgbackups do
     let(:version) { Heroku::Client.version }
 
     it 'still has a heroku gem version' do
-      version.should be
-      version.split(/\./).first.to_i.should >= 2
+      expect(version).to be
+      expect(version.split(/\./).first.to_i).to be >= 2
     end
 
     it 'includes the heroku gem version' do
       stub_request(:get, transfer_path)
       client.get_transfers
-      a_request(:get, transfer_path).with(
+      expect(a_request(:get, transfer_path).with(
         :headers => {'X-Heroku-Gem-Version' => version}
-      ).should have_been_made.once
+      )).to have_been_made.once
     end
   end
 
@@ -36,7 +36,7 @@ describe Heroku::Client::Pgbackups do
 
       client.create_transfer("postgres://from", "postgres://to", "FROMNAME", "TO_NAME")
 
-      a_request(:post, transfer_path).should have_been_made.once
+      expect(a_request(:post, transfer_path)).to have_been_made.once
     end
   end
 

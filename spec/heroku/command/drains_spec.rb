@@ -7,8 +7,8 @@ describe Heroku::Command::Drains do
     it "can list drains" do
       stub_core.list_drains("example").returns("drains")
       stderr, stdout = execute("drains")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 drains
 STDOUT
     end
@@ -16,8 +16,8 @@ STDOUT
     it "can add drains" do
       stub_core.add_drain("example", "syslog://localhost/add").returns("added")
       stderr, stdout = execute("drains:add syslog://localhost/add")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 added
 STDOUT
     end
@@ -25,8 +25,8 @@ STDOUT
     it "can remove drains" do
       stub_core.remove_drain("example", "syslog://localhost/remove").returns("removed")
       stderr, stdout = execute("drains:remove syslog://localhost/remove")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 removed
 STDOUT
     end

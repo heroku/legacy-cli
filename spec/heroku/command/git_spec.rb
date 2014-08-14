@@ -25,8 +25,8 @@ module Heroku::Command
           end
         end
         stderr, stdout = execute("git:clone example")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Cloning from app 'example'...
 Cloning into 'example'...
         STDOUT
@@ -39,8 +39,8 @@ Cloning into 'example'...
           end
         end
         stderr, stdout = execute("git:clone example somedir")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Cloning from app 'example'...
 Cloning into 'somedir'...
         STDOUT
@@ -53,8 +53,8 @@ Cloning into 'somedir'...
           end
         end
         stderr, stdout = execute("git:clone -a example")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Cloning from app 'example'...
 Cloning into 'example'...
         STDOUT
@@ -67,8 +67,8 @@ Cloning into 'example'...
           end
         end
         stderr, stdout = execute("git:clone -a example somedir")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Cloning from app 'example'...
 Cloning into 'somedir'...
         STDOUT
@@ -81,8 +81,8 @@ Cloning into 'somedir'...
           end
         end
         stderr, stdout = execute("git:clone example -r other")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Cloning from app 'example'...
 Cloning into 'example'...
         STDOUT
@@ -109,8 +109,8 @@ Cloning into 'example'...
           stub(git).git('remote add heroku git@heroku.com:example.git')
         end
         stderr, stdout = execute("git:remote")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Git remote heroku added
         STDOUT
       end
@@ -121,8 +121,8 @@ Git remote heroku added
           stub(git).git('remote add other git@heroku.com:example.git')
         end
         stderr, stdout = execute("git:remote -r other")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Git remote other added
         STDOUT
       end
@@ -132,10 +132,10 @@ Git remote other added
           stub(git).git('remote').returns("heroku")
         end
         stderr, stdout = execute("git:remote")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    Git remote heroku already exists
 STDERR
-        stdout.should == ""
+        expect(stdout).to eq("")
       end
 
     end

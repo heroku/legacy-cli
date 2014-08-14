@@ -39,8 +39,8 @@ module Heroku::Command
 
       it "forks an app" do
         stderr, stdout = execute("fork example-fork")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Creating fork example-fork... done
 Copying slug... done
 Copying config vars... done
@@ -49,8 +49,8 @@ STDOUT
       end
 
       it "copies slug" do
-        Heroku::API.any_instance.should_receive(:get_releases_v3).with("example", "version ..; order=desc,max=1;").and_call_original
-        Heroku::API.any_instance.should_receive(:post_release_v3).with("example-fork", "SLUG_ID", "Forked from example").and_call_original
+        expect_any_instance_of(Heroku::API).to receive(:get_releases_v3).with("example", "version ..; order=desc,max=1;").and_call_original
+        expect_any_instance_of(Heroku::API).to receive(:post_release_v3).with("example-fork", "SLUG_ID", "Forked from example").and_call_original
         execute("fork example-fork")
       end
 
@@ -62,14 +62,14 @@ STDOUT
         }
         api.put_config_vars("example", config_vars)
         execute("fork example-fork")
-        api.get_config_vars("example-fork").body.should == config_vars
+        expect(api.get_config_vars("example-fork").body).to eq(config_vars)
       end
 
       it "re-provisions add-ons" do
         addons = ["pgbackups:basic", "deployhooks:http"].sort
         addons.each { |a| api.post_addon("example", a) }
         execute("fork example-fork")
-        api.get_addons("example-fork").body.collect { |info| info["name"] }.sort.should == addons
+        expect(api.get_addons("example-fork").body.collect { |info| info["name"] }.sort).to eq(addons)
       end
     end
 
@@ -83,7 +83,7 @@ STDOUT
           execute("fork example-fork")
           raise
         rescue Heroku::Command::CommandFailed => e
-          e.message.should == "No releases on example"
+          expect(e.message).to eq("No releases on example")
         ensure
           Excon.stubs.shift
         end
@@ -98,16 +98,16 @@ STDOUT
           execute("fork example-fork")
           raise
         rescue Heroku::Command::CommandFailed => e
-            e.message.should == "No slug on example"
+            expect(e.message).to eq("No slug on example")
         ensure
           Excon.stubs.shift
         end
       end
 
       it "doesn't attempt to fork to the same app" do
-        lambda do
+        expect do
           execute("fork example")
-        end.should raise_error(Heroku::Command::CommandFailed, /same app/)
+        end.to raise_error(Heroku::Command::CommandFailed, /same app/)
       end
 
       it "confirms before deleting the app" do
@@ -118,13 +118,14 @@ STDOUT
         ensure
           Excon.stubs.shift
         end
-        api.get_apps.body.map { |app| app["name"] }.should ==
+        expect(api.get_apps.body.map { |app| app["name"] }).to eq(
           %w( example example-fork )
+        )
       end
 
       it "deletes fork app on error, before re-raising" do
         stub(Heroku::Command).confirm_command.returns(true)
-        api.get_apps.body.map { |app| app["name"] }.should == %w( example )
+        expect(api.get_apps.body.map { |app| app["name"] }).to eq(%w( example ))
       end
     end
   end
