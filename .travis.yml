@@ -21,4 +21,4 @@ rvm:
   - 2.0.0
   - 2.1.2
 
-script: bundle exec rspec -bfs spec
+script: bundle exec rspec spec --color --format documentation
