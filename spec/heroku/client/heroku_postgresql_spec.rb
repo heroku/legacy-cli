@@ -6,7 +6,8 @@ describe Heroku::Client::HerokuPostgresql do
   include Heroku::Helpers
 
   before do
-    Heroku::Auth.stub :user => 'user@example.com', :password => 'apitoken'
+    allow(Heroku::Auth).to receive(:user).and_return('user@example.com')
+    allow(Heroku::Auth).to receive(:password).and_return('apitoken')
   end
 
   let(:attachment) { double('attachment', :resource_name => 'something-something-42', :starter_plan? => false) }
@@ -14,7 +15,7 @@ describe Heroku::Client::HerokuPostgresql do
 
   describe 'api choosing' do
     it "sends an ingress request to the client for production plans" do
-      attachment.stub :starter_plan? => false
+      expect(attachment).to receive(:starter_plan?).and_return(false)
       host = 'postgres-api.heroku.com'
       url  = "https://user@example.com:apitoken@#{host}/client/v11/databases/#{attachment.resource_name}/ingress"
 
