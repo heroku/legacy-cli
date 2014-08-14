@@ -25,7 +25,7 @@ describe Heroku::Client::HerokuPostgresql do
 
       client.ingress
 
-      a_request(:put, url).should have_been_made.once
+      expect(a_request(:put, url)).to have_been_made.once
     end
 
     it "sends an ingress request to the client for production plans" do
@@ -40,7 +40,7 @@ describe Heroku::Client::HerokuPostgresql do
 
       client.ingress
 
-      a_request(:put, url).should have_been_made.once
+      expect(a_request(:put, url)).to have_been_made.once
     end
   end
 
@@ -50,21 +50,21 @@ describe Heroku::Client::HerokuPostgresql do
     it 'works without the extended option' do
       stub_request(:get, url).to_return :body => '{}'
       client.get_database
-      a_request(:get, url).should have_been_made.once
+      expect(a_request(:get, url)).to have_been_made.once
     end
 
     it 'works with the extended option' do
       url2 = url + '?extended=true'
       stub_request(:get, url2).to_return :body => '{}'
       client.get_database(true)
-      a_request(:get, url2).should have_been_made.once
+      expect(a_request(:get, url2)).to have_been_made.once
     end
 
     it "retries on error, then raises" do
       stub_request(:get, url).to_return(:body => "error", :status => 500)
-      client.stub(:sleep)
-      lambda { client.get_database }.should raise_error RestClient::InternalServerError
-      a_request(:get, url).should have_been_made.times(4)
+      allow(client).to receive(:sleep)
+      expect { client.get_database }.to raise_error RestClient::InternalServerError
+      expect(a_request(:get, url)).to have_been_made.times(4)
     end
   end
 

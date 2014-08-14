@@ -15,8 +15,8 @@ module Heroku::Command
     it "shows all configs" do
       api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => 'two' })
       stderr, stdout = execute("config")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === example Config Vars
 BAZ_QUX: two
 FOO_BAR: one
@@ -26,8 +26,8 @@ STDOUT
     it "does not trim long values" do
       api.put_config_vars("example", { 'LONG' => 'A' * 60 })
       stderr, stdout = execute("config")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === example Config Vars
 LONG: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
@@ -36,8 +36,8 @@ STDOUT
     it "handles when value is nil" do
       api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => nil })
       stderr, stdout = execute("config")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === example Config Vars
 BAZ_QUX: 
 FOO_BAR: one
@@ -47,8 +47,8 @@ STDOUT
     it "handles when value is a boolean" do
       api.put_config_vars("example", { 'FOO_BAR' => 'one', 'BAZ_QUX' => true })
       stderr, stdout = execute("config")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 === example Config Vars
 BAZ_QUX: true
 FOO_BAR: one
@@ -58,8 +58,8 @@ STDOUT
     it "shows configs in a shell compatible format" do
       api.put_config_vars("example", { 'A' => 'one', 'B' => 'two three' })
       stderr, stdout = execute("config --shell")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 A=one
 B=two three
 STDOUT
@@ -68,8 +68,8 @@ STDOUT
     it "shows a single config for get" do
       api.put_config_vars("example", { 'LONG' => 'A' * 60 })
       stderr, stdout = execute("config:get LONG")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
@@ -78,8 +78,8 @@ STDOUT
 
       it "sets config vars" do
         stderr, stdout = execute("config:set A=1 B=2")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Setting config vars and restarting example... done, v1
 A: 1
 B: 2
@@ -88,8 +88,8 @@ B: 2
 
       it "allows config vars with = in the value" do
         stderr, stdout = execute("config:set A=b=c")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Setting config vars and restarting example... done, v1
 A: b=c
 STDOUT
@@ -97,8 +97,8 @@ STDOUT
 
       it "sets config vars without changing case" do
         stderr, stdout = execute("config:set a=b")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Setting config vars and restarting example... done, v1
 a: b
 STDOUT
@@ -110,19 +110,19 @@ STDOUT
 
       it "exits with a help notice when no keys are provides" do
         stderr, stdout = execute("config:unset")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    Usage: heroku config:unset KEY1 [KEY2 ...]
  !    Must specify KEY to unset.
 STDERR
-        stdout.should == ""
+        expect(stdout).to eq("")
       end
 
       context "when one key is provided" do
 
         it "unsets a single key" do
           stderr, stdout = execute("config:unset A")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Unsetting A and restarting example... done, v1
 STDOUT
         end
@@ -132,8 +132,8 @@ STDOUT
 
         it "unsets all given keys" do
           stderr, stdout = execute("config:unset A B")
-          stderr.should == ""
-          stdout.should == <<-STDOUT
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
 Unsetting A and restarting example... done, v1
 Unsetting B and restarting example... done, v2
 STDOUT

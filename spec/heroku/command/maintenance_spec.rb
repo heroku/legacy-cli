@@ -15,8 +15,8 @@ module Heroku::Command
 
     it "displays off for maintenance mode of an app" do
       stderr, stdout = execute("maintenance")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 off
 STDOUT
     end
@@ -25,24 +25,24 @@ STDOUT
       api.post_app_maintenance('example', '1')
 
       stderr, stdout = execute("maintenance")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 on
 STDOUT
     end
 
     it "turns on maintenance mode for the app" do
       stderr, stdout = execute("maintenance:on")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Enabling maintenance mode for example... done
 STDOUT
     end
 
     it "turns off maintenance mode for the app" do
       stderr, stdout = execute("maintenance:off")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Disabling maintenance mode for example... done
 STDOUT
     end

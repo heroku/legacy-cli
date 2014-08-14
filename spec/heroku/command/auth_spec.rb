@@ -6,10 +6,10 @@ describe Heroku::Command::Auth do
     it "displays heroku help auth" do
       stderr, stdout = execute("auth")
 
-      stderr.should == ""
-      stdout.should include "Additional commands"
-      stdout.should include "auth:login"
-      stdout.should include "auth:logout"
+      expect(stderr).to eq("")
+      expect(stdout).to include "Additional commands"
+      expect(stdout).to include "auth:login"
+      expect(stdout).to include "auth:logout"
     end
   end
 
@@ -17,8 +17,8 @@ describe Heroku::Command::Auth do
 
     it "displays the user's api key" do
       stderr, stdout = execute("auth:token")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 apikey01
 STDOUT
     end
@@ -27,8 +27,8 @@ STDOUT
   describe "auth:whoami" do
     it "displays the user's email address" do
       stderr, stdout = execute("auth:whoami")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 email@example.com
 STDOUT
     end
