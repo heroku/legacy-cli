@@ -219,6 +219,10 @@ module Heroku::Command
 
       validate_arguments!
 
+      if from.url == to.url
+        error("source and target database are the same")
+      end
+
       opts       = {}
       verify_app = to.app || app
       if confirm_command(verify_app, "WARNING: Destructive Action\nTransfering data from #{from.name} to #{to.name}")
