@@ -20,8 +20,8 @@ describe Heroku::Command::Run do
       stub_rendezvous.start { $stdout.puts "output" }
 
       stderr, stdout = execute("run bin/foo")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Running `bin/foo` attached to terminal... up, run.1
 output
 STDOUT
@@ -31,8 +31,8 @@ STDOUT
   describe "run:detached" do
     it "runs a command detached" do
       stderr, stdout = execute("run:detached bin/foo")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Running `bin/foo` detached... up, run.1
 Use `heroku logs -p run.1` to view the output.
 STDOUT
@@ -52,8 +52,8 @@ STDOUT
       stub_rendezvous.start { $stdout.puts("rake_output") }
 
       stderr, stdout = execute("run:rake foo")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 WARNING: `heroku run:rake` has been deprecated. Please use `heroku run rake` instead.
 Running `rake foo` attached to terminal... up, run.1
 rake_output
@@ -64,8 +64,8 @@ STDOUT
       stub_rendezvous.start { $stdout.puts("rake_output") }
 
       stderr, stdout = execute("rake foo")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 WARNING: `heroku rake` has been deprecated. Please use `heroku run rake` instead.
 Running `rake foo` attached to terminal... up, run.1
 rake_output
@@ -76,8 +76,8 @@ STDOUT
   describe "run:console" do
     it "has been removed" do
       stderr, stdout = execute("run:console")
-      stderr.should == ""
-      stdout.should =~ /has been removed/
+      expect(stderr).to eq("")
+      expect(stdout).to match(/has been removed/)
     end
   end
 end

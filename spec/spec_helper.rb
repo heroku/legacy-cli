@@ -38,12 +38,12 @@ end
 
 def prepare_command(klass)
   command = klass.new
-  command.stub!(:app).and_return("example")
-  command.stub!(:ask).and_return("")
-  command.stub!(:display)
-  command.stub!(:hputs)
-  command.stub!(:hprint)
-  command.stub!(:heroku).and_return(mock('heroku client', :host => 'heroku.com'))
+  allow(command).to receive(:app).and_return("example")
+  allow(command).to receive(:ask).and_return("")
+  allow(command).to receive(:display)
+  allow(command).to receive(:hputs)
+  allow(command).to receive(:hprint)
+  allow(command).to receive(:heroku).and_return(double('heroku client', :host => 'heroku.com'))
   command
 end
 
@@ -214,7 +214,6 @@ require "support/display_message_matcher"
 require "support/organizations_mock_helper"
 
 RSpec.configure do |config|
-  config.color_enabled = true
   config.include DisplayMessageMatcher
   config.order = 'rand'
   config.before { Heroku::Helpers.error_with_failure = false }

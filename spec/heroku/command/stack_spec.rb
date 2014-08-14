@@ -15,8 +15,8 @@ module Heroku::Command
 
       it "index should provide list" do
         stderr, stdout = execute("stack")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === example Available Stacks
   aspen-mri-1.8.6
   bamboo-ree-1.8.7
@@ -28,8 +28,8 @@ STDOUT
 
       it "migrate should succeed" do
         stderr, stdout = execute("stack:migrate bamboo-ree-1.8.7")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Stack set. Next release on example will use bamboo-ree-1.8.7.
 Run `git push heroku master` to create a new release on bamboo-ree-1.8.7.
 STDOUT

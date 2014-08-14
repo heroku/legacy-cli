@@ -48,8 +48,8 @@ module Heroku::Command
       stub_pg.reset
 
       stderr, stdout = execute("pg:reset RONIN --confirm example")
-      stderr.should == ""
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
 Resetting HEROKU_POSTGRESQL_RONIN_URL... done
 STDOUT
     end
@@ -58,15 +58,15 @@ STDOUT
       stub_pg.reset
 
       stderr, stdout = execute("pg:reset RONIN")
-      stderr.should == <<-STDERR
+      expect(stderr).to eq <<-STDERR
  !    Confirmation did not match example. Aborted.
 STDERR
-      stdout.should == "
+      expect(stdout).to eq("
  !    WARNING: Destructive Action
  !    This command will affect the app: example
  !    To proceed, type \"example\" or re-run this command with --confirm example
 
-> "
+> ")
     end
 
     context "index" do
@@ -83,8 +83,8 @@ STDERR
         ])
 
         stderr, stdout = execute("pg")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === HEROKU_POSTGRESQL_FOLLOW_URL
 Plan:        Ronin
 Status:      available
@@ -134,8 +134,8 @@ STDOUT
         ])
 
         stderr, stdout = execute("pg:info RONIN")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === HEROKU_POSTGRESQL_RONIN_URL
 Plan:        Ronin
 Status:      available
@@ -154,20 +154,20 @@ STDOUT
     context "promotion" do
       it "promotes the specified database" do
         stderr, stdout = execute("pg:promote RONIN --confirm example")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Promoting HEROKU_POSTGRESQL_RONIN_URL to DATABASE_URL... done
 STDOUT
-        api.get_config_vars("example").body["DATABASE_URL"].should == "postgres://ronin_database_url"
+        expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://ronin_database_url")
       end
 
       it "fails if no database is specified" do
         stderr, stdout = execute("pg:promote")
-        stderr.should == <<-STDERR
+        expect(stderr).to eq <<-STDERR
  !    Usage: heroku pg:promote DATABASE
  !    Must specify DATABASE to promote.
 STDERR
-        stdout.should == ""
+        expect(stdout).to eq("")
       end
     end
 
@@ -175,8 +175,8 @@ STDERR
       it "resets credentials and promotes to DATABASE_URL if it's the main DB" do
         stub_pg.rotate_credentials
         stderr, stdout = execute("pg:credentials iv --reset")
-        stderr.should == ''
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq('')
+        expect(stdout).to eq <<-STDOUT
 Resetting credentials for HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
 Promoting HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
 STDOUT
@@ -189,8 +189,8 @@ STDOUT
           "HEROKU_POSTGRESQL_RESETME_URL" => "postgres://something_else"
         }
         stderr, stdout = execute("pg:credentials follo --reset")
-        stderr.should == ''
-        stdout.should_not include("Promoting")
+        expect(stderr).to eq('')
+        expect(stdout).not_to include("Promoting")
       end
 
     end
@@ -198,9 +198,9 @@ STDOUT
     context "unfollow" do
       it "sends request to unfollow" do
         hpg_client = double('Heroku::Client::HerokuPostgresql')
-        Heroku::Client::HerokuPostgresql.should_receive(:new).twice.and_return(hpg_client)
-        hpg_client.should_receive(:unfollow)
-        hpg_client.should_receive(:get_database).and_return(
+        expect(Heroku::Client::HerokuPostgresql).to receive(:new).twice.and_return(hpg_client)
+        expect(hpg_client).to receive(:unfollow)
+        expect(hpg_client).to receive(:get_database).and_return(
           :following => 'postgresql://user:pass@roninhost/database',
           :info => [
             {"name"=>"Plan", "values"=>["Ronin"]},
@@ -215,8 +215,8 @@ STDOUT
           ]
         )
         stderr, stdout = execute("pg:unfollow HEROKU_POSTGRESQL_FOLLOW_URL --confirm example")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
  !    HEROKU_POSTGRESQL_FOLLOW_URL will become writable and no longer
  !    follow Database on roninhost:5432/database. This cannot be undone.
 Unfollowing HEROKU_POSTGRESQL_FOLLOW_URL... done
@@ -252,8 +252,8 @@ STDOUT
         })
 
         stderr, stdout = execute("pg:diagnose")
-        stderr.should == ''
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq('')
+        expect(stdout).to eq <<-STDOUT
 Report abc123 for appname::dbcolor
 available for one month after creation on 2014-06-24 01:26:11.941197+00
 

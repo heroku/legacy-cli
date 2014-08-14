@@ -21,11 +21,11 @@ module Heroku::Command
         }
       )
 
-      Heroku::Command::Status.any_instance.should_receive(:time_ago).and_return('2012/09/11 09:34:56 (~ 3h ago)', '2012/09/11 12:33:56 (~ 1m ago)', '2012/09/11 12:29:56 (~ 5m ago)', '2012/09/11 12:24:56 (~ 10m ago)', '2012/09/11 12:04:56 (~ 30m ago)', '2012/09/11 11:34:56 (~ 1h ago)', '2012/09/11 10:34:56 (~ 2h ago)', '2012/09/11 09:34:56 (~ 3h ago)')
+      expect_any_instance_of(Heroku::Command::Status).to receive(:time_ago).and_return('2012/09/11 09:34:56 (~ 3h ago)', '2012/09/11 12:33:56 (~ 1m ago)', '2012/09/11 12:29:56 (~ 5m ago)', '2012/09/11 12:24:56 (~ 10m ago)', '2012/09/11 12:04:56 (~ 30m ago)', '2012/09/11 11:34:56 (~ 1h ago)', '2012/09/11 10:34:56 (~ 2h ago)', '2012/09/11 09:34:56 (~ 3h ago)')
 
       stderr, stdout = execute("status")
-      stderr.should == ''
-      stdout.should == <<-STDOUT
+      expect(stderr).to eq('')
+      expect(stdout).to eq <<-STDOUT
 === Heroku Status
 Development: red
 Production:  red

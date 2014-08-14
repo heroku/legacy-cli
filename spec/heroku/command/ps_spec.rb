@@ -18,11 +18,11 @@ describe Heroku::Command::Ps do
     end
 
     it "ps:dynos errors out on cedar apps" do
-      lambda { execute("ps:dynos") }.should raise_error(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
+      expect { execute("ps:dynos") }.to raise_error(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
     end
 
     it "ps:workers errors out on cedar apps" do
-      lambda { execute("ps:workers") }.should raise_error(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
+      expect { execute("ps:workers") }.to raise_error(Heroku::Command::CommandFailed, "For Cedar apps, use `heroku ps`")
     end
 
     describe "ps" do
@@ -44,10 +44,10 @@ describe Heroku::Command::Ps do
           end.to_json,
           :status => 200
         )
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === web (1X): `bundle exec thin start -p $PORT`
 web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 web.2: created 2012/09/11 12:34:56 (~ 0s ago)
@@ -80,10 +80,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
         stderr, stdout = execute("ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === run: one-off processes
 run.1 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
 run.2 (1X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
@@ -108,11 +108,11 @@ STDOUT
           end.to_json,
           :status => 200
         )
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
         stderr, stdout = execute("ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === web (2X): `bundle exec thin start -p $PORT`
 web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 web.2: created 2012/09/11 12:34:56 (~ 0s ago)
@@ -137,11 +137,11 @@ STDOUT
           end.to_json,
           :status => 200
         )
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
         stderr, stdout = execute("ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === web (PX): `bundle exec thin start -p $PORT`
 web.1: created 2012/09/11 12:34:56 (~ 0s ago)
 web.2: created 2012/09/11 12:34:56 (~ 0s ago)
@@ -167,10 +167,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
-        Heroku::Command::Ps.any_instance.should_receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 === run: one-off processes
 run.1 (PX): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
 run.2 (2X): created 2012/09/11 12:34:56 (~ 0s ago): `bash`
@@ -187,24 +187,24 @@ STDOUT
 
       it "restarts all dynos with no args" do
         stderr, stdout = execute("ps:restart")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Restarting dynos... done
 STDOUT
       end
 
       it "restarts one dyno" do
         stderr, stdout = execute("ps:restart web.1")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Restarting web.1 dyno... done
 STDOUT
       end
 
       it "restarts a type of dyno" do
         stderr, stdout = execute("ps:restart web")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Restarting web dynos... done
 STDOUT
       end
@@ -218,8 +218,8 @@ STDOUT
                    { :body => [{"quantity" => "5", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web=5")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Scaling dynos... done, now running web at 5:1X.
 STDOUT
       end
@@ -229,8 +229,8 @@ STDOUT
                    { :body => [{"quantity" => "3", "size" => "1X", "type" => "web"}],
                      :status => 200})
         stderr, stdout = execute("ps:scale web+2")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Scaling dynos... done, now running web at 3:1X.
 STDOUT
       end
@@ -247,8 +247,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:scale web=4:2X")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Scaling dynos... done, now running web at 4:2X.
 STDOUT
       end
@@ -272,8 +272,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:scale web=4:1X worker=2:2x")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Scaling dynos... done, now running web at 4:1X, worker at 2:2X.
 STDOUT
       end
@@ -290,8 +290,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:scale web=4:PX")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Scaling dynos... done, now running web at 4:PX.
 STDOUT
       end
@@ -311,8 +311,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:resize web=2X")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
 web dynos now 2X ($0.10/dyno-hour)
 STDOUT
@@ -336,8 +336,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:resize web=4x worker=2X")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
 web dynos now 4X ($0.20/dyno-hour)
 worker dynos now 2X ($0.10/dyno-hour)
@@ -362,8 +362,8 @@ STDOUT
           :status => 200
         )
         stderr, stdout = execute("ps:resize web=PX worker=Px")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
 web dynos now PX ($0.80/dyno-hour)
 worker dynos now PX ($0.80/dyno-hour)
@@ -376,16 +376,16 @@ STDOUT
 
       it "restarts one dyno" do
         stderr, stdout = execute("ps:restart ps.1")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Restarting ps.1 dyno... done
 STDOUT
       end
 
       it "restarts a type of dyno" do
         stderr, stdout = execute("ps:restart ps")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 Restarting ps dynos... done
 STDOUT
       end
@@ -408,8 +408,8 @@ STDOUT
 
       it "displays the current number of dynos" do
         stderr, stdout = execute("ps:dynos")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 ~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`
 example is running 0 dynos
 STDOUT
@@ -417,8 +417,8 @@ STDOUT
 
       it "sets the number of dynos" do
         stderr, stdout = execute("ps:dynos 5")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 ~ `heroku ps:dynos QTY` has been deprecated and replaced with `heroku ps:scale dynos=QTY`
 Scaling dynos... done, now running 5
 STDOUT
@@ -430,8 +430,8 @@ STDOUT
 
       it "displays the current number of workers" do
         stderr, stdout = execute("ps:workers")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 ~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`
 example is running 0 workers
 STDOUT
@@ -439,8 +439,8 @@ STDOUT
 
       it "sets the number of workers" do
         stderr, stdout = execute("ps:workers 5")
-        stderr.should == ""
-        stdout.should == <<-STDOUT
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
 ~ `heroku ps:workers QTY` has been deprecated and replaced with `heroku ps:scale workers=QTY`
 Scaling workers... done, now running 5
 STDOUT
