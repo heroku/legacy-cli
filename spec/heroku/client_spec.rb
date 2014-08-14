@@ -8,8 +8,8 @@ describe Heroku::Client do
 
   before do
     @client = Heroku::Client.new(nil, nil)
-    @resource = mock('heroku rest resource')
-    @client.stub!(:extract_warning)
+    @resource = double('heroku rest resource')
+    @client.stub(:extract_warning)
   end
 
   it "Client.auth -> get user details" do
@@ -49,8 +49,8 @@ describe Heroku::Client do
         <domain_name/>
       </app>
     EOXML
-    @client.stub!(:list_collaborators).and_return([:jon, :mike])
-    @client.stub!(:installed_addons).and_return([:addon1])
+    @client.stub(:list_collaborators).and_return([:jon, :mike])
+    @client.stub(:installed_addons).and_return([:addon1])
     capture_stderr do # capture deprecation message
       @client.info('example').should == { :blessed => 'true', :created_at => '2008-07-08T17:21:50-07:00', :id => '49134', :name => 'example', :production => 'true', :share_public => 'true', :domain_name => nil, :collaborators => [:jon, :mike], :addons => [:addon1] }
     end
@@ -77,12 +77,12 @@ describe Heroku::Client do
   end
 
   it "create_complete?(name) -> checks if a create request is complete" do
-    @response = mock('response')
+    @response = double('response')
     @response.should_receive(:code).and_return(202)
     @client.should_receive(:resource).and_return(@resource)
     @resource.should_receive(:put).with({}, @client.heroku_headers).and_return(@response)
     capture_stderr do # capture deprecation message
-      @client.create_complete?('example').should be_false
+      @client.create_complete?('example').should be_falsey
     end
   end
 
@@ -204,8 +204,8 @@ describe Heroku::Client do
 
   it "rake catches 502s and shows the app crashlog" do
     e = RestClient::RequestFailed.new
-    e.stub!(:http_code).and_return(502)
-    e.stub!(:http_body).and_return('the crashlog')
+    e.stub(:http_code).and_return(502)
+    e.stub(:http_body).and_return('the crashlog')
     @client.should_receive(:post).and_raise(e)
     capture_stderr do # capture deprecation message
       lambda { @client.rake('example', '') }.should raise_error(Heroku::Client::AppCrashed)
@@ -214,8 +214,8 @@ describe Heroku::Client do
 
   it "rake passes other status codes (i.e., 500) as standard restclient exceptions" do
     e = RestClient::RequestFailed.new
-    e.stub!(:http_code).and_return(500)
-    e.stub!(:http_body).and_return('not a crashlog')
+    e.stub(:http_code).and_return(500)
+    e.stub(:http_body).and_return('not a crashlog')
     @client.should_receive(:post).and_raise(e)
     capture_stderr do # capture deprecation message
       lambda { @client.rake('example', '') }.should raise_error(RestClient::RequestFailed)
@@ -439,14 +439,14 @@ describe Heroku::Client do
       stub_api_request(:delete, "/apps/example/addons/addon1?").
         to_return(:body => json_encode({"message" => nil, "price" => "free", "status" => "uninstalled"}))
 
-      @client.uninstall_addon('example', 'addon1').should be_true
+      @client.uninstall_addon('example', 'addon1').should be_truthy
     end
 
     it "uninstall_addon(app_name, addon_name) with confirmation" do
       stub_api_request(:delete, "/apps/example/addons/addon1?confirm=example").
         to_return(:body => json_encode({"message" => nil, "price" => "free", "status" => "uninstalled"}))
 
-      @client.uninstall_addon('example', 'addon1', :confirm => "example").should be_true
+      @client.uninstall_addon('example', 'addon1', :confirm => "example").should be_truthy
     end
 
     it "install_addon(app_name, addon_name) with response" do
@@ -488,9 +488,9 @@ describe Heroku::Client do
     end
 
     it "creates a RestClient resource for making calls" do
-      @client.stub!(:host).and_return('heroku.com')
-      @client.stub!(:user).and_return('joe@example.com')
-      @client.stub!(:password).and_return('secret')
+      @client.stub(:host).and_return('heroku.com')
+      @client.stub(:user).and_return('joe@example.com')
+      @client.stub(:password).and_return('secret')
 
       res = @client.resource('/xyz')
 
@@ -511,7 +511,7 @@ describe Heroku::Client do
     end
 
     it "runs a callback when the API sets a warning header" do
-      response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+      response = double('rest client response', :headers => { :x_heroku_warning => 'Warning' })
       @client.should_receive(:resource).and_return(@resource)
       @resource.should_receive(:get).and_return(response)
       @client.on_warning { |msg| @callback = msg }
@@ -520,9 +520,9 @@ describe Heroku::Client do
     end
 
     it "doesn't run the callback twice for the same warning" do
-      response = mock('rest client response', :headers => { :x_heroku_warning => 'Warning' })
-      @client.stub!(:resource).and_return(@resource)
-      @resource.stub!(:get).and_return(response)
+      response = double('rest client response', :headers => { :x_heroku_warning => 'Warning' })
+      @client.stub(:resource).and_return(@resource)
+      @resource.stub(:get).and_return(response)
       @client.on_warning { |msg| @callback_called ||= 0; @callback_called += 1 }
       @client.get('test1')
       @client.get('test2')

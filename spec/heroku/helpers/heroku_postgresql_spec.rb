@@ -6,7 +6,7 @@ include Heroku::Helpers::HerokuPostgresql
 describe Heroku::Helpers::HerokuPostgresql::Resolver do
 
   before do
-    @resolver = described_class.new('appname', mock(:api))
+    @resolver = described_class.new('appname', double(:api))
     @resolver.stub(:app_config_vars) { app_config_vars }
     @resolver.stub(:app_attachments) { app_attachments }
   end
@@ -54,11 +54,11 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
 
   context "when no app is specified or inferred, and identifier does not have app::db shorthand" do
     it 'exits, complaining about the missing app' do
-      api = mock('api')
+      api = double('api')
       api.stub(:get_attachments).and_raise("getting this far will cause an inaccurate 'internal server error' message")
 
       no_app_resolver = described_class.new(nil, api)
-      no_app_resolver.should_receive(:error).with { |msg| expect(msg).to match(/No app specified/) }.and_raise(SystemExit)
+      no_app_resolver.should_receive(:error).with(/No app specified/).and_raise(SystemExit)
       expect { no_app_resolver.resolve('black') }.to raise_error(SystemExit)
     end
   end

@@ -6,7 +6,7 @@ module Heroku
     include SandboxHelper
 
     it "lives in ~/.heroku/plugins" do
-      Plugin.stub!(:home_directory).and_return('/home/user')
+      Plugin.stub(:home_directory).and_return('/home/user')
       Plugin.directory.should == '/home/user/.heroku/plugins'
     end
 
@@ -18,8 +18,8 @@ module Heroku
       before(:each) do
         @sandbox = "/tmp/heroku_plugins_spec_#{Process.pid}"
         FileUtils.mkdir_p(@sandbox)
-        Dir.stub!(:pwd).and_return(@sandbox)
-        Plugin.stub!(:directory).and_return(@sandbox)
+        Dir.stub(:pwd).and_return(@sandbox)
+        Plugin.stub(:directory).and_return(@sandbox)
       end
 
       after(:each) do
@@ -38,7 +38,7 @@ module Heroku
         FileUtils.mkdir_p(plugin_folder)
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
         Plugin.new(plugin_folder).install
-        File.directory?("#{@sandbox}/heroku_plugin").should be_true
+        File.directory?("#{@sandbox}/heroku_plugin").should be_truthy
         File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
       end
 
@@ -48,7 +48,7 @@ module Heroku
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
         Plugin.new(plugin_folder).install
         Plugin.new(plugin_folder).install
-        File.directory?("#{@sandbox}/heroku_plugin").should be_true
+        File.directory?("#{@sandbox}/heroku_plugin").should be_truthy
         File.read("#{@sandbox}/heroku_plugin/README").should == "test\n"
       end
 
@@ -64,7 +64,7 @@ module Heroku
 
         it "updates existing copies" do
           Plugin.new('heroku_plugin').update
-          File.directory?("#{@sandbox}/heroku_plugin").should be_true
+          File.directory?("#{@sandbox}/heroku_plugin").should be_truthy
           File.read("#{@sandbox}/heroku_plugin/README").should == "updated\n"
         end
 
@@ -100,14 +100,14 @@ STDERR
         FileUtils.mkdir_p(@sandbox + '/plugin/lib')
         File.open(@sandbox + '/plugin/lib/my_custom_plugin_file.rb', 'w') { |f| f.write "" }
         Plugin.load!
-        lambda { require 'my_custom_plugin_file' }.should_not raise_error(LoadError)
+        expect { require 'my_custom_plugin_file' }.not_to raise_error
       end
 
       it "loads init.rb, if present" do
         FileUtils.mkdir_p(@sandbox + '/plugin')
         File.open(@sandbox + '/plugin/init.rb', 'w') { |f| f.write "LoadedInit = true" }
         Plugin.load!
-        LoadedInit.should be_true
+        LoadedInit.should be_truthy
       end
 
       describe "when there are plugin load errors" do
@@ -136,7 +136,7 @@ STDERR
             Plugin.load!
           end
           stderr.should include('some_non_existant_file (LoadError)')
-          LoadedPlugin2.should be_true
+          LoadedPlugin2.should be_truthy
         end
       end
 
@@ -151,20 +151,20 @@ STDERR
 
         it "should show confirmation to remove deprecated plugins if in an interactive shell" do
           old_stdin_isatty = STDIN.isatty
-          STDIN.stub!(:isatty).and_return(true)
+          STDIN.stub(:isatty).and_return(true)
           Plugin.should_receive(:confirm).with("The plugin heroku-releases has been deprecated. Would you like to remove it? (y/N)").and_return(true)
           Plugin.should_receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
-          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
+          STDIN.stub(:isatty).and_return(old_stdin_isatty)
         end
 
         it "should not prompt for deprecation if not in an interactive shell" do
           old_stdin_isatty = STDIN.isatty
-          STDIN.stub!(:isatty).and_return(false)
+          STDIN.stub(:isatty).and_return(false)
           Plugin.should_not_receive(:confirm)
           Plugin.should_not_receive(:remove_plugin).with("heroku-releases")
           Plugin.load!
-          STDIN.stub!(:isatty).and_return(old_stdin_isatty)
+          STDIN.stub(:isatty).and_return(old_stdin_isatty)
         end
       end
     end

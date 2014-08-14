@@ -10,16 +10,16 @@ module Heroku
       ENV['HEROKU_API_KEY'] = nil
 
       @cli = Heroku::Auth
-      @cli.stub!(:check)
-      @cli.stub!(:display)
-      @cli.stub!(:running_on_a_mac?).and_return(false)
+      @cli.stub(:check)
+      @cli.stub(:display)
+      @cli.stub(:running_on_a_mac?).and_return(false)
       @cli.credentials = nil
 
       FakeFS.activate!
 
-      FakeFS::File.stub!(:stat).and_return(double('stat', :mode => "0600".to_i(8)))
-      FakeFS::FileUtils.stub!(:chmod)
-      FakeFS::File.stub!(:readlines) do |path|
+      FakeFS::File.stub(:stat).and_return(double('stat', :mode => "0600".to_i(8)))
+      FakeFS::FileUtils.stub(:chmod)
+      FakeFS::File.stub(:readlines) do |path|
         File.read(path).split("\n").map {|line| "#{line}\n"}
       end
 
@@ -85,8 +85,8 @@ module Heroku
 
       context "reauthenticating" do
         before do
-          @cli.stub!(:ask_for_credentials).and_return(['new_user', 'new_password'])
-          @cli.stub!(:check)
+          @cli.stub(:ask_for_credentials).and_return(['new_user', 'new_password'])
+          @cli.stub(:check)
           @cli.should_receive(:check_for_associated_ssh_key)
           @cli.reauthorize
         end
@@ -103,7 +103,7 @@ module Heroku
           @cli.logout
         end
         it "should delete saved credentials" do
-          File.exists?(@cli.legacy_credentials_path).should be_false
+          File.exists?(@cli.legacy_credentials_path).should be_falsey
           Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should be_nil
         end
       end
@@ -128,29 +128,29 @@ module Heroku
     end
 
     it "writes credentials and uploads authkey when credentials are saved" do
-      @cli.stub!(:credentials)
-      @cli.stub!(:check)
-      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
+      @cli.stub(:credentials)
+      @cli.stub(:check)
+      @cli.stub(:ask_for_credentials).and_return("username", "apikey")
       @cli.should_receive(:write_credentials)
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.ask_for_and_save_credentials
     end
 
     it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
-      @cli.stub!(:write_credentials)
-      @cli.stub!(:retry_login?).and_return(false)
-      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
-      @cli.stub!(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
+      @cli.stub(:write_credentials)
+      @cli.stub(:retry_login?).and_return(false)
+      @cli.stub(:ask_for_credentials).and_return("username", "apikey")
+      @cli.stub(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       @cli.should_receive(:delete_credentials)
       lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
 
     it "asks for login again when not authorized, for three times" do
-      @cli.stub!(:read_credentials)
-      @cli.stub!(:write_credentials)
-      @cli.stub!(:delete_credentials)
-      @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
-      @cli.stub!(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
+      @cli.stub(:read_credentials)
+      @cli.stub(:write_credentials)
+      @cli.stub(:delete_credentials)
+      @cli.stub(:ask_for_credentials).and_return("username", "apikey")
+      @cli.stub(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       @cli.should_receive(:ask_for_credentials).exactly(3).times
       lambda { @cli.ask_for_and_save_credentials }.should raise_error(SystemExit)
     end
@@ -165,8 +165,8 @@ module Heroku
     end
 
     it "writes the login information to the credentials file for the 'heroku login' command" do
-      @cli.stub!(:ask_for_credentials).and_return(['one', 'two'])
-      @cli.stub!(:check)
+      @cli.stub(:ask_for_credentials).and_return(['one', 'two'])
+      @cli.stub(:check)
       @cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
       Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
@@ -186,13 +186,13 @@ module Heroku
     describe "automatic key uploading" do
       before(:each) do
         FileUtils.mkdir_p("#{@cli.home_directory}/.ssh")
-        @cli.stub!(:ask_for_credentials).and_return("username", "apikey")
+        @cli.stub(:ask_for_credentials).and_return("username", "apikey")
       end
 
       describe "an account with existing keys" do
         before :each do
-          @api = mock(Object)
-          @response = mock(Object)
+          @api = double(Object)
+          @response = double(Object)
           @response.should_receive(:body).and_return(['existingkeys'])
           @api.should_receive(:get_keys).and_return(@response)
           @cli.should_receive(:api).and_return(@api)
@@ -206,8 +206,8 @@ module Heroku
 
       describe "an account with no keys" do
         before :each do
-          @api = mock(Object)
-          @response = mock(Object)
+          @api = double(Object)
+          @response = double(Object)
           @response.should_receive(:body).and_return([])
           @api.should_receive(:get_keys).and_return(@response)
           @cli.should_receive(:api).and_return(@api)
