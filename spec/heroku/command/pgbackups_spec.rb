@@ -283,8 +283,8 @@ STDOUT
 
       context "on errors" do
         before(:each) do
-          @pgbackups_client.stub(:get_latest_backup => {"to_url" => "s3://bucket/user/bXXX.dump"} )
-          @pgbackups.stub(:confirm_command => true)
+          allow(@pgbackups_client).to receive(:get_latest_backup).and_return("to_url" => "s3://bucket/user/bXXX.dump")
+          allow(@pgbackups).to receive(:confirm_command).and_return(true)
         end
 
         def stub_error_backup_with_log(log)
