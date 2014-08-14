@@ -30,7 +30,7 @@ describe Heroku::Client::HerokuPostgresql do
     end
 
     it "sends an ingress request to the client for production plans" do
-      attachment.stub :starter_plan? => true
+      allow(attachment).to receive_messages :starter_plan? => true
       host = 'postgres-starter-api.heroku.com'
       url  = "https://user@example.com:apitoken@#{host}/client/v11/databases/#{attachment.resource_name}/ingress"
 
