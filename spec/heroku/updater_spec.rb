@@ -7,7 +7,7 @@ module Heroku
 
     describe('::latest_local_version') do
       it 'calculates the latest local version' do
-        subject.latest_local_version.should == Heroku::VERSION
+        expect(subject.latest_local_version).to eq(Heroku::VERSION)
       end
     end
 
@@ -77,7 +77,7 @@ module Heroku
           include_context 'with local version at 3.9.7'
 
           it 'does not update' do
-            expect(subject.update(false)).to be_false
+            expect(subject.update(false)).to be_nil
           end
         end
 

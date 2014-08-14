@@ -96,7 +96,7 @@ STDOUT
 
     describe 'v1-style command line params' do
       it "understands foo=baz" do
-        @addons.stub!(:args).and_return(%w(my_addon foo=baz))
+        @addons.stub(:args).and_return(%w(my_addon foo=baz))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
@@ -129,31 +129,31 @@ STDOUT
 
     describe 'unix-style command line params' do
       it "understands --foo=baz" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.stub(:args).and_return(%w(my_addon --foo=baz))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
 
       it "understands --foo baz" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo baz))
+        @addons.stub(:args).and_return(%w(my_addon --foo baz))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.add
       end
 
       it "treats lone switches as true" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo))
+        @addons.stub(:args).and_return(%w(my_addon --foo))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => true })
         @addons.add
       end
 
       it "converts 'true' to boolean" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo=true))
+        @addons.stub(:args).and_return(%w(my_addon --foo=true))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => true })
         @addons.add
       end
 
       it "works with many config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true))
+        @addons.stub(:args).and_return(%w(my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => true, 'bob' => true })
         @addons.add
       end
@@ -166,14 +166,14 @@ STDOUT
       end
 
       it "raises an error for spurious arguments" do
-        @addons.stub!(:args).and_return(%w(my_addon spurious))
+        @addons.stub(:args).and_return(%w(my_addon spurious))
         lambda { @addons.add }.should raise_error(CommandFailed)
       end
     end
 
     describe "mixed options" do
       it "understands foo=bar and --baz=bar on the same line" do
-        @addons.stub!(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
+        @addons.stub(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz', 'baz' => 'bar', 'bar' => true, 'bob' => true })
         @addons.add
       end
@@ -190,7 +190,7 @@ STDOUT
     describe "fork, follow, and rollback switches" do
       it "should only resolve for heroku-postgresql addon" do
         %w{fork follow rollback}.each do |switch|
-          @addons.stub!(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.stub(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
           @addons.heroku.should_receive(:install_addon).
             with('example', 'addon', {switch => 'HEROKU_POSTGRESQL_RED'})
           @addons.add
@@ -208,7 +208,7 @@ STDOUT
                              'value' => 'postgres://red_url',
                              'type'  => 'heroku-postgresql:ronin' }})
           ])
-          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
+          @addons.stub(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
           @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://red_url'})
           @addons.add
         end
@@ -216,9 +216,9 @@ STDOUT
 
       it "should NOT translate --fork and --follow if passed in a full postgres url even if there are no databases" do
         %w{fork follow}.each do |switch|
-          @addons.stub!(:app_config_vars).and_return({})
-          @addons.stub!(:app_attachments).and_return([])
-          @addons.stub!(:args).and_return("heroku-postgresql:ronin --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
+          @addons.stub(:app_config_vars).and_return({})
+          @addons.stub(:app_attachments).and_return([])
+          @addons.stub(:args).and_return("heroku-postgresql:ronin --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
           @addons.heroku.should_receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://foo:yeah@awesome.com:234/bestdb'})
           @addons.add
         end
@@ -226,9 +226,9 @@ STDOUT
 
       it "should fail if fork / follow across applications and no plan is specified" do
         %w{fork follow}.each do |switch|
-          @addons.stub!(:app_config_vars).and_return({})
-          @addons.stub!(:app_attachments).and_return([])
-          @addons.stub!(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
+          @addons.stub(:app_config_vars).and_return({})
+          @addons.stub(:app_attachments).and_return([])
+          @addons.stub(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
           lambda { @addons.add }.should raise_error(CommandFailed)
         end
       end
@@ -236,7 +236,7 @@ STDOUT
 
     describe 'adding' do
       before do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         Excon.stub(
           {
             :expects => 200,
@@ -255,12 +255,12 @@ STDOUT
 
 
       it "requires an addon name" do
-        @addons.stub!(:args).and_return([])
+        @addons.stub(:args).and_return([])
         lambda { @addons.add }.should raise_error(CommandFailed)
       end
 
       it "adds an addon" do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:install_addon).with('example', 'my_addon', {})
         @addons.add
       end
@@ -314,7 +314,7 @@ OUTPUT
 
     describe 'upgrading' do
       before do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         Excon.stub(
           {
             :expects => 200,
@@ -332,18 +332,18 @@ OUTPUT
       end
 
       it "requires an addon name" do
-        @addons.stub!(:args).and_return([])
+        @addons.stub(:args).and_return([])
         lambda { @addons.upgrade }.should raise_error(CommandFailed)
       end
 
       it "upgrades an addon" do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:upgrade_addon).with('example', 'my_addon', {})
         @addons.upgrade
       end
 
       it "upgrade an addon with config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.stub(:args).and_return(%w(my_addon --foo=baz))
         @addons.heroku.should_receive(:upgrade_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.upgrade
       end
@@ -372,7 +372,7 @@ OUTPUT
 
     describe 'downgrading' do
       before do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         Excon.stub(
           {
             :expects => 200,
@@ -390,18 +390,18 @@ OUTPUT
       end
 
       it "requires an addon name" do
-        @addons.stub!(:args).and_return([])
+        @addons.stub(:args).and_return([])
         lambda { @addons.downgrade }.should raise_error(CommandFailed)
       end
 
       it "downgrades an addon" do
-        @addons.stub!(:args).and_return(%w(my_addon))
+        @addons.stub(:args).and_return(%w(my_addon))
         @addons.heroku.should_receive(:upgrade_addon).with('example', 'my_addon', {})
         @addons.downgrade
       end
 
       it "downgrade an addon with config vars" do
-        @addons.stub!(:args).and_return(%w(my_addon --foo=baz))
+        @addons.stub(:args).and_return(%w(my_addon --foo=baz))
         @addons.heroku.should_receive(:upgrade_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.downgrade
       end
@@ -429,22 +429,22 @@ OUTPUT
     end
 
     it "does not remove addons with no confirm" do
-      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.stub(:args).and_return(%w( addon1 ))
       @addons.should_receive(:confirm_command).once.and_return(false)
       @addons.heroku.should_not_receive(:uninstall_addon)
       @addons.remove
     end
 
     it "removes addons after prompting for confirmation" do
-      @addons.stub!(:args).and_return(%w( addon1 ))
+      @addons.stub(:args).and_return(%w( addon1 ))
       @addons.should_receive(:confirm_command).once.and_return(true)
       @addons.heroku.should_receive(:uninstall_addon).with('example', 'addon1', :confirm => "example")
       @addons.remove
     end
 
     it "removes addons with confirm option" do
-      Heroku::Command.stub!(:current_options).and_return(:confirm => "example")
-      @addons.stub!(:args).and_return(%w( addon1 ))
+      Heroku::Command.stub(:current_options).and_return(:confirm => "example")
+      @addons.stub(:args).and_return(%w( addon1 ))
       @addons.heroku.should_receive(:uninstall_addon).with('example', 'addon1', :confirm => "example")
       @addons.remove
     end
