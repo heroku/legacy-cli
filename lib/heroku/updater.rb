@@ -110,11 +110,16 @@ module Heroku
           extract_zip(zip_filename, download_dir)
           FileUtils.rm_f zip_filename
 
+          version = client_version_from_path(download_dir)
+
+          # do not replace beta version if it is old
+          return if version < latest_local_version
+
           FileUtils.rm_rf updated_client_path
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
-          client_version_from_path(download_dir)
+          version
         end
       end
     end
