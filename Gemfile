@@ -3,22 +3,13 @@ source "https://rubygems.org"
 gemspec
 
 group :development, :test do
-  gem "rake",  ">= 0.8.7"
-  gem "rr",    "~> 1.0.2"
-end
-
-group :development do
+  gem "rake"
+  gem "rr"
   gem "aws-s3"
-  gem "fpm"
-  gem "rubyzip"
-end
-
-group :test do
+  gem "mime-types", "< 2.0"
   gem "fakefs"
-  gem "jruby-openssl", :platform => :jruby
   gem "json"
   gem "rspec"
-  gem "sqlite3"
   gem "webmock"
   gem "coveralls", :require => false
 end
