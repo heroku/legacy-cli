@@ -21,7 +21,8 @@ Setup
   </tr>
   <tr>
     <td>Mac OS X</td>
-    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/osx/download">Download OS X package</a></td>
+    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/osx/download">Download OS X package</a><br>
+                                 Or, install the <a href="http://mxcl.github.com/homebrew/">Homebrew</a> package with <code>$ brew install heroku</code></td>
   </tr>
   <tr>
     <td>Windows</td>
