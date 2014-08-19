@@ -1,5 +1,7 @@
 require "heroku/command/base"
 
+# manage two factor settings for account
+#
 module Heroku::Command
   class TwoFactor < BaseWithApp
     # 2fa
