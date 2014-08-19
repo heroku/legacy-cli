@@ -46,6 +46,7 @@ STDOUT
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 Adding example.com to example... done
+
 STDOUT
       api.delete_domain("example", "example.com")
     end
