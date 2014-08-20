@@ -32,7 +32,6 @@ class Heroku::Client
   attr_accessor :host, :user, :password
 
   def initialize(user, password, host=Heroku::Auth.host)
-    require 'rest_client'
     @user = user
     @password = password
     @host = host
@@ -349,7 +348,6 @@ class Heroku::Client
     attr_accessor :attached
 
     def initialize(client, app)
-      require 'rest_client'
       @client = client
       @app = app
     end
@@ -435,7 +433,6 @@ class Heroku::Client
   # support for console sessions
   class ConsoleSession
     def initialize(id, app, client)
-      require 'rest_client'
       @id = id; @app = app; @client = client
     end
     def run(cmd)

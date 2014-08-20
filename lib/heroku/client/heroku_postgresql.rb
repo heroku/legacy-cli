@@ -18,7 +18,6 @@ class Heroku::Client::HerokuPostgresql
   attr_reader :attachment
   def initialize(attachment)
     @attachment = attachment
-    require 'rest_client'
   end
 
   def heroku_postgresql_host

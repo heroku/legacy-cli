@@ -4,12 +4,8 @@ load('heroku/updater.rb') # reload updater after possible inject_loadpath
 require "heroku"
 require "heroku/command"
 require "heroku/helpers"
-
-# workaround for rescue/reraise to define errors in command.rb failing in 1.8.6
-if RUBY_VERSION =~ /^1.8.6/
-  require('heroku-api')
-  require('rest_client')
-end
+require 'rest_client'
+require 'heroku-api'
 
 begin
   # attempt to load the JSON parser bundled with ruby for multi_json

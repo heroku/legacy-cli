@@ -7,11 +7,6 @@ Coveralls.wear!
 
 require "excon"
 
-# ensure these are around for errors
-# as their require is generally deferred
-require "heroku-api"
-require "rest_client"
-
 require "heroku/cli"
 require "rspec"
 require "rr"
