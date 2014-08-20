@@ -1,4 +1,3 @@
-require 'heroku-api'
 require "heroku/client"
 
 class Heroku::Client::Organizations

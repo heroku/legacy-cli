@@ -5,7 +5,6 @@ class Heroku::Client::Pgbackups
   include Heroku::Helpers
 
   def initialize(uri)
-    require 'rest_client'
     @uri = URI.parse(uri)
   end
 

@@ -13,7 +13,6 @@ class Heroku::Auth
 
     def api
       @api ||= begin
-        require("heroku-api")
         api = Heroku::API.new(default_params.merge(:api_key => password))
 
         def api.request(params, &block)
@@ -75,7 +74,6 @@ class Heroku::Auth
     end
 
     def api_key(user = get_credentials[0], password = get_credentials[1])
-      require("heroku-api")
       api = Heroku::API.new(default_params)
       api.post_login(user, password).body["api_key"]
     rescue Heroku::API::Errors::Unauthorized => e
@@ -240,22 +238,19 @@ class Heroku::Auth
     end
 
     def ask_for_and_save_credentials
-      require("heroku-api") # for the errors
-      begin
-        @credentials = ask_for_credentials
-        write_credentials
-        check
-      rescue Heroku::API::Errors::NotFound, Heroku::API::Errors::Unauthorized => e
-        delete_credentials
-        display "Authentication failed."
-        retry if retry_login?
-        exit 1
-      rescue Exception => e
-        delete_credentials
-        raise e
-      end
+      @credentials = ask_for_credentials
+      write_credentials
+      check
       check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
       @credentials
+    rescue Heroku::API::Errors::NotFound, Heroku::API::Errors::Unauthorized => e
+      delete_credentials
+      display "Authentication failed."
+      retry if retry_login?
+      exit 1
+    rescue Exception => e
+      delete_credentials
+      raise e
     end
 
     def check_for_associated_ssh_key
