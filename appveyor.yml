@@ -1,0 +1,16 @@
+version: "{build}"
+branches:
+  only:
+    - master
+clone_depth: 1
+install:
+  - ruby --version
+  - bundle install -j4
+build_script:
+  - ocra bin\heroku
+test_script:
+  - heroku.exe help
+  - heroku.exe status
+artifacts:
+  - path: heroku.exe
+    name: heroku.exe
