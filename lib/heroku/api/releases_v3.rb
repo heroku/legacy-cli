@@ -11,15 +11,20 @@ module Heroku
       )
     end
 
-    def post_release_v3(app, slug_id, description=nil)
+    def post_release_v3(app, slug_id, opts={})
+      headers = {
+        'Accept'       => 'application/vnd.heroku+json; version=3',
+        'Content-Type' => 'application/json'
+      }
+      headers.merge!('Heroku-Deploy-Type' => opts[:deploy_type]) if opts[:deploy_type]
+      headers.merge!('Heroku-Deploy-Source' => opts[:deploy_source]) if opts[:deploy_source]
+
       body = { 'slug' => slug_id }
-      body.merge!('description' => description) if description
+      body.merge!('description' => opts[:description]) if opts[:description]
+
       request(
         :expects  => 201,
-        :headers  => {
-          'Accept'       => 'application/vnd.heroku+json; version=3',
-          'Content-Type' => 'application/json'
-        },
+        :headers  => headers,
         :method   => :post,
         :path     => "/apps/#{app}/releases",
         :body     => Heroku::Helpers.json_encode(body)

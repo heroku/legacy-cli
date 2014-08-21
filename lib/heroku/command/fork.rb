@@ -113,7 +113,11 @@ module Heroku::Command
       raise Heroku::Command::CommandFailed.new("No releases on #{from}") if from_releases.empty?
       from_slug = from_releases.first.fetch('slug', {})
       raise Heroku::Command::CommandFailed.new("No slug on #{from}") unless from_slug
-      api.post_release_v3(to, from_slug["id"], "Forked from #{from}")
+      api.post_release_v3(to,
+                          from_slug["id"],
+                          :description => "Forked from #{from}",
+                          :deploy_type => "fork",
+                          :deploy_source => from)
     end
 
     def check_for_pgbackups!(app)
