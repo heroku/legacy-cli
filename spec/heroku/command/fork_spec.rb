@@ -49,12 +49,13 @@ STDOUT
       end
 
       it "copies slug" do
+        from_info = api.get_app("example").body
         expect_any_instance_of(Heroku::API).to receive(:get_releases_v3).with("example", "version ..; order=desc,max=1;").and_call_original
         expect_any_instance_of(Heroku::API).to receive(:post_release_v3).with("example-fork",
                                                                               "SLUG_ID",
                                                                               :description => "Forked from example",
                                                                               :deploy_type => "fork",
-                                                                              :deploy_source => "example").and_call_original
+                                                                              :deploy_source => from_info["id"]).and_call_original
         execute("fork example-fork")
       end
 
