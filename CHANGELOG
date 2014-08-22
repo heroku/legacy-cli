@@ -1,3 +1,7 @@
+3.10.4 2014-08-22
+=================
+Upgraded excon to 0.39.5
+
 3.10.3 2014-08-21
 =================
 Fixed minor issue with recording fork source
