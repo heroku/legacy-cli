@@ -1,24 +1,19 @@
-before_script:
-  - git config --global user.email "bot@heroku.com"
-  - git config --global user.name "Heroku Bot (Travis CI)"
-
-bundler_args: --without development
-
 language: ruby
-
-notifications:
-  email: false
-  webhooks:
-    on_success: always
-    on_failure: always
-    urls:
-      - http://dx-helper.herokuapp.com/travis
-
 rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1.2
+cache: bundler
+
+before_script:
+  - git config --global user.email "bot@heroku.com"
+  - git config --global user.name "Heroku Bot (Travis CI)"
 
 script: bundle exec rspec spec --color --format documentation
+
+notifications:
+  hipchat:
+    rooms:
+      secure: vkWV7oGjSxVDPXemj5UXVxZR2/pWQkNaz2I3HUJ7OO40TL08X5yZKJVFwkU0AGqJ7EOck/Jtsxc01t70G+z6EcjcI6471GygmI15zbv8IkxIazZkUsybUR1NglUfeuJzjK1JEArK6hJ/n75DyR09pl+ZDkE8fuyrG+TC/nusd08=
