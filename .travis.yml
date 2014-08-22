@@ -14,6 +14,7 @@ before_script:
 script: bundle exec rspec spec --color --format documentation
 
 notifications:
+  email: false
   hipchat:
     rooms:
       secure: vkWV7oGjSxVDPXemj5UXVxZR2/pWQkNaz2I3HUJ7OO40TL08X5yZKJVFwkU0AGqJ7EOck/Jtsxc01t70G+z6EcjcI6471GygmI15zbv8IkxIazZkUsybUR1NglUfeuJzjK1JEArK6hJ/n75DyR09pl+ZDkE8fuyrG+TC/nusd08=
