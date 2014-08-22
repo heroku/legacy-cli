@@ -1,3 +1,11 @@
+3.10.2 2014-08-21
+=================
+Removed lazy-loading of heroku-api and rest_client (was swallowing errors)
+Fail fast for issue with pgbackups:transfer
+Removed price tier from info
+Help info for two factor topic
+Send deploy type and source metadata for forks
+
 3.10.1 2014-08-14
 =================
 No changes, just verifying new release code is in order
