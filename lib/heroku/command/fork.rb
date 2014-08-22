@@ -42,7 +42,7 @@ module Heroku::Command
       end
 
       action("Copying slug") do
-        copy_slug(from, to)
+        copy_slug(from_info, to_info)
       end
 
       from_config = api.get_config_vars(from).body
@@ -108,7 +108,9 @@ module Heroku::Command
 
   private
 
-    def copy_slug(from, to)
+    def copy_slug(from_info, to_info)
+      from = from_info["name"]
+      to = to_info["name"]
       from_releases = api.get_releases_v3(from, 'version ..; order=desc,max=1;').body
       raise Heroku::Command::CommandFailed.new("No releases on #{from}") if from_releases.empty?
       from_slug = from_releases.first.fetch('slug', {})
@@ -117,7 +119,7 @@ module Heroku::Command
                           from_slug["id"],
                           :description => "Forked from #{from}",
                           :deploy_type => "fork",
-                          :deploy_source => from)
+                          :deploy_source => from_info["id"])
     end
 
     def check_for_pgbackups!(app)
