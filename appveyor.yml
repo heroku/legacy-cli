@@ -14,3 +14,9 @@ test_script:
 artifacts:
   - path: heroku.exe
     name: heroku.exe
+
+notifications:
+  - provider: HipChat
+    auth_token:
+      secure: MRgnRhuTl4lmIvyZ58dhKDB+g18Lln7PVdMprSYPG3gPzkDM9FnXrucEUtGfV3qE
+    room: CLI
