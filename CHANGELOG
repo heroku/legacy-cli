@@ -1,3 +1,7 @@
+3.10.3 2014-08-21
+=================
+Fixed minor issue with recording fork source
+
 3.10.2 2014-08-21
 =================
 Removed lazy-loading of heroku-api and rest_client (was swallowing errors)
