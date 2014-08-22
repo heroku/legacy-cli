@@ -17,3 +17,10 @@ notifications:
   hipchat:
     rooms:
       secure: vkWV7oGjSxVDPXemj5UXVxZR2/pWQkNaz2I3HUJ7OO40TL08X5yZKJVFwkU0AGqJ7EOck/Jtsxc01t70G+z6EcjcI6471GygmI15zbv8IkxIazZkUsybUR1NglUfeuJzjK1JEArK6hJ/n75DyR09pl+ZDkE8fuyrG+TC/nusd08=
+
+deploy:
+  provider: rubygems
+  on:
+    tags: true
+  api_key:
+    secure: ALsBCGGvdAiIEJR9zTzxumcgCaS5eqOs7Oee7e4SiDgHrT/DRSsFJBtNp9mJvQvHzW3FqSFZU7NO6tSRkwHGdGGw7pf/emjZ2ua0exuyCQ3LaCJBdwSQXl0GTMhhaMCCd2NYWJ+Fa3Q9jWWAdCfV8rqz5AX4ZG6fi3C2uubppVs=
