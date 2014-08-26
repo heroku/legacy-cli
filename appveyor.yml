@@ -7,13 +7,13 @@ install:
   - ruby --version
   - bundle install -j4
 build_script:
-  - ocra bin\heroku
+  - ocra bin\heroku-ocra data\cacert.pem
 test_script:
-  - heroku.exe help
-  - heroku.exe status
+  - heroku-ocra.exe help
+  - heroku-ocra.exe status
 artifacts:
-  - path: heroku.exe
-    name: heroku.exe
+  - path: heroku-ocra.exe
+    name: heroku-ocra.exe
 
 notifications:
   - provider: HipChat
