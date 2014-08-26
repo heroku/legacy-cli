@@ -14,9 +14,3 @@ test_script:
 artifacts:
   - path: heroku-ocra.exe
     name: heroku-ocra.exe
-
-notifications:
-  - provider: HipChat
-    auth_token:
-      secure: MRgnRhuTl4lmIvyZ58dhKDB+g18Lln7PVdMprSYPG3gPzkDM9FnXrucEUtGfV3qE
-    room: CLI
