@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+
+# resolve bin path, ignoring symlinks
+require "pathname"
+bin_file = Pathname.new(__FILE__).realpath
+
+# add self to libpath
+$:.unshift File.expand_path("../../lib", bin_file)
+
+require "heroku/updater"
+Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
+
+# start up the CLI
+require "heroku/cli"
+Heroku.user_agent = "heroku-ocra/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+Heroku::CLI.start(*ARGV)
+
+# require other dependencies ocra needs to include
+require 'Win32API'
+MultiJson.load('{"foo": "bar"}') # preps multi_json
