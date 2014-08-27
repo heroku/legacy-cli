@@ -1,3 +1,7 @@
+3.10.5 2014-08-27
+=================
+Ocra support for building standalone heroku-ocra.exe
+
 3.10.4 2014-08-22
 =================
 Upgraded excon to 0.39.5
