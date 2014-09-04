@@ -1,3 +1,7 @@
+3.10.6 2014-09-04
+=================
+Added ssh-keygen shim for Windows
+
 3.10.5 2014-08-27
 =================
 Ocra support for building standalone heroku-ocra.exe
