@@ -614,6 +614,10 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     headers  = heroku_headers.merge(extra_headers)
     args     = [method, payload, headers].compact
 
+    if Heroku::Auth.two_factor_code
+      headers.merge!("Heroku-Two-Factor-Code" => Heroku::Auth.two_factor_code)
+    end
+
     resource_options = default_resource_options_for_uri(uri)
 
     begin
