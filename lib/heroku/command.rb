@@ -252,7 +252,12 @@ module Heroku
     rescue Heroku::API::Errors::ErrorWithResponse => e
       error extract_error(e.response.body)
     rescue RestClient::RequestFailed => e
-      error extract_error(e.http_body)
+      if e.response.code == 403 && e.response.headers.has_key?(:heroku_two_factor_required)
+        Heroku::Auth.ask_for_second_factor
+        retry
+      else
+        error extract_error(e.http_body)
+      end
     rescue CommandFailed => e
       error e.message
     rescue OptionParser::ParseError
