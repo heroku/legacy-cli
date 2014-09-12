@@ -1,3 +1,8 @@
+3.11.0 2014-09-12
+=================
+Attempt to push ~/.ssh/id_rsa SSH key instead of any one key
+Always prompt for uploading SSH keys
+
 3.10.6 2014-09-04
 =================
 Added ssh-keygen shim for Windows
