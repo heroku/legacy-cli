@@ -185,6 +185,7 @@ module Heroku
 
     describe "automatic key uploading" do
       before(:each) do
+        allow(@cli).to receive(:home_directory).and_return(Heroku::Helpers.home_directory)
         FileUtils.mkdir_p("#{@cli.home_directory}/.ssh")
         allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
       end
@@ -216,31 +217,20 @@ module Heroku
         describe "with zero public keys" do
           it "should ask to generate a key" do
             expect(@cli).to receive(:ask).and_return("y")
-            expect(@cli).to receive(:generate_ssh_key).with("id_rsa")
-            expect(@cli).to receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa.pub")
-            @cli.check_for_associated_ssh_key
-          end
-        end
-
-        describe "with one public key" do
-          before(:each) { FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub") }
-          after(:each)  { FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa.pub") }
-
-          it "should upload the key" do
+            expect(@cli).to receive(:generate_ssh_key).with("#{@cli.home_directory}/.ssh/id_rsa")
             expect(@cli).to receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa.pub")
             @cli.check_for_associated_ssh_key
           end
         end
 
         describe "with many public keys" do
-          before(:each) do
+          before :each do
             FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub")
             FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa2.pub")
           end
 
-          after(:each) do
-            FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa.pub")
-            FileUtils.rm("#{@cli.home_directory}/.ssh/id_rsa2.pub")
+          after :each do
+            FileUtils.rm_rf(@cli.home_directory)
           end
 
           it "should ask which key to upload" do
