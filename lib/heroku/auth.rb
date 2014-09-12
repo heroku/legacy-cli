@@ -255,25 +255,37 @@ class Heroku::Auth
 
     def check_for_associated_ssh_key
       if api.get_keys.body.empty?
+        display "Your Heroku account does not have a public ssh key uploaded."
         associate_or_generate_ssh_key
       end
     end
 
     def associate_or_generate_ssh_key
-      public_keys = Dir.glob("#{home_directory}/.ssh/*.pub").sort
-
-      case public_keys.length
-      when 0 then
-        display "Could not find an existing public key."
+      unless File.exists?("#{home_directory}/.ssh/id_rsa.pub")
+        display "Could not find an existing public key at ~/.ssh/id_rsa.pub"
         display "Would you like to generate one? [Yn] ", false
-        unless ask.strip.downcase == "n"
+        unless ask.strip.downcase =~ /^n/
           display "Generating new SSH public key."
-          generate_ssh_key("id_rsa")
+          generate_ssh_key("#{home_directory}/.ssh/id_rsa")
           associate_key("#{home_directory}/.ssh/id_rsa.pub")
+          return
         end
-      when 1 then
-        display "Found existing public key: #{public_keys.first}"
-        associate_key(public_keys.first)
+      end
+
+      chosen = ssh_prompt
+      associate_key(chosen) if chosen
+    end
+
+    def ssh_prompt
+      public_keys = Dir.glob("#{home_directory}/.ssh/*.pub").sort
+      case public_keys.length
+      when 0
+        error("No SSH keys found")
+        return nil
+      when 1
+        display "Found an SSH public key at #{public_keys.first}"
+        display "Would you like to upload it to Heroku? [Yn] ", false
+        return ask.strip.downcase =~ /^n/ ? nil : public_keys.first
       else
         display "Found the following SSH public keys:"
         public_keys.each_with_index do |key, index|
@@ -285,19 +297,14 @@ class Heroku::Auth
         if choice == -1 || chosen.nil?
           error("Invalid choice")
         end
-        associate_key(chosen)
+        return chosen
       end
     end
 
     def generate_ssh_key(keyfile)
-      ssh_dir = File.join(home_directory, ".ssh")
-      unless File.exists?(ssh_dir)
-        FileUtils.mkdir_p ssh_dir
-        unless running_on_windows?
-          File.chmod(0700, ssh_dir)
-        end
-      end
-      output = `ssh-keygen -t rsa -N "" -f \"#{home_directory}/.ssh/#{keyfile}\" 2>&1`
+      ssh_dir = File.dirname(keyfile)
+      FileUtils.mkdir_p ssh_dir, :mode => 0700
+      output = `ssh-keygen -t rsa -N "" -f \"#{keyfile}\" 2>&1`
       if ! $?.success?
         error("Could not generate key: #{output}")
       end
