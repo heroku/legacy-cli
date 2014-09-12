@@ -7,27 +7,20 @@ module Heroku::Command
 
     before(:each) do
       stub_core
+      allow(Heroku::Auth).to receive(:home_directory).and_return(Heroku::Helpers.home_directory)
     end
 
     context("add") do
-
-      after(:each) do
-        api.delete_key("pedro@heroku")
-      end
-
       it "tries to find a key if no key filename is supplied" do
         expect(Heroku::Auth).to receive(:ask).and_return("y")
-        expect(Heroku::Auth).to receive(:generate_ssh_key)
-        expect(File).to receive(:exists?).with('.git').and_return(false)
-        expect(File).to receive(:exists?).with('/.ssh/id_rsa.pub').and_return(true)
-        expect(File).to receive(:read).with('/.ssh/id_rsa.pub').and_return(KEY)
         stderr, stdout = execute("keys:add")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Could not find an existing public key.
+Could not find an existing public key at ~/.ssh/id_rsa.pub
 Would you like to generate one? [Yn] Generating new SSH public key.
-Uploading SSH public key /.ssh/id_rsa.pub... done
+Uploading SSH public key #{Heroku::Auth.home_directory}/.ssh/id_rsa.pub... done
 STDOUT
+        api.delete_key(`whoami`.strip + '@' + `hostname`.strip)
       end
 
       it "adds a key from a specified keyfile path" do
@@ -39,8 +32,8 @@ STDOUT
         expect(stdout).to eq <<-STDOUT
 Uploading SSH public key /my/key.pub... done
 STDOUT
+        api.delete_key("pedro@heroku")
       end
-
     end
 
     context("index") do
