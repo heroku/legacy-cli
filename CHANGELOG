@@ -1,4 +1,4 @@
-3.11.0 2014-09-12
+3.11.1 2014-09-12
 =================
 Attempt to push ~/.ssh/id_rsa SSH key instead of any one key
 Always prompt for uploading SSH keys
