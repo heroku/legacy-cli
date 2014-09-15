@@ -57,6 +57,10 @@ class Heroku::Client::HerokuPostgresql
     http_put "#{resource_name}/reset"
   end
 
+  def connection_reset
+    http_post "#{resource_name}/connection_reset"
+  end
+
   def rotate_credentials
     http_post "#{resource_name}/credentials_rotation"
   end
