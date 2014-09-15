@@ -268,6 +268,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # terminates ALL connections
   #
   def killall
+    db = args.first
+    attachment = generate_resolver.resolve(db, "DATABASE_URL")
+    client = hpg_client(attachment)
+    client.connection_reset
+    display "Connections terminated"
+  rescue StandardError
+    # fall back to original mechanism if calling the reset endpoint
+    # fails
     sql = %Q(
       SELECT pg_terminate_backend(#{pid_column})
       FROM pg_stat_activity
