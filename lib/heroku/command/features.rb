@@ -17,7 +17,7 @@ class Heroku::Command::Features < Heroku::Command::Base
     validate_arguments!
 
     app_features = api.get_features(app).body.select do |feature|
-      feature["state"] == "general"
+      feature["kind"] == "app" && feature["state"] == "general"
     end
 
     app_features.sort_by! do |feature|
