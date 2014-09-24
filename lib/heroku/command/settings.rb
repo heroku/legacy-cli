@@ -10,10 +10,10 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   #Example:
   #
-  # === User Features (david@heroku.com)
+  # === User Settings (david@heroku.com)
   # [+] dashboard  Use Heroku Dashboard by default
   #
-  # === App Features (glacial-retreat-5913)
+  # === App Settings (glacial-retreat-5913)
   # [ ] preboot            Provide seamless web dyno deploys
   # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a example
   #
@@ -31,10 +31,10 @@ class Heroku::Command::Settings < Heroku::Command::Base
 
     display_app = app || "no app specified"
 
-    styled_header "User Features (#{Heroku::Auth.user})"
+    styled_header "User Settings (#{Heroku::Auth.user})"
     display_settings user_settings
     display
-    styled_header "App Features (#{display_app})"
+    styled_header "App Settings (#{display_app})"
     display_settings app_settings
   end
 
