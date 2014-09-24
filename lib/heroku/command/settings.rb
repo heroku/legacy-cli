@@ -6,16 +6,12 @@ class Heroku::Command::Settings < Heroku::Command::Base
 
   # settings
   #
-  # list experimental settings
+  # list available settings
   #
   #Example:
   #
-  # === User Settings (david@heroku.com)
-  # [+] dashboard  Use Heroku Dashboard by default
-  #
   # === App Settings (glacial-retreat-5913)
   # [ ] preboot            Provide seamless web dyno deploys
-  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku settings -a example
   #
   def index
     validate_arguments!
@@ -46,10 +42,10 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku settings:info user_env_compile
-  # === user_env_compile
-  # Docs:    http://devcenter.heroku.com/articles/settings-user-env-compile
-  # Summary: Add user config vars to the environment during slug compilation
+  # $ heroku settings:info preboot
+  # === preboot
+  # Docs:    https://devcenter.heroku.com/articles/preboot
+  # Summary: Provide seamless web dyno deploys
   #
   def info
     unless setting_name = shift_argument
@@ -67,12 +63,12 @@ class Heroku::Command::Settings < Heroku::Command::Base
 
   # settings:disable SETTING
   #
-  # disables an experimental setting
+  # disables a setting
   #
   #Example:
   #
-  # $ heroku settings:disable ninja-power
-  # Disabling ninja-power setting for me@example.org... done
+  # $ heroku settings:disable preboot
+  # Disabling preboot setting for me@example.org... done
   #
   def disable
     setting_name = shift_argument
@@ -98,12 +94,12 @@ class Heroku::Command::Settings < Heroku::Command::Base
 
   # settings:enable SETTING
   #
-  # enables an experimental setting
+  # enables an setting
   #
   #Example:
   #
-  # $ heroku settings:enable ninja-power
-  # Enabling ninja-power setting for me@example.org... done
+  # $ heroku settings:enable preboot
+  # Enabling preboot setting for me@example.org... done
   #
   def enable
     setting_name = shift_argument
