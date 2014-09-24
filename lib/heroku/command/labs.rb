@@ -26,6 +26,9 @@ class Heroku::Command::Labs < Heroku::Command::Base
       feature["kind"] == "user"
     end
 
+    # general availability features are managed via `settings`, not `labs`
+    app_features.reject! { |f| f["state"] == "general" }
+
     display_app = app || "no app specified"
 
     styled_header "User Features (#{Heroku::Auth.user})"
