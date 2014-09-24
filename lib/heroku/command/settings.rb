@@ -40,9 +40,9 @@ class Heroku::Command::Settings < Heroku::Command::Base
 
   alias_command "labs:list", "labs"
 
-  # labs:info FEATURE
+  # labs:info SETTING
   #
-  # displays additional information about FEATURE
+  # displays additional information about SETTING
   #
   #Example:
   #
@@ -53,7 +53,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   def info
     unless feature_name = shift_argument
-      error("Usage: heroku labs:info FEATURE\nMust specify FEATURE for info.")
+      error("Usage: heroku labs:info SETTING\nMust specify SETTING for info.")
     end
     validate_arguments!
 
@@ -65,7 +65,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
     })
   end
 
-  # labs:disable FEATURE
+  # labs:disable SETTING
   #
   # disables an experimental feature
   #
@@ -76,7 +76,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   def disable
     feature_name = shift_argument
-    error "Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
+    error "Usage: heroku labs:disable SETTING\nMust specify SETTING to disable." unless feature_name
     validate_arguments!
 
     feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
@@ -96,7 +96,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
     end
   end
 
-  # labs:enable FEATURE
+  # labs:enable SETTING
   #
   # enables an experimental feature
   #
@@ -107,7 +107,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   def enable
     feature_name = shift_argument
-    error "Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable." unless feature_name
+    error "Usage: heroku labs:enable SETTING\nMust specify SETTING to enable." unless feature_name
     validate_arguments!
 
     feature = api.get_features.body.detect { |f| f["name"] == feature_name }
