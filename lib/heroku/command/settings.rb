@@ -4,7 +4,7 @@ require "heroku/command/base"
 #
 class Heroku::Command::Settings < Heroku::Command::Base
 
-  # labs
+  # settings
   #
   # list experimental settings
   #
@@ -15,7 +15,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
   #
   # === App Settings (glacial-retreat-5913)
   # [ ] preboot            Provide seamless web dyno deploys
-  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a example
+  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku settings -a example
   #
   def index
     validate_arguments!
@@ -26,7 +26,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
       setting["kind"] == "user"
     end
 
-    # general availability settings are managed via `settings`, not `labs`
+    # general availability settings are managed via `settings`, not `settings`
     app_settings.reject! { |f| f["state"] == "general" }
 
     display_app = app || "no app specified"
@@ -38,22 +38,22 @@ class Heroku::Command::Settings < Heroku::Command::Base
     display_settings app_settings
   end
 
-  alias_command "labs:list", "labs"
+  alias_command "settings:list", "settings"
 
-  # labs:info SETTING
+  # settings:info SETTING
   #
   # displays additional information about SETTING
   #
   #Example:
   #
-  # $ heroku labs:info user_env_compile
+  # $ heroku settings:info user_env_compile
   # === user_env_compile
-  # Docs:    http://devcenter.heroku.com/articles/labs-user-env-compile
+  # Docs:    http://devcenter.heroku.com/articles/settings-user-env-compile
   # Summary: Add user config vars to the environment during slug compilation
   #
   def info
     unless setting_name = shift_argument
-      error("Usage: heroku labs:info SETTING\nMust specify SETTING for info.")
+      error("Usage: heroku settings:info SETTING\nMust specify SETTING for info.")
     end
     validate_arguments!
 
@@ -65,18 +65,18 @@ class Heroku::Command::Settings < Heroku::Command::Base
     })
   end
 
-  # labs:disable SETTING
+  # settings:disable SETTING
   #
   # disables an experimental setting
   #
   #Example:
   #
-  # $ heroku labs:disable ninja-power
+  # $ heroku settings:disable ninja-power
   # Disabling ninja-power setting for me@example.org... done
   #
   def disable
     setting_name = shift_argument
-    error "Usage: heroku labs:disable SETTING\nMust specify SETTING to disable." unless setting_name
+    error "Usage: heroku settings:disable SETTING\nMust specify SETTING to disable." unless setting_name
     validate_arguments!
 
     setting = api.get_features(app).body.detect { |f| f["name"] == setting_name }
@@ -96,18 +96,18 @@ class Heroku::Command::Settings < Heroku::Command::Base
     end
   end
 
-  # labs:enable SETTING
+  # settings:enable SETTING
   #
   # enables an experimental setting
   #
   #Example:
   #
-  # $ heroku labs:enable ninja-power
+  # $ heroku settings:enable ninja-power
   # Enabling ninja-power setting for me@example.org... done
   #
   def enable
     setting_name = shift_argument
-    error "Usage: heroku labs:enable SETTING\nMust specify SETTING to enable." unless setting_name
+    error "Usage: heroku settings:enable SETTING\nMust specify SETTING to enable." unless setting_name
     validate_arguments!
 
     setting = api.get_features.body.detect { |f| f["name"] == setting_name }
