@@ -84,7 +84,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
     end
 
     action message do
-      api.delete_setting setting_name, app
+      api.delete_feature setting_name, app
     end
   end
 
@@ -115,7 +115,7 @@ class Heroku::Command::Settings < Heroku::Command::Base
     end
 
     setting_data = action(message) do
-      api.post_setting(setting_name, app).body
+      api.post_feature(setting_name, app).body
     end
 
     display "WARNING: This setting is experimental and may change or be removed without notice."
