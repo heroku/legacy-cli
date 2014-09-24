@@ -16,20 +16,16 @@ class Heroku::Command::Settings < Heroku::Command::Base
   def index
     validate_arguments!
 
-    user_settings, app_settings = api.get_features(app).body.sort_by do |setting|
-      setting["name"]
-    end.partition do |setting|
-      setting["kind"] == "user"
+    app_settings = api.get_features(app).body.select do |feature|
+      feature["state"] == "general"
     end
 
-    # general availability settings are managed via `settings`, not `settings`
-    app_settings.reject! { |f| f["state"] == "general" }
+    app_settings.sort_by! do |feature|
+      feature["name"]
+    end
 
     display_app = app || "no app specified"
 
-    styled_header "User Settings (#{Heroku::Auth.user})"
-    display_settings user_settings
-    display
     styled_header "App Settings (#{display_app})"
     display_settings app_settings
   end
