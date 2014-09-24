@@ -118,7 +118,6 @@ class Heroku::Command::Settings < Heroku::Command::Base
       api.post_feature(setting_name, app).body
     end
 
-    display "WARNING: This setting is experimental and may change or be removed without notice."
     display "For more information see: #{setting_data["docs"]}" if setting_data["docs"]
   end
 
