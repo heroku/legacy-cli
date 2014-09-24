@@ -1,12 +1,12 @@
 require "heroku/command/base"
 
-# manage optional features
+# manage optional settings
 #
 class Heroku::Command::Settings < Heroku::Command::Base
 
   # labs
   #
-  # list experimental features
+  # list experimental settings
   #
   #Example:
   #
@@ -20,22 +20,22 @@ class Heroku::Command::Settings < Heroku::Command::Base
   def index
     validate_arguments!
 
-    user_features, app_features = api.get_features(app).body.sort_by do |feature|
-      feature["name"]
-    end.partition do |feature|
-      feature["kind"] == "user"
+    user_settings, app_settings = api.get_features(app).body.sort_by do |setting|
+      setting["name"]
+    end.partition do |setting|
+      setting["kind"] == "user"
     end
 
-    # general availability features are managed via `settings`, not `labs`
-    app_features.reject! { |f| f["state"] == "general" }
+    # general availability settings are managed via `settings`, not `labs`
+    app_settings.reject! { |f| f["state"] == "general" }
 
     display_app = app || "no app specified"
 
     styled_header "User Features (#{Heroku::Auth.user})"
-    display_features user_features
+    display_settings user_settings
     display
     styled_header "App Features (#{display_app})"
-    display_features app_features
+    display_settings app_settings
   end
 
   alias_command "labs:list", "labs"
@@ -52,39 +52,39 @@ class Heroku::Command::Settings < Heroku::Command::Base
   # Summary: Add user config vars to the environment during slug compilation
   #
   def info
-    unless feature_name = shift_argument
+    unless setting_name = shift_argument
       error("Usage: heroku labs:info SETTING\nMust specify SETTING for info.")
     end
     validate_arguments!
 
-    feature_data = api.get_feature(feature_name, app).body
-    styled_header(feature_data['name'])
+    setting_data = api.get_feature(setting_name, app).body
+    styled_header(setting_data['name'])
     styled_hash({
-      'Summary' => feature_data['summary'],
-      'Docs'    => feature_data['docs']
+      'Summary' => setting_data['summary'],
+      'Docs'    => setting_data['docs']
     })
   end
 
   # labs:disable SETTING
   #
-  # disables an experimental feature
+  # disables an experimental setting
   #
   #Example:
   #
   # $ heroku labs:disable ninja-power
-  # Disabling ninja-power feature for me@example.org... done
+  # Disabling ninja-power setting for me@example.org... done
   #
   def disable
-    feature_name = shift_argument
-    error "Usage: heroku labs:disable SETTING\nMust specify SETTING to disable." unless feature_name
+    setting_name = shift_argument
+    error "Usage: heroku labs:disable SETTING\nMust specify SETTING to disable." unless setting_name
     validate_arguments!
 
-    feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
-    message = "Disabling #{feature_name} "
+    setting = api.get_features(app).body.detect { |f| f["name"] == setting_name }
+    message = "Disabling #{setting_name} "
 
-    error "No such feature: #{feature_name}" unless feature
+    error "No such setting: #{setting_name}" unless setting
 
-    if feature["kind"] == "user"
+    if setting["kind"] == "user"
       message += "for #{Heroku::Auth.user}"
     else
       error "Must specify an app" unless app
@@ -92,42 +92,42 @@ class Heroku::Command::Settings < Heroku::Command::Base
     end
 
     action message do
-      api.delete_feature feature_name, app
+      api.delete_setting setting_name, app
     end
   end
 
   # labs:enable SETTING
   #
-  # enables an experimental feature
+  # enables an experimental setting
   #
   #Example:
   #
   # $ heroku labs:enable ninja-power
-  # Enabling ninja-power feature for me@example.org... done
+  # Enabling ninja-power setting for me@example.org... done
   #
   def enable
-    feature_name = shift_argument
-    error "Usage: heroku labs:enable SETTING\nMust specify SETTING to enable." unless feature_name
+    setting_name = shift_argument
+    error "Usage: heroku labs:enable SETTING\nMust specify SETTING to enable." unless setting_name
     validate_arguments!
 
-    feature = api.get_features.body.detect { |f| f["name"] == feature_name }
-    message = "Enabling #{feature_name} "
+    setting = api.get_features.body.detect { |f| f["name"] == setting_name }
+    message = "Enabling #{setting_name} "
 
-    error "No such feature: #{feature_name}" unless feature
+    error "No such setting: #{setting_name}" unless setting
 
-    if feature["kind"] == "user"
+    if setting["kind"] == "user"
       message += "for #{Heroku::Auth.user}"
     else
       error "Must specify an app" unless app
       message += "for #{app}"
     end
 
-    feature_data = action(message) do
-      api.post_feature(feature_name, app).body
+    setting_data = action(message) do
+      api.post_setting(setting_name, app).body
     end
 
-    display "WARNING: This feature is experimental and may change or be removed without notice."
-    display "For more information see: #{feature_data["docs"]}" if feature_data["docs"]
+    display "WARNING: This setting is experimental and may change or be removed without notice."
+    display "For more information see: #{setting_data["docs"]}" if setting_data["docs"]
   end
 
 private
@@ -139,11 +139,11 @@ private
     nil
   end
 
-  def display_features(features)
-    longest_name = features.map { |f| f["name"].to_s.length }.sort.last
-    features.each do |feature|
-      toggle = feature["enabled"] ? "[+]" : "[ ]"
-      display "%s %-#{longest_name}s  %s" % [ toggle, feature["name"], feature["summary"] ]
+  def display_settings(settings)
+    longest_name = settings.map { |f| f["name"].to_s.length }.sort.last
+    settings.each do |setting|
+      toggle = setting["enabled"] ? "[+]" : "[ ]"
+      display "%s %-#{longest_name}s  %s" % [ toggle, setting["name"], setting["summary"] ]
     end
   end
 
