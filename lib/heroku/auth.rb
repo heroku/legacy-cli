@@ -61,6 +61,10 @@ class Heroku::Auth
       ENV['HEROKU_HOST'] || default_host
     end
 
+    def subdomains
+      %w(api git)
+    end
+
     def reauthorize
       @credentials = ask_for_and_save_credentials
     end
@@ -100,8 +104,9 @@ class Heroku::Auth
         FileUtils.rm_f(legacy_credentials_path)
       end
       if netrc
-        netrc.delete("api.#{host}")
-        netrc.delete("code.#{host}")
+        subdomains.each do |sub|
+          netrc.delete("#{sub}.#{host}")
+        end
         netrc.save
       end
       @api, @client, @credentials = nil, nil
@@ -171,8 +176,9 @@ class Heroku::Auth
       unless running_on_windows?
         FileUtils.chmod(0600, netrc_path)
       end
-      netrc["api.#{host}"] = self.credentials
-      netrc["code.#{host}"] = self.credentials
+      subdomains.each do |sub|
+        netrc["#{sub}.#{host}"] = self.credentials
+      end
       netrc.save
     end
 
