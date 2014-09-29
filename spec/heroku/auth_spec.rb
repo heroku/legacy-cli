@@ -178,7 +178,7 @@ module Heroku
       @cli.netrc["api.#{@cli.host}"] = ["user", api_key]
 
       expect(@cli.get_credentials).to eq(["user", api_key[0,40]])
-      %w{api git}.each do |section|
+      Auth.subdomains.each do |section|
         expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"]).to eq(["user", api_key[0,40]])
       end
     end
