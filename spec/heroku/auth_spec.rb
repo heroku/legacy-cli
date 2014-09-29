@@ -27,7 +27,7 @@ module Heroku
 
       File.open(@cli.netrc_path, "w") do |file|
         file.puts("machine api.heroku.com\n  login user\n  password pass\n")
-        file.puts("machine code.heroku.com\n  login user\n  password pass\n")
+        file.puts("machine git.heroku.com\n  login user\n  password pass\n")
       end
     end
 
@@ -178,7 +178,7 @@ module Heroku
       @cli.netrc["api.#{@cli.host}"] = ["user", api_key]
 
       expect(@cli.get_credentials).to eq(["user", api_key[0,40]])
-      %w{api code}.each do |section|
+      %w{api git}.each do |section|
         expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"]).to eq(["user", api_key[0,40]])
       end
     end

@@ -101,7 +101,7 @@ class Heroku::Auth
       end
       if netrc
         netrc.delete("api.#{host}")
-        netrc.delete("code.#{host}")
+        netrc.delete("git.#{host}")
         netrc.save
       end
       @api, @client, @credentials = nil, nil
@@ -172,7 +172,7 @@ class Heroku::Auth
         FileUtils.chmod(0600, netrc_path)
       end
       netrc["api.#{host}"] = self.credentials
-      netrc["code.#{host}"] = self.credentials
+      netrc["git.#{host}"] = self.credentials
       netrc.save
     end
 
