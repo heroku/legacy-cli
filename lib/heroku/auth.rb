@@ -211,7 +211,13 @@ class Heroku::Auth
       @two_factor_code = ask
       @two_factor_code = nil if @two_factor_code == ""
       @api = nil # reset it
-      @two_factor_code
+      preauth
+    end
+
+    def preauth
+      if Heroku.app_name
+        api.request(:method => :put, :path => "/apps/#{Heroku.app_name}/pre-authorizations")
+      end
     end
 
     def ask_for_password_on_windows

@@ -20,7 +20,7 @@ class Heroku::Command::Base
   end
 
   def app
-    @app ||= if options[:confirm].is_a?(String)
+    @app ||= Heroku.app_name = if options[:confirm].is_a?(String)
       if options[:app] && (options[:app] != options[:confirm])
         error("Mismatch between --app and --confirm")
       end
