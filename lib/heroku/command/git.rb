@@ -9,6 +9,8 @@ class Heroku::Command::Git < Heroku::Command::Base
   # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
   #
   # -r, --remote REMOTE  # the git remote to create, default "heroku"
+  #     --http-git       # Use HTTP git protocol
+  #
   #
   #Examples:
   #
@@ -25,7 +27,11 @@ class Heroku::Command::Git < Heroku::Command::Base
     directory = shift_argument
     validate_arguments!
 
-    git_url = api.get_app(name).body["git_url"]
+    git_url = if options[:http_git]
+      "https://git.heroku.com/#{name}.git"
+    else
+      api.get_app(name).body["git_url"]
+    end
 
     puts "Cloning from app '#{name}'..."
     system "git clone -o #{remote} #{git_url} #{directory}".strip
@@ -40,6 +46,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # if OPTIONS are specified they will be passed to git remote add
   #
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
+  #     --http-git             # Use HTTP git protocol
   #
   #Examples:
   #
@@ -57,7 +64,12 @@ class Heroku::Command::Git < Heroku::Command::Base
       error("Git remote #{remote} already exists")
     else
       app_data = api.get_app(app).body
-      create_git_remote(remote, app_data['git_url'])
+      git_url = if options[:http_git]
+        "https://git.heroku.com/#{app_data['name']}"
+      else
+        app_data['git_url']
+      end
+      create_git_remote(remote, git_url)
     end
   end
 
