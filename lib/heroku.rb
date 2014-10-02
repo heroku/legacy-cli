@@ -3,6 +3,7 @@ require "heroku/updater"
 require "heroku/version"
 
 module Heroku
+  @@app_name = nil
 
   USER_AGENT = "heroku-gem/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
 
@@ -14,4 +15,11 @@ module Heroku
     @@user_agent = agent
   end
 
+  def self.app_name
+    @@app_name
+  end
+
+  def self.app_name=(app_name)
+    @@app_name = app_name
+  end
 end
