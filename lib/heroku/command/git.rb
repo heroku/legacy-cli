@@ -65,7 +65,7 @@ class Heroku::Command::Git < Heroku::Command::Base
     else
       app_data = api.get_app(app).body
       git_url = if options[:http_git]
-        "https://git.heroku.com/#{app_data['name']}"
+        "https://git.heroku.com/#{app_data['name']}.git"
       else
         app_data['git_url']
       end
