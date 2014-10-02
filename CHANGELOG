@@ -1,7 +1,12 @@
-3.11.1 2014-09-12
+3.11.3 2014-10-02
 =================
-Attempt to push ~/.ssh/id_rsa SSH key instead of any one key
-Always prompt for uploading SSH keys
+Replace code. with git. in .netrc
+Always use preauth for 2fa
+
+3.11.2 2014-09-26
+=================
+Use server-side connection for pg:killall
+Send orgs requests to api.heroku.com
 
 3.10.6 2014-09-04
 =================
