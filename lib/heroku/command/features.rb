@@ -2,58 +2,50 @@ require "heroku/command/base"
 
 # manage optional features
 #
-class Heroku::Command::Labs < Heroku::Command::Base
+class Heroku::Command::Features < Heroku::Command::Base
 
-  # labs
+  # features
   #
-  # list experimental features
+  # list available features
   #
   #Example:
   #
-  # === User Features (david@heroku.com)
-  # [+] dashboard  Use Heroku Dashboard by default
-  #
   # === App Features (glacial-retreat-5913)
   # [ ] preboot            Provide seamless web dyno deploys
-  # [ ] user-env-compile   Add user config vars to the environment during slug compilation  # $ heroku labs -a example
   #
   def index
     validate_arguments!
 
-    user_features, app_features = api.get_features(app).body.sort_by do |feature|
-      feature["name"]
-    end.partition do |feature|
-      feature["kind"] == "user"
+    app_features = api.get_features(app).body.select do |feature|
+      feature["kind"] == "app" && feature["state"] == "general"
     end
 
-    # general availability features are managed via `settings`, not `labs`
-    app_features.reject! { |f| f["state"] == "general" }
+    app_features.sort_by! do |feature|
+      feature["name"]
+    end
 
     display_app = app || "no app specified"
 
-    styled_header "User Features (#{Heroku::Auth.user})"
-    display_features user_features
-    display
     styled_header "App Features (#{display_app})"
     display_features app_features
   end
 
-  alias_command "labs:list", "labs"
+  alias_command "features:list", "features"
 
-  # labs:info FEATURE
+  # features:info FEATURE
   #
   # displays additional information about FEATURE
   #
   #Example:
   #
-  # $ heroku labs:info user_env_compile
-  # === user_env_compile
-  # Docs:    http://devcenter.heroku.com/articles/labs-user-env-compile
-  # Summary: Add user config vars to the environment during slug compilation
+  # $ heroku features:info preboot
+  # === preboot
+  # Docs:    https://devcenter.heroku.com/articles/preboot
+  # Summary: Provide seamless web dyno deploys
   #
   def info
     unless feature_name = shift_argument
-      error("Usage: heroku labs:info FEATURE\nMust specify FEATURE for info.")
+      error("Usage: heroku feature:info FEATURE\nMust specify FEATURE for info.")
     end
     validate_arguments!
 
@@ -65,18 +57,18 @@ class Heroku::Command::Labs < Heroku::Command::Base
     })
   end
 
-  # labs:disable FEATURE
+  # features:disable FEATURE
   #
-  # disables an experimental feature
+  # disables a feature
   #
   #Example:
   #
-  # $ heroku labs:disable ninja-power
-  # Disabling ninja-power feature for me@example.org... done
+  # $ heroku features:disable preboot
+  # Disabling preboot feature for me@example.org... done
   #
   def disable
     feature_name = shift_argument
-    error "Usage: heroku labs:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
+    error "Usage: heroku feature:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
     validate_arguments!
 
     feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
@@ -96,18 +88,18 @@ class Heroku::Command::Labs < Heroku::Command::Base
     end
   end
 
-  # labs:enable FEATURE
+  # feature:enable FEATURE
   #
-  # enables an experimental feature
+  # enables an feature
   #
   #Example:
   #
-  # $ heroku labs:enable ninja-power
-  # Enabling ninja-power feature for me@example.org... done
+  # $ heroku features:enable preboot
+  # Enabling preboot feature for me@example.org... done
   #
   def enable
     feature_name = shift_argument
-    error "Usage: heroku labs:enable FEATURE\nMust specify FEATURE to enable." unless feature_name
+    error "Usage: heroku features:enable FEATURE\nMust specify FEATURE to enable." unless feature_name
     validate_arguments!
 
     feature = api.get_features.body.detect { |f| f["name"] == feature_name }
@@ -126,7 +118,6 @@ class Heroku::Command::Labs < Heroku::Command::Base
       api.post_feature(feature_name, app).body
     end
 
-    display "WARNING: This feature is experimental and may change or be removed without notice."
     display "For more information see: #{feature_data["docs"]}" if feature_data["docs"]
   end
 
