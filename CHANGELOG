@@ -1,3 +1,9 @@
+3.12.0 2014-10-06
+=================
+Excon 0.40.0
+Unique output warnings
+More git options
+
 3.11.3 2014-10-02
 =================
 Replace code. with git. in .netrc
