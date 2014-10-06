@@ -99,7 +99,7 @@ module Heroku
 
     def self.display_warnings
       unless warnings.empty?
-        $stderr.puts(warnings.map {|warning| " !    #{warning}"}.join("\n"))
+        $stderr.puts(warnings.uniq.map {|warning| " !    #{warning}"}.join("\n"))
       end
     end
 
