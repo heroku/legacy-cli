@@ -196,6 +196,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #     --region REGION        # specify region for this app to run in
   # -l, --locked               # lock the app
   # -t, --tier TIER            # HIDDEN: the tier for this app
+  #     --http-git             # Use HTTP git protocol
   #
   #Examples:
   #
@@ -236,6 +237,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
       api.post_app(params).body
     end
 
+    git_url = if options[:http_git]
+      "https://git.heroku.com/#{name}.git"
+    else
+      info["git_url"]
+    end
+
     begin
       action("Creating #{info['name']}", :org => !!org) do
         if info['create_status'] == 'creating'
@@ -266,13 +273,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
         display("BUILDPACK_URL=#{buildpack}")
       end
 
-      hputs([ info["web_url"], info["git_url"] ].join(" | "))
+      hputs([ info["web_url"], git_url ].join(" | "))
     rescue Timeout::Error
       hputs("Timed Out! Run `heroku status` to check for known platform issues.")
     end
 
     unless options[:no_remote].is_a? FalseClass
-      create_git_remote(options[:remote] || "heroku", info["git_url"])
+      create_git_remote(options[:remote] || "heroku", git_url)
     end
   end
 
