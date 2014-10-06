@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (3.11.3)
+    heroku (3.12.0)
       heroku-api (~> 0.3.19)
       launchy (>= 0.3.2)
       netrc (~> 0.7.7)
@@ -27,7 +27,7 @@ GEM
       safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
-    excon (0.40.0)
+    excon (0.39.5)
     fakefs (0.5.2)
     heroku-api (0.3.19)
       excon (~> 0.38)
