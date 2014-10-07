@@ -9,7 +9,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
   #
   # -r, --remote REMOTE  # the git remote to create, default "heroku"
-  #     --http-git       # Use HTTP git protocol
+  #     --http-git       # HIDDEN: Use HTTP git protocol
   #
   #
   #Examples:
@@ -28,7 +28,7 @@ class Heroku::Command::Git < Heroku::Command::Base
     validate_arguments!
 
     git_url = if options[:http_git]
-      "https://git.heroku.com/#{name}.git"
+      "https://#{Heroku::Auth.http_git_host}/#{name}.git"
     else
       api.get_app(name).body["git_url"]
     end
@@ -46,7 +46,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # if OPTIONS are specified they will be passed to git remote add
   #
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
-  #     --http-git             # Use HTTP git protocol
+  #     --http-git             # HIDDEN: Use HTTP git protocol
   #
   #Examples:
   #
@@ -57,7 +57,6 @@ class Heroku::Command::Git < Heroku::Command::Base
   # !    Git remote heroku already exists
   #
   def remote
-    git_options = args.join(" ")
     remote = options[:remote] || 'heroku'
 
     if git('remote').split("\n").include?(remote)
@@ -65,12 +64,11 @@ class Heroku::Command::Git < Heroku::Command::Base
     else
       app_data = api.get_app(app).body
       git_url = if options[:http_git]
-        "https://git.heroku.com/#{app_data['name']}.git"
+        "https://#{Heroku::Auth.http_git_host}/#{app_data['name']}.git"
       else
         app_data['git_url']
       end
       create_git_remote(remote, git_url)
     end
   end
-
 end
