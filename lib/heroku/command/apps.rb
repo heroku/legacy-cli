@@ -196,7 +196,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #     --region REGION        # specify region for this app to run in
   # -l, --locked               # lock the app
   # -t, --tier TIER            # HIDDEN: the tier for this app
-  #     --http-git             # Use HTTP git protocol
+  #     --http-git             # HIDDEN: Use HTTP git protocol
   #
   #Examples:
   #
@@ -238,7 +238,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     git_url = if options[:http_git]
-      "https://git.heroku.com/#{name}.git"
+      "https://#{Heroku::Auth.http_git_host}/#{info['name']}.git"
     else
       info["git_url"]
     end
