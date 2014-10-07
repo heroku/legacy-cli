@@ -23,7 +23,17 @@ class Heroku::Command::Config < Heroku::Command::Base
   def index
     validate_arguments!
 
-    vars = api.get_config_vars(app).body
+    vars = if options[:shell]
+             api.get_config_vars(app).body
+           else
+             api.request(
+               :expects  => 200,
+               :method   => :get,
+               :path     => "/apps/#{app}/config_vars",
+               :query    => { "symbolic" => true }
+             ).body
+           end
+
     if vars.empty?
       display("#{app} has no config vars.")
     else
