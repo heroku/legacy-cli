@@ -53,6 +53,10 @@ class Heroku::Auth
       "heroku.com"
     end
 
+    def http_git_host
+      ENV['HEROKU_HTTP_GIT_HOST'] || "git.#{host}"
+    end
+
     def git_host
       ENV['HEROKU_GIT_HOST'] || host
     end

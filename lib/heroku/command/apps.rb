@@ -238,7 +238,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     git_url = if options[:http_git]
-      "https://git.heroku.com/#{name}.git"
+      "https://#{Heroku::Auth.http_git_host}/#{info['name']}.git"
     else
       info["git_url"]
     end
