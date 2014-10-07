@@ -1,3 +1,9 @@
+3.12.1 2014-10-07
+=================
+Fixed Excon 0.40.0 in Gemfile
+Fixed git finders to work with env vars
+Symbolic config vars
+
 3.12.0 2014-10-06
 =================
 Excon 0.40.0
