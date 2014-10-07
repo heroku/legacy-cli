@@ -267,9 +267,9 @@ protected
 
     return unless File.exists?(".git")
     git("remote -v").split("\n").each do |remote|
-      name, url, method = remote.split(/\s/)
+      name, url, _ = remote.split(/\s/)
       if url =~ /^git@#{Heroku::Auth.git_host}(?:[\.\w]*):([\w\d-]+)\.git$/ ||
-         url =~ /^https:\/\/git.#{Heroku::Auth.git_host}\/([\w\d-]+)\.git$/
+         url =~ /^https:\/\/#{Heroku::Auth.http_git_host}\/([\w\d-]+)\.git$/
         remotes[name] = $1
       end
     end
