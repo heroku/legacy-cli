@@ -142,18 +142,20 @@ module Heroku
       "%d %s" % [ num, num.to_i == 1 ? string : "#{string}s" ]
     end
 
+    def has_git_remote?(remote)
+      git('remote').split("\n").include?(remote) && $?.success?
+    end
+
     def create_git_remote(remote, url)
-      return if git('remote').split("\n").include?(remote)
-      return unless File.exists?(".git")
+      return if has_git_remote? remote
       git "remote add #{remote} #{url}"
-      display "Git remote #{remote} added"
+      display "Git remote #{remote} added" if $?.success?
     end
 
     def update_git_remote(remote, url)
-      return unless git('remote').split("\n").include?(remote)
-      return unless File.exists?(".git")
+      return unless has_git_remote? remote
       git "remote set-url #{remote} #{url}"
-      display "Git remote #{remote} updated"
+      display "Git remote #{remote} updated" if $?.success?
     end
 
     def longest(items)
