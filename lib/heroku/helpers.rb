@@ -149,6 +149,13 @@ module Heroku
       display "Git remote #{remote} added"
     end
 
+    def update_git_remote(remote, url)
+      return unless git('remote').split("\n").include?(remote)
+      return unless File.exists?(".git")
+      git "remote set-url #{remote} #{url}"
+      display "Git remote #{remote} updated"
+    end
+
     def longest(items)
       items.map { |i| i.to_s.length }.sort.last
     end
