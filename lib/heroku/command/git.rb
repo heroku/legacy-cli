@@ -55,7 +55,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # Git remote heroku added
   #
   # $ heroku git:remote -a example
-  # Git remote staging already exists. Would you like to update it? (y/n)
+  # Git remote heroku already exists. Would you like to update it? (y/n)
   #
   def remote
     remote = options[:remote] || 'heroku'
