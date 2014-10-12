@@ -34,7 +34,7 @@ class Heroku::Command::Git < Heroku::Command::Base
     end
 
     puts "Cloning from app '#{name}'..."
-    system "git clone -o #{remote} #{git_url} #{directory}".strip
+    system "git clone -o #{remote} #{git_url} #{directory} --recursive".strip
   end
 
   alias_command "clone", "git:clone"
