@@ -29,12 +29,6 @@ class Heroku::Command::Git < Heroku::Command::Base
     directory = shift_argument
     validate_arguments!
 
-    git_url = if options[:http_git]
-      "https://#{Heroku::Auth.http_git_host}/#{name}.git"
-    else
-      api.get_app(name).body["git_url"]
-    end
-
     puts "Cloning from app '#{name}'..."
     system "git clone -o #{remote} #{git_url} #{directory}".strip
   end
@@ -57,17 +51,21 @@ class Heroku::Command::Git < Heroku::Command::Base
   #
   def remote
     remote = options[:remote] || DEFAULT_REMOTE
-    app_data = api.get_app(app).body
-    git_url = if options[:http_git]
-                "https://#{Heroku::Auth.http_git_host}/#{app_data['name']}.git"
-              else
-                app_data['git_url']
-              end
-
     if git('remote').split("\n").include?(remote)
       update_git_remote(remote, git_url)
     else
       create_git_remote(remote, git_url)
+    end
+  end
+
+  private
+
+  def git_url
+    app_info = api.get_app(app).body
+    if options[:http_git]
+      "https://#{Heroku::Auth.http_git_host}/#{app_info['name']}.git"
+    else
+      app_info['git_url']
     end
   end
 end
