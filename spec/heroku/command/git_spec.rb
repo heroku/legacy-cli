@@ -127,18 +127,17 @@ Git remote other added
         STDOUT
       end
 
-      it "skips remote when it already exists" do
+      it "updates remote when it already exists" do
         any_instance_of(Heroku::Command::Git) do |git|
           stub(git).git('remote').returns("heroku")
+          stub(git).git('remote set-url heroku git@heroku.com:example.git')
         end
         stderr, stdout = execute("git:remote")
-        expect(stderr).to eq <<-STDERR
- !    Git remote heroku already exists
-STDERR
-        expect(stdout).to eq("")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+Git remote heroku updated
+        STDOUT
       end
-
     end
-
   end
 end
