@@ -4,7 +4,7 @@ require "heroku/command/base"
 #
 class Heroku::Command::Git < Heroku::Command::Base
 
-  DEFAULT_REMOTE = 'heroku'
+  DEFAULT_REMOTE_NAME = 'heroku'
 
   # git:clone APP [DIRECTORY]
   #
@@ -23,14 +23,12 @@ class Heroku::Command::Git < Heroku::Command::Base
   # ...
   #
   def clone
-    remote = options[:remote] || DEFAULT_REMOTE
-
     name = options[:app] || shift_argument || error("Usage: heroku git:clone APP [DIRECTORY]")
     directory = shift_argument
     validate_arguments!
 
     puts "Cloning from app '#{name}'..."
-    system "git clone -o #{remote} #{git_url} #{directory}".strip
+    system "git clone -o #{remote_name} #{git_url} #{directory}".strip
   end
 
   alias_command "clone", "git:clone"
@@ -50,15 +48,18 @@ class Heroku::Command::Git < Heroku::Command::Base
   # Git remote heroku added
   #
   def remote
-    remote = options[:remote] || DEFAULT_REMOTE
-    if git('remote').split("\n").include?(remote)
-      update_git_remote(remote, git_url)
+    if git('remote').split("\n").include?(remote_name)
+      update_git_remote(remote_name, git_url)
     else
-      create_git_remote(remote, git_url)
+      create_git_remote(remote_name, git_url)
     end
   end
 
   private
+
+  def remote_name
+    options[:remote] || DEFAULT_REMOTE_NAME
+  end
 
   def git_url
     app_info = api.get_app(app).body
