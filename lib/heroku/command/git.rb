@@ -4,6 +4,8 @@ require "heroku/command/base"
 #
 class Heroku::Command::Git < Heroku::Command::Base
 
+  DEFAULT_REMOTE = 'heroku'
+
   # git:clone APP [DIRECTORY]
   #
   # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
@@ -21,7 +23,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # ...
   #
   def clone
-    remote = options[:remote] || "heroku"
+    remote = options[:remote] || DEFAULT_REMOTE
 
     name = options[:app] || shift_argument || error("Usage: heroku git:clone APP [DIRECTORY]")
     directory = shift_argument
@@ -54,7 +56,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # Git remote heroku added
   #
   def remote
-    remote = options[:remote] || 'heroku'
+    remote = options[:remote] || DEFAULT_REMOTE
     app_data = api.get_app(app).body
     git_url = if options[:http_git]
                 "https://#{Heroku::Auth.http_git_host}/#{app_data['name']}.git"
