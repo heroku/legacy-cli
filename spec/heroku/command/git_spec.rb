@@ -127,25 +127,16 @@ Git remote other added
         STDOUT
       end
 
-      it "updates remote when it already exists if update flag is set" do
+      it "updates remote when it already exists" do
         any_instance_of(Heroku::Command::Git) do |git|
           stub(git).git('remote').returns("heroku")
           stub(git).git('remote set-url heroku git@heroku.com:example.git')
         end
-        stderr, stdout = execute("git:remote --update")
+        stderr, stdout = execute("git:remote")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Git remote heroku updated
         STDOUT
-      end
-
-      it "prompts to updates remote when it already exists if update flag is not set" do
-        any_instance_of(Heroku::Command::Git) do |git|
-          stub(git).git('remote').returns("heroku")
-        end
-        stderr, stdout = execute("git:remote")
-        expect(stderr).to eq("")
-        expect(stdout).to eq "Git remote heroku already exists. Would you like to update it? (y/n) "
       end
     end
   end

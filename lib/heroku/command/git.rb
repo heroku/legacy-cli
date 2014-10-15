@@ -46,16 +46,12 @@ class Heroku::Command::Git < Heroku::Command::Base
   # if OPTIONS are specified they will be passed to git remote add
   #
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
-  #     --update               # update the remote if it already exists
   #     --http-git             # HIDDEN: Use HTTP git protocol
   #
   #Examples:
   #
   # $ heroku git:remote -a example
   # Git remote heroku added
-  #
-  # $ heroku git:remote -a example
-  # Git remote heroku already exists. Would you like to update it? (y/n)
   #
   def remote
     remote = options[:remote] || 'heroku'
@@ -67,10 +63,7 @@ class Heroku::Command::Git < Heroku::Command::Base
               end
 
     if git('remote').split("\n").include?(remote)
-      q = "Git remote #{remote} already exists. Would you like to update it? (y/n)"
-      if options[:update] || confirm(q)
-        update_git_remote(remote, git_url)
-      end
+      update_git_remote(remote, git_url)
     else
       create_git_remote(remote, git_url)
     end
