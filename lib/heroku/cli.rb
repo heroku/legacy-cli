@@ -1,6 +1,11 @@
 load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
 load('heroku/updater.rb') # reload updater after possible inject_loadpath
 
+if File.exist? Heroku::Updater.updating_lock_path
+  $stderr.puts "Heroku Toolbelt is currently updating"
+  exit 1
+end
+
 require "heroku"
 require "heroku/command"
 require "heroku/helpers"
