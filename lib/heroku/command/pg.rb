@@ -3,6 +3,7 @@ require "thread"
 require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
+require "heroku/helpers/psql"
 require "heroku/helpers/pg_dump_restore"
 
 require "heroku/helpers/pg_diagnose"
@@ -88,27 +89,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
   def psql
-    attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
-
-    uri = URI.parse( attachment.url )
-    begin
-      ENV["PGPASSWORD"] = uri.password
-      ENV["PGSSLMODE"]  = 'require'
-      if command = options[:command]
-        command = %Q(-c "#{command}")
-      end
-
-      shorthand = "#{attachment.app}::#{attachment.name.sub(/^HEROKU_POSTGRESQL_/,'').gsub(/\W+/, '-')}"
-      prompt_expr = "#{shorthand}%R%# "
-      prompt_flags = %Q(--set "PROMPT1=#{prompt_expr}" --set "PROMPT2=#{prompt_expr}")
-      puts "---> Connecting to #{attachment.display_name}"
-      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{prompt_flags} #{command} #{uri.path[1..-1]}"
-    rescue Errno::ENOENT
-      output_with_bang "The local psql command could not be located"
-      output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
-      abort
-    end
+    display "---> Connecting to #{psql_client.attachment.display_name}"
+    psql_client.shell(options[:command])
   end
 
   # pg:reset DATABASE
@@ -240,10 +223,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
           end
        }
        AND #{pid_column} <> pg_backend_pid()
-       ORDER BY query_start DESC
+       ORDER BY query_start DESC -- pg:ps
      )
+    display psql_client.exec_sql(sql)
 
-    puts exec_sql(sql)
+  rescue Helpers::PSQLException => e
+    output_with_bang e.message
+    output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
+    abort
   end
 
   # pg:kill procpid [DATABASE]
@@ -260,7 +247,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
     cmd = options[:force] ? 'pg_terminate_backend' : 'pg_cancel_backend'
     sql = %Q(SELECT #{cmd}(#{procpid});)
 
-    puts exec_sql(sql)
+    display psql_client.exec_sql(sql)
+  rescue Helpers::PSQLException => e
+    output_with_bang e.message
+    output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
+    abort
   end
 
   # pg:killall [DATABASE]
@@ -283,7 +274,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
       AND #{query_column} <> '<insufficient privilege>'
     )
 
-    puts exec_sql(sql)
+    display psql_client.exec_sql(sql)
+  rescue Helpers::PSQLException => e
+    output_with_bang e.message
+    output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
+    abort
   end
 
 
@@ -428,7 +423,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
 
 
-private
+  private
 
   def generate_resolver
     app_name = app rescue nil # will raise if no app, but calling app reads in arguments
@@ -523,22 +518,13 @@ private
     end
   end
 
-  def find_uri
-    return @uri if defined? @uri
-
-    attachment =  generate_resolver.resolve(shift_argument, "DATABASE_URL")
-    if attachment.kind_of? Array
-      uri = URI.parse( attachment.last )
-    else
-      uri = URI.parse( attachment.url )
-    end
-
-    @uri = uri
+  def attachment
+    @attachment ||= generate_resolver.resolve(shift_argument, "DATABASE_URL")
   end
 
   def version
     return @version if defined? @version
-    result = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)
+    result = psql_client.exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)
     fail("Unable to determine Postgres version") unless result
     @version = result[1]
   end
@@ -564,31 +550,7 @@ private
     end
   end
 
-  def exec_sql(sql)
-    uri = find_uri
-    exec_sql_on_uri(sql, uri)
-  end
-
-  def exec_sql_on_uri(sql,uri)
-    begin
-      ENV["PGPASSWORD"] = uri.password
-      ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
-      user_part = uri.user ? "-U #{uri.user}" : ""
-      output = `#{psql_cmd} -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
-      if (! $?.success?) || output.nil? || output.empty?
-        raise "psql failed. exit status #{$?.to_i}, output: #{output.inspect}"
-      end
-      output
-    rescue Errno::ENOENT
-      output_with_bang "The local psql command could not be located"
-      output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
-      abort
-    end
-  end
-
-  def psql_cmd
-    # some people alais psql, so we need to find the real psql
-    # but windows doesn't have the command command
-    running_on_windows? ? 'psql' : 'command psql'
+  def psql_client
+    @psql_client ||= Helpers::PSQL.new(attachment)
   end
 end

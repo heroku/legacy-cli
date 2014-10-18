@@ -276,5 +276,46 @@ STDOUT
       end
     end
 
+    context 'with display mocked' do
+      before do
+        allow(subject).to receive(:display)
+      end
+
+      context 'with psql mocked' do
+        before do
+          @psql = double(:psql)
+          allow(subject).to receive(:psql_client).and_return(@psql)
+          allow(subject).to receive(:version).and_return('9.3.5')
+        end
+
+        describe '.ps' do
+          context 'with a database and app' do
+            before do
+              resolver = double(:resolver, :resolve => double(:url => 'postgres://db'))
+              allow(subject).to receive(:generate_resolver).and_return(resolver)
+            end
+
+            it 'executes the query' do
+              # look for comment denoting what sql query is being executed
+              expect(@psql).to receive(:exec_sql).with(/-- pg:ps/)
+              subject.ps
+            end
+
+            it 'shows the error message if any' do
+              allow(@psql).to receive(:exec_sql).and_raise(Helpers::PSQLException)
+              expect(subject).to receive(:output_with_bang).twice
+              expect(subject).to receive(:abort)
+              subject.ps
+            end
+
+            it 'shows the database name' do
+              allow(@psql).to receive(:exec_sql)
+              expect(subject).to have_received(:display)
+              subject.ps
+            end
+          end
+        end
+      end
+    end
   end
 end
