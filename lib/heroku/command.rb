@@ -270,7 +270,7 @@ module Heroku
 
     def self.handle_auth_error(e)
       if ENV['HEROKU_API_KEY']
-        puts "Authentication failure"
+        puts "Authentication failure with HEROKU_API_KEY"
         exit 1
       end
       if wrong_two_factor_code?(e)
