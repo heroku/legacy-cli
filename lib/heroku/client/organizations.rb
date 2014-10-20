@@ -56,7 +56,7 @@ class Heroku::Client::Organizations
       if response.body && !response.body.empty?
         decompress_response!(response)
         begin
-          response.body = Heroku::OkJson.decode(response.body)
+          response.body = MultiJson.load(response.body)
         rescue
           # leave non-JSON body as is
         end
