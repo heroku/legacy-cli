@@ -221,6 +221,8 @@ class Heroku::Auth
     def preauth
       if Heroku.app_name
         api.request(:method => :put, :path => "/apps/#{Heroku.app_name}/pre-authorizations")
+        @two_factor_code = nil
+        @api = nil
       end
     end
 
