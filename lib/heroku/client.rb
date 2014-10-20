@@ -451,7 +451,7 @@ class Heroku::Client
     else
       run_console_command("/apps/#{app_name}/console", cmd)
     end
-  rescue RestClient::BadGateway => e
+  rescue RestClient::BadGateway
     raise(AppCrashed, <<-ERROR)
 Unable to attach to a dyno to open a console session.
 Your application may have crashed.
@@ -614,10 +614,6 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     headers  = heroku_headers.merge(extra_headers)
     args     = [method, payload, headers].compact
 
-    if Heroku::Auth.two_factor_code
-      headers.merge!("Heroku-Two-Factor-Code" => Heroku::Auth.two_factor_code)
-    end
-
     resource_options = default_resource_options_for_uri(uri)
 
     begin
@@ -625,7 +621,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
     rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError
       host = URI.parse(realize_full_uri(uri)).host
       error "Unable to connect to #{host}"
-    rescue RestClient::SSLCertificateNotVerified => ex
+    rescue RestClient::SSLCertificateNotVerified
       host = URI.parse(realize_full_uri(uri)).host
       error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
     end

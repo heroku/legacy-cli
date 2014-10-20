@@ -244,7 +244,7 @@ module Heroku
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
     rescue Heroku::API::Errors::Forbidden => e
       if e.response.headers.has_key?("Heroku-Two-Factor-Required")
-        Heroku::Auth.ask_for_second_factor
+        Heroku::Auth.preauth
         retry
       else
         error extract_error(e.response.body)
@@ -253,7 +253,7 @@ module Heroku
       error extract_error(e.response.body)
     rescue RestClient::RequestFailed => e
       if e.response.code == 403 && e.response.headers.has_key?(:heroku_two_factor_required)
-        Heroku::Auth.ask_for_second_factor
+        Heroku::Auth.preauth
         retry
       else
         error extract_error(e.http_body)
@@ -272,8 +272,7 @@ module Heroku
       if ENV['HEROKU_API_KEY']
         puts "Authentication failure with HEROKU_API_KEY"
         exit 1
-      end
-      if wrong_two_factor_code?(e)
+      elsif wrong_two_factor_code?(e)
         puts "Invalid two-factor code"
         false
       else
