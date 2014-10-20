@@ -35,7 +35,7 @@ STDOUT
             :path => %r{^/apps/example/addons$}
           },
           {
-            :body   => Heroku::OkJson.encode([
+            :body   => MultiJson.dump([
               { 'configured' => false, 'name' => 'deployhooks:email' },
               { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' },
               { 'configured' => true, 'name' => 'deployhooks:http' }
@@ -63,7 +63,7 @@ STDOUT
 
       it "sends region option to the server" do
         stub_request(:get, %r{/addons\?region=eu$}).
-          to_return(:body => Heroku::OkJson.encode([]))
+          to_return(:body => MultiJson.dump([]))
         execute("addons:list --region=eu")
       end
 
@@ -104,7 +104,7 @@ STDOUT
       it "gives a deprecation notice with an example" do
         stub_request(:post, %r{apps/example/addons/my_addon$}).
           with(:body => {:config => {:foo => 'bar', :extra => "XXX"}}).
-          to_return(:body => Heroku::OkJson.encode({ 'price' => 'free' }))
+          to_return(:body => MultiJson.dump({ 'price' => 'free' }))
         Excon.stub(
           {
             :expects => 200,
@@ -112,7 +112,7 @@ STDOUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
+            :body   => MultiJson.dump({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -244,7 +244,7 @@ STDOUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
+            :body   => MultiJson.dump({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -322,7 +322,7 @@ OUTPUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
+            :body   => MultiJson.dump({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -380,7 +380,7 @@ OUTPUT
             :path => %r{^/apps/example/releases/current}
           },
           {
-            :body   => Heroku::OkJson.encode({ 'name' => 'v99' }),
+            :body   => MultiJson.dump({ 'name' => 'v99' }),
             :status => 200,
           }
         )
@@ -487,7 +487,7 @@ STDOUT
             :path => %r{^/addons$}
           },
           {
-            :body   => Heroku::OkJson.encode([
+            :body   => MultiJson.dump([
               { 'name' => 'qux:foo' },
               { 'name' => 'quux:bar' }
             ]),
@@ -569,7 +569,7 @@ STDOUT
             :path => %r{^/apps/example/addons$}
           },
           {
-            :body   => Heroku::OkJson.encode([
+            :body   => MultiJson.dump([
               { 'name' => 'deployhooks:email' },
               { 'name' => 'deployhooks:http' }
             ]),

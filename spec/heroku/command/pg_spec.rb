@@ -232,7 +232,7 @@ STDOUT
           stub(pgc).color? { false }
         end
         Excon.stub({:method => :post, :path => '/reports'}, {
-          :body => Heroku::OkJson.encode({
+          :body => MultiJson.dump({
             'id' => 'abc123',
             'app' => 'appname',
             'created_at' => '2014-06-24 01:26:11.941197+00',

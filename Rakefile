@@ -135,27 +135,6 @@ Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
   import rake
 end
 
-def poll_ci
-  require("vendor/heroku/okjson")
-  require("net/http")
-  data = Heroku::OkJson.decode(Net::HTTP.get("travis-ci.org", "/heroku/heroku.json"))
-  case data["last_build_status"]
-  when nil
-    print(".")
-    sleep(1)
-    poll_ci
-  when 0
-    puts("SUCCESS")
-  when 1
-    puts("FAILURE")
-  end
-end
-
-desc("Check current ci status and/or wait for build to finish.")
-task "ci" do
-  poll_ci
-end
-
 desc("Create a new changelog article")
 task "changelog" do
   changelog = <<-CHANGELOG
