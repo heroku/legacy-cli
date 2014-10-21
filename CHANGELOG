@@ -1,3 +1,7 @@
+3.14.0 2014-10-21
+=================
+Use preauth instead of 2fa for all API calls
+
 3.13.0 2014-10-20
 =================
 Switch to multi_json
