@@ -9,7 +9,7 @@ class Heroku::Auth
   class << self
     include Heroku::Helpers
 
-    attr_accessor :credentials, :two_factor_code
+    attr_accessor :credentials
 
     def api
       @api ||= begin
@@ -81,9 +81,18 @@ class Heroku::Auth
       get_credentials[1]
     end
 
-    def api_key(user = get_credentials[0], password = get_credentials[1])
-      api = Heroku::API.new(default_params)
+    def api_key(user=get_credentials[0], password=get_credentials[1], second_factor=nil)
+      params = default_params
+      if second_factor
+        params[:headers].merge!("Heroku-Two-Factor-Code" => second_factor)
+      end
+      api = Heroku::API.new(params)
       api.post_login(user, password).body["api_key"]
+    rescue Heroku::API::Errors::Forbidden => e
+      if e.response.headers.has_key?("Heroku-Two-Factor-Required")
+        second_factor = ask_for_second_factor
+        retry
+      end
     rescue Heroku::API::Errors::Unauthorized => e
       id = json_decode(e.response.body)["id"]
       raise if id != "invalid_two_factor_code"
@@ -92,11 +101,6 @@ class Heroku::Auth
       display "Please check your code was typed correctly and that your"
       display "authenticator's time keeping is accurate."
       exit 1
-    rescue Heroku::API::Errors::Forbidden => e
-      if e.response.headers.has_key?("Heroku-Two-Factor-Required")
-        ask_for_second_factor
-        retry
-      end
     end
 
     def get_credentials    # :nodoc:
@@ -212,16 +216,14 @@ class Heroku::Auth
 
     def ask_for_second_factor
       $stderr.print "Two-factor code: "
-      @two_factor_code = ask
-      @two_factor_code = nil if @two_factor_code == ""
-      @api = nil # reset it
-      preauth
+      ask
     end
 
     def preauth
-      if Heroku.app_name
-        api.request(:method => :put, :path => "/apps/#{Heroku.app_name}/pre-authorizations")
-      end
+      second_factor = ask_for_second_factor
+      api.request(:method => :put,
+                  :path => "/apps/#{Heroku.app_name}/pre-authorizations",
+                  :headers => {"Heroku-Two-Factor-Code" => second_factor})
     end
 
     def ask_for_password_on_windows
@@ -367,12 +369,8 @@ class Heroku::Auth
 
     def default_params
       uri = URI.parse(full_host(host))
-      headers = { 'User-Agent' => Heroku.user_agent }
-      if two_factor_code
-        headers.merge!("Heroku-Two-Factor-Code" => two_factor_code)
-      end
       {
-        :headers          => headers,
+        :headers          => {'User-Agent' => Heroku.user_agent},
         :host             => uri.host,
         :port             => uri.port.to_s,
         :scheme           => uri.scheme,
