@@ -198,7 +198,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
       input = args.map { |arg|
         begin
           certbody=File.read(arg)
-        rescue Exception => e
+        rescue => e
           error("Unable to read #{arg} file: #{e}") 
         end
         certbody
