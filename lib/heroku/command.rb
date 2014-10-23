@@ -295,7 +295,7 @@ module Heroku
       xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
       msg = xml_errors.map { |a| a.text }.join(" / ")
       return msg unless msg.empty?
-    rescue Exception
+    rescue
     end
 
     def self.parse_error_json(body)

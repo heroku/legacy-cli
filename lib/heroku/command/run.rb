@@ -174,7 +174,7 @@ protected
     end
     history.each { |cmd| Readline::HISTORY.push(cmd) }
   rescue Errno::ENOENT
-  rescue Exception => ex
+  rescue => ex
     display "Error reading your console history: #{ex.message}"
     if confirm("Would you like to clear it? (y/N):")
       FileUtils.rm(console_history_file(app)) rescue nil
