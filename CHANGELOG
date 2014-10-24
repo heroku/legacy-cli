@@ -1,3 +1,8 @@
+3.15.0 2014-10-24
+=================
+Skip preauth with no app context
+Fixed Debian control file dependencies
+
 3.14.0 2014-10-21
 =================
 Use preauth instead of 2fa for all API calls
