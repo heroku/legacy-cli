@@ -220,10 +220,12 @@ class Heroku::Auth
     end
 
     def preauth
-      second_factor = ask_for_second_factor
-      api.request(:method => :put,
-                  :path => "/apps/#{Heroku.app_name}/pre-authorizations",
-                  :headers => {"Heroku-Two-Factor-Code" => second_factor})
+      if Heroku.app_name
+        second_factor = ask_for_second_factor
+        api.request(:method => :put,
+                    :path => "/apps/#{Heroku.app_name}/pre-authorizations",
+                    :headers => {"Heroku-Two-Factor-Code" => second_factor})
+      end
     end
 
     def ask_for_password_on_windows
