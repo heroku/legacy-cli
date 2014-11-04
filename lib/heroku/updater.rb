@@ -86,12 +86,11 @@ module Heroku
     end
 
     def self.update(prerelease)
+      return unless prerelease || needs_update?
+
       wait_for_lock do
-        require "heroku"
         require "tmpdir"
         require "zip/zip"
-
-        return unless prerelease || needs_update?
 
         Dir.mktmpdir do |download_dir|
           zip_filename = "#{download_dir}/heroku.zip"
