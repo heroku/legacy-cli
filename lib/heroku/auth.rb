@@ -216,7 +216,26 @@ class Heroku::Auth
 
     def ask_for_second_factor
       $stderr.print "Two-factor code: "
-      ask
+      running_on_windows? ? ask : ask_for_second_factor_masked
+    end
+
+    def ask_for_second_factor_masked
+      state = `stty -g`
+      `stty raw -echo -icanon isig`
+
+      i = 0
+      code = ""
+      while c = STDIN.getc.chr
+        break if "\r" == c
+        i += 1
+        code += c
+        print i < 13 ? c : '.'
+      end
+      print "\r\n"
+
+      code
+    ensure
+      `stty #{state}`
     end
 
     def preauth
