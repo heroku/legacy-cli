@@ -12,7 +12,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   # Example:
   #
   # $ heroku update
-  # Updating from v1.2.3... done, updated to v2.3.4
+  # Updating... done, v1.2.3 updated to v2.3.4
   #
   def index
     validate_arguments!
@@ -24,7 +24,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   # update to the latest beta client
   #
   # $ heroku update
-  # Updating from v1.2.3... done, updated to v2.3.4.pre
+  # Updating... done, v1.2.3 updated to v2.3.4.pre
   #
   def beta
     validate_arguments!
