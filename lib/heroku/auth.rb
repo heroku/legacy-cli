@@ -287,7 +287,7 @@ class Heroku::Auth
       display "Authentication failed."
       retry if retry_login?
       exit 1
-    rescue Exception => e
+    rescue => e
       delete_credentials
       raise e
     end
