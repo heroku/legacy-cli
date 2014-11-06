@@ -1,4 +1,4 @@
-#!/usr/local/heroku/ruby/bin/ruby
+#!/usr/bin/env ruby
 # encoding: UTF-8
 
 # resolve bin path, ignoring symlinks
