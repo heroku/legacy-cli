@@ -9,7 +9,6 @@ To get started see <http://devcenter.heroku.com/articles/quickstart>
 
 [![Build Status](https://travis-ci.org/heroku/heroku.svg?branch=master)](https://travis-ci.org/heroku/heroku)
 [![Coverage Status](https://img.shields.io/coveralls/heroku/heroku.svg)](https://coveralls.io/r/heroku/heroku?branch=master)
-[![Dependency Status](https://gemnasium.com/heroku/heroku.svg)](https://gemnasium.com/heroku/heroku)
 
 Setup
 -----
