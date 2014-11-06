@@ -29,7 +29,7 @@ GEM
     diff-lcs (1.2.5)
     docile (1.1.5)
     excon (0.40.0)
-    fakefs (0.6.0)
+    fakefs (0.5.2)
     heroku-api (0.3.19)
       excon (~> 0.38)
       multi_json (~> 1.8)
@@ -78,7 +78,7 @@ PLATFORMS
 DEPENDENCIES
   aws-s3
   coveralls
-  fakefs
+  fakefs (< 0.6)
   heroku!
   json
   mime-types (< 2.0)
