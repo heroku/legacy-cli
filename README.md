@@ -1,11 +1,11 @@
-Heroku CLI
+![](https://d4yt8xl9b7in.cloudfront.net/assets/home/logotype-heroku.png) Heroku CLI
 ==========
 
 The Heroku CLI is used to manage Heroku apps from the command line.
 
-For more about Heroku see <http://heroku.com>.
+For more about Heroku see <https://www.heroku.com/home>
 
-To get started see <http://devcenter.heroku.com/articles/quickstart>
+To get started see <https://devcenter.heroku.com/start>
 
 [![Build Status](https://travis-ci.org/heroku/heroku.svg?branch=master)](https://travis-ci.org/heroku/heroku)
 [![Coverage Status](https://img.shields.io/coveralls/heroku/heroku.svg)](https://coveralls.io/r/heroku/heroku?branch=master)
@@ -13,28 +13,7 @@ To get started see <http://devcenter.heroku.com/articles/quickstart>
 Setup
 -----
 
-<table>
-  <tr>
-    <th>If you have...</th>
-    <th>Install with...</th>
-  </tr>
-  <tr>
-    <td>Mac OS X</td>
-    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/osx/download">Download OS X package</a></td>
-  </tr>
-  <tr>
-    <td>Windows</td>
-    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/windows/download">Download Windows .exe installer</a></td>
-  </tr>
-  <tr>
-    <td>Ubuntu Linux</td>
-    <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/linux/readme"><code>apt-get</code> repository</a></td>
-  </tr>
-  <tr>
-    <td>Other</td>
-    <td style="text-align: left"><a href="http://assets.heroku.com/heroku-client/heroku-client.tgz">Tarball</a> (add contents to your <code>$PATH</code>)</td>
-  </tr>
-</table>
+First, [Install the Heroku CLI with the Toolbelt](https://toolbelt.heroku.com).
 
 Once installed, you'll have access to the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -53,13 +32,6 @@ API
 ---
 
 For additional information about the API see [Heroku API Quickstart](https://devcenter.heroku.com/articles/platform-api-quickstart) and [Heroku API Reference](https://devcenter.heroku.com/articles/platform-api-reference).
-
-Development
------------
-
-If you're working on the CLI and you can smoke-test your changes:
-
-    $ bundle exec heroku
 
 Meta
 ----
