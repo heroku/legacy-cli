@@ -7,7 +7,7 @@ group :development, :test do
   gem "rr"
   gem "aws-s3"
   gem "mime-types", "< 2.0"
-  gem "fakefs"
+  gem "fakefs", "< 0.6"
   gem "json"
   gem "rspec"
   gem "webmock"
