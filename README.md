@@ -33,6 +33,10 @@ Setup
     <td style="text-align: left"><a href="http://toolbelt.herokuapp.com/linux/readme"><code>apt-get</code> repository</a></td>
   </tr>
   <tr>
+    <td>Gentoo Linux</td>
+    <td style="text-align: left"><a href="https://github.com/rpisarev/heroku/blob/gentoo/gentoo/heroku-2.39.4.ebuild"> ebuild for Gentoo</a></td>
+  </tr>
+  <tr>
     <td>Other</td>
     <td style="text-align: left"><a href="http://assets.heroku.com/heroku-client/heroku-client.tgz">Tarball</a> (add contents to your <code>$PATH</code>)</td>
   </tr>
