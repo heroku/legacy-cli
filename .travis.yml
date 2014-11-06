@@ -13,9 +13,6 @@ before_script:
 
 script: bundle exec rspec spec --color --format documentation
 
-notifications:
-  email: false
-
 deploy:
   provider: rubygems
   on:
