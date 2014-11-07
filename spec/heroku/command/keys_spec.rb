@@ -24,6 +24,9 @@ STDOUT
       end
 
       it "adds a key from a specified keyfile path" do
+        # This is because the JSPlugin makes a call to File.exists
+        # Not pretty, but will always work and should be temporary
+        allow(Heroku::JSPlugin).to receive(:setup?).and_return(false)
         expect(File).to receive(:exists?).with('.git').and_return(false)
         expect(File).to receive(:exists?).with('/my/key.pub').and_return(true)
         expect(File).to receive(:read).with('/my/key.pub').and_return(KEY)

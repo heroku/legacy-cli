@@ -18,6 +18,7 @@ class Heroku::Command::Version < Heroku::Command::Base
     validate_arguments!
 
     display(Heroku.user_agent)
+    display(Heroku::JSPlugin.version) if Heroku::JSPlugin.setup?
 
     plugins = Heroku::Plugin.list
     if plugins.length > 0
