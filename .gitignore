@@ -1,7 +1,7 @@
 /.bundle
 /.rvmrc
 /coverage
-/pkg
+/dist
 /rdoc
 /tags
 /vendor
