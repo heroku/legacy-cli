@@ -18,7 +18,8 @@ module Heroku::Command
     def index
       validate_arguments!
 
-      plugins = ::Heroku::Plugin.list
+      plugins = ::Heroku::JSPlugin.plugins.map { |p| "#{p[:name]}@#{p[:version]}" }
+      plugins.concat(::Heroku::Plugin.list)
 
       if plugins.length > 0
         styled_header("Installed Plugins")
@@ -38,18 +39,14 @@ module Heroku::Command
     # Installing heroku-accounts... done
     #
     def install
-      plugin = Heroku::Plugin.new(shift_argument)
+      name = shift_argument
       validate_arguments!
-
-      action("Installing #{plugin.name}") do
-        if plugin.install
-          unless Heroku::Plugin.load_plugin(plugin.name)
-            plugin.uninstall
-            exit(1)
-          end
-        else
-          error("Could not install #{plugin.name}. Please check the URL and try again.")
-        end
+      if name =~ /\./
+        # if it contains a '.' then we are assuming it is a URL
+        # and we should install it as a ruby plugin
+        ruby_plugin_install(name)
+      else
+        js_plugin_install(name)
       end
     end
 
@@ -106,5 +103,25 @@ module Heroku::Command
       end
     end
 
+    private
+
+    def js_plugin_install(name)
+      Heroku::JSPlugin.setup
+      Heroku::JSPlugin.install(name)
+    end
+
+    def ruby_plugin_install(name)
+      action("Installing #{name}") do
+        plugin = Heroku::Plugin.new(name)
+        if plugin.install
+          unless Heroku::Plugin.load_plugin(plugin.name)
+            plugin.uninstall
+            exit(1)
+          end
+        else
+          error("Could not install #{plugin.name}. Please check the URL and try again.")
+        end
+      end
+    end
   end
 end
