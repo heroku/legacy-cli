@@ -23,7 +23,7 @@ def s3_store(package_file, filename, bucket="assets.heroku.com")
 end
 
 def s3_store_dir(from, to, bucket="assets.heroku.com")
-  Dir.glob(File.Join(from, "**", "*")).each do |file|
+  Dir.glob(File.join(from, "**", "*")).each do |file|
     next if File.directory?(file)
     remote = file.gsub(from, to)
     s3_store file, remote, bucket
