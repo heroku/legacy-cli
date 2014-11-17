@@ -45,7 +45,7 @@ class Heroku::Command::Features < Heroku::Command::Base
   #
   def info
     unless feature_name = shift_argument
-      error("Usage: heroku feature:info FEATURE\nMust specify FEATURE for info.")
+      error("Usage: heroku features:info FEATURE\nMust specify FEATURE for info.")
     end
     validate_arguments!
 
@@ -68,7 +68,7 @@ class Heroku::Command::Features < Heroku::Command::Base
   #
   def disable
     feature_name = shift_argument
-    error "Usage: heroku feature:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
+    error "Usage: heroku features:disable FEATURE\nMust specify FEATURE to disable." unless feature_name
     validate_arguments!
 
     feature = api.get_features(app).body.detect { |f| f["name"] == feature_name }
@@ -88,7 +88,7 @@ class Heroku::Command::Features < Heroku::Command::Base
     end
   end
 
-  # feature:enable FEATURE
+  # features:enable FEATURE
   #
   # enables an feature
   #
