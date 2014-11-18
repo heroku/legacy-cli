@@ -1,7 +1,9 @@
 load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
 load('heroku/updater.rb') # reload updater after possible inject_loadpath
 
-if File.exist? Heroku::Updater.updating_lock_path
+# exists and updated in the last 5 minutes
+if File.exist?(Heroku::Updater.updating_lock_path) &&
+    File.mtime(Heroku::Updater.updating_lock_path) > (Time.now - 5*60)
   $stderr.puts "Heroku Toolbelt is currently updating. Please wait a few seconds and try your command again."
   exit 1
 end
