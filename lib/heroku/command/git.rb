@@ -11,7 +11,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
   #
   # -r, --remote REMOTE  # the git remote to create, default "heroku"
-  #     --http-git       # HIDDEN: Use HTTP git protocol
+  #     --http-git       # use HTTP git protocol
   #
   #
   #Examples:
@@ -40,7 +40,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # if OPTIONS are specified they will be passed to git remote add
   #
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
-  #     --http-git             # HIDDEN: Use HTTP git protocol
+  #     --http-git             # use HTTP git protocol
   #
   #Examples:
   #
