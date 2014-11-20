@@ -1,3 +1,9 @@
+3.16.0 2014-11-20
+=================
+Fixed update spawn command on some windows installs
+Added warning for https git when netrc doesn't have credentials
+Made runnable without readline
+
 3.15.3 2014-11-10
 =================
 Removed bamboo from stack command
