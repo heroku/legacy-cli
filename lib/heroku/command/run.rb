@@ -1,4 +1,20 @@
-require "readline"
+begin
+  require "readline"
+rescue LoadError
+  module Readline
+    def self.readline(prompt)
+      print prompt
+      $stdout.flush
+      gets
+    end
+
+    module HISTORY
+      def self.push(cmd)
+        # dummy
+      end
+    end
+  end
+end
 require "heroku/command/base"
 require "heroku/helpers/log_displayer"
 
