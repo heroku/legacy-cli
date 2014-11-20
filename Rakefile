@@ -21,10 +21,14 @@ task "build" => ["tgz:build", "zip:build", "deb:build", "gem:build"] do
   puts("built v#{version}")
 end
 
-desc "check to see if v#{version} is not already released"
+desc "check to see if v#{version} is releaseable"
 task :can_release do
+  if ENV['HEROKU_RELEASE_ACCESS'].nil? || ENV['HEROKU_RELEASE_SECRET'].nil?
+    $stderr.puts "cannot release, #{version}, HEROKU_RELEASE_ACCESS and HEROKU_RELEASE_SECRET must be set"
+    exit(1)
+  end
   if `gem list ^heroku$ --remote` == "heroku (#{version})\n"
-    $stderr.puts "cannot release v#{version}"
+    $stderr.puts "cannot release #{version}, v#{version} is already released"
     exit(1)
   end
 end
