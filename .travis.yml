@@ -15,7 +15,7 @@ before_script:
   - git config --global user.email "bot@heroku.com"
   - git config --global user.name "Heroku Bot (Travis CI)"
 
-script: bundle exec rspec spec --color --format documentation
+script: bundle exec rspec spec --color
 
 deploy:
   provider: rubygems
