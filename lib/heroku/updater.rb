@@ -170,13 +170,12 @@ module Heroku
       end
       log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
       FileUtils.mkdir_p File.dirname(log_path)
-      heroku_binary = File.expand_path($0)
       pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
         fork do
-          exec("\"#{heroku_binary}\" update &> #{log_path} 2>&1")
+          exec("heroku update &> #{log_path} 2>&1")
         end
       else
-        spawn("\"#{heroku_binary}\" update", {:err => log_path, :out => log_path})
+        spawn("heroku update", {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
