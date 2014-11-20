@@ -64,6 +64,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   def git_url
     app_info = api.get_app(app).body
     if options[:http_git]
+      warn_if_netrc_does_not_have_https_git
       "https://#{Heroku::Auth.http_git_host}/#{app_info['name']}.git"
     else
       app_info['git_url']
