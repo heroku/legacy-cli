@@ -26,7 +26,7 @@ namespace :deb do
   file dist("heroku-toolbelt-#{version}.apt/foreman-#{FOREMAN_VERSION}.deb") do |t|
     mkdir_p File.dirname(t.name)
     unless File.exist? "dist/foreman"
-      sh "git clone git@github.com:ddollar/foreman.git dist/foreman"
+      sh "git clone https://github.com/ddollar/foreman.git dist/foreman"
     end
     cd "dist/foreman" do
       sh "git checkout v#{FOREMAN_VERSION}"
