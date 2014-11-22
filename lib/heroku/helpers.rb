@@ -117,6 +117,7 @@ module Heroku
     end
 
     def truncate(text, length)
+      return "" if text.nil?
       if text.size > length
         text[0, length - 2] + '..'
       else
