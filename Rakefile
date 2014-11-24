@@ -11,8 +11,13 @@ end
 Dir.glob('tasks/helpers/*.rb').each { |r| import r }
 Dir.glob('tasks/*.rake').each { |r| import r }
 
+desc "clean"
+task :clean do
+  rm_r "dist"
+end
+
 desc "release v#{version}"
-task "release" => ["can_release", "build", "tgz:release", "zip:release", "manifest:update", "deb:release", "gem:release", "git:tag"] do
+task "release" => ["can_release", "clean", "build", "tgz:release", "zip:release", "manifest:update", "deb:release", "gem:release", "git:tag"] do
   puts("released v#{version}")
 end
 
