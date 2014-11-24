@@ -147,11 +147,11 @@ protected
       rendezvous.on_connect(&on_connect)
       rendezvous.start
     rescue Timeout::Error, Errno::ETIMEDOUT
-      error "\nTimeout awaiting process"
+      error "\nTimeout awaiting dyno, see https://devcenter.heroku.com/articles/one-off-dynos#timeout-awaiting-process"
     rescue OpenSSL::SSL::SSLError
       error "Authentication error"
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET
-      error "\nError connecting to process"
+      error "\nError connecting to dyno, see https://devcenter.heroku.com/articles/one-off-dynos#timeout-awaiting-process"
     rescue Interrupt
     ensure
       set_buffer(true)
