@@ -1,3 +1,7 @@
+3.16.2 2014-11-23
+=================
+Clean build dist directory before releasing
+
 3.16.1 2014-11-23
 =================
 Fixed bug with nil release description
