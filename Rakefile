@@ -14,6 +14,7 @@ Dir.glob('tasks/*.rake').each { |r| import r }
 desc "clean"
 task :clean do
   rm_r "dist"
+  mkdir "dist"
 end
 
 desc "release v#{version}"
