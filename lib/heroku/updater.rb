@@ -164,9 +164,9 @@ module Heroku
     end
 
     def self.background_update!
-      # if we've updated in the last day, don't try again
+      # if we've updated in the last 10 minutes, don't try again
       if File.exists?(last_autoupdate_path)
-        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60*24
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*10
       end
       log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
       FileUtils.mkdir_p File.dirname(log_path)
