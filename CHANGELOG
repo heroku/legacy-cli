@@ -1,3 +1,7 @@
+3.16.1 2014-11-23
+=================
+Fixed bug with nil release description
+
 3.16.0 2014-11-20
 =================
 Fixed update spawn command on some windows installs
