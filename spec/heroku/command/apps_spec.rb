@@ -24,7 +24,7 @@ module Heroku::Command
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 === example
-Git URL:       git@heroku.com:example.git
+Git URL:       https://git.heroku.com/example.git
 Owner Email:   email@example.com
 Stack:         cedar
 Web URL:       http://example.herokuapp.com/
@@ -36,7 +36,7 @@ STDOUT
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 === example
-Git URL:       git@heroku.com:example.git
+Git URL:       https://git.heroku.com/example.git
 Owner Email:   email@example.com
 Stack:         cedar
 Web URL:       http://example.herokuapp.com/
@@ -50,7 +50,7 @@ STDOUT
 create_status=complete
 created_at=\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} [+-]\\d{4}
 dynos=0
-git_url=git@heroku.com:example.git
+git_url=https://git.heroku.com/example.git
 id=\\d{1,5}
 name=example
 owner_email=email@example.com
@@ -76,7 +76,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating #{name}... done, stack is bamboo-mri-1.9.2
-http://#{name}.herokuapp.com/ | git@heroku.com:#{name}.git
+http://#{name}.herokuapp.com/ | https://git.heroku.com/#{name}.git
 Git remote heroku added
 STDOUT
         end
@@ -89,7 +89,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 Git remote heroku added
 STDOUT
         end
@@ -102,7 +102,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 Git remote heroku added
 STDOUT
         end
@@ -115,7 +115,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 STDOUT
         end
         api.delete_app("example")
@@ -129,7 +129,7 @@ STDOUT
 Creating addonapp... done, stack is bamboo-mri-1.9.2
 Adding custom_domains:basic to addonapp... done
 Adding releases:basic to addonapp... done
-http://addonapp.herokuapp.com/ | git@heroku.com:addonapp.git
+http://addonapp.herokuapp.com/ | https://git.heroku.com/addonapp.git
 Git remote heroku added
 STDOUT
         end
@@ -143,7 +143,7 @@ STDOUT
           expect(stdout).to eq <<-STDOUT
 Creating buildpackapp... done, stack is bamboo-mri-1.9.2
 BUILDPACK_URL=http://example.org/buildpack.git
-http://buildpackapp.herokuapp.com/ | git@heroku.com:buildpackapp.git
+http://buildpackapp.herokuapp.com/ | https://git.heroku.com/buildpackapp.git
 Git remote heroku added
 STDOUT
         end
@@ -156,7 +156,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating alternate-remote... done, stack is bamboo-mri-1.9.2
-http://alternate-remote.herokuapp.com/ | git@heroku.com:alternate-remote.git
+http://alternate-remote.herokuapp.com/ | https://git.heroku.com/alternate-remote.git
 Git remote alternate added
 STDOUT
         end
@@ -267,7 +267,7 @@ STDOUT
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Renaming example to example2... done
-http://example2.herokuapp.com/ | git@heroku.com:example2.git
+http://example2.herokuapp.com/ | https://git.heroku.com/example2.git
 Don't forget to update your Git remotes on any local checkouts.
 STDOUT
           end
@@ -341,7 +341,7 @@ STDERR
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 Git remote heroku added
 STDOUT
           expect(`git remote`.strip).to match(/^heroku$/)
@@ -355,7 +355,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 Git remote myremote added
 STDOUT
           expect(`git remote`.strip).to match(/^myremote$/)
@@ -370,7 +370,7 @@ STDOUT
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating example... done, stack is bamboo-mri-1.9.2
-http://example.herokuapp.com/ | git@heroku.com:example.git
+http://example.herokuapp.com/ | https://git.heroku.com/example.git
 STDOUT
           api.delete_app("example")
         end
@@ -379,8 +379,8 @@ STDOUT
       it "renames updating the corresponding heroku git remote" do
         with_blank_git_repository do
           `git remote add github     git@github.com:test/test.git`
-          `git remote add production git@heroku.com:example.git`
-          `git remote add staging    git@heroku.com:example-staging.git`
+          `git remote add production https://git.heroku.com/example.git`
+          `git remote add staging    https://git.heroku.com/example-staging.git`
 
           api.post_app("name" => "example", "stack" => "cedar")
           stderr, stdout = execute("apps:rename example2")
@@ -390,17 +390,17 @@ STDOUT
           expect(remotes).to eq <<-REMOTES
 github\tgit@github.com:test/test.git (fetch)
 github\tgit@github.com:test/test.git (push)
-production\tgit@heroku.com:example2.git (fetch)
-production\tgit@heroku.com:example2.git (push)
-staging\tgit@heroku.com:example-staging.git (fetch)
-staging\tgit@heroku.com:example-staging.git (push)
+production\thttps://git.heroku.com/example2.git (fetch)
+production\thttps://git.heroku.com/example2.git (push)
+staging\thttps://git.heroku.com/example-staging.git (fetch)
+staging\thttps://git.heroku.com/example-staging.git (push)
 REMOTES
         end
       end
 
       it "destroys removing any remotes pointing to the app" do
         with_blank_git_repository do
-          `git remote add heroku git@heroku.com:example.git`
+          `git remote add heroku https://git.heroku.com/example.git`
 
           api.post_app("name" => "example", "stack" => "cedar")
           stderr, stdout = execute("apps:destroy --confirm example")

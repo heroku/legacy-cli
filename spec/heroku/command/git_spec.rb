@@ -20,7 +20,7 @@ module Heroku::Command
 
       it "clones and adds remote" do
         any_instance_of(Heroku::Command::Git) do |git|
-          mock(git).system("git clone -o heroku git@heroku.com:example.git") do
+          mock(git).system("git clone -o heroku https://git.heroku.com/example.git") do
             puts "Cloning into 'example'..."
           end
         end
@@ -34,7 +34,7 @@ Cloning into 'example'...
 
       it "clones into another dir" do
         any_instance_of(Heroku::Command::Git) do |git|
-          mock(git).system("git clone -o heroku git@heroku.com:example.git somedir") do
+          mock(git).system("git clone -o heroku https://git.heroku.com/example.git somedir") do
             puts "Cloning into 'somedir'..."
           end
         end
@@ -48,7 +48,7 @@ Cloning into 'somedir'...
 
       it "can specify app with -a" do
         any_instance_of(Heroku::Command::Git) do |git|
-          mock(git).system("git clone -o heroku git@heroku.com:example.git") do
+          mock(git).system("git clone -o heroku https://git.heroku.com/example.git") do
             puts "Cloning into 'example'..."
           end
         end
@@ -62,7 +62,7 @@ Cloning into 'example'...
 
       it "can specify app with -a and a dir" do
         any_instance_of(Heroku::Command::Git) do |git|
-          mock(git).system("git clone -o heroku git@heroku.com:example.git somedir") do
+          mock(git).system("git clone -o heroku https://git.heroku.com/example.git somedir") do
             puts "Cloning into 'somedir'..."
           end
         end
@@ -76,7 +76,7 @@ Cloning into 'somedir'...
 
       it "clones and sets -r remote" do
         any_instance_of(Heroku::Command::Git) do |git|
-          mock(git).system("git clone -o other git@heroku.com:example.git") do
+          mock(git).system("git clone -o other https://git.heroku.com/example.git") do
             puts "Cloning into 'example'..."
           end
         end
@@ -106,7 +106,7 @@ Cloning into 'example'...
       it "adds remote" do
         any_instance_of(Heroku::Command::Git) do |git|
           stub(git).git('remote').returns("origin")
-          stub(git).git('remote add heroku git@heroku.com:example.git')
+          stub(git).git('remote add heroku https://git.heroku.com/example.git')
         end
         stderr, stdout = execute("git:remote")
         expect(stderr).to eq("")
@@ -118,7 +118,7 @@ Git remote heroku added
       it "adds -r remote" do
         any_instance_of(Heroku::Command::Git) do |git|
           stub(git).git('remote').returns("origin")
-          stub(git).git('remote add other git@heroku.com:example.git')
+          stub(git).git('remote add other https://git.heroku.com/example.git')
         end
         stderr, stdout = execute("git:remote -r other")
         expect(stderr).to eq("")
@@ -130,7 +130,7 @@ Git remote other added
       it "updates remote when it already exists" do
         any_instance_of(Heroku::Command::Git) do |git|
           stub(git).git('remote').returns("heroku")
-          stub(git).git('remote set-url heroku git@heroku.com:example.git')
+          stub(git).git('remote set-url heroku https://git.heroku.com/example.git')
         end
         stderr, stdout = execute("git:remote")
         expect(stderr).to eq("")

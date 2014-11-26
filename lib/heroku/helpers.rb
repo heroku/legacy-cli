@@ -529,7 +529,7 @@ module Heroku
     end
 
     def warn_if_netrc_does_not_have_https_git
-      unless Auth.netrc["git.heroku.com"]
+      unless Auth.netrc && Auth.netrc["git.heroku.com"]
         warn "WARNING: Incomplete credentials detected, git may not work with Heroku. Run `heroku login` to update your credentials. See documentation for details: https://devcenter.heroku.com/articles/http-git#authentication"
         exit 1
       end
