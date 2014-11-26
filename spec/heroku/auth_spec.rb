@@ -87,7 +87,6 @@ module Heroku
         before do
           allow(@cli).to receive(:ask_for_credentials).and_return(['new_user', 'new_password'])
           allow(@cli).to receive(:check)
-          expect(@cli).to receive(:check_for_associated_ssh_key)
           @cli.reauthorize
         end
         it "updates saved credentials" do
@@ -122,7 +121,6 @@ module Heroku
     it "asks for credentials when the file doesn't exist" do
       @cli.delete_credentials
       expect(@cli).to receive(:ask_for_credentials).and_return(["u", "p"])
-      expect(@cli).to receive(:check_for_associated_ssh_key)
       expect(@cli.user).to eq('u')
       expect(@cli.password).to eq('p')
     end
@@ -132,7 +130,6 @@ module Heroku
       allow(@cli).to receive(:check)
       allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
       expect(@cli).to receive(:write_credentials)
-      expect(@cli).to receive(:check_for_associated_ssh_key)
       @cli.ask_for_and_save_credentials
     end
 
@@ -167,7 +164,6 @@ module Heroku
     it "writes the login information to the credentials file for the 'heroku login' command" do
       allow(@cli).to receive(:ask_for_credentials).and_return(['one', 'two'])
       allow(@cli).to receive(:check)
-      expect(@cli).to receive(:check_for_associated_ssh_key)
       @cli.reauthorize
       expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"]).to eq(['one', 'two'])
     end
@@ -180,66 +176,6 @@ module Heroku
       expect(@cli.get_credentials).to eq(["user", api_key[0,40]])
       Auth.subdomains.each do |section|
         expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"]).to eq(["user", api_key[0,40]])
-      end
-    end
-
-    describe "automatic key uploading" do
-      before(:each) do
-        allow(@cli).to receive(:home_directory).and_return(Heroku::Helpers.home_directory)
-        FileUtils.mkdir_p("#{@cli.home_directory}/.ssh")
-        allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
-      end
-
-      describe "an account with existing keys" do
-        before :each do
-          @api = double(Object)
-          @response = double(Object)
-          expect(@response).to receive(:body).and_return(['existingkeys'])
-          expect(@api).to receive(:get_keys).and_return(@response)
-          expect(@cli).to receive(:api).and_return(@api)
-        end
-
-        it "should not do anything if the account already has keys" do
-          expect(@cli).not_to receive(:associate_key)
-          @cli.check_for_associated_ssh_key
-        end
-      end
-
-      describe "an account with no keys" do
-        before :each do
-          @api = double(Object)
-          @response = double(Object)
-          expect(@response).to receive(:body).and_return([])
-          expect(@api).to receive(:get_keys).and_return(@response)
-          expect(@cli).to receive(:api).and_return(@api)
-        end
-
-        describe "with zero public keys" do
-          it "should ask to generate a key" do
-            expect(@cli).to receive(:ask).and_return("y")
-            expect(@cli).to receive(:generate_ssh_key).with("#{@cli.home_directory}/.ssh/id_rsa")
-            expect(@cli).to receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa.pub")
-            @cli.check_for_associated_ssh_key
-          end
-        end
-
-        describe "with many public keys" do
-          before :each do
-            FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa.pub")
-            FileUtils.touch("#{@cli.home_directory}/.ssh/id_rsa2.pub")
-          end
-
-          after :each do
-            FileUtils.rm_rf(@cli.home_directory)
-          end
-
-          it "should ask which key to upload" do
-            File.open("#{@cli.home_directory}/.ssh/id_rsa.pub", "w") { |f| f.puts }
-            expect(@cli).to receive(:associate_key).with("#{@cli.home_directory}/.ssh/id_rsa2.pub")
-            expect(@cli).to receive(:ask).and_return("2")
-            @cli.check_for_associated_ssh_key
-          end
-        end
       end
     end
   end

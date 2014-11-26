@@ -260,6 +260,15 @@ protected
     !%w{default production prod}.include? ENV['HEROKU_CLOUD']
   end
 
+  def git_url(app_name)
+    if options[:ssh_git]
+      "git@#{Heroku::Auth.git_host}:#{app_name}.git"
+    else
+      warn_if_netrc_does_not_have_https_git
+      "https://#{Heroku::Auth.http_git_host}/#{app_name}.git"
+    end
+  end
+
   def git_remotes(base_dir=Dir.pwd)
     remotes = {}
     original_dir = Dir.pwd
