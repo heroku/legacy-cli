@@ -13,7 +13,7 @@ describe Heroku::Command::Help do
       expect(stdout).to include "help"
     end
 
-    it "should show command help and namespace help when ambigious" do
+    it "should show command help and namespace help when ambiguous" do
       stderr, stdout = execute("help apps")
       expect(stderr).to eq("")
       expect(stdout).to include "heroku apps"

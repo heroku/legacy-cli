@@ -33,7 +33,7 @@ module Heroku::Command
             'app' => {'name' => 'sushi'},
             'name' => 'HEROKU_POSTGRESQL_FOLLOW',
             'config_var' => 'HEROKU_POSTGRESQL_FOLLOW_URL',
-            'resource' => {'name'  => 'whatever-somethign-2323',
+            'resource' => {'name'  => 'whatever-something-2323',
                            'value' => 'postgres://follow_database_url',
                            'type'  => 'heroku-postgresql:ronin' }})
         ])

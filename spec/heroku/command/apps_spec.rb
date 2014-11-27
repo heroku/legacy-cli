@@ -19,7 +19,7 @@ module Heroku::Command
         api.delete_app("example")
       end
 
-      it "displays impicit app info" do
+      it "displays implicit app info" do
         stderr, stdout = execute("apps:info")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
