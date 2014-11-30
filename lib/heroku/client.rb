@@ -225,7 +225,7 @@ class Heroku::Client
     delete("/user/keys").to_s
   end
 
-  # Retreive ps list for the given app name.
+  # Retrieve ps list for the given app name.
   def ps(app_name)
     deprecate # 07/31/2012
     json_decode get("/apps/#{app_name}/ps", :accept => 'application/json').to_s

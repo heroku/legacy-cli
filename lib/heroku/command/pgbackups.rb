@@ -225,7 +225,7 @@ module Heroku::Command
 
       opts       = {}
       verify_app = to.app || app
-      if confirm_command(verify_app, "WARNING: Destructive Action\nTransfering data from #{from.name} to #{to.name}")
+      if confirm_command(verify_app, "WARNING: Destructive Action\nTransferring data from #{from.name} to #{to.name}")
         backup = transfer!(from.url, from.name, to.url, to.name, opts)
         backup = poll_transfer!(backup)
 
