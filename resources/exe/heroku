@@ -1,0 +1,29 @@
+#!/bin/sh
+# find embedded ruby relative to script
+bindir=`cd -P "${0%/*}/../ruby-1.9.3/bin" 2>/dev/null; pwd`
+exec "$bindir/ruby" -x "$0" "$@"
+
+#!/usr/bin/env ruby
+# encoding: UTF-8
+
+# resolve bin path, ignoring symlinks
+require "pathname"
+bin_file = Pathname.new(__FILE__).realpath
+
+# add locally vendored gems to libpath
+gem_dir = File.expand_path("../../vendor/gems", bin_file)
+Dir["#{gem_dir}/**/lib"].each do |libdir|
+  $:.unshift libdir
+end
+
+# add self to libpath
+$:.unshift File.expand_path("../../lib", bin_file)
+
+# inject any code in ~/.heroku/client over top
+require "heroku/updater"
+Heroku::Updater.inject_libpath
+
+# start up the CLI
+require "heroku/cli"
+Heroku.user_agent = "heroku/toolbelt/#{Heroku::VERSION} (#{RUBY_PLATFORM}) ruby/#{RUBY_VERSION}"
+Heroku::CLI.start(*ARGV)
