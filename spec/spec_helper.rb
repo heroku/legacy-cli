@@ -203,6 +203,8 @@ module Heroku::Helpers
   def home_directory
     @home_directory
   end
+  undef_method :warn_if_netrc_does_not_have_https_git
+  def warn_if_netrc_does_not_have_https_git; end
 end
 
 require "support/display_message_matcher"
