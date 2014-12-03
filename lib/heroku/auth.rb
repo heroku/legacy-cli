@@ -261,7 +261,6 @@ class Heroku::Auth
       @credentials = ask_for_credentials
       write_credentials
       check
-      check_for_associated_ssh_key unless Heroku::Command.current_command == "keys:add"
       @credentials
     rescue Heroku::API::Errors::NotFound, Heroku::API::Errors::Unauthorized => e
       delete_credentials
@@ -271,13 +270,6 @@ class Heroku::Auth
     rescue => e
       delete_credentials
       raise e
-    end
-
-    def check_for_associated_ssh_key
-      if api.get_keys.body.empty?
-        display "Your Heroku account does not have a public ssh key uploaded."
-        associate_or_generate_ssh_key
-      end
     end
 
     def associate_or_generate_ssh_key

@@ -84,12 +84,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # $ heroku apps:info
   # === example
-  # Git URL:   git@heroku.com:example.git
+  # Git URL:   https://git.heroku.com/example.git
   # Repo Size: 5M
   # ...
   #
   # $ heroku apps:info --shell
-  # git_url=git@heroku.com:example.git
+  # git_url=https://git.heroku.com/example.git
   # repo_size=5000000
   # ...
   #
@@ -111,6 +111,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     if options[:shell]
+      app_data['git_url'] = git_url(app_data['name'])
       if app_data['domain_name']
         app_data['domain_name'] = app_data['domain_name']['domain']
       end
@@ -152,7 +153,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         data["Database Size"] = format_bytes(app_data["database_size"])
       end
 
-      data["Git URL"] = app_data["git_url"]
+      data["Git URL"] = git_url(app_data['name'])
 
       if app_data["database_tables"]
         data["Database Size"].gsub!('(empty)', '0K') + " in #{quantify("table", app_data["database_tables"])}"
@@ -195,6 +196,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -s, --stack STACK          # the stack on which to create the app
   #     --region REGION        # specify region for this app to run in
   # -l, --locked               # lock the app
+  #     --ssh-git              # Use SSH git protocol
   # -t, --tier TIER            # HIDDEN: the tier for this app
   #     --http-git             # HIDDEN: Use HTTP git protocol
   #
@@ -202,16 +204,16 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # $ heroku apps:create
   # Creating floating-dragon-42... done, stack is cedar
-  # http://floating-dragon-42.heroku.com/ | git@heroku.com:floating-dragon-42.git
+  # http://floating-dragon-42.heroku.com/ | https://git.heroku.com/floating-dragon-42.git
   #
   # $ heroku apps:create -s bamboo
   # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
-  # http://floating-dragon-42.herokuapp.com/ | git@heroku.com:floating-dragon-42.git
+  # http://floating-dragon-42.herokuapp.com/ | https://git.heroku.com/floating-dragon-42.git
   #
   # # specify a name
   # $ heroku apps:create example
   # Creating example... done, stack is cedar
-  # http://example.heroku.com/ | git@heroku.com:example.git
+  # http://example.heroku.com/ | https://git.heroku.com/example.git
   #
   # # create a staging app
   # $ heroku apps:create example-staging --remote staging
@@ -235,13 +237,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
       org_api.post_app(params, org).body
     else
       api.post_app(params).body
-    end
-
-    git_url = if options[:http_git]
-      warn_if_netrc_does_not_have_https_git
-      "https://#{Heroku::Auth.http_git_host}/#{info['name']}.git"
-    else
-      info["git_url"]
     end
 
     begin
@@ -274,13 +269,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
         display("BUILDPACK_URL=#{buildpack}")
       end
 
-      hputs([ info["web_url"], git_url ].join(" | "))
+      hputs([ info["web_url"], git_url(info['name']) ].join(" | "))
     rescue Timeout::Error
       hputs("Timed Out! Run `heroku status` to check for known platform issues.")
     end
 
     unless options[:no_remote].is_a? FalseClass
-      create_git_remote(options[:remote] || "heroku", git_url)
+      create_git_remote(options[:remote] || "heroku", git_url(info['name']))
     end
   end
 
@@ -290,10 +285,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # rename the app
   #
+  #     --ssh-git              # Use SSH git protocol
+  #     --http-git             # HIDDEN: Use HTTP git protocol
+  #
   #Example:
   #
   # $ heroku apps:rename example-newname
-  # http://example-newname.herokuapp.com/ | git@heroku.com:example-newname.git
+  # http://example-newname.herokuapp.com/ | https://git.heroku.com/example-newname.git
   # Git remote heroku updated
   #
   def rename
@@ -308,13 +306,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     app_data = api.get_app(newname).body
-    hputs([ app_data["web_url"], app_data["git_url"] ].join(" | "))
+    hputs([ app_data["web_url"], git_url(newname) ].join(" | "))
 
     if remotes = git_remotes(Dir.pwd)
       remotes.each do |remote_name, remote_app|
         next if remote_app != app
         git "remote rm #{remote_name}"
-        git "remote add #{remote_name} #{app_data["git_url"]}"
+        git "remote add #{remote_name} #{git_url(newname)}"
         hputs("Git remote #{remote_name} updated")
       end
     else

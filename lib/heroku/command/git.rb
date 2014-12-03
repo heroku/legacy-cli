@@ -11,7 +11,8 @@ class Heroku::Command::Git < Heroku::Command::Base
   # clones a heroku app to your local machine at DIRECTORY (defaults to app name)
   #
   # -r, --remote REMOTE  # the git remote to create, default "heroku"
-  #     --http-git       # use HTTP git protocol
+  #     --ssh-git        # use SSH git protocol
+  #     --http-git       # HIDDEN: Use HTTP git protocol
   #
   #
   #Examples:
@@ -26,9 +27,10 @@ class Heroku::Command::Git < Heroku::Command::Base
     name = options[:app] || shift_argument || error("Usage: heroku git:clone APP [DIRECTORY]")
     directory = shift_argument
     validate_arguments!
+    app_info = api.get_app(app).body
 
     puts "Cloning from app '#{name}'..."
-    system "git clone -o #{remote_name} #{git_url} #{directory}".strip
+    system "git clone -o #{remote_name} #{git_url(app_info['name'])} #{directory}".strip
   end
 
   alias_command "clone", "git:clone"
@@ -40,7 +42,8 @@ class Heroku::Command::Git < Heroku::Command::Base
   # if OPTIONS are specified they will be passed to git remote add
   #
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
-  #     --http-git             # use HTTP git protocol
+  #     --ssh-git              # use SSH git protocol
+  #     --http-git             # HIDDEN: Use HTTP git protocol
   #
   #Examples:
   #
@@ -48,10 +51,11 @@ class Heroku::Command::Git < Heroku::Command::Base
   # Git remote heroku added
   #
   def remote
+    app_info = api.get_app(app).body
     if git('remote').split("\n").include?(remote_name)
-      update_git_remote(remote_name, git_url)
+      update_git_remote(remote_name, git_url(app_info['name']))
     else
-      create_git_remote(remote_name, git_url)
+      create_git_remote(remote_name, git_url(app_info['name']))
     end
   end
 
@@ -59,15 +63,5 @@ class Heroku::Command::Git < Heroku::Command::Base
 
   def remote_name
     options[:remote] || DEFAULT_REMOTE_NAME
-  end
-
-  def git_url
-    app_info = api.get_app(app).body
-    if options[:http_git]
-      warn_if_netrc_does_not_have_https_git
-      "https://#{Heroku::Auth.http_git_host}/#{app_info['name']}.git"
-    else
-      app_info['git_url']
-    end
   end
 end
