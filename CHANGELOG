@@ -1,3 +1,8 @@
+3.17.0 2014-12-03
+=================
+Default to http git
+Reduced update check duration to 10 minutes
+
 3.16.2 2014-11-23
 =================
 Clean build dist directory before releasing
