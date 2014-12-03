@@ -104,9 +104,9 @@ task "exe:build" => dist("heroku-toolbelt-#{version}.exe")
 
 desc "Release exe"
 task "exe:release" => "exe:build" do |t|
-  store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-#{version}.exe"
-  store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-beta.exe" if beta?
-  store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt.exe" unless beta?
+  s3_store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-#{version}.exe"
+  s3_store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt-beta.exe" if beta?
+  s3_store dist("heroku-toolbelt-#{version}.exe"), "heroku-toolbelt/heroku-toolbelt.exe" unless beta?
 end
 
 desc "Create wine environment to build windows installer"
