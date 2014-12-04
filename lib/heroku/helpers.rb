@@ -32,6 +32,10 @@ module Heroku
       display "WARNING: #{message}"
     end
 
+    def debug(*args)
+      $stderr.puts(*args) if ENV['HEROKU_DEBUG']
+    end
+
     def confirm(message="Are you sure you wish to continue? (y/n)")
       display("#{message} ", false)
       ['y', 'yes'].include?(ask.downcase)
