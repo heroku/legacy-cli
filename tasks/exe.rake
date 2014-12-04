@@ -83,9 +83,9 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
       -v   "#{windows_path(resource('exe/heroku-codesign-cert.pvk'))}"
       -a   sha1 -$ commercial
       -n   "Heroku Toolbelt"
-      $f ]             # $f gets replaced by iscc with the path to the file it wants to compile
-      .gsub("\n", ' ') # everything on a single line now
-      .gsub('"', '$q') # iscc requires quotes to be escaped this way, don't ask
+      $f ].            # $f gets replaced by iscc with the path to the file it wants to compile
+      gsub("\n", ' ') # everything on a single line now
+      gsub('"', '$q') # iscc requires quotes to be escaped this way, don't ask
 
     # compile installer under wine!
     setup_wine_env

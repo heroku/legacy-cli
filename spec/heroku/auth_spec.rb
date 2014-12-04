@@ -128,7 +128,7 @@ module Heroku
     it "writes credentials and uploads authkey when credentials are saved" do
       allow(@cli).to receive(:credentials)
       allow(@cli).to receive(:check)
-      allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
+      allow(@cli).to receive(:ask_for_credentials).and_return(["username", "apikey"])
       expect(@cli).to receive(:write_credentials)
       @cli.ask_for_and_save_credentials
     end
@@ -136,7 +136,7 @@ module Heroku
     it "save_credentials deletes the credentials when the upload authkey is unauthorized" do
       allow(@cli).to receive(:write_credentials)
       allow(@cli).to receive(:retry_login?).and_return(false)
-      allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
+      allow(@cli).to receive(:ask_for_credentials).and_return(["username", "apikey"])
       allow(@cli).to receive(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       expect(@cli).to receive(:delete_credentials)
       expect { @cli.ask_for_and_save_credentials }.to raise_error(SystemExit)
@@ -146,7 +146,7 @@ module Heroku
       allow(@cli).to receive(:read_credentials)
       allow(@cli).to receive(:write_credentials)
       allow(@cli).to receive(:delete_credentials)
-      allow(@cli).to receive(:ask_for_credentials).and_return("username", "apikey")
+      allow(@cli).to receive(:ask_for_credentials).and_return(["username", "apikey"])
       allow(@cli).to receive(:check) { raise Heroku::API::Errors::Unauthorized.new("Login Failed", Excon::Response.new) }
       expect(@cli).to receive(:ask_for_credentials).exactly(3).times
       expect { @cli.ask_for_and_save_credentials }.to raise_error(SystemExit)
