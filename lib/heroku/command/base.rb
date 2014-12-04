@@ -264,7 +264,7 @@ protected
     if options[:ssh_git]
       "git@#{Heroku::Auth.git_host}:#{app_name}.git"
     else
-      warn_if_netrc_does_not_have_https_git
+      error_if_netrc_does_not_have_https_git
       "https://#{Heroku::Auth.http_git_host}/#{app_name}.git"
     end
   end
