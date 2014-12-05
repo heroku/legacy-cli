@@ -1,3 +1,7 @@
+3.17.1 2014-12-04
+=================
+Added debug logging for auth
+
 3.17.0 2014-12-03
 =================
 Default to http git
