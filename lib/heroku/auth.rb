@@ -13,6 +13,7 @@ class Heroku::Auth
 
     def api
       @api ||= begin
+        debug "Using API with key: #{password[0,6]}..."
         api = Heroku::API.new(default_params.merge(:api_key => password))
 
         def api.request(params, &block)
@@ -259,6 +260,7 @@ class Heroku::Auth
 
     def ask_for_and_save_credentials
       @credentials = ask_for_credentials
+      debug "Logged in as #{@credentials[0]} with key: #{@credentials[1][0,6]}..."
       write_credentials
       check
       @credentials
