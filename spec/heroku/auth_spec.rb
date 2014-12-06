@@ -52,12 +52,14 @@ module Heroku
         expect(File.exist?(@cli.netrc_path)).to eq(false)
 
         # transition
-        expect(@cli.get_credentials).to eq(['legacy_user', 'legacy_pass'])
+        expect(@cli.get_credentials.login).to eq('legacy_user')
+        expect(@cli.get_credentials.password).to eq('legacy_pass')
 
         # postconditions
         expect(File.exist?(@cli.legacy_credentials_path)).to eq(false)
         expect(File.exist?(@cli.netrc_path)).to eq(true)
-        expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"]).to eq(['legacy_user', 'legacy_pass'])
+        expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].login).to eq('legacy_user')
+        expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].password).to eq('legacy_pass')
       end
     end
 
@@ -90,7 +92,8 @@ module Heroku
           @cli.reauthorize
         end
         it "updates saved credentials" do
-          expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"]).to eq(['new_user', 'new_password'])
+          expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].login).to eq('new_user')
+          expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].password).to eq('new_password')
         end
         it "returns environment variable credentials" do
           expect(@cli.read_credentials).to eq(['', ENV['HEROKU_API_KEY']])
@@ -165,7 +168,8 @@ module Heroku
       allow(@cli).to receive(:ask_for_credentials).and_return(['one', 'two'])
       allow(@cli).to receive(:check)
       @cli.reauthorize
-      expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"]).to eq(['one', 'two'])
+      expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].login).to eq('one')
+      expect(Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].password).to eq('two')
     end
 
     it "migrates long api keys to short api keys" do
@@ -173,9 +177,11 @@ module Heroku
       api_key = "7e262de8cac430d8a250793ce8d5b334ae56b4ff15767385121145198a2b4d2e195905ef8bf7cfc5"
       @cli.netrc["api.#{@cli.host}"] = ["user", api_key]
 
-      expect(@cli.get_credentials).to eq(["user", api_key[0,40]])
+      expect(@cli.get_credentials.login).to eq("user")
+      expect(@cli.get_credentials.password).to eq(api_key[0,40])
       Auth.subdomains.each do |section|
-        expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"]).to eq(["user", api_key[0,40]])
+        expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"].login).to eq("user")
+        expect(Netrc.read(@cli.netrc_path)["#{section}.#{@cli.host}"].password).to eq(api_key[0,40])
       end
     end
   end

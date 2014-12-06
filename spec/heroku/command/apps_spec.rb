@@ -123,12 +123,11 @@ STDOUT
 
       it "with addons" do
         with_blank_git_repository do
-          stderr, stdout = execute("apps:create addonapp --addon custom_domains:basic,releases:basic")
+          stderr, stdout = execute("apps:create addonapp --addon pgbackups:auto-month")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating addonapp... done, stack is bamboo-mri-1.9.2
-Adding custom_domains:basic to addonapp... done
-Adding releases:basic to addonapp... done
+Adding pgbackups:auto-month to addonapp... done
 http://addonapp.herokuapp.com/ | https://git.heroku.com/addonapp.git
 Git remote heroku added
 STDOUT

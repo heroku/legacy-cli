@@ -6,7 +6,7 @@ module Heroku::Command
 
     before(:all) do
       api.post_app("name" => "example", "stack" => "cedar")
-      api.post_addon("example", "custom_domains:basic")
+      api.post_addon("example", "pgbackups:auto-month")
     end
 
     after(:all) do
