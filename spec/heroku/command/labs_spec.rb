@@ -19,11 +19,12 @@ module Heroku::Command
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 === User Features (email@example.com)
-[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+[ ] github-sync  Allow users to set up automatic GitHub deployments from Dashboard
+[ ] pipelines    Pipelines adds experimental support for deploying changes between applications with a shared code base.
 
 === App Features (example)
-[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-[ ] user_env_compile  Add user config vars to the environment during slug compilation
+[+] http-dyno-logs       Enable HTTP dyno logs using log-shuttle [alpha]
+[ ] log-runtime-metrics  Emit dyno resource usage information into app logs
 STDOUT
     end
 
@@ -33,21 +34,22 @@ STDOUT
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 === User Features (email@example.com)
-[ ] sumo-rankings  Heroku Sumo ranks and visualizes the scale of your app, and suggests the optimum combination of dynos and add-ons to take it to the next level.
+[ ] github-sync  Allow users to set up automatic GitHub deployments from Dashboard
+[ ] pipelines    Pipelines adds experimental support for deploying changes between applications with a shared code base.
 
 === App Features (example)
-[+] sigterm-all       When stopping a dyno, send SIGTERM to all processes rather than only to the root process.
-[ ] user_env_compile  Add user config vars to the environment during slug compilation
+[+] http-dyno-logs       Enable HTTP dyno logs using log-shuttle [alpha]
+[ ] log-runtime-metrics  Emit dyno resource usage information into app logs
 STDOUT
     end
 
     it "displays details of a feature" do
-      stderr, stdout = execute("labs:info user_env_compile")
+      stderr, stdout = execute("labs:info pipelines")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
-=== user_env_compile
-Docs:    http://devcenter.heroku.com/articles/labs-user-env-compile
-Summary: Add user config vars to the environment during slug compilation
+=== pipelines
+Docs:    https://devcenter.heroku.com/articles/using-pipelines-to-deploy-between-applications
+Summary: Pipelines adds experimental support for deploying changes between applications with a shared code base.
 STDOUT
     end
 
@@ -61,12 +63,12 @@ STDERR
     end
 
     it "enables a feature" do
-      stderr, stdout = execute("labs:enable user_env_compile")
+      stderr, stdout = execute("labs:enable pipelines")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
-Enabling user_env_compile for example... done
+Enabling pipelines for email@example.com... done
 WARNING: This feature is experimental and may change or be removed without notice.
-For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
+For more information see: https://devcenter.heroku.com/articles/using-pipelines-to-deploy-between-applications
 STDOUT
     end
 
@@ -80,11 +82,11 @@ STDERR
     end
 
     it "disables a feature" do
-      api.post_feature('user_env_compile', 'example')
-      stderr, stdout = execute("labs:disable user_env_compile")
+      api.post_feature('pipelines', 'example')
+      stderr, stdout = execute("labs:disable pipelines")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
-Disabling user_env_compile for example... done
+Disabling pipelines for email@example.com... done
 STDOUT
     end
 
