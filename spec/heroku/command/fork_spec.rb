@@ -71,10 +71,9 @@ STDOUT
       end
 
       it "re-provisions add-ons" do
-        addons = ["pgbackups:basic", "deployhooks:http"].sort
-        addons.each { |a| api.post_addon("example", a) }
+        api.post_addon("example", "heroku-postgresql:hobby-dev")
         execute("fork example-fork")
-        expect(api.get_addons("example-fork").body.collect { |info| info["name"] }.sort).to eq(addons)
+        expect(api.get_addons("example-fork").body[0]["name"]).to eq("heroku-postgresql:hobby-dev")
       end
     end
 
