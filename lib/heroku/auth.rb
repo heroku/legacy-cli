@@ -267,6 +267,7 @@ class Heroku::Auth
     rescue Heroku::API::Errors::NotFound, Heroku::API::Errors::Unauthorized => e
       delete_credentials
       display "Authentication failed."
+      warn "WARNING: HEROKU_API_KEY is set to an invalid key." if ENV['HEROKU_API_KEY']
       retry if retry_login?
       exit 1
     rescue => e
