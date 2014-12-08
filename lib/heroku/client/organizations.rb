@@ -230,7 +230,7 @@ class Heroku::Client::Organizations
     end
 
     def manager_url
-      ENV['HEROKU_MANAGER_URL'] || "https://api.heroku.com"
+      ENV['HEROKU_MANAGER_URL'] || Heroku::Auth.full_host(Heroku::Auth.host)
     end
 
   end
