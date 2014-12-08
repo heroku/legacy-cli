@@ -89,6 +89,7 @@ class Heroku::Auth
       end
       api = Heroku::API.new(params)
       api.post_login(user, password).body["api_key"]
+      @api = nil
     rescue Heroku::API::Errors::Forbidden => e
       if e.response.headers.has_key?("Heroku-Two-Factor-Required")
         second_factor = ask_for_second_factor
