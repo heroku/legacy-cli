@@ -341,10 +341,6 @@ class Heroku::Auth
       @login_attempts < 3
     end
 
-    def verified_hosts
-      %w( heroku.com heroku-shadow.com )
-    end
-
     def base_host(host)
       parts = URI.parse(full_host(host)).host.split(".")
       return parts.first if parts.size == 1
@@ -356,10 +352,8 @@ class Heroku::Auth
     end
 
     def verify_host?(host)
-      hostname = base_host(host)
-      verified = verified_hosts.include?(hostname)
-      verified = false if ENV["HEROKU_SSL_VERIFY"] == "disable"
-      verified
+      return false if ENV["HEROKU_SSL_VERIFY"] == "disable"
+      base_host(host) == "heroku.com"
     end
 
     protected
