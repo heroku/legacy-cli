@@ -1,3 +1,9 @@
+3.18.0 2014-12-05
+=================
+Upgraded gems (notably netrc, heroku-api and excon)
+Show warning if HEROKU_API_KEY is set
+Tweaks to manager url
+
 3.17.1 2014-12-04
 =================
 Added debug logging for auth
