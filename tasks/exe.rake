@@ -58,7 +58,7 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
     installer_path = "#{build_path}/heroku-installer"
     heroku_cli_path = "#{installer_path}/heroku"
     mkdir_p heroku_cli_path
-    extract_zip "#{$base_path}/dist/heroku-3.16.2.zip", "#{heroku_cli_path}/"
+    extract_zip "#{$base_path}/dist/heroku-#{version}.zip", "#{heroku_cli_path}/"
 
     # gather the ruby and git installers, downlading from s3
     mkdir "#{installer_path}/installers"
@@ -84,7 +84,7 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
       -a   sha1 -$ commercial
       -n   "Heroku Toolbelt"
       $f ].            # $f gets replaced by iscc with the path to the file it wants to compile
-      gsub("\n", ' ') # everything on a single line now
+      gsub("\n", ' '). # everything on a single line now
       gsub('"', '$q') # iscc requires quotes to be escaped this way, don't ask
 
     # compile installer under wine!
