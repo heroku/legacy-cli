@@ -172,10 +172,10 @@ module Heroku
       FileUtils.mkdir_p File.dirname(log_path)
       pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
         fork do
-          exec("heroku update &> #{log_path} 2>&1")
+          exec("#{$0} update &> #{log_path} 2>&1")
         end
       else
-        spawn("heroku update", {:err => log_path, :out => log_path})
+        spawn("#{$0} update", {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
