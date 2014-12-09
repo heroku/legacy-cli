@@ -1,0 +1,2 @@
+#!/bin/sh
+which git >/dev/null
