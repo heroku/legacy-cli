@@ -4,6 +4,7 @@ module Heroku
     extend self
 
     def home_directory
+      return Dir.home if defined? Dir.home # Ruby 1.9+
       running_on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
     end
 
