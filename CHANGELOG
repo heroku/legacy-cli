@@ -1,3 +1,7 @@
+3.19.0 2014-12-09
+=================
+Simplified updating by performing updates synchonously instead of in a separate process
+
 3.18.0 2014-12-05
 =================
 Upgraded gems (notably netrc, heroku-api and excon)
