@@ -85,9 +85,20 @@ module Heroku
       FileUtils.rm_f path
     end
 
-    def self.update(prerelease)
+    def self.autoupdate
+      # if we've updated in the last hour, don't try again
+      if File.exists?(last_autoupdate_path)
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60
+      end
+      FileUtils.mkdir_p File.dirname(last_autoupdate_path)
+      FileUtils.touch last_autoupdate_path
+      update
+    end
+
+    def self.update(prerelease=false)
       return unless prerelease || needs_update?
 
+      $stderr.print 'updating...'
       wait_for_lock do
         require "tmpdir"
         require "zip/zip"
@@ -118,6 +129,7 @@ module Heroku
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
+          $stderr.puts "done. Updated to #{version}"
           version
         end
       end
@@ -155,31 +167,10 @@ module Heroku
         end
         load('heroku/updater.rb') # reload updated updater
       end
-
-      background_update!
     end
 
     def self.last_autoupdate_path
       File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate.last")
-    end
-
-    def self.background_update!
-      # if we've updated in the last 10 minutes, don't try again
-      if File.exists?(last_autoupdate_path)
-        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*10
-      end
-      log_path = File.join(Heroku::Helpers.home_directory, '.heroku', 'autoupdate.log')
-      FileUtils.mkdir_p File.dirname(log_path)
-      pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
-        fork do
-          exec("#{$0} update &> #{log_path} 2>&1")
-        end
-      else
-        spawn("#{$0} update", {:err => log_path, :out => log_path})
-      end
-      Process.detach(pid)
-      FileUtils.mkdir_p File.dirname(last_autoupdate_path)
-      FileUtils.touch last_autoupdate_path
     end
   end
 end

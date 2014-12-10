@@ -1,4 +1,4 @@
-file dist("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
+file dist("heroku-toolbelt-#{version}.pkg") => distribution_files("pkg") do |t|
   tempdir do |dir|
     mkdir "heroku-client"
     cd "heroku-client" do
@@ -61,7 +61,7 @@ file dist("heroku-#{version}.pkg") => distribution_files("pkg") do |t|
 end
 
 desc "build pkg"
-task "pkg:build" => dist("heroku-#{version}.pkg")
+task "pkg:build" => dist("heroku-toolbelt-#{version}.pkg")
 
 task "pkg:release" => dist("heroku-toolbelt-#{version}.pkg") do
   s3_store dist("heroku-toolbelt-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt-#{version}.pkg"
