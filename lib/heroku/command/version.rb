@@ -18,6 +18,11 @@ class Heroku::Command::Version < Heroku::Command::Base
     validate_arguments!
 
     display(Heroku.user_agent)
-  end
 
+    plugins = Heroku::Plugin.list
+    if plugins.length > 0
+      styled_header("Installed Plugins")
+      styled_array(plugins)
+    end
+  end
 end
