@@ -9,6 +9,10 @@ module Heroku
 
     extend Heroku::Helpers
 
+    class << self
+      attr_accessor :requires_preauth
+    end
+
     def self.load
       Dir[File.join(File.dirname(__FILE__), "command", "*.rb")].each do |file|
         require file
@@ -244,7 +248,11 @@ module Heroku
       error "API request timed out. Please try again, or contact support@heroku.com if this issue persists."
     rescue Heroku::API::Errors::Forbidden => e
       if e.response.headers.has_key?("Heroku-Two-Factor-Required")
-        Heroku::Auth.preauth
+        if requires_preauth
+          Heroku::Auth.preauth
+        else
+          Heroku::Auth.ask_for_second_factor
+        end
         retry
       else
         error extract_error(e.response.body)

@@ -294,6 +294,10 @@ protected
   def escape(value)
     heroku.escape(value)
   end
+
+  def requires_preauth
+    Heroku::Command.requires_preauth = true
+  end
 end
 
 module Heroku::Command
