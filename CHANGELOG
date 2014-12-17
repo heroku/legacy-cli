@@ -1,3 +1,10 @@
+3.21.0 2014-12-17
+=================
+Upgraded heroku-api gem
+Explicitly preauth for 2fa commands instead of automatically on every failure
+Show warning when using heroku-accounts (since it is incompatible with http-git)
+Added HTTP instrumentor for debugging with HEROKU_DEBUG=true
+
 3.20.0 2014-12-10
 =================
 Upgraded excon and netrc gems
