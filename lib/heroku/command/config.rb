@@ -65,6 +65,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   # B: two
   #
   def set
+    requires_preauth
     unless args.size > 0 and args.all? { |a| a.include?('=') }
       error("Usage: heroku config:set KEY1=VALUE1 [KEY2=VALUE2 ...]\nMust specify KEY and VALUE to set.")
     end

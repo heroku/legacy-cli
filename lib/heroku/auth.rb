@@ -82,16 +82,14 @@ class Heroku::Auth
       get_credentials[1]
     end
 
-    def api_key(user=get_credentials[0], password=get_credentials[1], second_factor=nil)
-      params = default_params
-      if second_factor
-        params[:headers].merge!("Heroku-Two-Factor-Code" => second_factor)
-      end
-      api = Heroku::API.new(params)
-      api.post_login(user, password).body["api_key"]
+    def api_key(user=get_credentials[0], password=get_credentials[1])
+      @api ||= Heroku::API.new(default_params)
+      api_key = @api.post_login(user, password).body["api_key"]
+      @api = nil
+      api_key
     rescue Heroku::API::Errors::Forbidden => e
       if e.response.headers.has_key?("Heroku-Two-Factor-Required")
-        second_factor = ask_for_second_factor
+        ask_for_second_factor
         retry
       end
     rescue Heroku::API::Errors::Unauthorized => e
@@ -218,7 +216,7 @@ class Heroku::Auth
 
     def ask_for_second_factor
       $stderr.print "Two-factor code: "
-      ask
+      api.second_factor = ask
     end
 
     def preauth
