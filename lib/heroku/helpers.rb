@@ -34,7 +34,11 @@ module Heroku
     end
 
     def debug(*args)
-      $stderr.puts(*args) if ENV['HEROKU_DEBUG']
+      $stderr.puts(*args) if debugging?
+    end
+
+    def debugging?
+      ENV['HEROKU_DEBUG']
     end
 
     def confirm(message="Are you sure you wish to continue? (y/n)")
