@@ -36,7 +36,7 @@ class HTTPInstrumentor
 
     def filter(obj)
       string = obj.to_s
-      @filter_parameters.each do |parameter|
+      (@filter_parameters || []).each do |parameter|
         string.gsub! parameter, '[FILTERED]'
       end
       string
