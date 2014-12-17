@@ -30,7 +30,7 @@ GEM
     docile (1.1.5)
     excon (0.42.1)
     fakefs (0.5.4)
-    heroku-api (0.3.21)
+    heroku-api (0.3.22)
       excon (~> 0.38)
       multi_json (~> 1.8)
     json (1.8.1)
