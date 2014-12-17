@@ -25,6 +25,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # list databases for an app
   #
   def index
+    requires_preauth
     validate_arguments!
 
     if hpg_databases_with_info.empty?
@@ -47,6 +48,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   def info
     db = shift_argument
     validate_arguments!
+    requires_preauth
 
     if db
       @resolver = generate_resolver
@@ -64,6 +66,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   # if REPORT_ID is specified instead, a previous report is displayed
   def diagnose
+    requires_preauth
     db_id = shift_argument
     run_diagnose(db_id)
   end
@@ -73,6 +76,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # sets DATABASE as your DATABASE_URL
   #
   def promote
+    requires_preauth
     unless db = shift_argument
       error("Usage: heroku pg:promote DATABASE\nMust specify DATABASE to promote.")
     end
@@ -94,6 +98,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
   def psql
+    requires_preauth
     attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
 
@@ -123,6 +128,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # delete all data in DATABASE
   #
   def reset
+    requires_preauth
     unless db = shift_argument
       error("Usage: heroku pg:reset DATABASE\nMust specify DATABASE to reset.")
     end
@@ -144,6 +150,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # stop a replica from following and make it a read/write database
   #
   def unfollow
+    requires_preauth
     unless db = shift_argument
       error("Usage: heroku pg:unfollow REPLICA\nMust specify REPLICA to unfollow.")
     end
@@ -177,6 +184,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # defaults to all databases if no DATABASE is specified
   #
   def wait
+    requires_preauth
     db = shift_argument
     validate_arguments!
 
@@ -196,6 +204,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #   --reset  # Reset credentials on the specified database.
   #
   def credentials
+    requires_preauth
     unless db = shift_argument
       error("Usage: heroku pg:credentials DATABASE\nMust specify DATABASE to display credentials.")
     end
@@ -228,6 +237,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # view active queries with execution time
   #
   def ps
+    requires_preauth
     sql = %Q(
     SELECT
       #{pid_column},
@@ -260,6 +270,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # -f,--force  # terminates the connection in addition to cancelling the query
   #
   def kill
+    requires_preauth
     procpid = shift_argument
     output_with_bang "procpid to kill is required" unless procpid && procpid.to_i != 0
     procpid = procpid.to_i
@@ -275,6 +286,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # terminates ALL connections
   #
   def killall
+    requires_preauth
     db = args.first
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     client = hpg_client(attachment)
@@ -299,6 +311,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
   # REMOTE_TARGET_DATABASE must be empty.
   def push
+    requires_preauth
     local, remote = shift_argument, shift_argument
     unless [remote, local].all?
       Heroku::Command.run(current_command, ['--help'])
@@ -324,6 +337,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
   # LOCAL_TARGET_DATABASE must not already exist.
   def pull
+    requires_preauth
     remote, local = shift_argument, shift_argument
     unless [remote, local].all?
       Heroku::Command.run(current_command, ['--help'])
@@ -354,6 +368,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #  window="<window>"  # set weekly UTC maintenance window for DATABASE
   #                     # eg: `heroku pg:maintenance window="Sunday 14:30"`
   def maintenance
+    requires_preauth
     mode_with_argument = shift_argument || ''
     mode, mode_argument = mode_with_argument.split('=')
 
@@ -397,6 +412,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # unfollow a database and upgrade it to the latest PostgreSQL version
   #
   def upgrade
+    requires_preauth
     unless db = shift_argument
       error("Usage: heroku pg:upgrade REPLICA\nMust specify REPLICA to upgrade.")
     end
