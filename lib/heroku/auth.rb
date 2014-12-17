@@ -211,6 +211,7 @@ class Heroku::Auth
 
       print "Password (typing will be hidden): "
       password = running_on_windows? ? ask_for_password_on_windows : ask_for_password
+      HTTPInstrumentor.filter_parameter(password)
 
       [user, api_key(user, password)]
     end
@@ -361,13 +362,16 @@ class Heroku::Auth
 
     def default_params
       uri = URI.parse(full_host(host))
-      {
+      params = {
         :headers          => {'User-Agent' => Heroku.user_agent},
         :host             => uri.host,
         :port             => uri.port.to_s,
         :scheme           => uri.scheme,
         :ssl_verify_peer  => verify_host?(host)
       }
+      params[:instrumentor] = HTTPInstrumentor if debugging?
+
+      params
     end
   end
 end

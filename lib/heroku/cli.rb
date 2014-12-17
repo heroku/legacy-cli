@@ -11,6 +11,7 @@ end
 require "heroku"
 require "heroku/command"
 require "heroku/helpers"
+require "heroku/http_instrumentor"
 require 'rest_client'
 require 'heroku-api'
 
