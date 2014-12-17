@@ -1,3 +1,7 @@
+3.21.1 2014-12-17
+=================
+No changes, needed to bump the version
+
 3.21.0 2014-12-17
 =================
 Upgraded heroku-api gem
