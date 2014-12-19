@@ -3,7 +3,7 @@ require "shellwords"
 
 $is_mac     = RUBY_PLATFORM =~ /darwin/
 $base_path  = File.expand_path(File.join(File.dirname(__FILE__), ".."))
-$cache_path = File.join($base_path, ".cache")
+$cache_path = File.join($base_path, "dist", "cache")
 def windows_path(path); `winepath -w #{path.shellescape}`.chomp; end
 
 def setup_wine_env
