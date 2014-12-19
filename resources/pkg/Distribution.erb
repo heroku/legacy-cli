@@ -3,30 +3,18 @@
   <title>Heroku Toolbelt</title>
   <options customize="allow" allow-external-scripts="yes"/>
   <domains enable_localSystem="true"/>
-  <script>
-    function needs_git() {
-      return(system.run('has_git') != 0);
-    }
-  </script>
   <choices-outline>
     <line choice="foreman"/>
-    <line choice="git"/>
     <line choice="heroku-client"/>
   </choices-outline>
   <choice id="foreman" title="Foreman">
     <pkg-ref id="io.foreman.installer" />
-  </choice>
-  <choice id="git" title="Git" selected="needs_git()">
-    <pkg-ref id="git-etc.pkg" />
-    <pkg-ref id="git-git.pkg" />
   </choice>
   <choice id="heroku-client" title="Heroku Client">
     <pkg-ref id="com.heroku.client"/>
     <pkg-ref id="org.ruby-lang.installer"/>
   </choice>
   <pkg-ref id="io.foreman.installer" installKBytes="651" auth="Root">#foreman.pkg</pkg-ref>
-  <pkg-ref id="git-etc.pkg" installKBytes="1" auth="Root">#git-etc.pkg</pkg-ref>
-  <pkg-ref id="git-git.pkg" installKBytes="16900" auth="Root">#git-git.pkg</pkg-ref>
   <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-client.pkg</pkg-ref>
   <pkg-ref id="org.ruby-lang.installer" installKBytes="9132" auth="Root">#ruby.pkg</pkg-ref>
 </installer-script>
