@@ -23,7 +23,6 @@ file dist("heroku-toolbelt-#{version}.pkg") => distribution_files("pkg") do |t|
     File.open("pkg/heroku-client.pkg/PackageInfo", "w") { |f| f.puts dist }
 
     mkdir_p "pkg/Scripts"
-    cp resource("pkg/has_git"), "pkg/Scripts/has_git"
 
     mkdir_p "pkg/heroku-client.pkg/Scripts"
     cp resource("pkg/postinstall"), "pkg/heroku-client.pkg/Scripts/postinstall"
@@ -46,13 +45,6 @@ file dist("heroku-toolbelt-#{version}.pkg") => distribution_files("pkg") do |t|
     end
     sh %{ pkgutil --expand #{dist('ruby.pkg')} ruby }
     mv "ruby/ruby-1.9.3-p194.pkg", "pkg/ruby.pkg"
-
-    unless File.exists?(dist('git.pkg'))
-      sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/git.pkg -o #{dist('git.pkg')} }
-    end
-    sh %{ pkgutil --expand #{dist('git.pkg')} git }
-    mv "git/etc.pkg", "pkg/git-etc.pkg"
-    mv "git/git.pkg", "pkg/git-git.pkg"
 
     sh %{ pkgutil --flatten pkg heroku-toolbelt-#{version}.pkg }
     sh %{ productsign --sign "Developer ID Installer: Heroku INC" heroku-toolbelt-#{version}.pkg heroku-toolbelt-#{version}-signed.pkg }
