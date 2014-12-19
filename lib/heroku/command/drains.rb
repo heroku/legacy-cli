@@ -2,13 +2,13 @@ require "heroku/command/base"
 
 module Heroku::Command
 
-  # display syslog drains for an app
+  # display drains for an app
   #
   class Drains < Base
 
     # drains
     #
-    # list all syslog drains
+    # list all drains
     #
     def index
       puts heroku.list_drains(app)
@@ -17,7 +17,7 @@ module Heroku::Command
 
     # drains:add URL
     #
-    # add a syslog drain
+    # add a drain
     #
     def add
       if url = args.shift
@@ -30,7 +30,7 @@ module Heroku::Command
 
     # drains:remove URL
     #
-    # remove a syslog drain
+    # remove a drain
     #
     def remove
       if url = args.shift
@@ -43,4 +43,3 @@ module Heroku::Command
 
   end
 end
-
