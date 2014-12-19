@@ -537,11 +537,8 @@ module Heroku
       org?(email) ? email.gsub(/^(.*)@#{org_host}$/,'\1') : email
     end
 
-    def error_if_netrc_does_not_have_https_git
-      unless Auth.netrc && Auth.netrc["git.heroku.com"]
-        warn "ERROR: Incomplete credentials detected, git may not work with Heroku. Run `heroku login` to update your credentials. See documentation for details: https://devcenter.heroku.com/articles/http-git#authentication"
-        exit 1
-      end
+    def has_http_git_entry_in_netrc
+      Auth.netrc && Auth.netrc[Auth.http_git_host]
     end
   end
 end
