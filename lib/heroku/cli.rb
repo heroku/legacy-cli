@@ -13,6 +13,7 @@ require "heroku/command"
 require "heroku/helpers"
 require "heroku/http_instrumentor"
 require 'rest_client'
+require 'multi_json'
 require 'heroku-api'
 
 begin
