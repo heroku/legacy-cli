@@ -209,6 +209,11 @@ module Heroku::Helpers
   end
 end
 
+require "heroku/git"
+module Heroku::Git
+  def self.check_git_version; end
+end
+
 require "support/display_message_matcher"
 require "support/organizations_mock_helper"
 
