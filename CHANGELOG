@@ -1,4 +1,4 @@
-3.21.2 2014-12-23
+3.21.3 2014-12-23
 =================
 Show warning for insecure Git clients
 Fix issue with MultiJson require
