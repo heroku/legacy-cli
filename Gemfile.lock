@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (3.21.3)
+    heroku (3.21.4)
       heroku-api (~> 0.3.19)
       launchy (>= 0.3.2)
       multi_json (~> 1.10.1)
@@ -38,7 +38,7 @@ GEM
       addressable (~> 2.3)
     mime-types (1.25.1)
     multi_json (1.10.1)
-    netrc (0.10.0)
+    netrc (0.10.2)
     rake (10.4.2)
     rest-client (1.6.7)
       mime-types (>= 1.16)
