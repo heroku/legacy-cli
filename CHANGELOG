@@ -1,3 +1,9 @@
+3.21.4 2014-12-31
+=================
+Fixed bug with git warnings
+Removed git warnings for non-osx and non-windows environments
+Happy New Year!
+
 3.21.3 2014-12-23
 =================
 Show warning for insecure Git clients
