@@ -1,21 +1,33 @@
+require "heroku/helpers"
+
 module Heroku::Git
   extend Heroku::Helpers
 
   def self.check_git_version
     return unless running_on_windows? || running_on_a_mac?
-    v = Version.parse(git_version)
-    if v > Version.parse('1.8') && v < Version.parse('1.8.5.6')
+    if git_is_insecure(git_version)
       warn_about_insecure_git
     end
-    if v > Version.parse('1.9') && v < Version.parse('1.9.5')
-      warn_about_insecure_git
+  end
+
+  def self.git_is_insecure(version)
+    v = Version.parse(version)
+    if v < Version.parse('1.8.5.6')
+      return true
     end
-    if v > Version.parse('2.0') && v < Version.parse('2.0.5')
-      warn_about_insecure_git
+    if v >= Version.parse('1.9') && v < Version.parse('1.9.5')
+      return true
     end
-    if v > Version.parse('2.1') && v < Version.parse('2.2.1')
-      warn_about_insecure_git
+    if v >= Version.parse('2.0') && v < Version.parse('2.0.5')
+      return true
     end
+    if v >= Version.parse('2.1') && v < Version.parse('2.1.4')
+      return true
+    end
+    if v >= Version.parse('2.2') && v < Version.parse('2.2.1')
+      return true
+    end
+    return false
   end
 
   def self.warn_about_insecure_git
