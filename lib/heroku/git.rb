@@ -1,13 +1,16 @@
 module Heroku::Git
   def self.check_git_version
     v = Version.parse(git_version)
-    if    v < Version.parse('1.9') && v < Version.parse('1.8.5.6')
+    if v > Version.parse('1.8') && v < Version.parse('1.8.5.6')
       warn_about_insecure_git
-    elsif v < Version.parse('2.0') && v < Version.parse('1.9.5')
+    end
+    if v > Version.parse('1.9') && v < Version.parse('1.9.5')
       warn_about_insecure_git
-    elsif v < Version.parse('2.1') && v < Version.parse('2.0.5')
+    end
+    if v > Version.parse('2.0') && v < Version.parse('2.0.5')
       warn_about_insecure_git
-    elsif v < Version.parse('2.2') && v < Version.parse('2.2.1')
+    end
+    if v > Version.parse('2.1') && v < Version.parse('2.2.1')
       warn_about_insecure_git
     end
   end
