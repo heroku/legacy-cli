@@ -1,3 +1,7 @@
+3.22.0 2015-01-05
+=================
+Added JavaScript-based plugin support
+
 3.21.4 2014-12-31
 =================
 Fixed bug with git warnings
