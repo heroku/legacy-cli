@@ -152,7 +152,34 @@ class Heroku::Command::Certs < Heroku::Command::Base
     display "New active certificate details:"
     display_certificate_info(endpoint)
   end
-
+  
+  # certs:generate DOMAIN [SUBJECT]
+  # 
+  # Generate a certificate signing request and key for an app.
+  def generate
+    domain = args[0] || error("certs:generate must specify a domain")
+    subject = args[1]
+    
+    keyfile = "#{domain}.key"
+    csrfile = "#{domain}.csr"
+    
+    subj_args = if subject
+      ['-subj', subject]
+    else
+      []
+    end
+    
+    system("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", keyfile, "-out", csrfile, *subj_args)
+    display "Your CSR is in #{csrfile} and your key is in #{keyfile}."
+    display "When you've received your certificate, run:"
+    
+    if all_endpoint_domains.include? domain
+      display "$ heroku certs:update CERTFILE #{keyfile}"
+    else
+      display "$ heroku certs:add CERTFILE #{keyfile}"
+    end
+  end
+  
   private
 
   def current_endpoint
@@ -229,5 +256,11 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def read_crt_and_key
     options[:bypass] ? read_crt_and_key_bypassing_ssl_doctor : read_crt_and_key_through_ssl_doctor
   end
-
+  
+  def all_endpoint_domains
+    endpoints = heroku.ssl_endpoint_list(app)
+    endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] }
+              .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] }
+              .reduce(:+)
+  end
 end
