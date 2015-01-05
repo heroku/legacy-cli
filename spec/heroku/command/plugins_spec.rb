@@ -22,7 +22,7 @@ module Heroku::Command
         stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Installing Plugin... done
+Installing git://github.com/heroku/Plugin.git... done
 STDOUT
       end
 
@@ -31,7 +31,7 @@ STDOUT
         expect(@plugin).to receive(:uninstall).and_return(true)
         stderr, stdout = execute("plugins:install git://github.com/heroku/Plugin.git")
         expect(stderr).to eq('') # normally would have error, but mocks/stubs don't allow
-        expect(stdout).to eq("Installing Plugin... ") # also inaccurate, would end in ' failed'
+        expect(stdout).to eq("Installing git://github.com/heroku/Plugin.git... ") # also inaccurate, would end in ' failed'
       end
 
     end
