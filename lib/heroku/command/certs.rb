@@ -259,8 +259,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
   
   def all_endpoint_domains
     endpoints = heroku.ssl_endpoint_list(app)
-    endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] }
-              .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] }
+    endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] } \
+              .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] } \
               .reduce(:+)
   end
 end
