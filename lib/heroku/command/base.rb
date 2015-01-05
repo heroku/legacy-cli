@@ -255,7 +255,7 @@ protected
   end
 
   def skip_org?
-    return false if ENV['HEROKU_CLOUD'].nil? || ENV['HEROKU_MANAGER_URL']
+    return false if ENV['HEROKU_CLOUD'].nil?
 
     !%w{default production prod}.include? ENV['HEROKU_CLOUD']
   end
