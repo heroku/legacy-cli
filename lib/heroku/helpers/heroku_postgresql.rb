@@ -197,7 +197,7 @@ module Heroku::Helpers::HerokuPostgresql
           else
             attachment = resolver.resolve(val)
             if attachment.starter_plan?
-              error("#{opt.tr 'f', 'F'} is only available on production databases.")
+              error("#{opt.capitalize} is only available on production databases.")
             end
             argument_url = attachment.url
           end
