@@ -480,6 +480,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   def read_logs(app_name, options=[])
     query = "&" + options.join("&") unless options.empty?
     url = get("/apps/#{app_name}/logs?logplex=true#{query}").to_s
+    debug "Reading logs from: #{url}"
     if url == 'Use old logs'
       puts get("/apps/#{app_name}/logs").to_s
     else
@@ -526,7 +527,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
             end
           end
         end
-      rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError
+      rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, SocketError => exception
+        debug "Error connecting to logging service: #{exception}"
         error("Could not connect to logging service")
       rescue Timeout::Error, EOFError
         error("\nRequest timed out")
