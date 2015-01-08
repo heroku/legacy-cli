@@ -162,6 +162,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   # --city options is specified.
   # 
   #   --selfsigned              # generate a self-signed certificate instead of a CSR
+  #   --keysize BITSIZE         # RSA key size in bits (default: 2048)
   #   --owner NAME              # name of organization certificate belongs to
   #   --country COUNTRY         # country of owner, as a two-letter ISO country code
   #   --area AREA               # sub-counry area (state, province, etc.) of owner
@@ -174,6 +175,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     request.domain = args[0] || error("certs:generate must specify a domain")
     request.subject = cert_subject_for_domain_and_options(request.domain, options)
     request.self_signed = options[:selfsigned] || false
+    request.key_size = (options[:keysize] || request.key_size).to_i
     
     keyfile, csrfile, crtfile = request.generate
     
