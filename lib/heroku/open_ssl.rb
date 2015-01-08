@@ -4,14 +4,23 @@ require "tempfile"
 module Heroku
   module OpenSSL
     def self.generate_csr(domain, subject, key_size = 2048)
-      ensure_openssl_installed!
-    
       keyfile = "#{domain}.key"
       csrfile = "#{domain}.csr"
       
-      system("openssl", "req", "-new", "-newkey", "rsa:#{key_size}", "-nodes", "-keyout", keyfile, "-out", csrfile, "-subj", subject) or raise GenericError, "Key and CSR generation failed: #{$?}"
+      openssl_req_new(keyfile, csrfile, subject, key_size) or raise GenericError, "Key and CSR generation failed: #{$?}"
       
       return [keyfile, csrfile]
+    end
+    
+    def self.generate_self_signed_certificate(domain, subject, key_size = 2048)
+      ensure_openssl_installed!
+    
+      keyfile = "#{domain}.key"
+      crtfile = "#{domain}.crt"
+      
+      openssl_req_new(keyfile, crtfile, subject, key_size, "-x509") or raise GenericError, "Key and self-signed certificate generation failed: #{$?}"
+      
+      return [keyfile, nil, crtfile]
     end
       
     class GenericError < StandardError; end
@@ -32,6 +41,11 @@ module Heroku
     end
   
   private
+    def self.openssl_req_new(keyfile, outfile, subject, key_size, *args)
+      ensure_openssl_installed!
+      system("openssl", "req", "-new", "-newkey", "rsa:#{key_size}", "-nodes", "-keyout", keyfile, "-out", outfile, "-subj", subject, *args)
+    end
+  
     def self.ensure_openssl_installed!
       return if @checked
       system("openssl", "version") or raise NotInstalledError

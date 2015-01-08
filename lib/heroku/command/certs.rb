@@ -156,11 +156,12 @@ class Heroku::Command::Certs < Heroku::Command::Base
   
   # certs:generate DOMAIN
   # 
-  # Generate a certificate signing request and key for an app. Prompts for
-  # information to put in the certificate unless --now is used, or at least 
-  # one of the --subject, --owner, --country, --area, or --city options 
-  # is specified.
+  # Generate a key and certificate signing request (or self-signed certificate) 
+  # for an app. Prompts for information to put in the certificate unless --now 
+  # is used, or at least one of the --subject, --owner, --country, --area, or 
+  # --city options is specified.
   # 
+  #   --selfsigned              # generate a self-signed certificate instead of a CSR
   #   --owner NAME              # name of organization certificate belongs to
   #   --country COUNTRY         # country of owner, as a two-letter ISO country code
   #   --area AREA               # sub-counry area (state, province, etc.) of owner
@@ -171,11 +172,20 @@ class Heroku::Command::Certs < Heroku::Command::Base
     domain = args[0] || error("certs:generate must specify a domain")
     subject = cert_subject_for_domain_and_options(domain, options)
     
-    keyfile, csrfile, crtfile = Heroku::OpenSSL.generate_csr(domain, subject)
+    keyfile, csrfile, crtfile = if options[:selfsigned]
+      Heroku::OpenSSL.generate_self_signed_certificate(domain, subject)
+    else
+      Heroku::OpenSSL.generate_csr(domain, subject)
+    end
     
-    display "Your key and certificate signing request have been generated."
-    display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
-    display "When you've received your certificate, run:"
+    if csrfile.nil?
+      display "Your key and self-signed certificate have been generated."
+      display "Next, run:"
+    else
+      display "Your key and certificate signing request have been generated."
+      display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
+      display "When you've received your certificate, run:"
+    end
     
     needs_addon = false
     command = "add"
