@@ -177,9 +177,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
     request.self_signed = options[:selfsigned] || false
     request.key_size = (options[:keysize] || request.key_size).to_i
     
-    keyfile, csrfile, crtfile = request.generate
+    result = request.generate
     
-    explain_step_after_generate(keyfile, csrfile, crtfile)
+    explain_step_after_generate result
         
   rescue Heroku::OpenSSL::NotInstalledError => ex
     error("The OpenSSL command-line tools must be installed to use certs:generate.\n" + ex.installation_hint)
@@ -304,13 +304,13 @@ class Heroku::Command::Certs < Heroku::Command::Base
     subject
   end
   
-  def explain_step_after_generate(keyfile, csrfile, crtfile)
-    if csrfile.nil?
+  def explain_step_after_generate(result)
+    if result.csr_file.nil?
       display "Your key and self-signed certificate have been generated."
       display "Next, run:"
     else
       display "Your key and certificate signing request have been generated."
-      display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
+      display "Submit the CSR in '#{result.csr_file}' to your preferred certificate authority."
       display "When you've received your certificate, run:"
     end
     
@@ -323,6 +323,6 @@ class Heroku::Command::Certs < Heroku::Command::Base
     end
     
     display "$ heroku addons:add ssl:endpoint" if needs_addon
-    display "$ heroku certs:#{command} #{crtfile || "CERTFILE"} #{keyfile}"
+    display "$ heroku certs:#{command} #{result.crt_file || "CERTFILE"} #{result.key_file}"
   end
 end
