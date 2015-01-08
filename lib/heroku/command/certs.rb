@@ -317,7 +317,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     needs_addon = false
     command = "add"
     begin
-      command = "update" if all_endpoint_domains.include? domain
+      command = "update" if all_endpoint_domains.include? result.request.domain
     rescue RestClient::Forbidden
       needs_addon = true
     end
