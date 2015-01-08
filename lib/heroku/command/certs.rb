@@ -178,26 +178,9 @@ class Heroku::Command::Certs < Heroku::Command::Base
       Heroku::OpenSSL.generate_csr(domain, subject)
     end
     
-    if csrfile.nil?
-      display "Your key and self-signed certificate have been generated."
-      display "Next, run:"
-    else
-      display "Your key and certificate signing request have been generated."
-      display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
-      display "When you've received your certificate, run:"
-    end
     
-    needs_addon = false
-    command = "add"
-    begin
-      command = "update" if all_endpoint_domains.include? domain
-    rescue RestClient::Forbidden
-      needs_addon = true
-    end
-    
-    display "$ heroku addons:add ssl:endpoint" if needs_addon
-    display "$ heroku certs:#{command} #{crtfile || "CERTFILE"} #{keyfile}"
-    
+    explain_step_after_generate(keyfile, csrfile, crtfile)
+        
   rescue Heroku::OpenSSL::NotInstalledError => ex
     error("The OpenSSL command-line tools must be installed to use certs:generate.\n" + ex.installation_hint)
     
@@ -319,5 +302,27 @@ class Heroku::Command::Certs < Heroku::Command::Base
     end
     
     subject
+  end
+  
+  def explain_step_after_generate(keyfile, csrfile, crtfile)
+    if csrfile.nil?
+      display "Your key and self-signed certificate have been generated."
+      display "Next, run:"
+    else
+      display "Your key and certificate signing request have been generated."
+      display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
+      display "When you've received your certificate, run:"
+    end
+    
+    needs_addon = false
+    command = "add"
+    begin
+      command = "update" if all_endpoint_domains.include? domain
+    rescue RestClient::Forbidden
+      needs_addon = true
+    end
+    
+    display "$ heroku addons:add ssl:endpoint" if needs_addon
+    display "$ heroku certs:#{command} #{crtfile || "CERTFILE"} #{keyfile}"
   end
 end
