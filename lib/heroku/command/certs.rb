@@ -165,7 +165,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #   --keysize BITSIZE         # RSA key size in bits (default: 2048)
   #   --owner NAME              # name of organization certificate belongs to
   #   --country COUNTRY         # country of owner, as a two-letter ISO country code
-  #   --area AREA               # sub-counry area (state, province, etc.) of owner
+  #   --area AREA               # sub-country area (state, province, etc.) of owner
   #   --city CITY               # city of owner
   #   --subject SUBJECT         # specify entire certificate subject
   #   --now                     # do not prompt for any owner information
