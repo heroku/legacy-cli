@@ -169,15 +169,13 @@ class Heroku::Command::Certs < Heroku::Command::Base
   #   --subject SUBJECT         # specify entire certificate subject
   #   --now                     # do not prompt for any owner information
   def generate
-    domain = args[0] || error("certs:generate must specify a domain")
-    subject = cert_subject_for_domain_and_options(domain, options)
+    request = Heroku::OpenSSL::CertificateRequest.new
     
-    keyfile, csrfile, crtfile = if options[:selfsigned]
-      Heroku::OpenSSL.generate_self_signed_certificate(domain, subject)
-    else
-      Heroku::OpenSSL.generate_csr(domain, subject)
-    end
+    request.domain = args[0] || error("certs:generate must specify a domain")
+    request.subject = cert_subject_for_domain_and_options(request.domain, options)
+    request.self_signed = options[:selfsigned] || false
     
+    keyfile, csrfile, crtfile = request.generate
     
     explain_step_after_generate(keyfile, csrfile, crtfile)
         
