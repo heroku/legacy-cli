@@ -1,5 +1,5 @@
 require "heroku/command/base"
-require "heroku/open_ssl_tool"
+require "heroku/open_ssl"
 require "excon"
 
 # manage ssl endpoints for an app
@@ -161,7 +161,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     domain = args[0] || error("certs:generate must specify a domain")
     subject = args[1]
     
-    keyfile, csrfile = Heroku::OpenSSLTool.generate_csr(domain, subject)
+    keyfile, csrfile = Heroku::OpenSSL.generate_csr(domain, subject)
     
     display "Submit the CSR in #{csrfile} to your preferred certificate authority."
     display "When you've received your certificate, run:"
@@ -172,10 +172,10 @@ class Heroku::Command::Certs < Heroku::Command::Base
       display "$ heroku certs:add CERTFILE #{keyfile}"
     end
     
-  rescue Heroku::OpenSSLTool::NotInstalledError => ex
+  rescue Heroku::OpenSSL::NotInstalledError => ex
     error("The OpenSSL command-line tools must be installed to use certs:generate.\n" + ex.installation_hint)
     
-  rescue Heroku::OpenSSLTool::GenericError => ex
+  rescue Heroku::OpenSSL::GenericError => ex
     error(ex.message)
   end
   
