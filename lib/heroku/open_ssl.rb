@@ -21,9 +21,10 @@ module Heroku
       end
       
       class Result
-        attr_accessor :key_file, :csr_file, :crt_file
+        attr_accessor :request, :key_file, :csr_file, :crt_file
         
-        def initialize(key_file, csr_file, crt_file)
+        def initialize(request, key_file, csr_file, crt_file)
+          @request = request.dup
           @key_file, @csr_file, @crt_file = key_file, csr_file, crt_file
         end
       end
@@ -35,7 +36,7 @@ module Heroku
         
         openssl_req_new(keyfile, csrfile) or raise GenericError, "Key and CSR generation failed: #{$?}"
         
-        return Result.new(keyfile, csrfile, nil)
+        return Result.new(self, keyfile, csrfile, nil)
       end
     
       def generate_self_signed_certificate
@@ -44,7 +45,7 @@ module Heroku
         
         openssl_req_new(keyfile, crtfile, "-x509") or raise GenericError, "Key and self-signed certificate generation failed: #{$?}"
         
-        return Result.new(keyfile, nil, crtfile)
+        return Result.new(self, keyfile, nil, crtfile)
       end
       
       def openssl_req_new(keyfile, outfile, *args)
