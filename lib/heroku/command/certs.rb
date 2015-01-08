@@ -162,7 +162,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
     
     keyfile, csrfile = OpenSSLTool.generate_csr(domain, subject)
     
-    display "Your CSR is in #{csrfile} and your key is in #{keyfile}."
+    display "Submit the CSR in #{csrfile} to your preferred certificate authority."
     display "When you've received your certificate, run:"
     
     if all_endpoint_domains.include? domain
