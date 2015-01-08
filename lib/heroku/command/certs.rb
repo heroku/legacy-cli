@@ -154,12 +154,22 @@ class Heroku::Command::Certs < Heroku::Command::Base
     display_certificate_info(endpoint)
   end
   
-  # certs:generate DOMAIN [SUBJECT]
+  # certs:generate DOMAIN
   # 
-  # Generate a certificate signing request and key for an app.
+  # Generate a certificate signing request and key for an app. Prompts for
+  # information to put in the certificate unless --now is used, or at least 
+  # one of the --subject, --owner, --country, --area, or --city options 
+  # is specified.
+  # 
+  #   --owner NAME              # name of organization certificate belongs to
+  #   --country COUNTRY         # country of owner, as a two-letter ISO country code
+  #   --area AREA               # sub-counry area (state, province, etc.) of owner
+  #   --city CITY               # city of owner
+  #   --subject SUBJECT         # specify entire certificate subject
+  #   --now                     # do not prompt for any owner information
   def generate
     domain = args[0] || error("certs:generate must specify a domain")
-    subject = args[1]
+    subject = cert_subject_for_domain_and_options(domain, options)
     
     keyfile, csrfile = Heroku::OpenSSL.generate_csr(domain, subject)
     
@@ -261,5 +271,37 @@ class Heroku::Command::Certs < Heroku::Command::Base
     endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] } \
               .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] } \
               .reduce(:+)
+  end
+  
+  def prompt(question)
+    display("#{question}: ", false)
+    ask
+  end
+  
+  def val_empty?(val)
+    val.nil? or val.empty?
+  end
+  
+  def cert_subject_for_domain_and_options(domain, options = {})
+    subject, country, area, city, owner, now = options.values_at(:subject, :country, :area, :city, :owner, :now)
+    
+    if val_empty? subject
+      if !now && [country, area, city, owner].all? { |v| val_empty? v }
+        owner = prompt "Owner of this certificate"
+        country = prompt "Country of owner (two-letter ISO code)"
+        area = prompt "State/province/etc. of owner"
+        city = prompt "City of owner"
+      end
+    
+      subject = ""
+      subject += "/C=#{country}" unless val_empty? country
+      subject += "/ST=#{area}" unless val_empty? area
+      subject += "/L=#{city}" unless val_empty? city
+      subject += "/O=#{owner}" unless val_empty? owner
+    
+      subject += "/CN=#{domain}"
+    end
+    
+    subject
   end
 end
