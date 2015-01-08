@@ -160,16 +160,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
     domain = args[0] || error("certs:generate must specify a domain")
     subject = args[1]
     
-    keyfile = "#{domain}.key"
-    csrfile = "#{domain}.csr"
+    keyfile, csrfile = OpenSSLTool.generate_csr(domain, subject)
     
-    subj_args = if subject
-      ['-subj', subject]
-    else
-      []
-    end
-    
-    system("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", keyfile, "-out", csrfile, *subj_args)
     display "Your CSR is in #{csrfile} and your key is in #{keyfile}."
     display "When you've received your certificate, run:"
     
@@ -262,5 +254,22 @@ class Heroku::Command::Certs < Heroku::Command::Base
     endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] } \
               .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] } \
               .reduce(:+)
+  end
+  
+  module OpenSSLTool
+    def self.generate_csr(domain, subject = nil, key_size = 2048)
+      keyfile = "#{domain}.key"
+      csrfile = "#{domain}.csr"
+    
+      subj_args = if subject
+        ['-subj', subject]
+      else
+        []
+      end
+    
+      system("openssl", "req", "-new", "-newkey", "rsa:#{key_size}", "-nodes", "-keyout", keyfile, "-out", csrfile, *subj_args)
+      
+      return [keyfile, csrfile]
+    end
   end
 end
