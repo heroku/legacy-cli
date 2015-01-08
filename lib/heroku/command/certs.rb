@@ -171,16 +171,22 @@ class Heroku::Command::Certs < Heroku::Command::Base
     domain = args[0] || error("certs:generate must specify a domain")
     subject = cert_subject_for_domain_and_options(domain, options)
     
-    keyfile, csrfile = Heroku::OpenSSL.generate_csr(domain, subject)
+    keyfile, csrfile, crtfile = Heroku::OpenSSL.generate_csr(domain, subject)
     
-    display "Submit the CSR in #{csrfile} to your preferred certificate authority."
+    display "Your key and certificate signing request have been generated."
+    display "Submit the CSR in '#{csrfile}' to your preferred certificate authority."
     display "When you've received your certificate, run:"
     
-    if all_endpoint_domains.include? domain
-      display "$ heroku certs:update CERTFILE #{keyfile}"
-    else
-      display "$ heroku certs:add CERTFILE #{keyfile}"
+    needs_addon = false
+    command = "add"
+    begin
+      command = "update" if all_endpoint_domains.include? domain
+    rescue RestClient::Forbidden
+      needs_addon = true
     end
+    
+    display "$ heroku addons:add ssl:endpoint" if needs_addon
+    display "$ heroku certs:#{command} #{crtfile || "CERTFILE"} #{keyfile}"
     
   rescue Heroku::OpenSSL::NotInstalledError => ex
     error("The OpenSSL command-line tools must be installed to use certs:generate.\n" + ex.installation_hint)
