@@ -282,6 +282,8 @@ class Heroku::Command::Certs < Heroku::Command::Base
   end
   
   def cert_subject_for_domain_and_options(domain, options = {})
+    raise ArgumentError, "domain cannot be empty" if domain.nil? || domain.empty?
+    
     subject, country, area, city, owner, now = options.values_at(:subject, :country, :area, :city, :owner, :now)
     
     if val_empty? subject
@@ -297,7 +299,7 @@ class Heroku::Command::Certs < Heroku::Command::Base
       subject += "/ST=#{area}" unless val_empty? area
       subject += "/L=#{city}" unless val_empty? city
       subject += "/O=#{owner}" unless val_empty? owner
-    
+      
       subject += "/CN=#{domain}"
     end
     
