@@ -12,6 +12,7 @@ module Heroku
     end
     
     def self.openssl=(val)
+      @checked = false
       ENV["OPENSSL"] = val
     end
     
