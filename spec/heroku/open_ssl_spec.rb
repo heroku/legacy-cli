@@ -170,6 +170,22 @@ describe Heroku::OpenSSL do
       end
     end
     
+    it "raises installation error when openssl(1) isn't installed" do
+      Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
+      
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          request = Heroku::OpenSSL::CertificateRequest.new
+          request.domain = 'example.com'
+          request.subject = '/CN=example.com'
+      
+          expect { result = request.generate }.to raise_error(Heroku::OpenSSL::NotInstalledError)
+        end
+      end
+      
+      Heroku::OpenSSL.openssl = nil
+    end
+    
     it "uses key_size to control the key's size" do
       skip "Can't be tested without an rspec supporting to_stdout_from_any_process" unless RSpec::Matchers::BuiltIn::Output.method_defined? :to_stdout_from_any_process
       
