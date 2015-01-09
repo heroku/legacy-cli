@@ -79,46 +79,94 @@ describe Heroku::OpenSSL do
       expect(request.self_signed).to be false
     end
     
-    it "creates a key and CSR when self_signed is off" do
-      Dir.mktmpdir do |dir|
-        Dir.chdir(dir) do
-          request = Heroku::OpenSSL::CertificateRequest.new
-          request.domain = 'example.com'
-          request.subject = '/CN=example.com'
-          
-          # Would like to do this, but the current version of rspec doesn't support it
-          # expect { result = request.generate }.to output.to_stdout_from_any_process
-          result = request.generate
-          expect(result).not_to be_nil
-          expect(result.key_file).to eq('example.com.key')
-          expect(result.csr_file).to eq('example.com.csr')
-          expect(result.crt_file).to be_nil
+    context "generating with self_signed off" do
+      before(:all) do
+        @prev_dir = Dir.getwd
+        @dir = Dir.mktmpdir
+        Dir.chdir @dir
+        
+        request = Heroku::OpenSSL::CertificateRequest.new
+        request.domain = 'example.com'
+        request.subject = '/CN=example.com'
+  
+        # Would like to do this, but the current version of rspec doesn't support it
+        # expect { result = request.generate }.to output.to_stdout_from_any_process
+        @result = request.generate
+      end
       
-          expect(File.read(result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
-          expect(File.read(result.csr_file)).to start_with("-----BEGIN CERTIFICATE REQUEST-----\n")
-        end
+      it "should create Result object" do
+        expect(@result).to be_kind_of Heroku::OpenSSL::CertificateRequest::Result
+      end
+      
+      it "should have a key filename" do
+        expect(@result.key_file).to eq('example.com.key')
+      end
+      
+      it "should have a CSR filename" do
+        expect(@result.csr_file).to eq('example.com.csr')
+      end
+      
+      it "should not have a certificate filename" do
+        expect(@result.crt_file).to be_nil
+      end
+      
+      it "should produce a PEM key file" do
+        expect(File.read(@result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+      end
+      
+      it "should produce a PEM certificate file" do
+        expect(File.read(@result.csr_file)).to start_with("-----BEGIN CERTIFICATE REQUEST-----\n")
+      end
+      
+      after(:all) do
+        Dir.chdir @prev_dir
+        FileUtils.remove_entry_secure @dir
       end
     end
     
-    it "creates a key and certificate when self_signed is on" do
-      Dir.mktmpdir do |dir|
-        Dir.chdir(dir) do
-          request = Heroku::OpenSSL::CertificateRequest.new
-          request.domain = 'example.com'
-          request.subject = '/CN=example.com'
-          request.self_signed = true
+    context "generating with self_signed on" do
+      before(:all) do
+        @prev_dir = Dir.getwd
+        @dir = Dir.mktmpdir
+        Dir.chdir @dir
+        
+        request = Heroku::OpenSSL::CertificateRequest.new
+        request.domain = 'example.com'
+        request.subject = '/CN=example.com'
+        request.self_signed = true
+  
+        # Would like to do this, but the current version of rspec doesn't support it
+        # expect { result = request.generate }.to output.to_stdout_from_any_process
+        @result = request.generate
+      end
       
-          # Would like to do this, but the current version of rspec doesn't support it
-          # expect { result = request.generate }.to output.to_stdout_from_any_process
-          result = request.generate
-          expect(result).not_to be_nil
-          expect(result.key_file).to eq('example.com.key')
-          expect(result.csr_file).to be_nil
-          expect(result.crt_file).to eq('example.com.crt')
+      it "should create Result object" do
+        expect(@result).to be_kind_of Heroku::OpenSSL::CertificateRequest::Result
+      end
       
-          expect(File.read(result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
-          expect(File.read(result.crt_file)).to start_with("-----BEGIN CERTIFICATE-----\n")
-        end
+      it "should have a key filename" do
+        expect(@result.key_file).to eq('example.com.key')
+      end
+      
+      it "should not have a CSR filename" do
+        expect(@result.csr_file).to be_nil
+      end
+      
+      it "should have a certificate filename" do
+        expect(@result.crt_file).to eq('example.com.crt')
+      end
+      
+      it "should produce a PEM key file" do
+        expect(File.read(@result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+      end
+      
+      it "should produce a PEM certificate file" do
+        expect(File.read(@result.crt_file)).to start_with("-----BEGIN CERTIFICATE-----\n")
+      end
+      
+      after(:all) do
+        Dir.chdir @prev_dir
+        FileUtils.remove_entry_secure @dir
       end
     end
     
