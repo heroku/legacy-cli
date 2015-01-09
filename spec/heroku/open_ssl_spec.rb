@@ -43,7 +43,8 @@ describe Heroku::OpenSSL do
     it "gives good installation advice on a Mac" do
       Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
       expect { Heroku::OpenSSL.ensure_openssl_installed! }.to raise_error(Heroku::OpenSSL::NotInstalledError) { |ex|
-        expect(ex).to receive(:running_on_a_mac?).and_return(true)
+        allow(ex).to receive(:running_on_a_mac?).and_return(true)
+        allow(ex).to receive(:running_on_windows?).and_return(false)
         expect(ex.installation_hint).to match(/brew install openssl/)
       }
       Heroku::OpenSSL.openssl = nil
@@ -52,8 +53,8 @@ describe Heroku::OpenSSL do
     it "gives good installation advice on Windows" do
       Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
       expect { Heroku::OpenSSL.ensure_openssl_installed! }.to raise_error(Heroku::OpenSSL::NotInstalledError) { |ex|
-        expect(ex).to receive(:running_on_a_mac?).and_return(false)
-        expect(ex).to receive(:running_on_windows?).and_return(true)
+        allow(ex).to receive(:running_on_a_mac?).and_return(false)
+        allow(ex).to receive(:running_on_windows?).and_return(true)
         expect(ex.installation_hint).to match(/Win32OpenSSL\.html/)
       }
       Heroku::OpenSSL.openssl = nil
@@ -62,8 +63,8 @@ describe Heroku::OpenSSL do
     it "gives good installation advice on miscellaneous Unixen" do
       Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
       expect { Heroku::OpenSSL.ensure_openssl_installed! }.to raise_error(Heroku::OpenSSL::NotInstalledError) { |ex|
-        expect(ex).to receive(:running_on_a_mac?).and_return(false)
-        expect(ex).to receive(:running_on_windows?).and_return(false)
+        allow(ex).to receive(:running_on_a_mac?).and_return(false)
+        allow(ex).to receive(:running_on_windows?).and_return(false)
         expect(ex.installation_hint).to match(/'openssl' package/)
       }
       Heroku::OpenSSL.openssl = nil
