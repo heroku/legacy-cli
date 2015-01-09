@@ -70,4 +70,71 @@ describe Heroku::OpenSSL do
       Heroku::OpenSSL.openssl = nil
     end
   end
+  
+  describe :CertificateRequest do
+    it "initializes with good defaults" do
+      request = Heroku::OpenSSL::CertificateRequest.new
+      expect(request).not_to be_nil
+      expect(request.key_size).to eq(2048)
+      expect(request.self_signed).to be false
+    end
+    
+    it "creates a key and CSR when self_signed is off" do
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          request = Heroku::OpenSSL::CertificateRequest.new
+          request.domain = 'example.com'
+          request.subject = '/CN=example.com'
+          
+          # Would like to do this, but the current version of rspec doesn't support it
+          # expect { result = request.generate }.to output.to_stdout_from_any_process
+          result = request.generate
+          expect(result).not_to be_nil
+          expect(result.key_file).to eq('example.com.key')
+          expect(result.csr_file).to eq('example.com.csr')
+          expect(result.crt_file).to be_nil
+      
+          expect(File.read(result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+          expect(File.read(result.csr_file)).to start_with("-----BEGIN CERTIFICATE REQUEST-----\n")
+        end
+      end
+    end
+    
+    it "creates a key and certificate when self_signed is on" do
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          request = Heroku::OpenSSL::CertificateRequest.new
+          request.domain = 'example.com'
+          request.subject = '/CN=example.com'
+          request.self_signed = true
+      
+          # Would like to do this, but the current version of rspec doesn't support it
+          # expect { result = request.generate }.to output.to_stdout_from_any_process
+          result = request.generate
+          expect(result).not_to be_nil
+          expect(result.key_file).to eq('example.com.key')
+          expect(result.csr_file).to be_nil
+          expect(result.crt_file).to eq('example.com.crt')
+      
+          expect(File.read(result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+          expect(File.read(result.crt_file)).to start_with("-----BEGIN CERTIFICATE-----\n")
+        end
+      end
+    end
+    
+    it "uses key_size to control the key's size" do
+      skip "Can't be tested without an rspec supporting to_stdout_from_any_process" unless RSpec::Matchers::BuiltIn::Output.method_defined? :to_stdout_from_any_process
+      
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          request = Heroku::OpenSSL::CertificateRequest.new
+          request.domain = 'example.com'
+          request.subject = '/CN=example.com'
+          request.key_size = 4096
+      
+          expect { result = request.generate }.to output(/Generating a 4096 bit RSA private key/).to_stdout_from_any_process
+        end
+      end
+    end
+  end
 end
