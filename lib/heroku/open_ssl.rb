@@ -3,6 +3,18 @@ require "tempfile"
 
 module Heroku
   module OpenSSL
+    def self.openssl(*args)
+      if args.empty?
+        ENV["OPENSSL"] || "openssl"
+      else
+        system(openssl, *args)
+      end
+    end
+    
+    def self.openssl=(val)
+      ENV["OPENSSL"] = val
+    end
+    
     class CertificateRequest
       attr_accessor :domain, :subject, :key_size, :self_signed
       
@@ -50,7 +62,7 @@ module Heroku
       
       def openssl_req_new(keyfile, outfile, *args)
         Heroku::OpenSSL.ensure_openssl_installed!
-        system("openssl", "req", "-new", "-newkey", "rsa:#{key_size}", "-nodes", "-keyout", keyfile, "-out", outfile, "-subj", subject, *args)
+        Heroku::OpenSSL.openssl("req", "-new", "-newkey", "rsa:#{key_size}", "-nodes", "-keyout", keyfile, "-out", outfile, "-subj", subject, *args)
       end
     end
     
@@ -73,7 +85,7 @@ module Heroku
     
     def self.ensure_openssl_installed!
       return if @checked
-      system("openssl", "version") or raise NotInstalledError
+      openssl("version") or raise NotInstalledError
       @checked = true
     end
   end
