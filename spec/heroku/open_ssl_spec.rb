@@ -111,7 +111,7 @@ describe Heroku::OpenSSL do
       end
       
       it "should produce a PEM key file" do
-        expect(File.read(@result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+        expect(File.read(@result.key_file)).to match(/\A-----BEGIN (RSA )?PRIVATE KEY-----\n/)
       end
       
       it "should produce a PEM certificate file" do
@@ -157,7 +157,7 @@ describe Heroku::OpenSSL do
       end
       
       it "should produce a PEM key file" do
-        expect(File.read(@result.key_file)).to start_with("-----BEGIN RSA PRIVATE KEY-----\n")
+        expect(File.read(@result.key_file)).to match(/\A-----BEGIN (RSA )?PRIVATE KEY-----\n/)
       end
       
       it "should produce a PEM certificate file" do
