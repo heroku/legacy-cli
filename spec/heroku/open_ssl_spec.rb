@@ -23,4 +23,21 @@ describe Heroku::OpenSSL do
       expect(Heroku::OpenSSL.openssl("version")).to be true
     end
   end
+  
+  describe :ensure_openssl_installed! do
+    it "calls openssl(1) to ensure it's available" do
+      expect(Heroku::OpenSSL).to receive(:openssl).with("version").and_return(true)
+      Heroku::OpenSSL.ensure_openssl_installed!
+    end
+    
+    it "detects openssl(1) is available when it is available" do
+      expect { Heroku::OpenSSL.ensure_openssl_installed! }.not_to raise_error
+    end
+    
+    it "detects openssl(1) is absent when it isn't available" do
+      Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
+      expect { Heroku::OpenSSL.ensure_openssl_installed! }.to raise_error(Heroku::OpenSSL::NotInstalledError)
+      Heroku::OpenSSL.openssl = nil
+    end
+  end
 end
