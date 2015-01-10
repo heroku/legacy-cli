@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/open_ssl"
 require "excon"
 
 # manage ssl endpoints for an app
@@ -152,7 +153,41 @@ class Heroku::Command::Certs < Heroku::Command::Base
     display "New active certificate details:"
     display_certificate_info(endpoint)
   end
-
+  
+  # certs:generate DOMAIN
+  # 
+  # Generate a key and certificate signing request (or self-signed certificate) 
+  # for an app. Prompts for information to put in the certificate unless --now 
+  # is used, or at least one of the --subject, --owner, --country, --area, or 
+  # --city options is specified.
+  # 
+  #   --selfsigned              # generate a self-signed certificate instead of a CSR
+  #   --keysize BITSIZE         # RSA key size in bits (default: 2048)
+  #   --owner NAME              # name of organization certificate belongs to
+  #   --country COUNTRY         # country of owner, as a two-letter ISO country code
+  #   --area AREA               # sub-country area (state, province, etc.) of owner
+  #   --city CITY               # city of owner
+  #   --subject SUBJECT         # specify entire certificate subject
+  #   --now                     # do not prompt for any owner information
+  def generate
+    request = Heroku::OpenSSL::CertificateRequest.new
+    
+    request.domain = args[0] || error("certs:generate must specify a domain")
+    request.subject = cert_subject_for_domain_and_options(request.domain, options)
+    request.self_signed = options[:selfsigned] || false
+    request.key_size = (options[:keysize] || request.key_size).to_i
+    
+    result = request.generate
+    
+    explain_step_after_generate result
+        
+  rescue Heroku::OpenSSL::NotInstalledError => ex
+    error("The OpenSSL command-line tools must be installed to use certs:generate.\n" + ex.installation_hint)
+    
+  rescue Heroku::OpenSSL::GenericError => ex
+    error(ex.message)
+  end
+  
   private
 
   def current_endpoint
@@ -229,5 +264,67 @@ class Heroku::Command::Certs < Heroku::Command::Base
   def read_crt_and_key
     options[:bypass] ? read_crt_and_key_bypassing_ssl_doctor : read_crt_and_key_through_ssl_doctor
   end
-
+  
+  def all_endpoint_domains
+    endpoints = heroku.ssl_endpoint_list(app)
+    endpoints.select { |endpoint| endpoint['ssl_cert'] && endpoint['ssl_cert']['cert_domains'] } \
+              .map   { |endpoint| endpoint['ssl_cert']['cert_domains'] } \
+              .reduce(:+)
+  end
+  
+  def prompt(question)
+    display("#{question}: ", false)
+    ask
+  end
+  
+  def val_empty?(val)
+    val.nil? or val.empty?
+  end
+  
+  def cert_subject_for_domain_and_options(domain, options = {})
+    raise ArgumentError, "domain cannot be empty" if domain.nil? || domain.empty?
+    
+    subject, country, area, city, owner, now = options.values_at(:subject, :country, :area, :city, :owner, :now)
+    
+    if val_empty? subject
+      if !now && [country, area, city, owner].all? { |v| val_empty? v }
+        owner = prompt "Owner of this certificate"
+        country = prompt "Country of owner (two-letter ISO code)"
+        area = prompt "State/province/etc. of owner"
+        city = prompt "City of owner"
+      end
+    
+      subject = ""
+      subject += "/C=#{country}" unless val_empty? country
+      subject += "/ST=#{area}" unless val_empty? area
+      subject += "/L=#{city}" unless val_empty? city
+      subject += "/O=#{owner}" unless val_empty? owner
+      
+      subject += "/CN=#{domain}"
+    end
+    
+    subject
+  end
+  
+  def explain_step_after_generate(result)
+    if result.csr_file.nil?
+      display "Your key and self-signed certificate have been generated."
+      display "Next, run:"
+    else
+      display "Your key and certificate signing request have been generated."
+      display "Submit the CSR in '#{result.csr_file}' to your preferred certificate authority."
+      display "When you've received your certificate, run:"
+    end
+    
+    needs_addon = false
+    command = "add"
+    begin
+      command = "update" if all_endpoint_domains.include? result.request.domain
+    rescue RestClient::Forbidden
+      needs_addon = true
+    end
+    
+    display "$ heroku addons:add ssl:endpoint" if needs_addon
+    display "$ heroku certs:#{command} #{result.crt_file || "CERTFILE"} #{result.key_file}"
+  end
 end
