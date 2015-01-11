@@ -2,7 +2,7 @@ class Heroku::JSPlugin
   include Heroku::Helpers
 
   def self.setup?
-    File.exists? bin
+    @is_setup ||= File.exists? bin
   end
 
   def self.load!
