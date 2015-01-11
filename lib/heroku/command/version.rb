@@ -20,10 +20,6 @@ class Heroku::Command::Version < Heroku::Command::Base
     display(Heroku.user_agent)
     display(Heroku::JSPlugin.version) if Heroku::JSPlugin.setup?
 
-    plugins = Heroku::Plugin.list
-    if plugins.length > 0
-      styled_header("Installed Plugins")
-      styled_array(plugins)
-    end
+    Heroku::Command::Plugins.new.index
   end
 end
