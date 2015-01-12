@@ -25,6 +25,12 @@ describe Heroku::OpenSSL do
   end
   
   describe :ensure_openssl_installed! do
+    after(:each) do
+      # This undoes any temporary changes to the property, and also 
+      # resets the flag indicating the path has already been checked.
+      Heroku::OpenSSL.openssl = nil
+    end
+    
     it "calls openssl(1) to ensure it's available" do
       expect(Heroku::OpenSSL).to receive(:openssl).with("version").and_return(true)
       Heroku::OpenSSL.ensure_openssl_installed!
@@ -37,7 +43,6 @@ describe Heroku::OpenSSL do
     it "detects openssl(1) is absent when it isn't available" do
       Heroku::OpenSSL.openssl = 'openssl-THIS-FILE-SHOULD-NOT-EXIST'
       expect { Heroku::OpenSSL.ensure_openssl_installed! }.to raise_error(Heroku::OpenSSL::NotInstalledError)
-      Heroku::OpenSSL.openssl = nil
     end
     
     it "gives good installation advice on a Mac" do
@@ -47,7 +52,6 @@ describe Heroku::OpenSSL do
         allow(ex).to receive(:running_on_windows?).and_return(false)
         expect(ex.installation_hint).to match(/brew install openssl/)
       }
-      Heroku::OpenSSL.openssl = nil
     end
     
     it "gives good installation advice on Windows" do
@@ -57,7 +61,6 @@ describe Heroku::OpenSSL do
         allow(ex).to receive(:running_on_windows?).and_return(true)
         expect(ex.installation_hint).to match(/Win32OpenSSL\.html/)
       }
-      Heroku::OpenSSL.openssl = nil
     end
     
     it "gives good installation advice on miscellaneous Unixen" do
@@ -67,7 +70,6 @@ describe Heroku::OpenSSL do
         allow(ex).to receive(:running_on_windows?).and_return(false)
         expect(ex.installation_hint).to match(/'openssl' package/)
       }
-      Heroku::OpenSSL.openssl = nil
     end
   end
   
