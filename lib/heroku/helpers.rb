@@ -37,6 +37,14 @@ module Heroku
       $stderr.puts(*args) if debugging?
     end
 
+    def stderr_puts(*args)
+      $stderr.puts(*args)
+    end
+
+    def stderr_print(*args)
+      $stderr.print(*args)
+    end
+
     def debugging?
       ENV['HEROKU_DEBUG']
     end

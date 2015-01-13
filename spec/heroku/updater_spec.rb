@@ -5,6 +5,11 @@ require "heroku/version"
 module Heroku
   describe Updater do
 
+    before do
+      allow(subject).to receive(:stderr_puts)
+      allow(subject).to receive(:stderr_print)
+    end
+
     describe('::latest_local_version') do
       it 'calculates the latest local version' do
         expect(subject.latest_local_version).to eq(Heroku::VERSION)

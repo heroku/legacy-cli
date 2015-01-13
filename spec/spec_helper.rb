@@ -131,6 +131,7 @@ def stub_core
     stub(Heroku::Auth).user.returns("email@example.com")
     stub(Heroku::Auth).password.returns("pass")
     stub(Heroku::Client).auth.returns("apikey01")
+    stub(Heroku::Updater).autoupdate
     stubbed_core
   end
 end
