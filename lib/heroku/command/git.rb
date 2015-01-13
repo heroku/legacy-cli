@@ -49,6 +49,7 @@ class Heroku::Command::Git < Heroku::Command::Base
   # Git remote heroku added
   #
   def remote
+    validate_arguments!
     app_info = api.get_app(app).body
     if git('remote').split("\n").include?(remote_name)
       update_git_remote(remote_name, git_url(app_info['name']))
