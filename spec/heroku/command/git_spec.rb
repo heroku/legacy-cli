@@ -105,6 +105,7 @@ Cloning into 'example'...
 
       it "adds remote" do
         any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('config heroku.remote')
           stub(git).git('remote').returns("origin")
           stub(git).git('remote add heroku https://git.heroku.com/example.git')
         end
@@ -129,6 +130,7 @@ Git remote other added
 
       it "updates remote when it already exists" do
         any_instance_of(Heroku::Command::Git) do |git|
+          stub(git).git('config heroku.remote')
           stub(git).git('remote').returns("heroku")
           stub(git).git('remote set-url heroku https://git.heroku.com/example.git')
         end
