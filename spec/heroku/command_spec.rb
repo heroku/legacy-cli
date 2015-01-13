@@ -171,6 +171,7 @@ describe Heroku::Command do
     it "displays the version if --version is used" do
       expect(heroku("--version")).to eq <<-STDOUT
 #{Heroku.user_agent}
+You have no installed plugins.
 STDOUT
     end
 
