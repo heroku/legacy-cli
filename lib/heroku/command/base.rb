@@ -217,7 +217,7 @@ protected
 
     if remote = options[:remote]
       remotes[remote]
-    elsif remote = extract_app_from_git_config
+    elsif remote = extract_remote_from_git_config
       remotes[remote]
     else
       apps = remotes.values.uniq
@@ -229,7 +229,7 @@ protected
     end
   end
 
-  def extract_app_from_git_config
+  def extract_remote_from_git_config
     remote = git("config heroku.remote")
     remote == "" ? nil : remote
   end
