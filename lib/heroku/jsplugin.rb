@@ -1,13 +1,19 @@
 class Heroku::JSPlugin
-  include Heroku::Helpers
+  extend Heroku::Helpers
 
   def self.setup?
-    File.exists? bin
+    @is_setup ||= File.exists? bin
   end
 
   def self.load!
     return unless setup?
     this = self
+    topics.each do |topic|
+      Heroku::Command.register_namespace(
+        :name => topic['name'],
+        :description => " #{topic['description']}"
+      ) unless Heroku::Command.namespaces.include?(topic['name'])
+    end
     commands.each do |plugin|
       klass = Class.new do
         def initialize(args, opts)
@@ -17,14 +23,16 @@ class Heroku::JSPlugin
       end
       klass.send(:define_method, :run) do
         ENV['HEROKU_APP'] = @opts[:app]
-        exec this.bin, "#{plugin[:topic]}:#{plugin[:command]}", *@args
+        exec this.bin, "#{plugin['topic']}:#{plugin['command']}", *@args
       end
-      Heroku::Command.register_namespace(:name => plugin[:topic])
       Heroku::Command.register_command(
-        :command   => "#{plugin[:topic]}:#{plugin[:command]}",
-        :namespace => plugin[:topic],
+        :command   => "#{plugin['topic']}:#{plugin['command']}",
+        :namespace => plugin['topic'],
         :klass     => klass,
-        :method    => :run
+        :method    => :run,
+        :banner    => plugin['usage'],
+        :summary   => plugin['description'],
+        :help      => "\n#{plugin['help']}"
       )
     end
   end
@@ -37,12 +45,16 @@ class Heroku::JSPlugin
     end
   end
 
+  def self.topics
+    commands_info['topics']
+  end
+
   def self.commands
-    @commands ||= `#{bin} commands`.split.flat_map do |l|
-      l.scan(/(\w+):(\w+)/).collect do |topic, command|
-        { :topic => topic, :command => command }
-      end
-    end
+    commands_info['commands']
+  end
+
+  def self.commands_info
+    @commands_info ||= json_decode(`#{bin} commands --json`)
   end
 
   def self.install(name)
@@ -95,7 +107,7 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("https://d1gvo455cekpjp.cloudfront.net/heroku-cli/master/manifest.json").body)
+    @manifest ||= JSON.parse(Excon.get("http://d1gvo455cekpjp.cloudfront.net/heroku-cli/master/manifest.json").body)
   end
 
   def self.url
