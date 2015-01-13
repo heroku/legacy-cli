@@ -66,7 +66,7 @@ class Heroku::JSPlugin
   end
 
   def self.bin
-    File.join(home_directory, ".heroku", "heroku-cli")
+    File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli")
   end
 
   def self.setup

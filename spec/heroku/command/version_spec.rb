@@ -9,6 +9,7 @@ module Heroku::Command
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 #{Heroku.user_agent}
+You have no installed plugins.
 STDOUT
     end
 
