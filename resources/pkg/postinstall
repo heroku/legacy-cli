@@ -22,6 +22,7 @@ install_path() {
     (grep "Added by the Heroku" $HOME/$file >/dev/null) && break
 
     cat <<MESSAGE >>$HOME/$file
+
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:\$PATH"
 MESSAGE
