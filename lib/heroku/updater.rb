@@ -4,6 +4,7 @@ require "heroku/helpers"
 
 module Heroku
   module Updater
+    extend Heroku::Helpers
 
     def self.error(message)
       raise Heroku::Command::CommandFailed.new(message)
@@ -98,7 +99,7 @@ module Heroku
     def self.update(prerelease=false)
       return unless prerelease || needs_update?
 
-      $stderr.print 'updating...'
+      stderr_print 'updating...'
       wait_for_lock do
         require "tmpdir"
         require "zip/zip"
@@ -129,7 +130,7 @@ module Heroku
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
-          $stderr.puts "done. Updated to #{version}"
+          stderr_puts "done. Updated to #{version}"
           version
         end
       end
