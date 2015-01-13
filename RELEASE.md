@@ -3,7 +3,7 @@ Heroku CLI Release Process
 
 Releasing the CLI involves releasing a few different things. The important tasks can all be done on the buildserver.
 
-### Releasing with buildserver
+## Releasing with buildserver
 
 * Run test suite: `bundle exec rake`
 * Update version number in `lib/heroku/version.rb` to `X.Y.Z`
@@ -18,13 +18,13 @@ Releasing the CLI involves releasing a few different things. The important tasks
 * [optional] Release the OSX pkg (instructions below)
 * [optional] Release the WIN pkg (instructions below)
 
-### Notes
+## Notes
 
 The last 2 are optional because existing toolbelts will autoupdate after the first command is run. This isn't the case for deb packages which is why they're included in the main process. There can still be situations (although minor ones) where not releasing the osx/win packages can cause problems so they normally should always be run.
 
 The release process will prevent you from releasing an already released version. If you have a bad/incomplete release, you may need to bump the version number again.
 
-### Main Release
+## Main Release
 
 This process releases the tgz (standalone/homebrew), zip (for autoupdates), deb package and ruby gem. It's everything that is required to not end up with a partial release. This is what the buildserver does for you, so you shouldn't have to do this manually (this is just for reference). Because this builds a deb package, you must be on an Ubuntu box.
 
@@ -47,7 +47,7 @@ Once you are confident it works, release: `bundle exec rake release`. Note that 
 
 Note that you can look inside the `Rakefile` to test out each part of the step on your machine before it is built.
 
-### OSX Release
+## OSX Release
 
 Prerequisites:
 
@@ -58,7 +58,7 @@ Prerequisites:
 To build for testing: `bundle exec rake pkg:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.pkg`.
 To release: `bundle exec rake pkg:release`.
 
-### Windows Release
+## Windows Release
 
 This is run not from a Windows machine, but from a UNIX machine with Wine.
 
@@ -103,7 +103,16 @@ task will do that for you.
 To build for testing: `bundle exec rake exe:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.exe`.
 To release: `bundle exec rake pkg:release`.
 
-### Changelog (only if there is at least one major new feature)
+## Ruby versions
+
+Toolbelt bundles Ruby using different sources according to the OS:
+
+- Windows: fetches [rubyinstaller.exe](http://rubyinstaller.org/) from S3.
+- Mac: fetches ruby.pkg from S3. That file was extracted from
+[RailsInstaller](http://railsinstaller.org/en).
+- Linux: uses system debs for Ruby.
+
+## Changelog (only if there is at least one major new feature)
 
 * Create a [new changelog](http://devcenter.heroku.com/admin/changelog_items/new)
 * Set the title to `Heroku CLI vX.Y.Z released with #{highlights}`
