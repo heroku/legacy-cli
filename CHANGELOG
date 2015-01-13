@@ -1,3 +1,9 @@
+3.23.0 2015-01-13
+=================
+Added help for jsplugins
+Fixed remote setting in git:remote
+Fixed bug with newlines in .bashrc on OSX
+
 3.22.1 2015-01-05
 =================
 Updated cacert.pem
