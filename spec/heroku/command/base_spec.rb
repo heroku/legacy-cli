@@ -93,6 +93,12 @@ other\tgit@other.com:other.git (push)
         expect(@base.app).to eq('example')
       end
 
+      it "get the app from git config" do
+        allow(@base).to receive(:git_remotes).and_return('')
+        allow(@base).to receive(:git).with('config heroku.remote').and_return("example")
+        expect(@base.app).to eq('example')
+      end
+
       it "accepts a --remote argument to choose the app from the remote name" do
         allow(@base).to receive(:git_remotes).and_return({ 'staging' => 'example-staging', 'production' => 'example' })
         allow(@base).to receive(:options).and_return(:remote => "staging")

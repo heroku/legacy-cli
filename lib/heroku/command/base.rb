@@ -218,7 +218,7 @@ protected
     if remote = options[:remote]
       remotes[remote]
     elsif remote = extract_app_from_git_config
-      remotes[remote]
+      remote
     else
       apps = remotes.values.uniq
       if apps.size == 1
