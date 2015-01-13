@@ -55,6 +55,7 @@ end
 desc "build pkg"
 task "pkg:build" => dist("heroku-toolbelt-#{version}.pkg")
 
+desc "release pkg"
 task "pkg:release" => dist("heroku-toolbelt-#{version}.pkg") do
   s3_store dist("heroku-toolbelt-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt-#{version}.pkg"
   s3_store dist("heroku-toolbelt-#{version}.pkg"), "heroku-toolbelt/heroku-toolbelt-beta.pkg" if beta?
