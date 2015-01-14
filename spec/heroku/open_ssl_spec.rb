@@ -1,6 +1,15 @@
 require "heroku/open_ssl"
 
 describe Heroku::OpenSSL do
+  # This undoes any temporary changes to the property, and also 
+  # resets the flag indicating the path has already been checked.
+  before(:all) do
+    Heroku::OpenSSL.openssl = nil
+  end
+  after(:each) do
+    Heroku::OpenSSL.openssl = nil
+  end
+  
   describe :openssl do
     it "returns 'openssl' when nothing else is set" do
       expect(Heroku::OpenSSL.openssl).to eq("openssl")
@@ -25,12 +34,6 @@ describe Heroku::OpenSSL do
   end
   
   describe :ensure_openssl_installed! do
-    after(:each) do
-      # This undoes any temporary changes to the property, and also 
-      # resets the flag indicating the path has already been checked.
-      Heroku::OpenSSL.openssl = nil
-    end
-    
     it "calls openssl(1) to ensure it's available" do
       expect(Heroku::OpenSSL).to receive(:openssl).with("version").and_return(true)
       Heroku::OpenSSL.ensure_openssl_installed!
