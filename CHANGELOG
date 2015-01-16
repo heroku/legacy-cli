@@ -1,3 +1,9 @@
+3.23.2 2015-01-16
+=================
+Added certs:generate command
+Fixed bug with plugins
+Show request-id on HEROKU_DEBUG
+
 3.23.1 2015-01-13
 =================
 Fixed authentication failure in release
