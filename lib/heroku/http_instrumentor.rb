@@ -17,6 +17,7 @@ class HTTPInstrumentor
         $stderr.puts filter(params[:query])
       when "excon.response"
         $stderr.puts "#{params[:status]} #{params[:reason_phrase]}"
+        $stderr.puts "request-id: #{headers['Request-id']}" if headers['Request-Id']
         if headers['Content-Encoding'] == 'gzip'
           $stderr.puts filter(ungzip(params[:body]))
         else
