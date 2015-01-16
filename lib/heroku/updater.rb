@@ -87,6 +87,7 @@ module Heroku
     end
 
     def self.autoupdate
+      return if disable
       # if we've updated in the last hour, don't try again
       if File.exists?(last_autoupdate_path)
         return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60
