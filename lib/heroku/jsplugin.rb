@@ -47,10 +47,16 @@ class Heroku::JSPlugin
 
   def self.topics
     commands_info['topics']
+  rescue
+    $stderr.puts "error loading plugin topics"
+    return []
   end
 
   def self.commands
     commands_info['commands']
+  rescue
+    $stderr.puts "error loading plugin commands"
+    return []
   end
 
   def self.commands_info
