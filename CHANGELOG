@@ -1,3 +1,8 @@
+3.23.3 2015-01-16
+=================
+Fixed bug where jsplugins could override core commands
+Prevent non-autoupdatable clients from autoupdating
+
 3.23.2 2015-01-16
 =================
 Added certs:generate command
