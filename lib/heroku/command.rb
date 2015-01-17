@@ -15,11 +15,11 @@ module Heroku
     end
 
     def self.load
+      Heroku::JSPlugin.load!
       Dir[File.join(File.dirname(__FILE__), "command", "*.rb")].each do |file|
         require file
       end
       Heroku::Plugin.load!
-      Heroku::JSPlugin.load!
       unregister_commands_made_private_after_the_fact
     end
 
