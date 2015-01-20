@@ -317,16 +317,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
       Heroku::Command.run(current_command, ['--help'])
       exit(1)
     end
-    if local =~ %r(://)
-      error "LOCAL_SOURCE_DATABASE is not a valid database name"
-    end
 
-    remote_uri = generate_resolver.resolve(remote).url
-    local_uri = "postgres:///#{local}"
+    target_uri = generate_resolver.resolve(remote).url
+    source_uri = parse_db_uri(local)
 
     pgdr = PgDumpRestore.new(
-      local_uri,
-      remote_uri,
+      source_uri,
+      target_uri,
       self)
 
     pgdr.execute
@@ -343,16 +340,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
       Heroku::Command.run(current_command, ['--help'])
       exit(1)
     end
-    if local =~ %r(://)
-      error "LOCAL_TARGET_DATABASE is not a valid database name"
-    end
 
-    remote_uri = generate_resolver.resolve(remote).url
-    local_uri = "postgres:///#{local}"
+    source_uri = generate_resolver.resolve(remote).url
+    target_uri = parse_db_uri(local)
 
     pgdr = PgDumpRestore.new(
-      remote_uri,
-      local_uri,
+      target_uri,
+      source_uri,
       self)
 
     pgdr.execute
@@ -456,6 +450,14 @@ private
   def generate_resolver
     app_name = app rescue nil # will raise if no app, but calling app reads in arguments
     Resolver.new(app_name, api)
+  end
+
+  def parse_db_uri(local)
+    if local =~ %r(://)
+      return "postgres:///#{local}"
+    else
+      return local
+    end
   end
 
   def display_db(name, db)
