@@ -206,9 +206,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # Creating floating-dragon-42... done, stack is cedar
   # http://floating-dragon-42.heroku.com/ | https://git.heroku.com/floating-dragon-42.git
   #
-  # $ heroku apps:create -s bamboo
-  # Creating floating-dragon-42... done, stack is bamboo-mri-1.9.2
-  # http://floating-dragon-42.herokuapp.com/ | https://git.heroku.com/floating-dragon-42.git
+  # # specify a stack
+  # $ heroku create -s cedar
+  # Creating stormy-garden-5052... done, stack is cedar
+  # https://stormy-garden-5052.herokuapp.com/ | https://git.heroku.com/stormy-garden-5052.git
   #
   # # specify a name
   # $ heroku apps:create example
