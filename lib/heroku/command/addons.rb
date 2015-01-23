@@ -81,10 +81,6 @@ module Heroku::Command
 
     alias_command "addons:list", "addons:plans"
 
-    # addons:create ADDON
-    #
-    def create
-    end
     # addons:create PLAN
     #
     # create an add-on resource
@@ -148,12 +144,7 @@ module Heroku::Command
 
       display("Use `heroku addons:docs #{addon['plan']['name'].split(':').first}` to view documentation.")
     end
-
-    # addons:remove ADDON
-    #
-    def remove
-      deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:destroy` instead.")
-    end
+    alias_command "addons:add", "addons:create"
 
     # addons:upgrade ADDON
     #
@@ -180,6 +171,10 @@ module Heroku::Command
     # uninstall one or more addons
     #
     def destroy
+      if current_command == "remove"
+        return deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:destroy` instead.")
+      end
+
       addon = args.shift
       raise CommandFailed.new("Missing add-on name") if addon.nil?
 
@@ -217,6 +212,7 @@ module Heroku::Command
         )
       end
     end
+    alias_command "addons:remove", "addons:destroy"
 
     # addons:docs ADDON
     #
