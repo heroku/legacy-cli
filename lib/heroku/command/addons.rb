@@ -53,23 +53,23 @@ module Heroku::Command
       end
     end
 
-    # addons:list
+    # addons:plans
     #
-    # list all available addons
+    # list all available add-on plans
     #
-    # --region REGION      # specify a region for addon availability
+    # --region REGION      # specify a region for add-on plan availability
     #
     #Example:
     #
-    # $ heroku addons:list --region eu
+    # $ heroku addons:plans --region eu
     # === available
     # adept-scale:battleship, corvette...
     # adminium:enterprise, petproject...
     #
-    def list
+    def plans
       addons = heroku.addons(options)
       if addons.empty?
-        display "No addons available currently"
+        display "No add-ons available currently"
       else
         partitioned_addons = partition_addons(addons)
         partitioned_addons.each do |key, addons|
@@ -79,14 +79,80 @@ module Heroku::Command
       end
     end
 
-    # addons:add ADDON
+    alias_command "addons:list", "addons:plans"
+
+    # addons:create ADDON
     #
-    # install an addon
+    def create
+    end
+    # addons:create PLAN
     #
-    def add
-      configure_addon('Adding') do |addon, config|
-        heroku.install_addon(app, addon, config)
+    # create an add-on resource
+    #
+    # --name NAME             # (optional) name for the resource
+    # --as ATTACHMENT_NAME    # (optional) name for the initial add-on attachment
+    # --confirm APP_NAME      # (optional) ovewrite existing config vars or existing add-on attachments
+    #
+    def create
+      if current_command == "add"
+        return deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:create` instead.")
       end
+
+      addon = args.shift
+      raise CommandFailed.new("Missing add-on name") if addon.nil? || %w{--fork --follow --rollback}.include?(addon)
+      config = parse_options(args)
+
+      service_name, plan_name = addon.split(":")
+
+      # TODO mdg:
+      # - Stop special-casing HPG
+      # - Use resource identifiers instead of attachment identifiers
+      # For Heroku Postgres, if no plan is specified with fork/follow/rollback,
+      # default to the plan of the current postgresql plan
+      if service_name =~ /heroku-postgresql/
+        hpg_translate_db_opts_to_urls(addon, config)
+
+        hpg_flag = %w{rollback fork follow}.detect { |flag| config.keys.include?(flag) }
+        if plan_name.nil? && config[hpg_flag] =~ /^postgres:\/\//
+          raise CommandFailed.new("Cross application database Forking/Following requires you specify a plan type")
+        elsif (hpg_flag && plan_name.nil?)
+          resolver = Resolver.new(app, api)
+          addon = addon + ':' + resolver.resolve(config[hpg_flag]).plan_name
+        end
+      end
+
+      addon_name = options.has_key?(:name) ? options[:name] : service_name
+
+      action("Creating #{addon_name.downcase}") do
+        addon = api.request(
+          :body     => json_encode({
+            "attachment" => { "name" => options[:as] },
+            "config"     => config,
+            "name"       => options[:name],
+            "confirm"    => options[:confirm],
+            "plan"       => { "name" => addon }
+          }),
+          :expects  => 201,
+          :headers  => { "Accept" => "application/vnd.heroku+json; version=edge" },
+          :method   => :post,
+          :path     => "/apps/#{app}/addons"
+        ).body
+
+        @status = api.get_release(app, 'current').body['name']
+      end
+
+      action("Adding #{addon['name'].downcase} to #{app}") {}
+      action("Setting #{addon['config_vars'].join(', ')} and restarting #{app}") {}
+
+      #display resource['provider_data']['message'] unless resource['provider_data']['message'].strip == ""
+
+      display("Use `heroku addons:docs #{addon['plan']['name'].split(':').first}` to view documentation.")
+    end
+
+    # addons:remove ADDON
+    #
+    def remove
+      deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:destroy` instead.")
     end
 
     # addons:upgrade ADDON
@@ -113,19 +179,42 @@ module Heroku::Command
     #
     # uninstall one or more addons
     #
-    def remove
+    def destroy
+      addon = args.shift
+      raise CommandFailed.new("Missing add-on name") if addon.nil?
+
       return unless confirm_command
 
-      args.each do |name|
-        messages = nil
-        if name.start_with? "HEROKU_POSTGRESQL_"
-          name = name.chomp("_URL").freeze
-        end
-        action("Removing #{name} on #{app}") do
-          messages = addon_run { heroku.uninstall_addon(app, name, :confirm => app) }
-        end
-        display(messages[:attachment]) if messages[:attachment]
-        display(messages[:message]) if messages[:message]
+      # TODO mdg: extract to other methods as well
+      addon = addon.dup.sub(/^@/, '')
+
+      addon_attachments = api.request(
+        :expects => [200, 206],
+        :headers  => { "Accept" => "application/vnd.heroku+json; version=edge" },
+        :method   => :get,
+        :path     => "/apps/#{app}/addon-attachments"
+      ).body.keep_if do |attachment|
+        attachment['addon']['name'] == addon
+      end
+
+      # TODO mdg: Get config vars correctly to display during unsetting
+      addon_attachments.each do |attachment|
+        action("Removing #{addon} as #{attachment['name']} from #{app}") {}
+        #action("Unsetting #{var_name} and restarting #{app}") {}
+      end
+
+      @status = api.get_release(app, 'current').body['name']
+
+      action("Destroying #{addon} on #{app}") do
+        api.request(
+          :body     => json_encode({
+            "force" => options[:force],
+          }),
+          :expects  => 200..300,
+          :headers  => { "Accept" => "application/vnd.heroku+json; version=edge" },
+          :method   => :delete,
+          :path     => "/apps/#{app}/addons/#{addon}"
+        )
       end
     end
 
@@ -273,6 +362,7 @@ module Heroku::Command
       config = parse_options(args)
       addon_name, plan = addon.split(':')
 
+
       # For Heroku Postgres, if no plan is specified with fork/follow/rollback,
       # default to the plan of the current postgresql plan
       if addon_name =~ /heroku-postgresql/ then
@@ -285,10 +375,10 @@ module Heroku::Command
         end
       end
 
+      hpg_translate_db_opts_to_urls(addon, config)
+
       config.merge!(:confirm => app) if app == options[:confirm]
       raise CommandFailed.new("Unexpected arguments: #{args.join(' ')}") unless args.empty?
-
-      hpg_translate_db_opts_to_urls(addon, config)
 
       messages = nil
       action("#{label} #{addon} on #{app}") do
