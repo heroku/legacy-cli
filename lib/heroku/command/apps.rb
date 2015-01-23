@@ -95,6 +95,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def info
     validate_arguments!
+    requires_preauth
     app_data = api.get_app(app).body
 
     unless options[:shell]
