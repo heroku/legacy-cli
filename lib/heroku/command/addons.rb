@@ -16,25 +16,40 @@ module Heroku::Command
     def index
       validate_arguments!
 
-      installed = api.get_addons(app).body
-      if installed.empty?
+      addons = api.request(
+        :expects  => [200, 206],
+        :headers  => { "Accept" => "application/vnd.heroku+json; version=edge" },
+        :method   => :get,
+        :path     => "/apps/#{app}/addons"
+      ).body
+
+      attachments = api.request(
+        :expects  => [200, 206],
+        :headers  => { "Accept" => "application/vnd.heroku+json; version=edge" },
+        :method   => :get,
+        :path     => "/apps/#{app}/addon-attachments"
+      ).body
+
+      attachments_by_resource = {}
+      attachments.each do |attachment|
+        next unless attachment["app"]["name"] == app
+        addon_uuid = attachment["addon"]["id"]
+        attachments_by_resource["#{addon_uuid}"] ||= []
+        attachments_by_resource["#{addon_uuid}"] << attachment['name']
+      end
+
+      if addons.empty?
         display("#{app} has no add-ons.")
       else
-        available, pending = installed.partition { |a| a['configured'] }
-
-        unless available.empty?
-          styled_header("#{app} Configured Add-ons")
-          styled_array(available.map do |a|
-            [a['name'], a['attachment_name'] || '']
-          end)
-        end
-
-        unless pending.empty?
-          styled_header("#{app} Add-ons to Configure")
-          styled_array(pending.map do |a|
-            [a['name'], app_addon_url(a['name'])]
-          end)
-        end
+        styled_header("#{app} Add-on Resources")
+        styled_array(addons.map do |addon|
+          addon_name = addon['name'].downcase
+          [
+            addon['plan']['name'],
+            "@#{addon_name}",
+            attachments_by_resource[addon['id']].join(", ")
+          ]
+        end)
       end
     end
 
