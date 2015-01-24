@@ -90,7 +90,7 @@ module Heroku::Command
     # --confirm APP_NAME      # (optional) ovewrite existing config vars or existing add-on attachments
     #
     def create
-      if current_command == "add"
+      if current_command == "addons:add"
         return deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:create` instead.")
       end
 
@@ -171,7 +171,7 @@ module Heroku::Command
     # uninstall one or more addons
     #
     def destroy
-      if current_command == "remove"
+      if current_command == "addons:remove"
         return deprecate("`heroku #{current_command} has been deprecated. Please use `heroku addons:destroy` instead.")
       end
 
