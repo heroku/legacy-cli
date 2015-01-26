@@ -276,5 +276,19 @@ STDOUT
       end
     end
 
+    describe '#parse_db_url' do
+      it 'returns a local url when only database name is supplied' do
+        pg = Heroku::Command::Pg.new
+        parsed_url = pg.send(:parse_db_url, 'MyLocalDb')
+        expect(parsed_url).to eql 'postgres:///MyLocalDb'
+      end
+
+      it 'returns the original path when a url is specified' do
+        url = 'postgres://user:password@server:1234/'.freeze
+        pg = Heroku::Command::Pg.new
+        parsed_url = pg.send(:parse_db_url, url)
+        expect(parsed_url).to eql url
+      end
+    end
   end
 end
