@@ -446,6 +446,6 @@ EOF
     if remap_tzs.has_key? tz.upcase
       tz = remap_tzs[tz.upcase]
     end
-    { hour: hour, timezone: tz }
+    { :hour => hour, :timezone => tz }
   end
 end
