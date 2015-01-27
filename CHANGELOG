@@ -1,3 +1,7 @@
+3.24.2 2015-01-27
+=================
+Temporarily disable rollbar error reporting since it's too noisy
+
 3.24.1 2015-01-27
 =================
 Skip error reporting for errors like ctrl-c and command failures.
