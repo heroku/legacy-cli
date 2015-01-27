@@ -45,7 +45,7 @@ module Rollbar
         :environment => 'production',
         :code_version => Heroku::VERSION,
         :client => { :platform => RUBY_PLATFORM },
-        :request => { :command => ARGV.join(' ') }
+        :request => { :command => ARGV[0] }
       }
     }
   end
