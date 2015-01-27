@@ -1,3 +1,8 @@
+3.24.3 2015-01-27
+=================
+Reverted db:push and db:pull feature that allowed remote databases due to bugs
+Enabled error tracking on unhandled exceptions
+
 3.24.2 2015-01-27
 =================
 Temporarily disable rollbar error reporting since it's too noisy
