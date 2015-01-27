@@ -2,8 +2,6 @@ module Rollbar
   extend Heroku::Helpers
 
   def self.error(e)
-    # TODO: enable when ready
-    return
     payload = json_encode(build_payload(e))
     response = Excon.post('https://api.rollbar.com/api/1/item/', :body => payload)
     response = json_decode(response.body)
@@ -45,7 +43,7 @@ module Rollbar
         :environment => 'production',
         :code_version => Heroku::VERSION,
         :client => { :platform => RUBY_PLATFORM },
-        :request => { :command => ARGV.join(' ') }
+        :request => { :command => ARGV[0] }
       }
     }
   end
