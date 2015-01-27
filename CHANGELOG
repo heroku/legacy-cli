@@ -1,3 +1,7 @@
+3.24.1 2015-01-27
+=================
+Skip error reporting for errors like ctrl-c and command failures.
+
 3.24.0 2015-01-27
 =================
 Added error tracking with rollbar
