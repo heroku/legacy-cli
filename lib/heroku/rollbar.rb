@@ -5,31 +5,29 @@ module Rollbar
     payload = {
       :access_token => 'f9ca108fdb4040479d539c7a649e2008',
       :data => {
-        platform: 'client',
-        environment: 'production',
-        code_version: Heroku::VERSION,
-        client: { platform: RUBY_PLATFORM },
-        request: { command: ARGV.join(' ') },
-        body: { trace: trace_from_exception(e) }
+        :platform => 'client',
+        :environment => 'production',
+        :code_version => Heroku::VERSION,
+        :client => { :platform => RUBY_PLATFORM },
+        :request => { :command => ARGV.join(' ') },
+        :body => { :trace => trace_from_exception(e) }
       }
     }
-    p json_encode(payload)
-    response = Excon.post('https://api.rollbar.com/api/1/item/', body: json_encode(payload))
-    p response.body
+    response = Excon.post('https://api.rollbar.com/api/1/item/', :body => json_encode(payload))
     json_decode(response.body)["result"]["uuid"]
-  #rescue
-    #$stderr.puts "Error submitting error."
-    #nil
+  rescue
+    $stderr.puts "Error submitting error."
+    nil
   end
 
   private
 
   def self.trace_from_exception(e)
     {
-      frames: frames_from_exception(e),
-      exception: {
-        class: e.class.to_s,
-        message: e.message
+      :frames => frames_from_exception(e),
+      :exception => {
+        :class => e.class.to_s,
+        :message => e.message
       }
     }
   end
