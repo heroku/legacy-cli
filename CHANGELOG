@@ -1,3 +1,11 @@
+3.24.0 2015-01-27
+=================
+Added error tracking with rollbar
+Added pg:backups from pg-extras plugin
+Allow db:push and db:pull to use remote databases (for setups like docker)
+Fixed apps:info for paranoid apps
+Upgraded excon to 0.43.0
+
 3.23.3 2015-01-16
 =================
 Fixed bug where jsplugins could override core commands
