@@ -269,7 +269,7 @@ module Heroku
         error extract_error(e.http_body)
       end
     rescue CommandFailed => e
-      error e.message
+      error e.message, false
     rescue OptionParser::ParseError
       commands[cmd] ? run("help", [cmd]) : run("help")
     rescue Excon::Errors::SocketError, SocketError => e
