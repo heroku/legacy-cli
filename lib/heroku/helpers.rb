@@ -274,13 +274,13 @@ module Heroku
       display(format_with_bang(message), new_line)
     end
 
-    def error(message)
+    def error(message, report=true)
       if Heroku::Helpers.error_with_failure
         display("failed")
         Heroku::Helpers.error_with_failure = false
       end
       $stderr.puts(format_with_bang(message))
-      rollbar_id = Rollbar.error(message)
+      rollbar_id = Rollbar.error(message) if report
       $stderr.puts("Error ID: #{rollbar_id}") if rollbar_id
       exit(1)
     end
