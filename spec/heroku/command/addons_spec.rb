@@ -307,7 +307,7 @@ OUTPUT
       end
 
       it "displays an error with unexpected options" do
-        expect(Heroku::Command).to receive(:error).with("Unexpected arguments: bar")
+        expect(Heroku::Command).to receive(:error).with("Unexpected arguments: bar", false)
         run("addons:add redistogo -a foo bar")
       end
     end
