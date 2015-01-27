@@ -2,25 +2,51 @@ module Rollbar
   extend Heroku::Helpers
 
   def self.error(e)
-    payload = {
+    payload = json_encode(build_payload(e))
+    response = Excon.post('https://api.rollbar.com/api/1/item/', :body => payload)
+    response = json_decode(response.body)
+    raise response if response["err"] != 0
+    response["result"]["uuid"]
+  rescue => e
+    $stderr.puts "Error submitting error."
+    error_log(e.message, e.backtrace.join("\n"))
+    nil
+  end
+
+  private
+
+  def self.build_payload(e)
+    if e.is_a? Exception
+      build_trace_payload(e)
+    else
+      build_message_payload(e.to_s)
+    end
+  end
+
+  def self.build_trace_payload(e)
+    payload = base_payload
+    payload[:data][:body] = {:trace => trace_from_exception(e)}
+    payload
+  end
+
+  def self.build_message_payload(message)
+    payload = base_payload
+    payload[:data][:body] = {:message => {:body => message}}
+    payload
+  end
+
+  def self.base_payload
+    {
       :access_token => 'f9ca108fdb4040479d539c7a649e2008',
       :data => {
         :platform => 'client',
         :environment => 'production',
         :code_version => Heroku::VERSION,
         :client => { :platform => RUBY_PLATFORM },
-        :request => { :command => ARGV.join(' ') },
-        :body => { :trace => trace_from_exception(e) }
+        :request => { :command => ARGV.join(' ') }
       }
     }
-    response = Excon.post('https://api.rollbar.com/api/1/item/', :body => json_encode(payload))
-    json_decode(response.body)["result"]["uuid"]
-  rescue
-    $stderr.puts "Error submitting error."
-    nil
   end
-
-  private
 
   def self.trace_from_exception(e)
     {
