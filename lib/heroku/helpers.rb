@@ -387,20 +387,13 @@ module Heroku
       display
     end
 
-    def format_error(error, message='Heroku client internal error.')
+    def format_error(error, rollbar_id, message)
       formatted_error = []
       formatted_error << " !    #{message}"
       formatted_error << ' !    Search for help at: https://help.heroku.com'
       formatted_error << ' !    Or report a bug at: https://github.com/heroku/heroku/issues/new'
       formatted_error << ''
       formatted_error << "    Error:       #{error.message} (#{error.class})"
-      formatted_error << "    Backtrace:   #{error.backtrace.first}"
-      error.backtrace[1..-1].each do |line|
-        formatted_error << "                 #{line}"
-      end
-      if error.backtrace.length > 1
-        formatted_error << ''
-      end
       command = ARGV.map do |arg|
         if arg.include?(' ')
           arg = %{"#{arg}"}
@@ -431,6 +424,7 @@ module Heroku
         end
       end
       formatted_error << "    Version:     #{Heroku.user_agent}"
+      formatted_error << "    Error ID:    #{rollbar_id}" if rollbar_id
       formatted_error << "\n"
       formatted_error.join("\n")
     end
@@ -440,7 +434,8 @@ module Heroku
         display("failed")
         Heroku::Helpers.error_with_failure = false
       end
-      $stderr.puts(format_error(error, message))
+      rollbar_id = Rollbar.error(error)
+      $stderr.puts(format_error(error, rollbar_id, message))
     end
 
     def styled_header(header)

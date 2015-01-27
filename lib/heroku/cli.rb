@@ -10,9 +10,10 @@ end
 
 require 'heroku'
 require 'heroku/command'
+require 'heroku/git'
 require 'heroku/helpers'
 require 'heroku/http_instrumentor'
-require 'heroku/git'
+require 'heroku/rollbar'
 require 'rest_client'
 require 'multi_json'
 require 'heroku-api'
