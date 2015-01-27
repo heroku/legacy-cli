@@ -274,7 +274,7 @@ module Heroku
       display(format_with_bang(message), new_line)
     end
 
-    def error(message, report=true)
+    def error(message, report=false)
       if Heroku::Helpers.error_with_failure
         display("failed")
         Heroku::Helpers.error_with_failure = false
