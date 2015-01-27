@@ -280,6 +280,8 @@ module Heroku
         Heroku::Helpers.error_with_failure = false
       end
       $stderr.puts(format_with_bang(message))
+      rollbar_id = Rollbar.error(message)
+      $stderr.puts("Error ID: #{rollbar_id}") if rollbar_id
       exit(1)
     end
 
@@ -387,7 +389,7 @@ module Heroku
       display
     end
 
-    def format_error(error, rollbar_id, message)
+    def format_error(error, message='Heroku client internal error.', rollbar_id=nil)
       formatted_error = []
       formatted_error << " !    #{message}"
       formatted_error << ' !    Search for help at: https://help.heroku.com'
@@ -426,6 +428,8 @@ module Heroku
       formatted_error << "    Version:     #{Heroku.user_agent}"
       formatted_error << "    Error ID:    #{rollbar_id}" if rollbar_id
       formatted_error << "\n"
+      formatted_error << "    More information in #{error_log_path}"
+      formatted_error << "\n"
       formatted_error.join("\n")
     end
 
@@ -435,7 +439,18 @@ module Heroku
         Heroku::Helpers.error_with_failure = false
       end
       rollbar_id = Rollbar.error(error)
-      $stderr.puts(format_error(error, rollbar_id, message))
+      $stderr.puts(format_error(error, message, rollbar_id))
+      error_log(message, error.message, error.backtrace.join("\n"))
+    end
+
+    def error_log(*obj)
+      File.open(error_log_path, 'a') do |file|
+        file.write(obj.join("\n") + "\n")
+      end
+    end
+
+    def error_log_path
+      File.join(home_directory, '.heroku', 'error.log')
     end
 
     def styled_header(header)

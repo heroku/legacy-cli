@@ -208,11 +208,22 @@ module Heroku::Helpers
   def has_http_git_entry_in_netrc
     true
   end
+  undef_method :error_log
+  def error_log(*obj); end
+  undef_method :error_log_path
+  def error_log_path
+    'error_log_path'
+  end
 end
 
 require "heroku/git"
 module Heroku::Git
   def self.check_git_version; end
+end
+
+require "heroku/rollbar"
+module Heroku::Rollbar
+  def self.error(e); end
 end
 
 require "support/display_message_matcher"
