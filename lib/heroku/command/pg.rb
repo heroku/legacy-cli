@@ -306,14 +306,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
 
-  # pg:push <SOURCE_DATABASE> <REMOTE_TARGET_DATABASE>
+  # pg:push <LOCAL_SOURCE_DATABASE> <REMOTE_TARGET_DATABASE>
   #
-  # push from SOURCE_DATABASE to REMOTE_TARGET_DATABASE
+  # push from LOCAL_SOURCE_DATABASE to REMOTE_TARGET_DATABASE
   # REMOTE_TARGET_DATABASE must be empty.
-  #
-  # SOURCE_DATABASE must be either the name of a database
-  # existing on your localhost or the fully qualified URL of
-  # a remote database.
   def push
     requires_preauth
     local, remote = shift_argument, shift_argument
@@ -321,26 +317,25 @@ class Heroku::Command::Pg < Heroku::Command::Base
       Heroku::Command.run(current_command, ['--help'])
       exit(1)
     end
+    if local =~ %r(://)
+      error "LOCAL_SOURCE_DATABASE is not a valid database name"
+    end
 
-    target_uri = generate_resolver.resolve(remote).url
-    source_uri = parse_db_url(local)
+    remote_uri = generate_resolver.resolve(remote).url
+    local_uri = "postgres:///#{local}"
 
     pgdr = PgDumpRestore.new(
-      source_uri,
-      target_uri,
+      local_uri,
+      remote_uri,
       self)
 
     pgdr.execute
   end
 
-  # pg:pull <REMOTE_SOURCE_DATABASE> <TARGET_DATABASE>
+  # pg:pull <REMOTE_SOURCE_DATABASE> <LOCAL_TARGET_DATABASE>
   #
-  # pull from REMOTE_SOURCE_DATABASE to TARGET_DATABASE
-  # TARGET_DATABASE must not already exist.
-  #
-  # TARGET_DATABASE must be either the name of a database
-  # existing on your localhost or the fully qualified URL of
-  # a remote database.
+  # pull from REMOTE_SOURCE_DATABASE to LOCAL_TARGET_DATABASE
+  # LOCAL_TARGET_DATABASE must not already exist.
   def pull
     requires_preauth
     remote, local = shift_argument, shift_argument
@@ -348,13 +343,16 @@ class Heroku::Command::Pg < Heroku::Command::Base
       Heroku::Command.run(current_command, ['--help'])
       exit(1)
     end
+    if local =~ %r(://)
+      error "LOCAL_TARGET_DATABASE is not a valid database name"
+    end
 
-    source_uri = generate_resolver.resolve(remote).url
-    target_uri = parse_db_url(local)
+    remote_uri = generate_resolver.resolve(remote).url
+    local_uri = "postgres:///#{local}"
 
     pgdr = PgDumpRestore.new(
-      target_uri,
-      source_uri,
+      remote_uri,
+      local_uri,
       self)
 
     pgdr.execute
@@ -458,16 +456,6 @@ private
   def generate_resolver
     app_name = app rescue nil # will raise if no app, but calling app reads in arguments
     Resolver.new(app_name, api)
-  end
-
-  # Parse string database parameter and return string database URL.
-  #
-  # @param db_string [String] The local database name or a full connection URL, e.g. `my_db` or `postgres://user:pass@host:5432/my_db`
-  # @return [String] A full database connection URL.
-  def parse_db_url(db_string)
-    return db_string if db_string =~ %r(://)
-
-    "postgres:///#{db_string}"
   end
 
   def display_db(name, db)
