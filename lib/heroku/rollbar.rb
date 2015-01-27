@@ -37,7 +37,7 @@ module Rollbar
 
   def self.base_payload
     {
-      :access_token => 'f9ca108fdb4040479d539c7a649e2008',
+      :access_token => '488f0c3af3d6450cb5b5827c8099dbff',
       :data => {
         :platform => 'client',
         :environment => 'production',
