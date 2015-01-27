@@ -44,7 +44,7 @@ class Heroku::CLI
     if ENV["HEROKU_DEBUG"]
       styled_error(e)
     else
-      error("Command cancelled.")
+      error("Command cancelled.", false)
     end
   rescue => error
     styled_error(error)
