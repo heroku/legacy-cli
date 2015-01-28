@@ -322,7 +322,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       exit(1)
     end
 
-    target_uri = generate_resolver.resolve(remote).url
+    target_uri = resolve_heroku_url(remote)
     source_uri = parse_db_url(local)
 
     pgdr = PgDumpRestore.new(
@@ -349,12 +349,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
       exit(1)
     end
 
-    source_uri = generate_resolver.resolve(remote).url
+    source_uri = resolve_heroku_url(remote)
     target_uri = parse_db_url(local)
 
     pgdr = PgDumpRestore.new(
-      target_uri,
       source_uri,
+      target_uri,
       self)
 
     pgdr.execute
@@ -454,6 +454,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
 
 private
+
+  def resolve_heroku_url(remote)
+    generate_resolver.resolve(remote).url
+  end
 
   def generate_resolver
     app_name = app rescue nil # will raise if no app, but calling app reads in arguments
