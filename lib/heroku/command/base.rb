@@ -265,7 +265,7 @@ protected
       "git@#{Heroku::Auth.git_host}:#{app_name}.git"
     else
       unless has_http_git_entry_in_netrc
-        warn "ERROR: Incomplete credentials detected, git may not work with Heroku. Run `heroku login` to update your credentials. See documentation for details: https://devcenter.heroku.com/articles/http-git#authentication"
+        warn "WARNING: Incomplete credentials detected, git may not work with Heroku. Run `heroku login` to update your credentials. See documentation for details: https://devcenter.heroku.com/articles/http-git#authentication"
         exit 1
       end
       "https://#{Heroku::Auth.http_git_host}/#{app_name}.git"
