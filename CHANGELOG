@@ -1,3 +1,11 @@
+3.24.5 2015-01-28
+=================
+Better errors when git is not found or not working
+Fixed bug with unhandled EPIPE exception
+Fixed credential warning message
+Added ruby version to exception tracking
+Added disabling of error tracking with HEROKU_DISABLE_ERROR_REPORTING
+
 3.24.4 2015-01-27
 =================
 Rolled Rollbar creds
