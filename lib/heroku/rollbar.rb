@@ -2,6 +2,7 @@ module Rollbar
   extend Heroku::Helpers
 
   def self.error(e)
+    return if ENV['HEROKU_DISABLE_ERROR_REPORTING']
     payload = json_encode(build_payload(e))
     response = Excon.post('https://api.rollbar.com/api/1/item/', :body => payload)
     response = json_decode(response.body)
