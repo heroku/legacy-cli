@@ -154,6 +154,8 @@ module Heroku
     end
 
     def self.compare_versions(first_version, second_version)
+      p second_version
+      p first_version
       first_version.split('.').map {|part| Integer(part) rescue part} <=> second_version.split('.').map {|part| Integer(part) rescue part}
     end
 
