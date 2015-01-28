@@ -38,9 +38,12 @@ module Heroku::Git
   private
 
   def self.git_version
-    /git version ([\d\.]+)/.match(`git --version`)[1]
+    version = /git version ([\d\.]+)/.match(`git --version`)
+    error("Git appears to be installed incorrectly\nEnsure that `git --version` outputs the version correctly.") unless version
+    version[1]
+  rescue Errno::ENOENT
+    error("Git must be installed to use the Heroku Toolbelt.\nSee instructions here: http://git-scm.com")
   end
-
 
   class Version
     include Comparable
