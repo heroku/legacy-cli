@@ -39,6 +39,8 @@ class Heroku::CLI
     Heroku::Command.load
     Heroku::Command.run(command, args)
     Heroku::Updater.autoupdate
+  rescue Errno::EPIPE => e
+    error(e.message)
   rescue Interrupt => e
     `stty icanon echo`
     if ENV["HEROKU_DEBUG"]
