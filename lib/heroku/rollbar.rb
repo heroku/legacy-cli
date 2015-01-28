@@ -43,7 +43,7 @@ module Rollbar
         :platform => 'client',
         :environment => 'production',
         :code_version => Heroku::VERSION,
-        :client => { :platform => RUBY_PLATFORM },
+        :client => { :platform => RUBY_PLATFORM, :ruby => RUBY_VERSION },
         :request => { :command => ARGV[0] }
       }
     }
