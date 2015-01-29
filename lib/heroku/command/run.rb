@@ -72,7 +72,7 @@ class Heroku::Command::Run < Heroku::Command::Base
       log_displayer = ::Heroku::Helpers::LogDisplayer.new(heroku, app, opts)
       log_displayer.display_logs
     else
-      display("Use `heroku logs -p #{process_data['process']}` to view the output.")
+      display("Use `heroku logs -p #{process_data['process']} -a #{app_name}` to view the output.")
     end
   end
 
