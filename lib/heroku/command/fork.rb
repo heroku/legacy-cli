@@ -24,6 +24,11 @@ module Heroku::Command
         raise Heroku::Command::CommandFailed.new("Cannot fork to the same app.")
       end
 
+      begin
+        api.get_app(to).body
+        error "#{to} app exists.\nUSAGE: heroku fork -a COPY_FROM COPY_TO"
+      rescue
+      end
       from_info = api.get_app(from).body
 
       to_info = action("Creating fork #{to}", :org => !!org) do
@@ -34,7 +39,7 @@ module Heroku::Command
           "tier"    => from_info["tier"] == "legacy" ? "production" : from_info["tier"]
         }
 
-        info = if org
+        if org
           org_api.post_app(params, org).body
         else
           api.post_app(params).body
