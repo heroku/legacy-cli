@@ -34,7 +34,7 @@ STDOUT
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 Running `bin/foo` detached... up, run.1
-Use `heroku logs -p run.1` to view the output.
+Use `heroku logs -p run.1 -a example` to view the output.
 STDOUT
     end
 
