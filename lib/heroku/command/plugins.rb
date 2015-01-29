@@ -62,9 +62,12 @@ module Heroku::Command
     def uninstall
       plugin = Heroku::Plugin.new(shift_argument)
       validate_arguments!
-
-      action("Uninstalling #{plugin.name}") do
-        plugin.uninstall
+      if Heroku::Plugin.list.include? plugin.name
+        action("Uninstalling #{plugin.name}") do
+          plugin.uninstall
+        end
+      elsif Heroku::JSPlugin.setup?
+        Heroku::JSPlugin.uninstall(plugin.name)
       end
     end
 
