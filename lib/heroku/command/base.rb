@@ -47,20 +47,13 @@ class Heroku::Command::Base
       options[:org]
     elsif options[:personal] || @nil
       nil
-    elsif org_from_app = extract_org_from_app
-      org_from_app
+    elsif ENV['HEROKU_ORGANIZATION']
+      ENV['HEROKU_ORGANIZATION']
+    elsif options[:ignore_no_org]
+      nil
     else
-      response = org_api.get_orgs.body
-      default = response['user']['default_organization']
-      if default
-        options[:using_default_org] = true
-        default
-      elsif options[:ignore_no_org]
-        nil
-      else
-        # raise instead of using error command to enable rescuing when app is optional
-        raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.")
-      end
+      # raise instead of using error command to enable rescuing when app is optional
+      raise Heroku::Command::CommandFailed.new("No org specified.\nRun this command from an app folder which belongs to an org or specify which org to use with --org ORG.")
     end
 
     @nil = true if @org == nil

@@ -189,19 +189,9 @@ STDOUT
 
     context("index with orgs") do
       context("when you are a member of the org") do
-        before(:each) do
-          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 200, :body => MultiJson.dump({
-            "user" => {"default_organization" => "test-org"}
-          })})
-        end
-
-        after(:each) do
-          Excon.stub({ :method => :get, :path => '/v1/user/info' }, { :status => 404 })
-        end
-
         it "displays a message when the org has no apps" do
           Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }, { :status => 200, :body => MultiJson.dump([]) })
-          stderr, stdout = execute("apps")
+          stderr, stdout = execute("apps -o test-org")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 There are no apps in organization test-org.
@@ -223,7 +213,7 @@ STDOUT
           end
 
           it "lists joined apps in an organization" do
-            stderr, stdout = execute("apps")
+            stderr, stdout = execute("apps -o test-org")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 === Apps joined in organization test-org
@@ -233,7 +223,7 @@ STDOUT
           end
 
           it "list all apps in an organization with the --all flag" do
-            stderr, stdout = execute("apps --all")
+            stderr, stdout = execute("apps --all -o test-org")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 === Apps joined in organization test-org
