@@ -36,33 +36,6 @@ STDOUT
 
     end
 
-    context("uninstall") do
-
-      before do
-        expect(Heroku::Plugin).to receive(:new).with('Plugin').and_return(@plugin)
-      end
-
-      it "uninstalls plugins" do
-        expect(@plugin).to receive(:uninstall).and_return(true)
-        stderr, stdout = execute("plugins:uninstall Plugin")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-Uninstalling Plugin... done
-STDOUT
-      end
-
-      it "does not uninstall plugins that do not exist" do
-        stderr, stdout = execute("plugins:uninstall Plugin")
-        expect(stderr).to eq <<-STDERR
- !    Plugin plugin not found.
-STDERR
-        expect(stdout).to eq <<-STDOUT
-Uninstalling Plugin... failed
-STDOUT
-      end
-
-    end
-
     context("update") do
 
       before do
