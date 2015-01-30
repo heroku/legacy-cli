@@ -1,3 +1,10 @@
+3.25.0 2015-01-29
+=================
+Added `plugins:uninstall` for toolbelt v4 plugins
+Prevent fork from deleting an existing app
+Added okjson back in for users that have not updated their plugins
+Show app name in `run:detached`
+
 3.24.5 2015-01-28
 =================
 Better errors when git is not found or not working
