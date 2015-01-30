@@ -87,7 +87,7 @@ module Heroku
     end
 
     def self.autoupdate
-      return if disable
+      return warn_if_out_of_date if disable
       # if we've updated in the last hour, don't try again
       if File.exists?(last_autoupdate_path)
         return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60
@@ -95,6 +95,10 @@ module Heroku
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
       FileUtils.touch last_autoupdate_path
       update
+    end
+
+    def self.warn_if_out_of_date
+      $stderr.puts "WARNING: Toolbelt v#{latest_version} update available." if needs_update?
     end
 
     def self.update(prerelease=false)
