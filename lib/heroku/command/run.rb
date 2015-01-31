@@ -37,6 +37,7 @@ class Heroku::Command::Run < Heroku::Command::Base
   def index
     command = args.join(" ")
     error("Usage: heroku run COMMAND") if command.empty?
+    warn_if_using_jruby
     run_attached(command)
   end
 
