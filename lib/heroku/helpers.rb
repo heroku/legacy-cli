@@ -558,5 +558,9 @@ module Heroku
     def has_http_git_entry_in_netrc
       Auth.netrc && Auth.netrc[Auth.http_git_host]
     end
+
+    def warn_if_using_jruby
+      stderr_puts "WARNING: jruby is known to cause issues when used with the toolbelt." if RUBY_PLATFORM == "java"
+    end
   end
 end
