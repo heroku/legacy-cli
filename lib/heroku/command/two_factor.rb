@@ -1,12 +1,12 @@
 require "heroku/command/base"
 
-# manage two factor settings for account
-#
 module Heroku::Command
+  # manage two-factor authentication settings for your account
+  #
   class TwoFactor < BaseWithApp
     # 2fa
     #
-    # Display whether two-factor is enabled or not
+    # Display whether two-factor authentication is enabled or not
     #
     def index
       account = api.request(
@@ -16,9 +16,9 @@ module Heroku::Command
         :path    => "/account").body
 
       if account["two_factor_authentication"]
-        display "Two-factor auth is enabled."
+        display "Two-factor authentication is enabled."
       else
-        display "Two-factor is not enabled."
+        display "Two-factor authentication is not enabled."
       end
     end
 
@@ -26,7 +26,7 @@ module Heroku::Command
 
     # 2fa:disable
     #
-    # Disable 2fa on your account
+    # Disable two-factor authentication for your account
     #
     def disable
       print "Password (typing will be hidden): "
@@ -52,7 +52,7 @@ module Heroku::Command
 
     # 2fa:generate-recovery-codes
     #
-    # Generates (and replaces) recovery codes
+    # Generates and replaces recovery codes
     #
     def generate_recovery_codes
       code = Heroku::Auth.ask_for_second_factor
