@@ -1,10 +1,10 @@
 require "heroku/command/base"
 
 module Heroku::Command
-  # manage two-factor authentication settings for your account
+  # manage two-factor authentication settings
   #
   class TwoFactor < BaseWithApp
-    # 2fa
+    # twofactor
     #
     # Display whether two-factor authentication is enabled or not
     #
@@ -24,7 +24,7 @@ module Heroku::Command
 
     alias_command "2fa", "twofactor"
 
-    # 2fa:disable
+    # twofactor:disable
     #
     # Disable two-factor authentication for your account
     #
@@ -50,7 +50,7 @@ module Heroku::Command
     alias_command "2fa:disable", "twofactor:disable"
 
 
-    # 2fa:generate-recovery-codes
+    # twofactor:generate-recovery-codes
     #
     # Generates and replaces recovery codes
     #
