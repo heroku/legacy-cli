@@ -276,5 +276,79 @@ STDOUT
       end
     end
 
+    describe '#push' do
+      context 'with remote and local dbs specified' do
+        let(:remote) { 'MY_HEROKU_DB_FUSCIA' }
+        let(:local)  { 'MyLocalDb' }
+
+        it 'executes dump restore with correct targets' do
+          pg          = Heroku::Command::Pg.new
+          remote_url  = "postgres://someurl.test/#{remote}"
+          local_url   = "postgres:///#{local}"
+          dump_restore = double()
+          expect(pg).to receive(:resolve_heroku_url).and_return(remote_url)
+          expect(dump_restore).to receive(:execute)
+          expect(Heroku::Command).to receive(:shift_argument).and_return(local, remote)
+          expect(PgDumpRestore).to receive(:new).with(local_url, remote_url, pg).and_return(dump_restore)
+
+          pg.push
+        end
+      end
+
+      context 'with no databases specified' do
+        it 'displays help' do
+          pg = Heroku::Command::Pg.new
+          expect(pg).to receive(:current_command).and_return('push')
+          expect(Heroku::Command).to receive(:run).with('push', ['--help'])
+
+          expect { pg.push }.to raise_error SystemExit
+        end
+      end
+    end
+
+    describe '#pull' do
+      context 'with remote and local dbs specified' do
+        let(:remote) { 'MY_HEROKU_DB_FUSCIA' }
+        let(:local)  { 'MyLocalDb' }
+
+        it 'executes dump restore with correct targets' do
+          pg          = Heroku::Command::Pg.new
+          remote_url  = "postgres://someurl.test/#{remote}"
+          local_url   = "postgres:///#{local}"
+          dump_restore = double()
+          expect(pg).to receive(:resolve_heroku_url).and_return(remote_url)
+          expect(dump_restore).to receive(:execute)
+          expect(Heroku::Command).to receive(:shift_argument).and_return(remote, local)
+          expect(PgDumpRestore).to receive(:new).with(remote_url, local_url, pg).and_return(dump_restore)
+
+          pg.pull
+        end
+
+        context 'with no databases specified' do
+          it 'displays help' do
+            pg = Heroku::Command::Pg.new
+            expect(pg).to receive(:current_command).and_return('pull')
+            expect(Heroku::Command).to receive(:run).with('pull', ['--help'])
+
+            expect { pg.pull }.to raise_error SystemExit
+          end
+        end
+      end
+    end
+
+    describe '#parse_db_url' do
+      it 'returns a local url when only database name is supplied' do
+        pg = Heroku::Command::Pg.new
+        parsed_url = pg.send(:parse_db_url, 'MyLocalDb')
+        expect(parsed_url).to eql 'postgres:///MyLocalDb'
+      end
+
+      it 'returns the original path when a url is specified' do
+        url = 'postgres://user:password@server:1234/'.freeze
+        pg = Heroku::Command::Pg.new
+        parsed_url = pg.send(:parse_db_url, url)
+        expect(parsed_url).to eql url
+      end
+    end
   end
 end
