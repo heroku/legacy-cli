@@ -141,11 +141,13 @@ class Heroku::Auth
       @netrc ||= begin
         File.exists?(netrc_path) && Netrc.read(netrc_path)
       rescue => error
-        if error.message =~ /^Permission bits for/
-          perm = File.stat(netrc_path).mode & 0777
-          abort("Permissions #{perm} for '#{netrc_path}' are too open. You should run `chmod 0600 #{netrc_path}` so that your credentials are NOT accessible by others.")
+        case error.message
+        when /^Permission bits for/
+          abort("#{error.message}.\nYou should run `chmod 0600 #{netrc_path}` so that your credentials are NOT accessible by others.")
+        when /EACCES/
+          error("Error reading #{netrc_path}\n#{error.message}\nMake sure this user can read/write this file.")
         else
-          raise error
+          error("Error reading #{netrc_path}\n#{error.message}\nYou may need to delete this file and run `heroku login` to recreate it.")
         end
       end
     end
