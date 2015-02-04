@@ -13,7 +13,7 @@ module Heroku::Command
     #
     # $ heroku plugins
     # === Installed Plugins
-    # heroku-accounts
+    # heroku-production-check@0.2.0
     #
     def index
       validate_arguments!
@@ -35,8 +35,8 @@ module Heroku::Command
     #
     #Example:
     #
-    # $ heroku plugins:install https://github.com/ddollar/heroku-accounts.git
-    # Installing heroku-accounts... done
+    # $ heroku plugins:install heroku-production-check
+    # Installing heroku-production-check... done
     #
     def install
       name = shift_argument
@@ -56,8 +56,8 @@ module Heroku::Command
     #
     #Example:
     #
-    # $ heroku plugins:uninstall heroku-accounts
-    # Uninstalling heroku-accounts... done
+    # $ heroku plugins:uninstall heroku-production-check
+    # Uninstalling heroku-production-check... done
     #
     def uninstall
       plugin = Heroku::Plugin.new(shift_argument)
@@ -78,10 +78,10 @@ module Heroku::Command
     #Example:
     #
     # $ heroku plugins:update
-    # Updating heroku-accounts... done
+    # Updating heroku-production-check... done
     #
-    # $ heroku plugins:update heroku-accounts
-    # Updating heroku-accounts... done
+    # $ heroku plugins:update heroku-production-check
+    # Updating heroku-production-check... done
     #
     def update
       plugins = if plugin = shift_argument
