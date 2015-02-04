@@ -150,7 +150,7 @@ protected
     rescue Timeout::Error, Errno::ETIMEDOUT
       error "\nTimeout awaiting dyno, see https://devcenter.heroku.com/articles/one-off-dynos#timeout-awaiting-process"
     rescue OpenSSL::SSL::SSLError
-      error "Authentication error"
+      error "\nSSL error connecting to dyno."
     rescue Errno::ECONNREFUSED, Errno::ECONNRESET
       error "\nError connecting to dyno, see https://devcenter.heroku.com/articles/one-off-dynos#timeout-awaiting-process"
     rescue Interrupt
