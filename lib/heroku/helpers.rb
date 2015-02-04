@@ -444,6 +444,7 @@ module Heroku
     end
 
     def error_log(*obj)
+      FileUtils.mkdir_p(File.dirname(error_log_path))
       File.open(error_log_path, 'a') do |file|
         file.write(obj.join("\n") + "\n")
       end
