@@ -38,7 +38,7 @@ module Heroku::Command
         error("Usage: heroku buildpack:set BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
-      api.put_app_buildpacks_v3(app, {updates: [{buildpack: buildpack_url}]})
+      api.put_app_buildpacks_v3(app, {:updates => [{:buildpack => buildpack_url}]})
       display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
       display "Run `git push heroku master` to create a new release on #{buildpack_url}."
     end
@@ -48,7 +48,7 @@ module Heroku::Command
     # unset the app buildpack
     #
     def unset
-      api.put_app_buildpacks_v3(app, {updates: []})
+      api.put_app_buildpacks_v3(app, {:updates => []})
       display "Buildpack unset. Next release on #{app} will detect buildpack normally."
     end
 
