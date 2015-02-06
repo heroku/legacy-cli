@@ -49,7 +49,17 @@ module Heroku::Command
     #
     def unset
       api.put_app_buildpacks_v3(app, {:updates => []})
-      display "Buildpack unset. Next release on #{app} will detect buildpack normally."
+
+      vars = api.get_config_vars(app).body
+      if vars.has_key?("BUILDPACK_URL")
+        display "Buildpack unset."
+        warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
+      elsif vars.has_key?("LANGUAGE_PACK_URL")
+        display "Buildpack unset."
+        warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
+      else
+        display "Buildpack unset. Next release on #{app} will detect buildpack normally."
+      end
     end
 
   end
