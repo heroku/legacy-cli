@@ -235,7 +235,7 @@ module Heroku
         e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
       }
     rescue Heroku::API::Errors::Locked => e
-      app = e.response.headers[:x_confirmation_required]
+      app = e.response.headers["X-Confirmation-Required"]
       if confirm_command(app, extract_error(e.response.body))
         arguments << '--confirm' << app
         retry
