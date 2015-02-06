@@ -59,7 +59,7 @@ example has no Buildpack URL set.
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
-Run `git push heroku master` to create a new release on https://github.com/heroku/heroku-buildpack-ruby.
+Run `git push heroku master` to create a new release using https://github.com/heroku/heroku-buildpack-ruby.
         STDOUT
       end
 

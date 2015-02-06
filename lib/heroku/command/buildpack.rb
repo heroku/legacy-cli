@@ -40,7 +40,7 @@ module Heroku::Command
 
       api.put_app_buildpacks_v3(app, {:updates => [{:buildpack => buildpack_url}]})
       display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
-      display "Run `git push heroku master` to create a new release on #{buildpack_url}."
+      display "Run `git push heroku master` to create a new release using #{buildpack_url}."
     end
 
     # buildpack:unset
