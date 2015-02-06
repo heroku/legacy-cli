@@ -6,7 +6,7 @@ module Rollbar
     payload = json_encode(build_payload(e))
     response = Excon.post('https://api.rollbar.com/api/1/item/', :body => payload)
     response = json_decode(response.body)
-    raise response if response["err"] != 0
+    raise response.to_s if response["err"] != 0
     response["result"]["uuid"]
   rescue => e
     $stderr.puts "Error submitting error."
