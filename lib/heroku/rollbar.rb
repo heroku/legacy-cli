@@ -9,8 +9,7 @@ module Rollbar
     raise response.to_s if response["err"] != 0
     response["result"]["uuid"]
   rescue => e
-    $stderr.puts "Error submitting error."
-    error_log(e.message, e.backtrace.join("\n"))
+    $stderr.puts(e.message, e.backtrace.join("\n"))
     nil
   end
 
