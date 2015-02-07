@@ -26,7 +26,7 @@ class Heroku::JSPlugin
         exec this.bin, "#{plugin['topic']}:#{plugin['command']}", *@args
       end
       Heroku::Command.register_command(
-        :command   => "#{plugin['topic']}:#{plugin['command']}",
+        :command   => plugin['command'] ? "#{plugin['topic']}:#{plugin['command']}" : plugin['topic'],
         :namespace => plugin['topic'],
         :klass     => klass,
         :method    => :run,
