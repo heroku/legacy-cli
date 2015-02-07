@@ -8,7 +8,7 @@ module Rollbar
     response = json_decode(response.body)
     raise response.to_s if response["err"] != 0
     response["result"]["uuid"]
-  rescue => e
+  rescue
     $stderr.puts(e.message, e.backtrace.join("\n"))
     nil
   end
