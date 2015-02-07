@@ -76,7 +76,11 @@ class Heroku::JSPlugin
   end
 
   def self.bin
-    File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli")
+    if os == 'windows'
+      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli.exe")
+    else
+      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli")
+    end
   end
 
   def self.setup
