@@ -397,7 +397,9 @@ EOF
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
 
     schedule = hpg_client(attachment).schedules.find do |s|
-      attachment.name =~ /#{s[:name]}/
+      # attachment.name is HEROKU_POSTGRESQL_COLOR
+      # s[:name] is HEROKU_POSTGRESQL_COLOR_URL
+      /#{attachment.name}/ =~ s[:name]
     end
 
     if schedule.nil?
