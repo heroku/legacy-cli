@@ -22,13 +22,10 @@ class Heroku::Command::Orgs < Heroku::Command::Base
       end
     end
 
-    default = response['user']['default_organization'] || ""
-
     orgs.map! do |org|
       name = org["organization_name"]
       t = []
       t <<  org["role"]
-      t << 'default' if name == default
       [name, t.join(', ')]
     end
 
@@ -48,33 +45,12 @@ class Heroku::Command::Orgs < Heroku::Command::Base
     launchy("Opening web interface for #{org}", "https://dashboard.heroku.com/orgs/#{org}/apps")
   end
 
-  # orgs:default [TARGET]
+  # orgs:default
   #
-  # sets the default org.
-  # TARGET can be an org you belong to or it can be "personal"
-  # for your personal account. If no argument or option is given,
-  # the default org is displayed
-  #
+  # DEPRECATED: Use HEROKU_ORGANIZATION environment variable
   #
   def default
-    options[:ignore_no_org] = true
-    if target = shift_argument
-      options[:org] = target
-    end
-
-    if org == "personal" || options[:personal]
-      action("Setting personal account as default") do
-        org_api.remove_default_org
-      end
-    elsif org && !options[:using_default_org]
-      action("Setting #{org} as the default organization") do
-        org_api.set_default_org(org)
-      end
-    elsif org
-      display("#{org} is the default organization.")
-    else
-      display("Personal account is default.")
-    end
+    display("DEPRECATED: Use HEROKU_ORGANIZATION environment variable.")
   end
 
 end
