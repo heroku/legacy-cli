@@ -399,7 +399,7 @@ EOF
     schedule = hpg_client(attachment).schedules.find do |s|
       # attachment.name is HEROKU_POSTGRESQL_COLOR
       # s[:name] is HEROKU_POSTGRESQL_COLOR_URL
-      /#{attachment.name}/ =~ s[:name]
+      s[:name] =~ /#{attachment.name}/ || attachment.name =~ /#{s[:name]}/
     end
 
     if schedule.nil?
