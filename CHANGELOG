@@ -1,3 +1,20 @@
+3.26.0 2015-02-10
+=================
+Removed default orgs in place of HEROKU_ORGANIZATION env var (#1395)
+Display errors if rollbar does not accept it (#1412)
+Fix case-sensitive reading of X-Confirmation-Required header (#1410)
+Fix v4 plugin commands without command name and topic only
+Bug fixes for v4 plugins on Windows
+Show rollbar errors in ~/.heroku/error.log (#1408)
+Allow db:push and db:pull to work with remote databases (#1386)
+Cleaner error messages when failing to read netrc files (#1404)
+Create heroku directory if it does not exist when writing ~/.heroku/error.log (#1403)
+More descriptive error message when heroku run has an SSL error (#1401)
+Change plugin example to use heroku-production-check instead of heroku-accounts (#1400)
+Updated help text for twofactor commands (#1398)
+Show warning if CLI is run under jruby (#1396)
+Show out of date warning if toolbelt is not autoupdatable (#1394)
+
 3.25.0 2015-01-29
 =================
 Added `plugins:uninstall` for toolbelt v4 plugins
