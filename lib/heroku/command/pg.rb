@@ -338,9 +338,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # pull from REMOTE_SOURCE_DATABASE to TARGET_DATABASE
   # TARGET_DATABASE must not already exist.
   #
-  # TARGET_DATABASE must be either the name of a database
-  # existing on your localhost or the fully qualified URL of
-  # a remote database.
+  # TARGET_DATABASE will be created locally if it's a database name
+  # or remotely if it's a fully qualified URL.
   def pull
     requires_preauth
     remote, local = shift_argument, shift_argument
