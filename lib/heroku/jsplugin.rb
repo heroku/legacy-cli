@@ -115,6 +115,8 @@ class Heroku::JSPlugin
       "linux"
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       "windows"
+    when /openbsd/
+      "openbsd"
     else
       raise "unsupported on #{RUBY_PLATFORM}"
     end
