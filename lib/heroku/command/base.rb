@@ -47,7 +47,7 @@ class Heroku::Command::Base
       options[:org]
     elsif options[:personal] || @nil
       nil
-    elsif ENV['HEROKU_ORGANIZATION']
+    elsif ENV['HEROKU_ORGANIZATION'] && ENV['HEROKU_ORGANIZATION'].strip != ""
       ENV['HEROKU_ORGANIZATION']
     elsif options[:ignore_no_org]
       nil
