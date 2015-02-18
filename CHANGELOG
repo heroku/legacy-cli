@@ -1,3 +1,9 @@
+3.26.1 2015-02-18
+=================
+Added buildpack command
+Ignore HEROKU_ORGANIZATION env var if blank
+Added OpenBSD to v4 plugins
+
 3.26.0 2015-02-10
 =================
 Removed default orgs in place of HEROKU_ORGANIZATION env var (#1395)
