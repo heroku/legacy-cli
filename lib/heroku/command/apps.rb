@@ -267,8 +267,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
       end
 
       if buildpack = options[:buildpack]
-        api.put_config_vars(info["name"], "BUILDPACK_URL" => buildpack)
-        display("BUILDPACK_URL=#{buildpack}")
+        api.put_app_buildpacks_v3(info['name'], {:updates => [{:buildpack => buildpack}]})
+        display "Buildpack set. Next release on #{info['name']} will use #{buildpack}."
       end
 
       hputs([ info["web_url"], git_url(info['name']) ].join(" | "))

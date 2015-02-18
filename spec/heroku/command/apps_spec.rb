@@ -136,12 +136,13 @@ STDOUT
       end
 
       it "with a buildpack" do
+        Excon.stub({:method => :put, :path => "/apps/buildpackapp/buildpack-installations"}, {:status => 200})
         with_blank_git_repository do
           stderr, stdout = execute("apps:create buildpackapp --buildpack http://example.org/buildpack.git")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Creating buildpackapp... done, stack is bamboo-mri-1.9.2
-BUILDPACK_URL=http://example.org/buildpack.git
+Buildpack set. Next release on buildpackapp will use http://example.org/buildpack.git.
 http://buildpackapp.herokuapp.com/ | https://git.heroku.com/buildpackapp.git
 Git remote heroku added
 STDOUT
