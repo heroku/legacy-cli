@@ -18,6 +18,7 @@ module Heroku
       heroku-netrc
       heroku-pgdumps
       heroku-postgresql
+      heroku-push
       heroku-releases
       heroku-shared-postgresql
       heroku-sql-console
