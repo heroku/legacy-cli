@@ -4,7 +4,7 @@ require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
 class Heroku::Command::Pg < Heroku::Command::Base
-  # pg:copy source target
+  # pg:copy SOURCE TARGET
   #
   # Copy all data from source database to target. At least one of
   # these must be a Heroku Postgres database.
