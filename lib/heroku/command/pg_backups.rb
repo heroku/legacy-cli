@@ -391,7 +391,21 @@ EOF
     at = options[:at] || '04:00 UTC'
     schedule_opts = parse_schedule_time(at)
 
-    attachment = generate_resolver.resolve(db, "DATABASE_URL")
+    resolver = generate_resolver
+    attachment = resolver.resolve(db, "DATABASE_URL")
+
+    # N.B.: we need to resolve the name to find the right database,
+    # but we don't want to resolve it to the canonical name, so that,
+    # e.g., names like FOLLOWER_URL work. To do this, we look up the
+    # app config vars and re-find one that looks like the user's
+    # requested name.
+    db_name, alias_url = resolver.app_config_vars.find { |k,_| k =~ /#{db}/i }
+    if attachment.url != alias_url
+      error("Could not find database to schedule for backups. Try using its full name.")
+    end
+
+    schedule_opts[:schedule_name] = db_name
+
     hpg_client(attachment).schedule(schedule_opts)
     display "Scheduled automatic daily backups at #{at} for #{attachment.name}"
   end
