@@ -23,9 +23,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     attachment = target.attachment || source.attachment
 
-    xfer = hpg_client(attachment).pg_copy(source.name, source.url,
-                                          target.name, target.url)
-    poll_transfer('copy', xfer[:uuid])
+    if confirm_command
+      xfer = hpg_client(attachment).pg_copy(source.name, source.url,
+                                            target.name, target.url)
+      poll_transfer('copy', xfer[:uuid])
+    end
   end
 
   # pg:backups [subcommand]
@@ -311,8 +313,9 @@ EOF
       abort("Backup #{backup_id} did not complete successfully; cannot restore it.")
     end
 
-    backup = hpg_client(attachment).backups_restore(backup[:to_url])
-    display <<-EOF
+    if confirm_command
+      backup = hpg_client(attachment).backups_restore(backup[:to_url])
+      display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
 will continue restoring. Use heroku pg:backups to check progress.
 Stop a running restore with heroku pg:backups cancel.
@@ -320,7 +323,8 @@ Stop a running restore with heroku pg:backups cancel.
 #{transfer_name(backup[:num])} ---restore---> #{attachment.name}
 
 EOF
-    poll_transfer('restore', backup[:uuid])
+      poll_transfer('restore', backup[:uuid])
+    end
   end
 
   def poll_transfer(action, transfer_id)
@@ -357,8 +361,10 @@ EOF
     backup_id = shift_argument
     validate_arguments!
 
-    hpg_app_client(app).transfers_delete(backup_num(backup_id))
-    display "Deleted #{backup_id}"
+    if confirm_command
+      hpg_app_client(app).transfers_delete(backup_num(backup_id))
+      display "Deleted #{backup_id}"
+    end
   end
 
   def public_url
