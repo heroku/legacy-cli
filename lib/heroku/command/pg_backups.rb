@@ -171,7 +171,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
         "created_at" => r[:created_at],
         "status" => transfer_status(r),
         "size" => size_pretty(r[:processed_bytes]),
-        "database" => r[:from_name] || 'UNKNOWN'
+        "database" => r[:to_name] || 'UNKNOWN'
       }
     end
     if display_restores.empty?
