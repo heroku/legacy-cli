@@ -1,3 +1,7 @@
+3.27.1 2015-02-24
+=================
+Bumped gem version number to 3.27.1
+
 3.27.0 2015-02-24
 =================
 Make pgbackups work with config vars other than DATABASE_URL
