@@ -4,7 +4,7 @@ require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
 class Heroku::Command::Pg < Heroku::Command::Base
-  # pg:copy source target
+  # pg:copy SOURCE TARGET
   #
   # Copy all data from source database to target. At least one of
   # these must be a Heroku Postgres database.
@@ -23,9 +23,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     attachment = target.attachment || source.attachment
 
-    xfer = hpg_client(attachment).pg_copy(source.name, source.url,
-                                          target.name, target.url)
-    poll_transfer('copy', xfer[:uuid])
+    if confirm_command
+      xfer = hpg_client(attachment).pg_copy(source.name, source.url,
+                                            target.name, target.url)
+      poll_transfer('copy', xfer[:uuid])
+    end
   end
 
   # pg:backups [subcommand]
@@ -169,7 +171,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
         "created_at" => r[:created_at],
         "status" => transfer_status(r),
         "size" => size_pretty(r[:processed_bytes]),
-        "database" => r[:from_name] || 'UNKNOWN'
+        "database" => r[:to_name] || 'UNKNOWN'
       }
     end
     if display_restores.empty?
@@ -311,8 +313,9 @@ EOF
       abort("Backup #{backup_id} did not complete successfully; cannot restore it.")
     end
 
-    backup = hpg_client(attachment).backups_restore(backup[:to_url])
-    display <<-EOF
+    if confirm_command
+      backup = hpg_client(attachment).backups_restore(backup[:to_url])
+      display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
 will continue restoring. Use heroku pg:backups to check progress.
 Stop a running restore with heroku pg:backups cancel.
@@ -320,7 +323,8 @@ Stop a running restore with heroku pg:backups cancel.
 #{transfer_name(backup[:num])} ---restore---> #{attachment.name}
 
 EOF
-    poll_transfer('restore', backup[:uuid])
+      poll_transfer('restore', backup[:uuid])
+    end
   end
 
   def poll_transfer(action, transfer_id)
@@ -357,8 +361,10 @@ EOF
     backup_id = shift_argument
     validate_arguments!
 
-    hpg_app_client(app).transfers_delete(backup_num(backup_id))
-    display "Deleted #{backup_id}"
+    if confirm_command
+      hpg_app_client(app).transfers_delete(backup_num(backup_id))
+      display "Deleted #{backup_id}"
+    end
   end
 
   def public_url
@@ -385,7 +391,21 @@ EOF
     at = options[:at] || '04:00 UTC'
     schedule_opts = parse_schedule_time(at)
 
-    attachment = generate_resolver.resolve(db, "DATABASE_URL")
+    resolver = generate_resolver
+    attachment = resolver.resolve(db, "DATABASE_URL")
+
+    # N.B.: we need to resolve the name to find the right database,
+    # but we don't want to resolve it to the canonical name, so that,
+    # e.g., names like FOLLOWER_URL work. To do this, we look up the
+    # app config vars and re-find one that looks like the user's
+    # requested name.
+    db_name, alias_url = resolver.app_config_vars.find { |k,_| k =~ /#{db}/i }
+    if attachment.url != alias_url
+      error("Could not find database to schedule for backups. Try using its full name.")
+    end
+
+    schedule_opts[:schedule_name] = db_name
+
     hpg_client(attachment).schedule(schedule_opts)
     display "Scheduled automatic daily backups at #{at} for #{attachment.name}"
   end

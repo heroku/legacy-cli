@@ -80,6 +80,11 @@ module Heroku::Helpers::HerokuPostgresql
       end
     end
 
+    def app_config_vars
+      protect_missing_app
+      @app_config_vars ||= api.get_config_vars(app_name).body
+    end
+
     private
 
     def protect_missing_app
@@ -87,11 +92,6 @@ module Heroku::Helpers::HerokuPostgresql
       unless app_name
         error("No app specified.\nRun this command from an app folder or specify which app to use with --app APP.")
       end
-    end
-
-    def app_config_vars
-      protect_missing_app
-      @app_config_vars ||= api.get_config_vars(app_name).body
     end
 
     def app_attachments
