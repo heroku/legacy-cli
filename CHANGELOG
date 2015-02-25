@@ -1,3 +1,11 @@
+3.27.0 2015-02-24
+=================
+Make pgbackups work with config vars other than DATABASE_URL
+Require confirmation for dangerous pg:backups commands
+Updated netrc to 0.10.3
+Fix pg:backups unschedule
+Deprecated heroku-push plugin
+
 3.26.1 2015-02-18
 =================
 Added buildpack command
