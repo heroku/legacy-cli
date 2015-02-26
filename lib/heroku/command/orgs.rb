@@ -48,7 +48,7 @@ class Heroku::Command::Orgs < Heroku::Command::Base
   # HIDDEN: orgs:default
   #
   def default
-    display("DEPRECATED: Use HEROKU_ORGANIZATION environment variable.")
+    error("orgs:default is no longer in the CLI.\nUse the HEROKU_ORGANIZATION environment variable instead.\nSee https://devcenter.heroku.com/articles/develop-orgs#default-org for more info.")
   end
 
 end
