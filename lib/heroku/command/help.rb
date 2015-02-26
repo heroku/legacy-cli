@@ -5,7 +5,7 @@ require "heroku/deprecated/help"
 #
 class Heroku::Command::Help < Heroku::Command::Base
 
-  PRIMARY_NAMESPACES = %w( auth apps ps run addons config releases domains logs sharing )
+  PRIMARY_NAMESPACES = %w( auth apps ps run restart addons config releases domains logs sharing )
 
   include Heroku::Deprecated::Help
 
