@@ -244,7 +244,7 @@ protected
     options[:org] = extract_org_from_app
     options[:personal] = true unless options[:org]
   end
-  
+
   def git_url(app_name)
     if options[:ssh_git]
       "git@#{Heroku::Auth.git_host}:#{app_name}.git"
