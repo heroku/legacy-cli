@@ -15,6 +15,7 @@ class Heroku::JSPlugin
       ) unless Heroku::Command.namespaces.include?(topic['name'])
     end
     commands.each do |plugin|
+      help = "\n\n  #{plugin['fullHelp'].split("\n").join("\n  ")}"
       klass = Class.new do
         def initialize(args, opts)
           @args = args
@@ -31,7 +32,7 @@ class Heroku::JSPlugin
         :method    => :run,
         :banner    => plugin['usage'],
         :summary   => plugin['description'],
-        :help      => "\n#{plugin['fullHelp']}"
+        :help      => help
       )
     end
   end
