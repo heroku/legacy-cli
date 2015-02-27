@@ -1,3 +1,9 @@
+3.27.2 2015-02-24
+=================
+Added restart to primary commands in help
+Fixed issue with argument passing to v4 plugins
+Added full help for v4 plugins
+
 3.27.1 2015-02-24
 =================
 Bumped gem version number to 3.27.1
