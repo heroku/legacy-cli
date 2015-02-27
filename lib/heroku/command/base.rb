@@ -41,9 +41,7 @@ class Heroku::Command::Base
     @nil = false
     options[:ignore_no_app] = true
 
-    @org ||= if skip_org?
-      nil
-    elsif options[:org].is_a?(String)
+    @org ||= if options[:org].is_a?(String)
       options[:org]
     elsif options[:personal] || @nil
       nil
@@ -246,13 +244,7 @@ protected
     options[:org] = extract_org_from_app
     options[:personal] = true unless options[:org]
   end
-
-  def skip_org?
-    return false if ENV['HEROKU_CLOUD'].nil?
-
-    !%w{default production prod}.include? ENV['HEROKU_CLOUD']
-  end
-
+  
   def git_url(app_name)
     if options[:ssh_git]
       "git@#{Heroku::Auth.git_host}:#{app_name}.git"
