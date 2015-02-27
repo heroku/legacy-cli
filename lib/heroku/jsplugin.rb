@@ -22,8 +22,7 @@ class Heroku::JSPlugin
         end
       end
       klass.send(:define_method, :run) do
-        ENV['HEROKU_APP'] = @opts[:app]
-        exec this.bin, "#{plugin['topic']}:#{plugin['command']}", *@args
+        exec this.bin, "#{plugin['topic']}:#{plugin['command']}", *ARGV[1..-1]
       end
       Heroku::Command.register_command(
         :command   => plugin['command'] ? "#{plugin['topic']}:#{plugin['command']}" : plugin['topic'],
@@ -32,7 +31,7 @@ class Heroku::JSPlugin
         :method    => :run,
         :banner    => plugin['usage'],
         :summary   => plugin['description'],
-        :help      => "\n#{plugin['help']}"
+        :help      => "\n#{plugin['fullHelp']}"
       )
     end
   end
