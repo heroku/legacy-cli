@@ -1,3 +1,11 @@
+3.28.0 2015-02-27
+=================
+Added `heroku local`
+Added flag to customize poll interval for pg:wait
+Fixed error message for default orgs
+Allow org for all commands
+Improved help formatting for v4 plugins
+
 3.27.2 2015-02-24
 =================
 Added restart to primary commands in help
