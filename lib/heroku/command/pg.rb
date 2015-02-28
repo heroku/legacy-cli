@@ -183,16 +183,19 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   # defaults to all databases if no DATABASE is specified
   #
+  # --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
+  #
   def wait
     requires_preauth
     db = shift_argument
     validate_arguments!
+    interval = options[:wait_interval]
 
     if db
-      wait_for generate_resolver.resolve(db)
+      wait_for(generate_resolver.resolve(db), interval)
     else
       generate_resolver.all_databases.values.each do |attach|
-        wait_for(attach)
+        wait_for(attach, interval)
       end
     end
   end
@@ -538,17 +541,18 @@ private
     end
   end
 
-  def ticking
+  def ticking(interval)
+    interval = 1 unless interval
     ticks = 0
     loop do
       yield(ticks)
       ticks +=1
-      sleep 1
+      sleep interval
     end
   end
 
-  def wait_for(attach)
-    ticking do |ticks|
+  def wait_for(attach, interval)
+    ticking(interval) do |ticks|
       status = hpg_client(attach).get_wait_status
       error status[:message] if status[:error?]
       break if !status[:waiting?] && ticks.zero?
