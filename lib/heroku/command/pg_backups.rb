@@ -283,47 +283,55 @@ EOF
   def restore_backup
     # heroku pg:backups restore [[backup_id] database]
     db = nil
-    backup_id = :latest
+    restore_from = :latest
 
     # N.B.: we have to account for the command argument here
     if args.count == 2
       db = shift_argument
     elsif args.count == 3
-      backup_id = shift_argument
+      restore_from = shift_argument
       db = shift_argument
     end
 
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     validate_arguments!
 
-    backups = hpg_app_client(app).transfers.select do |b|
-      b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
-    end
-    backup = if backup_id == :latest
-               # N.B.: this also handles the empty backups case
-               backups.sort_by { |b| b[:started_at] }.last
-             else
-               backups.find { |b| transfer_name(b[:num]) == backup_id }
-             end
-    if backups.empty?
-      abort("No backups. Capture one with `heroku pg:backups capture`.")
-    elsif backup.nil?
-      abort("Backup #{backup_id} not found.")
-    elsif !backup[:succeeded]
-      abort("Backup #{backup_id} did not complete successfully; cannot restore it.")
+    restore_url = nil
+    if restore_from =~ %r{\Ahttps?://}
+      restore_url = restore_from
+    else
+      # assume we're restoring from a backup
+      backup_id = restore_from
+      backups = hpg_app_client(app).transfers.select do |b|
+        b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
+      end
+      backup = if backup_id == :latest
+                 # N.B.: this also handles the empty backups case
+                 backups.sort_by { |b| b[:started_at] }.last
+               else
+                 backups.find { |b| transfer_name(b[:num]) == backup_id }
+               end
+      if backups.empty?
+        abort("No backups. Capture one with `heroku pg:backups capture`.")
+      elsif backup.nil?
+        abort("Backup #{backup_id} not found.")
+      elsif !backup[:succeeded]
+        abort("Backup #{backup_id} did not complete successfully; cannot restore it.")
+      end
+      restore_url = backup[:to_url]
     end
 
     if confirm_command
-      backup = hpg_client(attachment).backups_restore(backup[:to_url])
+      restore = hpg_client(attachment).backups_restore(restore_url)
       display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
 will continue restoring. Use heroku pg:backups to check progress.
 Stop a running restore with heroku pg:backups cancel.
 
-#{transfer_name(backup[:num])} ---restore---> #{attachment.name}
+#{transfer_name(restore[:num])} ---restore---> #{attachment.name}
 
 EOF
-      poll_transfer('restore', backup[:uuid])
+      poll_transfer('restore', restore[:uuid])
     end
   end
 
