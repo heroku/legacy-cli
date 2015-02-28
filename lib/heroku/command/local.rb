@@ -5,7 +5,7 @@ module Heroku::Command
   # run heroku app locally
   class Local < Base
 
-    # local:start [PROCESSNAME]
+    # local [PROCESSNAME]
     #
     # run heroku app locally
     #
@@ -13,9 +13,9 @@ module Heroku::Command
     #
     # Examples:
     #
-    #   heroku local:start
-    #   heroku local:start web
-    #   heroku local:start -f Procfile.test -e .env.test
+    #   heroku local
+    #   heroku local web
+    #   heroku local -f Procfile.test -e .env.test
     #
     # -f, --procfile PROCFILE
     # -e, --env ENV
@@ -23,10 +23,10 @@ module Heroku::Command
     # -p, --port PORT
     # -r, --r
     #
-    def start
+    def index
       Heroku::JSPlugin.setup
       Heroku::JSPlugin.install('heroku-local') unless Heroku::JSPlugin.is_plugin_installed?('heroku-local')
-      Heroku::JSPlugin.run('local', 'start', ARGV[1..-1])
+      Heroku::JSPlugin.run('local', nil, ARGV[1..-1])
     end
   end
 end
