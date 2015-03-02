@@ -189,7 +189,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
     requires_preauth
     db = shift_argument
     validate_arguments!
-    interval = options[:wait_interval]
+    interval = options[:wait_interval].to_i
+    interval = 1 if interval < 1
 
     if db
       wait_for(generate_resolver.resolve(db), interval)
@@ -542,7 +543,6 @@ private
   end
 
   def ticking(interval)
-    interval = 1 unless interval
     ticks = 0
     loop do
       yield(ticks)
