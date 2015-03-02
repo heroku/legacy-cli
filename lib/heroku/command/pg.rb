@@ -189,7 +189,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     requires_preauth
     db = shift_argument
     validate_arguments!
-    interval = options[:wait_interval]
+    interval = options[:wait_interval].to_i
 
     if db
       wait_for(generate_resolver.resolve(db), interval)
