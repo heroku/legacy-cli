@@ -23,7 +23,7 @@ module Heroku::Command
 
       styled_header("#{app} Available Stacks")
       stacks = stacks_data.map do |stack|
-        row = [stack['current'] ? '*' : ' ', stack['name']]
+        row = [stack['current'] ? '*' : ' ', Codex.out(stack['name'])]
         row << '(beta)' if stack['beta']
         row << '(deprecated)' if stack['deprecated']
         row << '(prepared, will migrate on next git push)' if stack['requested']
@@ -37,15 +37,37 @@ module Heroku::Command
     # set new app stack
     #
     def set
-      unless stack = shift_argument
+      unless stack = Codex.in(shift_argument)
         error("Usage: heroku stack:set STACK.\nMust specify target stack.")
       end
 
       api.put_stack(app, stack)
-      display "Stack set. Next release on #{app} will use #{stack}."
-      display "Run `git push heroku master` to create a new release on #{stack}."
+      display "Stack set. Next release on #{app} will use #{Codex.out(stack)}."
+      display "Run `git push heroku master` to create a new release on #{Codex.out(stack)}."
     end
 
     alias_command "stack:migrate", "stack:set"
+
+    module Codex
+      def self.in(stack)
+        IN[stack] || stack
+      end
+
+      def self.out(stack)
+        OUT[stack] || stack
+      end
+
+      # Legacy translations for cedar => cedar-10
+      # only here for UX purposes to avoid confusion
+      # when we say `Sunsetting cedar`.
+      IN = {
+        "cedar-10" => "cedar",
+        "cedar" => "cedar"
+      }
+
+      OUT = {
+        "cedar" => "cedar-10"
+      }
+    end
   end
 end
