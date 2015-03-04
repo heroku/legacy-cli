@@ -134,7 +134,7 @@ module Heroku::Command
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
 
-        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new('pgbackups-rims', api)
+        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new(from, api)
         attachment = resolver.resolve("#{from_attachment}_URL", nil)
         pgb = Heroku::Client::HerokuPostgresql.new(attachment)
         transfer = pgb.pg_copy(
