@@ -134,27 +134,21 @@ module Heroku::Command
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
 
-        attachment = Heroku::Helpers::HerokuPostgresql::Attachment.new(
-          'app' => {'name' => from },
-          'name' => from_attachment,
-          'config_var' => "#{from_attachment}_URL",
-          'resource' => {'name'  => from,
-                         'value' => from_addon['sso_url'],
-                         'type'  => from_addon['name']})
+        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new('pgbackups-rims', api)
+        attachment = resolver.resolve("#{from_attachment}_URL", nil)
         pgb = Heroku::Client::HerokuPostgresql.new(attachment)
         transfer = pgb.pg_copy(
-          from_attachment,
+          from_attachment.gsub('HEROKU_POSTGRESQL_',''),
           from_config["#{from_attachment}_URL"],
-          to_attachment,
+          to_attachment.gsub('HEROKU_POSTGRESQL_',''),
           to_config["#{to_attachment}_URL"])
 
         error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
-        loop do
-          transfer = pgb.get_transfer(transfer["id"])
+        begin
+          transfer = pgb.backups_get(transfer[:uuid])
           error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
-          break if transfer["finished_at"]
           sleep 1
-        end
+        end until transfer[:finished_at]
         print " "
       end
     end
