@@ -89,6 +89,7 @@ class Heroku::JSPlugin
 
   def self.setup
     return if File.exist? bin
+    $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
     resp = Excon.get(url, :middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress])
     open(bin, "wb") do |file|
@@ -99,6 +100,7 @@ class Heroku::JSPlugin
       File.delete bin
       raise 'SHA mismatch for heroku-cli'
     end
+    $stderr.puts " done"
   end
 
   def self.run(topic, command, args)
