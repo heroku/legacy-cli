@@ -20,7 +20,7 @@ module Heroku::Command
 === example Available Stacks
   aspen-mri-1.8.6
   bamboo-ree-1.8.7
-  cedar (beta)
+  cedar-10 (beta)
 * bamboo-mri-1.9.2
 
 STDOUT
