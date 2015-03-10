@@ -61,8 +61,7 @@ module Heroku::Command
       # only here for UX purposes to avoid confusion
       # when we say `Sunsetting cedar`.
       IN = {
-        "cedar-10" => "cedar",
-        "cedar" => "cedar"
+        "cedar-10" => "cedar"
       }
 
       OUT = {
