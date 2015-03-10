@@ -175,7 +175,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       data["Cache Size"] = format_bytes(app_data["cache_size"]) if app_data["cache_size"]
 
       data["Stack"] = Heroku::Command::Stack::Codex.out(app_data["stack"])
-      if data["Stack"] != "cedar"
+      if data["Stack"] != "cedar-10"
         data.merge!("Dynos" => app_data["dynos"], "Workers" => app_data["workers"])
       end
 
