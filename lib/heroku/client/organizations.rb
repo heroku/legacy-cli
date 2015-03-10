@@ -212,7 +212,7 @@ class Heroku::Client::Organizations
     end
 
     def manager_url
-      Heroku::Auth.full_host(Heroku::Auth.host)
+      Heroku::Auth.full_host
     end
 
   end
