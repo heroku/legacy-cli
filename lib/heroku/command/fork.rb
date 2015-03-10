@@ -76,6 +76,8 @@ module Heroku::Command
             wait_for_db to, to_addon
           end
 
+          check_for_pgbackups! from
+          check_for_pgbackups! to
           migrate_db addon, from, to_addon, to
         end
       end
@@ -125,6 +127,14 @@ module Heroku::Command
                           :deploy_source => from_info["id"])
     end
 
+    def check_for_pgbackups!(app)
+      unless api.get_addons(app).body.detect { |addon| addon["name"] =~ /^pgbackups:/ }
+        action("Adding pgbackups:plus to #{app}") do
+          api.post_addon app, "pgbackups:plus"
+        end
+      end
+    end
+
     def migrate_db(from_addon, from, to_addon, to)
       transfer = nil
 
@@ -134,21 +144,21 @@ module Heroku::Command
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
 
-        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new(from, api)
-        attachment = resolver.resolve("#{from_attachment}_URL", nil)
-        pgb = Heroku::Client::HerokuPostgresql.new(attachment)
-        transfer = pgb.pg_copy(
-          from_attachment.gsub('HEROKU_POSTGRESQL_',''),
+        pgb = Heroku::Client::Pgbackups.new(from_config["PGBACKUPS_URL"])
+        transfer = pgb.create_transfer(
           from_config["#{from_attachment}_URL"],
-          to_attachment.gsub('HEROKU_POSTGRESQL_',''),
-          to_config["#{to_attachment}_URL"])
+          from_attachment,
+          to_config["#{to_attachment}_URL"],
+          to_attachment,
+          :expire => "true")
 
         error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
-        begin
-          transfer = pgb.backups_get(transfer[:uuid])
+        loop do
+          transfer = pgb.get_transfer(transfer["id"])
           error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
+          break if transfer["finished_at"]
           sleep 1
-        end until transfer[:finished_at]
+        end
         print " "
       end
     end
