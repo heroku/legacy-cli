@@ -26,7 +26,7 @@ module Heroku::Command
 === example
 Git URL:       https://git.heroku.com/example.git
 Owner Email:   email@example.com
-Stack:         cedar
+Stack:         cedar-10
 Web URL:       http://example.herokuapp.com/
 STDOUT
       end
@@ -38,7 +38,7 @@ STDOUT
 === example
 Git URL:       https://git.heroku.com/example.git
 Owner Email:   email@example.com
-Stack:         cedar
+Stack:         cedar-10
 Web URL:       http://example.herokuapp.com/
 STDOUT
       end
