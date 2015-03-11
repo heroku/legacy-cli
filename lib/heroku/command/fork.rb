@@ -150,10 +150,8 @@ module Heroku::Command
         transfer = pgb.pg_copy(
           from_attachment.gsub('HEROKU_POSTGRESQL_',''),
           from_config["#{from_attachment}_URL"],
-          from_attachment,
-          to_config["#{to_attachment}_URL"],
-          to_attachment,
-          :expire => "true")
+          to_attachment.gsub('HEROKU_POSTGRESQL_',''),
+          to_config["#{to_attachment}_URL"])
 
         hpg_app_client = Heroku::Client::HerokuPostgresqlApp.new(to)
         begin
