@@ -106,6 +106,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     begin
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = 'require'
+      ENV["PGAPPNAME"]  = "#{pgappname} interactive"
       if command = options[:command]
         command = %Q(-c "#{command}")
       end
@@ -615,6 +616,7 @@ private
     begin
       ENV["PGPASSWORD"] = uri.password
       ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
+      ENV["PGAPPNAME"]  = "#{pgappname} non-interactive"
       user_part = uri.user ? "-U #{uri.user}" : ""
       output = `#{psql_cmd} -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
       if (! $?.success?) || output.nil? || output.empty?
@@ -625,6 +627,14 @@ private
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see https://devcenter.heroku.com/articles/heroku-postgresql#local-setup"
       abort
+    end
+  end
+
+  def pgappname
+    if running_on_windows?
+      'psql (windows)'
+    else
+      "psql #{`whoami`.chomp.gsub(/\W/,'')}"
     end
   end
 
