@@ -134,8 +134,8 @@ module Heroku::Command
         to_config = api.get_config_vars(to).body
         to_attachment = to_addon["message"].match(/Attached as (\w+)_URL\n/)[1]
 
-        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new(from, api)
-        attachment = resolver.resolve("#{from_attachment}_URL", nil)
+        resolver = Heroku::Helpers::HerokuPostgresql::Resolver.new(to, api)
+        attachment = resolver.resolve("#{to_attachment}_URL", nil)
         pgb = Heroku::Client::HerokuPostgresql.new(attachment)
         transfer = pgb.pg_copy(
           from_attachment.gsub('HEROKU_POSTGRESQL_',''),
@@ -143,12 +143,14 @@ module Heroku::Command
           to_attachment.gsub('HEROKU_POSTGRESQL_',''),
           to_config["#{to_attachment}_URL"])
 
-        error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
+        hpg_app_client = Heroku::Client::HerokuPostgresqlApp.new(to)
         begin
-          transfer = pgb.backups_get(transfer[:uuid])
-          error transfer["errors"].values.flatten.join("\n") if transfer["errors"]
+          transfer = hpg_app_client.transfers_get(transfer[:uuid])
           sleep 1
         end until transfer[:finished_at]
+        if !transfer[:succeeded]
+          error "An error occurred and your transfer did not finish."
+        end
         print " "
       end
     end
