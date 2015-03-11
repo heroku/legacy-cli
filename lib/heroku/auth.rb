@@ -166,15 +166,17 @@ class Heroku::Auth
 
         # read netrc credentials if they exist
         if netrc
+          netrc_host = full_host_uri.host
+
           # force migration of long api tokens (80 chars) to short ones (40)
           # #write_credentials rewrites both api.* and code.*
-          credentials = netrc["api.#{host}"]
+          credentials = netrc[netrc_host]
           if credentials && credentials[1].length > 40
             @credentials = [ credentials[0], credentials[1][0,40] ]
             write_credentials
           end
 
-          netrc["api.#{host}"]
+          netrc[netrc_host]
         end
       end
     end
@@ -349,8 +351,14 @@ class Heroku::Auth
       parts[-2..-1].join(".")
     end
 
-    def full_host(host)
-      (host =~ /^http/) ? host : "https://api.#{host}"
+    def full_host(*args)
+      # backwards compat for when this took an arg
+      h = args.first || host
+      (h =~ /^http/) ? h : "https://api.#{h}"
+    end
+
+    def full_host_uri
+      URI.parse(full_host)
     end
 
     def verify_host?(host)
@@ -361,7 +369,7 @@ class Heroku::Auth
     protected
 
     def default_params
-      uri = URI.parse(full_host(host))
+      uri = full_host_uri
       params = {
         :headers          => {'User-Agent' => Heroku.user_agent},
         :host             => uri.host,
