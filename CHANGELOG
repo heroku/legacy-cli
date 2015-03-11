@@ -1,3 +1,10 @@
+3.28.6 2015-03-11
+=================
+Changed fork to use new pgbackup implementation
+Show who is using psql and how
+Present cedar as cedar-10
+Use full_host_uri.host for checking netrc
+
 3.28.4 2015-03-10
 =================
 Reverted new pgbackup implementation for fork
