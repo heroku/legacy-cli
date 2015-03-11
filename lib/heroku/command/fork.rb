@@ -76,6 +76,8 @@ module Heroku::Command
             wait_for_db to, to_addon
           end
 
+          check_for_pgbackups! from
+          check_for_pgbackups! to
           migrate_db addon, from, to_addon, to
         end
       end
@@ -125,6 +127,14 @@ module Heroku::Command
                           :deploy_source => from_info["id"])
     end
 
+    def check_for_pgbackups!(app)
+      unless api.get_addons(app).body.detect { |addon| addon["name"] =~ /^pgbackups:/ }
+        action("Adding pgbackups:plus to #{app}") do
+          api.post_addon app, "pgbackups:plus"
+        end
+      end
+    end
+
     def migrate_db(from_addon, from, to_addon, to)
       transfer = nil
 
@@ -140,8 +150,10 @@ module Heroku::Command
         transfer = pgb.pg_copy(
           from_attachment.gsub('HEROKU_POSTGRESQL_',''),
           from_config["#{from_attachment}_URL"],
-          to_attachment.gsub('HEROKU_POSTGRESQL_',''),
-          to_config["#{to_attachment}_URL"])
+          from_attachment,
+          to_config["#{to_attachment}_URL"],
+          to_attachment,
+          :expire => "true")
 
         hpg_app_client = Heroku::Client::HerokuPostgresqlApp.new(to)
         begin

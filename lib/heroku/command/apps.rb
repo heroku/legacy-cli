@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/command/stack"
 
 # manage apps (create, destroy)
 #
@@ -255,7 +256,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
           status("region is #{region_from_app(info)}")
         else
           stack = (info['stack'].is_a?(Hash) ? info['stack']["name"] : info['stack'])
-          status("stack is #{stack}")
+          status("stack is #{Heroku::Command::Stack::Codex.out(stack)}")
         end
       end
 
