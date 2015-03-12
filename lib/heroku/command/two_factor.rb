@@ -32,7 +32,7 @@ module Heroku::Command
       print "Password (typing will be hidden): "
       password = Heroku::Auth.ask_for_password
 
-      update = MultiJson.encode(
+      update = MultiJson.dump(
         :two_factor_authentication => false,
         :password => password)
 
