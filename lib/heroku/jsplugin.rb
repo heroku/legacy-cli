@@ -119,7 +119,7 @@ class Heroku::JSPlugin
   end
 
   def self.os
-    case RUBY_PLATFORM
+    case RbConfig::CONFIG['host_os']
     when /darwin|mac os/
       "darwin"
     when /linux/
