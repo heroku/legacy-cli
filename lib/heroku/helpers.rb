@@ -274,7 +274,7 @@ module Heroku
       display(format_with_bang(message), new_line)
     end
 
-    def error(message, report=false)
+    def error(message, report=false, opts={})
       if Heroku::Helpers.error_with_failure
         display("failed")
         Heroku::Helpers.error_with_failure = false
@@ -282,6 +282,8 @@ module Heroku
       $stderr.puts(format_with_bang(message))
       rollbar_id = Rollbar.error(message) if report
       $stderr.puts("Error ID: #{rollbar_id}") if rollbar_id
+      request_id = opts[:error] && opts[:error].response ? opts[:error].response.headers['Request-Id'] : nil
+      $stderr.puts "Request ID: #{request_id}" if request_id
       exit(1)
     end
 
