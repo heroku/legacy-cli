@@ -229,11 +229,11 @@ module Heroku
     rescue Heroku::API::Errors::NotFound => e
       error(extract_error(e.response.body) {
         e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
-      }, nil, error: e)
+      }, nil, :error => e)
     rescue RestClient::ResourceNotFound => e
       error(extract_error(e.http_body) {
         e.http_body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
-      }, nil, error: e)
+      }, nil, :error => e)
     rescue Heroku::API::Errors::Locked => e
       app = e.response.headers["X-Confirmation-Required"]
       if confirm_command(app, extract_error(e.response.body))
@@ -257,10 +257,10 @@ module Heroku
         end
         retry
       else
-        error extract_error(e.response.body), nil, error: e
+        error extract_error(e.response.body), nil, :error => e
       end
     rescue Heroku::API::Errors::ErrorWithResponse => e
-      error extract_error(e.response.body), nil, error: e
+      error extract_error(e.response.body), nil, :error => e
     rescue RestClient::RequestFailed => e
       if e.response.code == 403 && e.response.headers.has_key?(:heroku_two_factor_required)
         Heroku::Auth.preauth
