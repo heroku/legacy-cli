@@ -108,8 +108,12 @@ class Heroku::JSPlugin
     exec self.bin, cmd, *args
   end
 
+  def self.platform
+    RbConfig::CONFIG['host_os']
+  end
+
   def self.arch
-    case RUBY_PLATFORM
+    case platform
     when /i386/
       "386"
     when /x64/
@@ -119,7 +123,7 @@ class Heroku::JSPlugin
   end
 
   def self.os
-    case RUBY_PLATFORM
+    case platform
     when /darwin|mac os/
       "darwin"
     when /linux/
@@ -129,7 +133,7 @@ class Heroku::JSPlugin
     when /openbsd/
       "openbsd"
     else
-      raise "unsupported on #{RUBY_PLATFORM}"
+      raise "unsupported on #{platform}"
     end
   end
 
