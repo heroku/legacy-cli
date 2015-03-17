@@ -1,3 +1,9 @@
+3.29.0 2015-03-17
+=================
+Fixed architecture detection on jruby for jsplugins
+Relaxed version requirement for multi_json
+Added request ID logging on API errors
+
 3.28.6 2015-03-11
 =================
 Changed fork to use new pgbackup implementation
