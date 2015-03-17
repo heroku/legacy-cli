@@ -11,7 +11,6 @@ Releasing the CLI involves releasing a few different things. The important tasks
   * Bump the minor level `Y` if the release contains new functionality or changes to existing functionality
 * Run `bundle install` to update the version of heroku in the `Gemfile.lock`
 * Update `CHANGELOG`
-* Update Heroku Changelog (instructions below)
 * Commit the changes `git commit -m "vX.Y.Z" -a`
 * Push changes to master `git push origin master`
 * Go to the buildserver and release http://54.148.200.17/. [Here is the code for the buildserver.](https://github.com/heroku/toolbelt-build-server)
