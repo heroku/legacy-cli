@@ -1,3 +1,8 @@
+3.30.0 2015-03-18
+=================
+New fork implementation
+Only show request ids on error
+
 3.29.0 2015-03-17
 =================
 Fixed architecture detection on jruby for jsplugins
