@@ -56,12 +56,13 @@ STDOUT
     end
 
     it "shows configs in a shell compatible format" do
-      api.put_config_vars("example", { 'A' => 'one', 'B' => 'two three' })
+      api.put_config_vars("example", { 'A' => 'one', 'B' => 'two three', 'C' => "foo&bar" })
       stderr, stdout = execute("config --shell")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 A=one
-B=two three
+B=two\\ three
+C=foo\\&bar
 STDOUT
     end
 

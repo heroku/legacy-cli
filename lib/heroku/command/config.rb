@@ -1,4 +1,6 @@
 require "heroku/command/base"
+require "shellwords"
+
 
 # manage app config vars
 #
@@ -40,7 +42,7 @@ class Heroku::Command::Config < Heroku::Command::Base
       vars.each {|key, value| vars[key] = value.to_s}
       if options[:shell]
         vars.keys.sort.each do |key|
-          display(%{#{key}=#{vars[key]}})
+          display(%{#{key}=#{Shellwords.shellescape vars[key]}})
         end
       else
         styled_header("#{app} Config Vars")
