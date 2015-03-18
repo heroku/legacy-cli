@@ -283,7 +283,7 @@ module Heroku
       rollbar_id = Rollbar.error(message) if report
       $stderr.puts("Error ID: #{rollbar_id}") if rollbar_id
       request_id = opts[:error] && opts[:error].response ? opts[:error].response.headers['Request-Id'] : nil
-      $stderr.puts "Request ID: #{request_id}" if request_id
+      $stderr.puts "Request ID: #{request_id}" if report && request_id
       exit(1)
     end
 
