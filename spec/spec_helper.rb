@@ -146,6 +146,16 @@ def stub_pg
   end
 end
 
+def stub_pgapp
+  @stubbed_pgapp ||= begin
+    stubbed_pgapp = nil
+    any_instance_of(Heroku::Client::HerokuPostgresqlApp) do |pg|
+      stubbed_pgapp = stub(pg)
+    end
+    stubbed_pgapp
+  end
+end
+
 def stub_pgbackups
   @stubbed_pgbackups ||= begin
     stubbed_pgbackups = nil
