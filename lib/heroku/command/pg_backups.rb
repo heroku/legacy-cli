@@ -224,8 +224,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
            else
              "Manual"
            end
-    orig_size = backup[:source_bytes]
     backup_size = backup[:processed_bytes]
+    orig_size = backup[:source_bytes] || backup_size
+
     compression_pct = [((orig_size - backup_size).to_f / orig_size * 100).round, 0].max
     display <<-EOF
 === Backup info: #{backup_id}
