@@ -75,6 +75,10 @@ class Heroku::JSPlugin
     system "#{bin} plugins:uninstall #{name}"
   end
 
+  def self.update
+    system "#{bin} update"
+  end
+
   def self.version
     `#{bin} version`
   end
