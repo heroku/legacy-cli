@@ -96,7 +96,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def backup_num(transfer_name)
-    /b(\d+)/.match(transfer_name) && $1
+    /b(\d+)/.match(transfer_name) && $1.to_i
   end
 
   def transfer_status(t)
@@ -199,6 +199,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
                if last_backup.nil?
                  error("No backups. Capture one with `heroku pg:backups capture`.")
                else
+                 backup_id = transfer_name(last_backup[:num])
                  if verbose
                    client.transfers_get(last_backup[:num], verbose)
                  else
