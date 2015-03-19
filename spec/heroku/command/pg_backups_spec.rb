@@ -121,5 +121,74 @@ module Heroku::Command
         expect(stdout).to match(/Copy completed/)
       end
     end
+
+    describe "heroku pg:backups info" do
+      let(:logged_at)  { Time.now }
+      let(:started_at)  { Time.now }
+      let(:finished_at) { Time.now }
+      let(:from_name)   { 'RED' }
+      let(:source_size) { 42 }
+      let(:backup_size) { source_size / 2 }
+
+      let(:logs) { [{ 'created_at' => logged_at, 'message' => "hello world" }] }
+      let(:transfers) do
+        [
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 1, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffe',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 2, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => true }
+        ]
+      end
+
+      before do
+        stub_pgapp.transfers_get(2, true).returns(transfers.find { |xfer| xfer[:num] == 2 })
+        stub_pgapp.transfers_get(1, true).returns(transfers.find { |xfer| xfer[:num] == 1 })
+        stub_pgapp.transfers.returns(transfers)
+      end
+
+      it "displays info for the given backup" do
+        stderr, stdout = execute("pg:backups info b001")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: b001
+Database:    #{from_name}
+Started:     #{started_at}
+Finished:    #{finished_at}
+Status:      Completed Successfully
+Type:        Manual
+Original DB Size: #{source_size}.0B
+Backup Size:      #{backup_size}.0B (50% compression)
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
+
+      it "defaults to the latest backup if no specific backup provided" do
+        stderr, stdout = execute("pg:backups info")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: b002
+Database:    #{from_name}
+Started:     #{started_at}
+Finished:    #{finished_at}
+Status:      Completed Successfully
+Type:        Manual
+Original DB Size: #{source_size}.0B
+Backup Size:      #{backup_size}.0B (50% compression)
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
+    end
   end
 end
