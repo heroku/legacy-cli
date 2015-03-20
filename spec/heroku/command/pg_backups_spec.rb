@@ -173,7 +173,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
         EOF
       end
 
-      it "defaults to the latest backup if no specific backup provided" do
+      it "defaults to the latest backup if none is specified" do
         stderr, stdout = execute("pg:backups info")
         expect(stderr).to be_empty
         expect(stdout).to eq <<-EOF
@@ -188,6 +188,59 @@ Backup Size:      #{backup_size}.0B (50% compression)
 === Backup Logs
 #{logged_at}: hello world
         EOF
+      end
+    end
+
+    describe "heroku pg:backups public-url" do
+      let(:logged_at)   { Time.now }
+      let(:started_at)  { Time.now }
+      let(:finished_at) { Time.now }
+      let(:from_name)   { 'RED' }
+      let(:source_size) { 42 }
+      let(:backup_size) { source_size / 2 }
+
+      let(:logs) { [{ 'created_at' => logged_at, 'message' => "hello world" }] }
+      let(:transfers) do
+        [
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 1, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffe',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 2, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => true }
+        ]
+      end
+      let(:url1_info) do
+        { :url => 'https://example.com/my-backup', :expires_at => Time.now }
+      end
+      let(:url2_info) do
+        { :url => 'https://example.com/my-other-backup', :expires_at => Time.now }
+      end
+
+      before do
+        stub_pgapp.transfers.returns(transfers)
+        stub_pgapp.transfers_public_url(1).returns(url1_info)
+        stub_pgapp.transfers_public_url(2).returns(url2_info)
+      end
+
+      it "gets a public url for the specified backup" do
+        stderr, stdout = execute("pg:backups public-url b001")
+        expect(stdout.chomp).to eq url1_info[:url]
+        expect(stderr).to match(/will expire at #{url1_info[:expires_at]}/)
+      end
+
+      it "defaults to the latest backup if none is specified" do
+        stderr, stdout = execute("pg:backups public-url")
+        expect(stdout.chomp).to eq url2_info[:url]
+        expect(stderr).to match(/will expire at #{url2_info[:expires_at]}/)
       end
     end
   end
