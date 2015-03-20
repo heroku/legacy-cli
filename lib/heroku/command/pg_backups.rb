@@ -381,9 +381,24 @@ EOF
     backup_id = shift_argument
     validate_arguments!
 
-    url_info = hpg_app_client(app).transfers_public_url(backup_num(backup_id))
-    display "The following URL will expire at #{url_info[:expires_at]}:"
-    display "   '#{url_info[:url]}'"
+    backup_num = nil
+    client = hpg_app_client(app)
+    if backup_id
+      backup_num = backup_num(backup_id)
+    else
+      last_successful_backup = client.transfers.select do |xfer|
+        xfer[:succeeded] && xfer[:to_type] == 'gof3r'
+      end.sort_by { |b| b[:num] }.last
+      if last_successful_backup.nil?
+        error("No backups. Capture one with `heroku pg:backups capture`.")
+      else
+        backup_num = last_successful_backup[:num]
+      end
+    end
+
+    url_info = client.transfers_public_url(backup_num)
+    $stderr.puts "The following URL will expire at #{url_info[:expires_at]}:"
+    display url_info[:url]
   end
 
   def cancel_backup
