@@ -13,7 +13,7 @@ module Heroku::Command
     #
     # $ heroku stack
     # === example Available Stacks
-    #   cedar
+    #   cedar-10
     # * cedar-14
     #
     def index
