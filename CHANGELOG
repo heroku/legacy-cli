@@ -1,3 +1,7 @@
+3.30.3 2015-03-21
+=================
+Reverted v4 fork implmentation
+
 3.30.2 2015-03-19
 =================
 Made updater also update v4 if it is setup
