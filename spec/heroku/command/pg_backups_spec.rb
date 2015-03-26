@@ -239,7 +239,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 
       it "only prints the url if stdout is not a tty" do
         fake_stdout = StringIO.new
-        stderr, stdout = execute("pg:backups public-url b001", { stdout: fake_stdout })
+        stderr, stdout = execute("pg:backups public-url b001", { :stdout => fake_stdout })
         expect(stdout.chomp).to eq url1_info[:url]
       end
 
