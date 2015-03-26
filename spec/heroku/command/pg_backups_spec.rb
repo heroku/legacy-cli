@@ -233,14 +233,20 @@ Backup Size:      #{backup_size}.0B (50% compression)
 
       it "gets a public url for the specified backup" do
         stderr, stdout = execute("pg:backups public-url b001")
+        expect(stdout).to include url1_info[:url]
+        expect(stdout).to match(/will expire at #{Regexp.quote(url1_info[:expires_at].to_s)}/)
+      end
+
+      it "only prints the url if stdout is not a tty" do
+        fake_stdout = StringIO.new
+        stderr, stdout = execute("pg:backups public-url b001", { stdout: fake_stdout })
         expect(stdout.chomp).to eq url1_info[:url]
-        expect(stderr).to match(/will expire at #{Regexp.quote(url1_info[:expires_at].to_s)}/)
       end
 
       it "defaults to the latest backup if none is specified" do
         stderr, stdout = execute("pg:backups public-url")
-        expect(stdout.chomp).to eq url2_info[:url]
-        expect(stderr).to match(/will expire at #{Regexp.quote(url2_info[:expires_at].to_s)}/)
+        expect(stdout).to include url2_info[:url]
+        expect(stdout).to match(/will expire at #{Regexp.quote(url2_info[:expires_at].to_s)}/)
       end
     end
   end
