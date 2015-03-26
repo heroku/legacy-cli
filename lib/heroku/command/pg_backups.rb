@@ -397,8 +397,14 @@ EOF
     end
 
     url_info = client.transfers_public_url(backup_num)
-    $stderr.puts "The following URL will expire at #{url_info[:expires_at]}:"
-    display url_info[:url]
+    if $stdout.tty?
+      display <<-EOF
+The following URL will expire at #{url_info[:expires_at]}:
+  "#{url_info[:url]}"
+EOF
+    else
+      display url_info[:url]
+    end
   end
 
   def cancel_backup
