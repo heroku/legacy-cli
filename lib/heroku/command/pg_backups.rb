@@ -96,7 +96,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def backup_num(transfer_name)
-    /b(\d+)/.match(transfer_name) && $1
+    /b(\d+)/.match(transfer_name) && $1.to_i
   end
 
   def transfer_status(t)
@@ -112,13 +112,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def size_pretty(bytes)
-    suffixes = {
-      'B'  => 1,
-      'kB' => 1_000,
-      'MB' => 1_000_000,
-      'GB' => 1_000_000_000,
-      'TB' => 1_000_000_000_000 # (ohdear)
-    }
+    suffixes = [
+      ['B', 1],
+      ['kB', 1_000],
+      ['MB', 1_000_000],
+      ['GB', 1_000_000_000],
+      ['TB', 1_000_000_000_000] # (ohdear)
+    ]
     suffix, multiplier = suffixes.find do |k,v|
       normalized = bytes / v.to_f
       normalized >= 0 && normalized < 1_000
@@ -199,6 +199,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
                if last_backup.nil?
                  error("No backups. Capture one with `heroku pg:backups capture`.")
                else
+                 backup_id = transfer_name(last_backup[:num])
                  if verbose
                    client.transfers_get(last_backup[:num], verbose)
                  else
@@ -224,8 +225,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
            else
              "Manual"
            end
-    orig_size = backup[:source_bytes]
     backup_size = backup[:processed_bytes]
+    orig_size = backup[:source_bytes] || backup_size
+
     compression_pct = [((orig_size - backup_size).to_f / orig_size * 100).round, 0].max
     display <<-EOF
 === Backup info: #{backup_id}
@@ -379,9 +381,30 @@ EOF
     backup_id = shift_argument
     validate_arguments!
 
-    url_info = hpg_app_client(app).transfers_public_url(backup_num(backup_id))
-    display "The following URL will expire at #{url_info[:expires_at]}:"
-    display "   '#{url_info[:url]}'"
+    backup_num = nil
+    client = hpg_app_client(app)
+    if backup_id
+      backup_num = backup_num(backup_id)
+    else
+      last_successful_backup = client.transfers.select do |xfer|
+        xfer[:succeeded] && xfer[:to_type] == 'gof3r'
+      end.sort_by { |b| b[:num] }.last
+      if last_successful_backup.nil?
+        error("No backups. Capture one with `heroku pg:backups capture`.")
+      else
+        backup_num = last_successful_backup[:num]
+      end
+    end
+
+    url_info = client.transfers_public_url(backup_num)
+    if $stdout.tty?
+      display <<-EOF
+The following URL will expire at #{url_info[:expires_at]}:
+  "#{url_info[:url]}"
+EOF
+    else
+      display url_info[:url]
+    end
   end
 
   def cancel_backup
