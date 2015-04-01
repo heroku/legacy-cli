@@ -1,3 +1,7 @@
+3.30.4 2015-04-01
+=================
+Postgres backups cleanup and fixes
+
 3.30.3 2015-03-21
 =================
 Reverted v4 fork implmentation
