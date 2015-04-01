@@ -1,6 +1,6 @@
-if RUBY_VERSION < '1.9.0'
-  $stderr.puts "WARNING: Heroku Toolbelt requires Ruby 1.9+"
-  $stderr.puts "https://github.com/heroku/heroku/pull/1479"
+if RUBY_VERSION < '1.9.0' # this is a string comparison, but it should work for any old ruby version
+  $stderr.puts "Heroku Toolbelt requires Ruby 1.9+."
+  exit 1
 end
 
 load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
