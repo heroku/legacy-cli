@@ -42,7 +42,7 @@ def prepare_command(klass)
   command
 end
 
-def execute(command_line)
+def execute(command_line, opts={})
   extend RR::Adapters::RRMethods
 
   args = command_line.split(" ")
@@ -60,14 +60,16 @@ def execute(command_line)
 
   original_stdin, original_stderr, original_stdout = $stdin, $stderr, $stdout
 
-  $stdin  = captured_stdin  = StringIO.new
-  $stderr = captured_stderr = StringIO.new
-  $stdout = captured_stdout = StringIO.new
-  class << captured_stdout
+  fake_tty_stdout = StringIO.new
+  class << fake_tty_stdout
     def tty?
       true
     end
   end
+
+  $stdin  = captured_stdin  = opts.fetch(:stdin, StringIO.new)
+  $stderr = captured_stderr = opts.fetch(:stderr, StringIO.new)
+  $stdout = captured_stdout = opts.fetch(:stdout, fake_tty_stdout)
 
   begin
     object.send(method)
@@ -143,6 +145,16 @@ def stub_pg
       stubbed_pg = stub(pg)
     end
     stubbed_pg
+  end
+end
+
+def stub_pgapp
+  @stubbed_pgapp ||= begin
+    stubbed_pgapp = nil
+    any_instance_of(Heroku::Client::HerokuPostgresqlApp) do |pg|
+      stubbed_pgapp = stub(pg)
+    end
+    stubbed_pgapp
   end
 end
 
