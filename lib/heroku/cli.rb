@@ -1,3 +1,8 @@
+if RUBY_VERSION < '1.9.0'
+  $stderr.puts "WARNING: Heroku Toolbelt will require Ruby 1.9+ beginning next week"
+  $stderr.puts "https://github.com/heroku/heroku/pull/1479"
+end
+
 load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
 load('heroku/updater.rb') # reload updater after possible inject_loadpath
 
