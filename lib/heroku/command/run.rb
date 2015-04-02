@@ -98,7 +98,7 @@ class Heroku::Command::Run < Heroku::Command::Base
 
   alias_command "rake", "run:rake"
 
-  # run:console [COMMAND]
+  # HIDDEN: run:console [COMMAND]
   #
   # open a remote console session
   #
