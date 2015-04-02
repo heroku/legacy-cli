@@ -1,5 +1,5 @@
 if RUBY_VERSION < '1.9.0'
-  $stderr.puts "WARNING: Heroku Toolbelt will require Ruby 1.9+ beginning next week"
+  $stderr.puts "WARNING: Heroku Toolbelt requires Ruby 1.9+"
   $stderr.puts "https://github.com/heroku/heroku/pull/1479"
 end
 
