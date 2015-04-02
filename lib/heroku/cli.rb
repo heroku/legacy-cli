@@ -47,7 +47,7 @@ class Heroku::CLI
   rescue Errno::EPIPE => e
     error(e.message)
   rescue Interrupt => e
-    `stty icanon echo`
+    `stty icanon echo` unless running_on_windows?
     if ENV["HEROKU_DEBUG"]
       styled_error(e)
     else
