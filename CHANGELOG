@@ -1,3 +1,8 @@
+3.30.6 2015-04-02
+=================
+Skipped calling of `stty icanon echo` on Windows
+Updated 1.8.7 warning
+
 3.30.5 2015-04-02
 =================
 Added warning for ruby 1.8.7
