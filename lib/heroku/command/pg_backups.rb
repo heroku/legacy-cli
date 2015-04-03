@@ -144,8 +144,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
     display_backups = transfers.select do |b|
       b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
     end.sort_by { |b| b[:created_at] }.reverse.map do |b|
+      old_pgb_name = b.has_key?(:options) && b[:options]["pgbackups_name"]
+      id = transfer_name(b[:num])
+      if old_pgb_name
+        id += " (was #{old_pgb_name})"
+      end
       {
-        "id" => transfer_name(b[:num]),
+        "id" => id,
         "created_at" => b[:created_at],
         "status" => transfer_status(b),
         "size" => size_pretty(b[:processed_bytes]),
