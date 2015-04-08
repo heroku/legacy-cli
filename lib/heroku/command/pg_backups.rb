@@ -112,8 +112,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
   end
 
-  def backup_num(transfer_name)
-    /b(\d+)/.match(transfer_name) && $1.to_i
+  def transfer_num(transfer_name)
+    if /\A[abcr](\d+)\z/.match(transfer_name)
+      $1.to_i
+    elsif /\Ao[ab]\d+\z/.match(transfer_name)
+      xfer = hpg_app_client(app).transfers.find do |t|
+        transfer_name(t) == transfer_name
+      end
+      xfer[:num] unless xfer.nil?
+    end
   end
 
   def transfer_status(t)
@@ -223,7 +230,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
                  end
                end
              else
-               client.transfers_get(backup_num(backup_name), verbose)
+               backup_num = transfer_num(backup_name)
+               if backup_num.nil?
+                 error("No such backup: #{backup_num}")
+               end
+               client.transfers_get(backup_num, verbose)
              end
     status = if backup[:succeeded]
                "Completed Successfully"
@@ -384,23 +395,30 @@ EOF
   end
 
   def delete_backup
-    backup_id = shift_argument
+    backup_name = shift_argument
     validate_arguments!
 
     if confirm_command
-      hpg_app_client(app).transfers_delete(backup_num(backup_id))
-      display "Deleted #{backup_id}"
+      backup_num = transfer_num(backup_name)
+      if backup_num.nil?
+        error("No such backup: #{backup_num}")
+      end
+      hpg_app_client(app).transfers_delete(backup_num)
+      display "Deleted #{backup_name}"
     end
   end
 
   def public_url
-    backup_id = shift_argument
+    backup_name = shift_argument
     validate_arguments!
 
     backup_num = nil
     client = hpg_app_client(app)
-    if backup_id
-      backup_num = backup_num(backup_id)
+    if backup_name
+      backup_num = transfer_num(backup_name)
+      if backup_num.nil?
+        error("No such backup: #{backup_num}")
+      end
     else
       last_successful_backup = client.transfers.select do |xfer|
         xfer[:succeeded] && xfer[:to_type] == 'gof3r'

@@ -140,9 +140,17 @@ module Heroku::Command
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
           :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
+          :from_name => from_name, :to_name => 'PGBACKUPS BACKUP',
+          :num => 2, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :options => { "pgbackups_name" => "b047" },
+          :succeeded => true },
          { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffe',
           :from_name => from_name, :to_name => 'BACKUP',
-          :num => 2, :logs => logs,
+          :num => 3, :logs => logs,
           :from_type => 'pg_dump', :to_type => 'gof3r',
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
@@ -151,8 +159,10 @@ module Heroku::Command
       end
 
       before do
-        stub_pgapp.transfers_get(2, true).returns(transfers.find { |xfer| xfer[:num] == 2 })
-        stub_pgapp.transfers_get(1, true).returns(transfers.find { |xfer| xfer[:num] == 1 })
+        (1..3).each do |n|
+          stub_pgapp.transfers_get(n, true)
+            .returns(transfers.find { |xfer| xfer[:num] == n })
+        end
         stub_pgapp.transfers.returns(transfers)
       end
 
@@ -173,11 +183,28 @@ Backup Size:      #{backup_size}.0B (50% compression)
         EOF
       end
 
+      it "displays info for legacy PGBackups backups" do
+        stderr, stdout = execute("pg:backups info ob047")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: ob047
+Database:    #{from_name}
+Started:     #{started_at}
+Finished:    #{finished_at}
+Status:      Completed Successfully
+Type:        Manual
+Original DB Size: #{source_size}.0B
+Backup Size:      #{backup_size}.0B (50% compression)
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
+
       it "defaults to the latest backup if none is specified" do
         stderr, stdout = execute("pg:backups info")
         expect(stderr).to be_empty
         expect(stdout).to eq <<-EOF
-=== Backup info: b002
+=== Backup info: b003
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
@@ -249,5 +276,6 @@ Backup Size:      #{backup_size}.0B (50% compression)
         expect(stdout).to match(/will expire at #{Regexp.quote(url2_info[:expires_at].to_s)}/)
       end
     end
+
   end
 end
