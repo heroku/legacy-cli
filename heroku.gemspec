@@ -12,6 +12,7 @@ Gem::Specification.new do |gem|
   gem.description = "Client library and command-line tool to deploy and manage apps on Heroku."
   gem.executables = "heroku"
   gem.license     = "MIT"
+  gem.required_ruby_version = ">= 1.9.0"
   gem.post_install_message = <<-MESSAGE
  !    The `heroku` gem has been deprecated and replaced with the Heroku Toolbelt.
  !    Download and install from: https://toolbelt.heroku.com
