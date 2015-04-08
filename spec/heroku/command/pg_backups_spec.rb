@@ -160,8 +160,8 @@ module Heroku::Command
 
       before do
         (1..3).each do |n|
-          stub_pgapp.transfers_get(n, true)
-            .returns(transfers.find { |xfer| xfer[:num] == n })
+          stub_pgapp.transfers_get(n, true).
+            returns(transfers.find { |xfer| xfer[:num] == n })
         end
         stub_pgapp.transfers.returns(transfers)
       end
