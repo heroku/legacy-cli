@@ -107,7 +107,7 @@ module Heroku
       stderr_print 'updating...'
       wait_for_lock do
         require "tmpdir"
-        require "zip/zip"
+        require "zip"
 
         Dir.mktmpdir do |download_dir|
           zip_filename = "#{download_dir}/heroku.zip"
@@ -148,11 +148,11 @@ module Heroku
     end
 
     def self.extract_zip(filename, dir)
-      Zip::ZipFile.open(filename) do |zip|
+      Zip::File.open(filename) do |zip|
         zip.each do |entry|
           target = File.join(dir, entry.to_s)
           FileUtils.mkdir_p File.dirname(target)
-          zip.extract(entry, target) { true }
+          entry.extract(target) { true }
         end
       end
     end

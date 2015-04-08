@@ -25,6 +25,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "launchy",        ">= 0.3.2"
   gem.add_dependency "netrc",          ">= 0.10.0"
   gem.add_dependency "rest-client",    "= 1.6.7"
-  gem.add_dependency "rubyzip",        "= 0.9.9"
+  gem.add_dependency "rubyzip",        "~> 1.0"
   gem.add_dependency "multi_json",     "~> 1.10"
 end
