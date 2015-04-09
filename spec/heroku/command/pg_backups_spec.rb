@@ -216,6 +216,61 @@ Backup Size:      #{backup_size}.0B (50% compression)
 #{logged_at}: hello world
         EOF
       end
+
+      it "does not display finished time or compression ratio if backup is not finished" do
+        xfer = transfers.find { |xfer| xfer[:num] == 1 }
+        xfer[:finished_at] = nil
+        stderr, stdout = execute("pg:backups info b001")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: b001
+Database:    #{from_name}
+Started:     #{started_at}
+Status:      Completed Successfully
+Type:        Manual
+Original DB Size: #{source_size}.0B
+Backup Size:      #{backup_size}.0B
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
+
+      it "works when the progress is at 0 bytes" do
+        xfer = transfers.find { |xfer| xfer[:num] == 1 }
+        xfer[:processed_bytes] = 0
+        stderr, stdout = execute("pg:backups info b001")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: b001
+Database:    #{from_name}
+Started:     #{started_at}
+Finished:    #{finished_at}
+Status:      Completed Successfully
+Type:        Manual
+Original DB Size: #{source_size}.0B
+Backup Size:      0.00B (0% compression)
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
+
+      it "works when the source size is 0 bytes" do
+        xfer = transfers.find { |xfer| xfer[:num] == 1 }
+        xfer[:source_bytes] = 0
+        stderr, stdout = execute("pg:backups info b001")
+        expect(stderr).to be_empty
+        expect(stdout).to eq <<-EOF
+=== Backup info: b001
+Database:    #{from_name}
+Started:     #{started_at}
+Finished:    #{finished_at}
+Status:      Completed Successfully
+Type:        Manual
+Backup Size: #{backup_size}.0B
+=== Backup Logs
+#{logged_at}: hello world
+        EOF
+      end
     end
 
     describe "heroku pg:backups public-url" do
