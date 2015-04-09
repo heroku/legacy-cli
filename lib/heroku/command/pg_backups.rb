@@ -39,6 +39,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #  capture DATABASE               # capture a new backup
   #  restore [[BACKUP_ID] DATABASE] # restore a backup (default latest) to a database (default DATABASE_URL)
   #  public-url BACKUP_ID           # get secret but publicly accessible URL for BACKUP_ID to download it
+  #    -q, --quiet                  #   Hide expiration message (for use in scripts)
   #  cancel                         # cancel an in-progress backup
   #  delete BACKUP_ID               # delete an existing backup
   #  schedule DATABASE              # schedule nightly backups for given database
@@ -431,7 +432,7 @@ EOF
     end
 
     url_info = client.transfers_public_url(backup_num)
-    if $stdout.tty?
+    if $stdout.tty? && !options[:quiet]
       display <<-EOF
 The following URL will expire at #{url_info[:expires_at]}:
   "#{url_info[:url]}"
