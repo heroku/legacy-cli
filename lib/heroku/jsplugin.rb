@@ -95,7 +95,8 @@ class Heroku::JSPlugin
     return if File.exist? bin
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
-    resp = Excon.get(url, :middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress])
+    opts = excon_opts.merge(:middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress])
+    resp = Excon.get(url, opts)
     open(bin, "wb") do |file|
       file.write(resp.body)
     end
@@ -139,7 +140,16 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("http://d1gvo455cekpjp.cloudfront.net/master/manifest.json").body)
+    @manifest ||= JSON.parse(Excon.get("https://d1gvo455cekpjp.cloudfront.net/master/manifest.json", excon_opts).body)
+  end
+
+  def self.excon_opts
+    if os == 'windows'
+      # S3 SSL downloads do not work from ruby in Windows
+      {:ssl_verify_peer => false}
+    else
+      {}
+    end
   end
 
   def self.url
