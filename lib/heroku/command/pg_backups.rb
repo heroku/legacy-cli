@@ -340,7 +340,7 @@ EOF
         b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
       end
       backup = if backup_name == :latest
-                 backups.sort_by { |b| b[:started_at] }.last
+                 backups.select { |b| b[:succeeded] }.sort_by { |b| b[:num] }.last
                else
                  backups.find { |b| transfer_name(b) == backup_name }
                end
