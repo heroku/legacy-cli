@@ -1,3 +1,7 @@
+3.31.1 2015-04-08
+=================
+Removed windows-specific gems from Gemfile.lock
+
 3.31.0 2015-04-08
 =================
 Removed support for Ruby 1.8.7
