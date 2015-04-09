@@ -1,3 +1,7 @@
+3.31.2 2015-04-08
+=================
+Downgraded bundled version of rest-client to one that does not require ffi on windows
+
 3.31.1 2015-04-08
 =================
 Removed windows-specific gems from Gemfile.lock
