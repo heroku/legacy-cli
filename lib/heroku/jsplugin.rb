@@ -131,6 +131,8 @@ class Heroku::JSPlugin
       "windows"
     when /openbsd/
       "openbsd"
+    when /freebsd/
+      "freebsd"
     else
       raise "unsupported on #{RbConfig::CONFIG['host_os']}"
     end
