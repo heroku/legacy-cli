@@ -270,6 +270,11 @@ Backup Size:      #{backup_size}.0B (50% compression)
         expect(stdout.chomp).to eq url1_info[:url]
       end
 
+      it "only prints the url if called with -s" do
+        stderr, stdout = execute("pg:backups public-url b001 -s")
+        expect(stdout.chomp).to eq url1_info[:url]
+      end
+
       it "defaults to the latest backup if none is specified" do
         stderr, stdout = execute("pg:backups public-url")
         expect(stdout).to include url2_info[:url]
