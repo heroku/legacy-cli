@@ -270,8 +270,8 @@ Backup Size:      #{backup_size}.0B (50% compression)
         expect(stdout.chomp).to eq url1_info[:url]
       end
 
-      it "only prints the url if called with -s" do
-        stderr, stdout = execute("pg:backups public-url b001 -s")
+      it "only prints the url if called with -q" do
+        stderr, stdout = execute("pg:backups public-url b001 -q")
         expect(stdout.chomp).to eq url1_info[:url]
       end
 
