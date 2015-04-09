@@ -73,34 +73,34 @@ Run `git push heroku master` to create a new release using https://github.com/he
       end
     end
 
-    describe "unset" do
-      it "unsets the buildpack URL" do
-        stderr, stdout = execute("buildpack:unset")
+    describe "clear" do
+      it "clears the buildpack URL" do
+        stderr, stdout = execute("buildpack:clear")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Buildpack unset. Next release on example will detect buildpack normally.
+Buildpack(s) cleared. Next release on example will detect buildpack normally.
         STDOUT
       end
 
-      it "unsets and warns about buildpack URL config var" do
+      it "clears and warns about buildpack URL config var" do
         execute("config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby")
-        stderr, stdout = execute("buildpack:unset")
+        stderr, stdout = execute("buildpack:clear")
         expect(stderr).to eq <<-STDERR
 WARNING: The BUILDPACK_URL config var is still set and will be used for the next release
         STDERR
         expect(stdout).to eq <<-STDOUT
-Buildpack unset.
+Buildpack(s) cleared.
         STDOUT
       end
 
-      it "unsets and warns about language pack URL config var" do
+      it "clears and warns about language pack URL config var" do
         execute("config:set LANGUAGE_PACK_URL=https://github.com/heroku/heroku-buildpack-ruby")
-        stderr, stdout = execute("buildpack:unset")
+        stderr, stdout = execute("buildpack:clear")
         expect(stderr).to eq <<-STDERR
 WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release
         STDERR
         expect(stdout).to eq <<-STDOUT
-Buildpack unset.
+Buildpack(s) cleared.
         STDOUT
       end
     end
