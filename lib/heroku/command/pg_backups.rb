@@ -255,7 +255,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
     backup_size = backup[:processed_bytes]
     orig_size = backup[:source_bytes] || backup_size
 
-    compression_pct = [((orig_size - backup_size).to_f / orig_size * 100).round, 0].max
+    compression_pct = if backup_size > 0 && orig_size > 0
+                        [((orig_size - backup_size).to_f / orig_size * 100).round, 0].max
+                      else
+                        0
+                      end
     backup_name = transfer_name(backup)
     display <<-EOF
 === Backup info: #{backup_name}
