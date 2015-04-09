@@ -32,7 +32,6 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     excon (0.45.1)
     fakefs (0.6.7)
-    ffi (1.9.8-x86-mingw32)
     heroku-api (0.3.23)
       excon (~> 0.44)
       multi_json (~> 1.8)
@@ -46,11 +45,6 @@ GEM
     netrc (0.10.3)
     rake (10.4.2)
     rest-client (1.8.0)
-      http-cookie (>= 1.0.2, < 2.0)
-      mime-types (>= 1.16, < 3.0)
-      netrc (~> 0.7)
-    rest-client (1.8.0-x86-mingw32)
-      ffi (~> 1.9)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
@@ -82,7 +76,6 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.6)
-    unf_ext (0.0.6-x86-mingw32)
     webmock (1.21.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -90,7 +83,6 @@ GEM
 
 PLATFORMS
   ruby
-  x86-mingw32
 
 DEPENDENCIES
   aws-s3
