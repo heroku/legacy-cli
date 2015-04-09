@@ -1,4 +1,4 @@
-require "zip/zip"
+require "zip"
 
 namespace :zip do
   desc "build zip"
@@ -22,7 +22,7 @@ namespace :zip do
       cd "heroku-client" do
         assemble_distribution
         assemble_gems
-        Zip::ZipFile.open(t.name, Zip::ZipFile::CREATE) do |zip|
+        Zip::File.open(t.name, Zip::File::CREATE) do |zip|
           Dir["**/*"].each do |file|
             zip.add(file, file) { true }
           end
