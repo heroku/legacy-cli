@@ -33,32 +33,59 @@ module Heroku::Command
     #
     # set new app buildpack
     #
+    # -i, --index NUM      # the 1-based index of the URL in the list of URLs
+    #
+    #Example:
+    #
+    # $ heroku buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby
+    #
     def set
       unless buildpack_url = shift_argument
         error("Usage: heroku buildpack:set BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
-      api.put_app_buildpacks_v3(app, {:updates => [{:buildpack => buildpack_url}]})
+      validate_arguments!
+      index = options[:index] || 1
+      index -= 1
+
+      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
+
+      buildpack_urls = []
+
+      # overwrite the buildpack at index
+      if app_buildpacks.size >= index
+        app_buildpacks.each do |buildpack|
+          ordinal = buildpack["ordinal"]
+          if ordinal == index
+            buildpack_urls << buildpack_url
+          end
+          buildpack_urls << buildpack["buildpack"]["url"]
+        end
+      else
+        buildpack_urls << buildpack_url
+      end
+
+      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
       display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
       display "Run `git push heroku master` to create a new release using #{buildpack_url}."
     end
 
-    # buildpack:unset
+    # buildpack:clear
     #
-    # unset the app buildpack
+    # clear all buildpacks set on the app
     #
-    def unset
+    def clear
       api.put_app_buildpacks_v3(app, {:updates => []})
 
       vars = api.get_config_vars(app).body
       if vars.has_key?("BUILDPACK_URL")
-        display "Buildpack unset."
+        display "Buildpack(s) cleared."
         warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
       elsif vars.has_key?("LANGUAGE_PACK_URL")
-        display "Buildpack unset."
+        display "Buildpack(s) cleared."
         warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
       else
-        display "Buildpack unset. Next release on #{app} will detect buildpack normally."
+        display "Buildpack(s) cleared. Next release on #{app} will detect buildpack normally."
       end
     end
 
