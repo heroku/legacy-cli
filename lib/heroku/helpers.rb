@@ -1,11 +1,17 @@
+# encoding: utf-8
+
 module Heroku
   module Helpers
 
     extend self
 
     def home_directory
-      return Dir.home if defined? Dir.home # Ruby 1.9+
-      running_on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
+      if running_on_windows?
+        # https://bugs.ruby-lang.org/issues/10126
+        Dir.home.force_encoding('cp775')
+      else
+        Dir.home
+      end
     end
 
     def running_on_windows?
