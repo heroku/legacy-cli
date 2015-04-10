@@ -1,3 +1,9 @@
+3.31.3 2015-04-09
+=================
+Fixed some bugs around pg:backups
+Fixed v4 download on windows
+Add FreeBSD as supported os for v4
+
 3.31.2 2015-04-08
 =================
 Downgraded bundled version of rest-client to one that does not require ffi on windows
