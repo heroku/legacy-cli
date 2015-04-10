@@ -253,10 +253,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
            else
              "Manual"
            end
-    backup_size = backup[:processed_bytes]
-    orig_size = backup[:source_bytes] || backup_size
 
-    compression_pct = [((orig_size - backup_size).to_f / orig_size * 100).round, 0].max
     backup_name = transfer_name(backup)
     display <<-EOF
 === Backup info: #{backup_name}
@@ -276,10 +273,22 @@ EOF
 Status:      #{status}
 Type:        #{type}
 EOF
-    if !orig_size.nil? && orig_size > 0
+    backup_size = backup[:processed_bytes]
+    orig_size = backup[:source_bytes] || 0
+    if orig_size > 0
+      compress_str = ""
+      unless backup[:finished_at].nil?
+        compression_pct = if backup_size > 0
+                            [((orig_size - backup_size).to_f / orig_size * 100)
+                               .round, 0].max
+                          else
+                            0
+                          end
+        compress_str = " (#{compression_pct}% compression)"
+      end
       display <<-EOF
 Original DB Size: #{size_pretty(orig_size)}
-Backup Size:      #{size_pretty(backup_size)} (#{compression_pct}% compression)
+Backup Size:      #{size_pretty(backup_size)}#{compress_str}
 EOF
     else
       display <<-EOF
@@ -337,7 +346,8 @@ EOF
         b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
       end
       backup = if backup_name == :latest
-                 backups.sort_by { |b| b[:started_at] }.last
+                 backups.select { |b| b[:succeeded] }
+                   .sort_by { |b| b[:finished_at] }.last
                else
                  backups.find { |b| transfer_name(b) == backup_name }
                end
