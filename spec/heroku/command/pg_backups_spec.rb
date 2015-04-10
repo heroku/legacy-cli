@@ -273,6 +273,85 @@ Backup Size: #{backup_size}.0B
       end
     end
 
+    describe "heroku pg:backups restore" do
+      let(:started_at)    { Time.parse('2001-01-01 00:00:00') }
+      let(:finished_at_1) { Time.parse('2001-01-01 01:00:00') }
+      let(:finished_at_2) { Time.parse('2001-01-01 02:00:00') }
+      let(:finished_at_3) { Time.parse('2001-01-01 03:00:00') }
+
+      let(:from_name)     { 'RED' }
+      let(:to_url)        { 'https://example.com/my-backup' }
+
+      let(:transfers) do
+        [
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP', :num => 1,
+          :from_type => 'pg_dump', :to_type => 'gof3r', :to_url => to_url,
+          :started_at => started_at, :finished_at => finished_at_2,
+          :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
+          :from_name => from_name, :to_name => 'PGBACKUPS BACKUP', :num => 2,
+          :from_type => 'pg_dump', :to_type => 'gof3r', :to_url => to_url,
+          :started_at => started_at, :finished_at => finished_at_1,
+          :options => { "pgbackups_name" => "b047" },
+          :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffe',
+          :from_name => from_name, :to_name => 'BACKUP', :num => 3,
+          :from_type => 'pg_dump', :to_type => 'gof3r', :to_url => to_url,
+          :started_at => started_at, :finished_at => finished_at_3,
+          :succeeded => false }
+        ]
+      end
+
+      let(:restore_info) do
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'gof3r', :to_type => 'pg_restore', num: 3,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => true }
+      end
+
+      before do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return(example_attachments)
+        stub_pgapp.transfers.returns(transfers)
+      end
+
+      it "triggers a restore of the given backup" do
+        stub_pg.backups_restore(to_url).returns(restore_info)
+        stub_pgapp.transfers_get.returns(restore_info)
+
+        stderr, stdout = execute("pg:backups restore b001 red --confirm example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/Restore completed/)
+      end
+
+      it "defaults to the latest successful backup" do
+        stub_pg.backups_restore(to_url).returns(restore_info)
+        stub_pgapp.transfers_get.returns(restore_info)
+
+        stderr, stdout = execute("pg:backups restore red --confirm example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/Restore completed/)
+      end
+
+      it "refuses to restore a backup that did not complete successfully" do
+        stub_pg.backups_restore(to_url).returns(restore_info)
+        stub_pgapp.transfers_get.returns(restore_info)
+
+        stderr, stdout = execute("pg:backups restore b003 red --confirm example")
+        expect(stderr).to match(/did not complete successfully/)
+        expect(stdout).to be_empty
+      end
+
+      it "does not restore without confirmation" do
+        stderr, stdout = execute("pg:backups restore b001 red")
+        expect(stderr).to match(/Confirmation did not match example. Aborted./)
+        expect(stdout).to match(/WARNING: Destructive Action/)
+        expect(stdout).to match(/This command will affect the app: example/)
+        expect(stdout).to match(/To proceed, type "example" or re-run this command with --confirm example/)
+      end
+    end
+
     describe "heroku pg:backups public-url" do
       let(:logged_at)   { Time.now }
       let(:started_at)  { Time.now }
