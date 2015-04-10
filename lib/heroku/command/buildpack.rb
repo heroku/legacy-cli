@@ -45,23 +45,21 @@ module Heroku::Command
       end
 
       validate_arguments!
-      index = options[:index] || 1
+      index = (options[:index] || 1).to_i
       index -= 1
 
       app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
 
-      buildpack_urls = []
-
-      # overwrite the buildpack at index
-      if app_buildpacks.size >= index
-        app_buildpacks.each do |buildpack|
-          ordinal = buildpack["ordinal"]
-          if ordinal == index
-            buildpack_urls << buildpack_url
-          end
-          buildpack_urls << buildpack["buildpack"]["url"]
+      buildpack_urls = app_buildpacks.map do |buildpack|
+        ordinal = buildpack["ordinal"].to_i
+        if ordinal == index
+          buildpack_url
+        else
+          buildpack["buildpack"]["url"]
         end
-      else
+      end
+
+      if app_buildpacks.size <= index
         buildpack_urls << buildpack_url
       end
 
