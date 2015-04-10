@@ -24,8 +24,8 @@ module Heroku::Command
       if app_buildpacks.nil? or app_buildpacks.empty?
         display("#{app} has no Buildpack URL set.")
       else
-        styled_header("#{app} Buildpack URL")
-        display(app_buildpacks.first["buildpack"]["url"])
+        styled_header("#{app} Buildpack URL#{app_buildpacks.size > 1 ? 's' : ''}")
+        display_buildpacks(app_buildpacks.map{|bp| bp["buildpack"]["url"]})
       end
     end
 
@@ -59,12 +59,19 @@ module Heroku::Command
         end
       end
 
-      if app_buildpacks.size <= index
+      # default behavior if index is out of range, or list is previously empty
+      # is to add buildpack to the list
+      if index < 0 or app_buildpacks.size <= index
         buildpack_urls << buildpack_url
       end
 
       api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
-      display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
+      if (buildpack_urls.size > 1)
+        display "Buildpack set. Next release on #{app} will use:"
+        display_buildpacks(buildpack_urls)
+      else
+        display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
+      end
       display "Run `git push heroku master` to create a new release using #{buildpack_url}."
     end
 
@@ -84,6 +91,18 @@ module Heroku::Command
         warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
       else
         display "Buildpack(s) cleared. Next release on #{app} will detect buildpack normally."
+      end
+    end
+
+    private
+
+    def display_buildpacks(buildpacks)
+      if (buildpacks.size == 1)
+        display("  #{buildpacks.first}")
+      else
+        buildpacks.each_with_index do |bp, i|
+          display("  #{i+1}. #{bp}")
+        end
       end
     end
 
