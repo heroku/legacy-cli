@@ -462,6 +462,7 @@ EOF
   end
 
   def schedule_backups
+    requires_preauth
     db = shift_argument
     validate_arguments!
     at = options[:at] || '04:00 UTC'
