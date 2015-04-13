@@ -46,7 +46,7 @@ module Heroku::Command
 
       index = get_index(1)
 
-      mutate_buildpacks(buildpack_url, index, "set") do |app_buildpacks|
+      mutate_buildpacks_constructive(buildpack_url, index, "set") do |app_buildpacks|
         app_buildpacks.map do |buildpack|
           ordinal = buildpack["ordinal"].to_i
           existing_url = buildpack["buildpack"]["url"]
@@ -78,7 +78,7 @@ module Heroku::Command
 
       index = get_index
 
-      mutate_buildpacks(buildpack_url, index, "added") do |app_buildpacks|
+      mutate_buildpacks_constructive(buildpack_url, index, "added") do |app_buildpacks|
         app_buildpacks.map { |buildpack|
           ordinal = buildpack["ordinal"].to_i
           existing_url = buildpack["buildpack"]["url"]
@@ -152,24 +152,40 @@ module Heroku::Command
 
     private
 
+    def mutate_buildpacks_constructive(buildpack_url, index, action)
+      mutate_buildpacks(buildpack_url, index, action) do |app_buildpacks|
+        buildpack_urls = yield(app_buildpacks)
+
+        # default behavior if index is out of range, or list is previously empty
+        # is to add buildpack to the list
+        if app_buildpacks.empty? or index.nil? or app_buildpacks.size < index
+          buildpack_urls << buildpack_url
+        end
+
+        buildpack_urls
+      end
+    end
+
     def mutate_buildpacks(buildpack_url, index, action)
       app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
 
       buildpack_urls = yield(app_buildpacks)
 
-      # default behavior if index is out of range, or list is previously empty
-      # is to add buildpack to the list
-      if index < 0 or app_buildpacks.size <= index
-        buildpack_urls << buildpack_url
-      end
-
       update_buildpacks(buildpack_urls, action)
     end
 
-    def get_index(default=-1)
+    def get_index(default=nil)
       validate_arguments!
-      index = (options[:index] || default).to_i
-      index - 1
+      if options[:index]
+        index = options[:index].to_i
+        index -= 1
+        if index < 0
+          error("Invalid index. Must be greater than 0.")
+        end
+        index
+      else
+        default
+      end
     end
 
     def update_buildpacks(buildpack_urls, action)
