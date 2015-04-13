@@ -65,15 +65,7 @@ module Heroku::Command
         buildpack_urls << buildpack_url
       end
 
-      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
-      if buildpack_urls.size > 1
-        display "Buildpack set. Next release on #{app} will use:"
-        display_buildpacks(buildpack_urls)
-        display "Run `git push heroku master` to create a new release using these buildpacks."
-      else
-        display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
-        display "Run `git push heroku master` to create a new release using this buildpack."
-      end
+      update_buildpacks(buildpack_urls, "set")
     end
 
     # buildpack:add BUILDPACK_URL
@@ -112,15 +104,7 @@ module Heroku::Command
         buildpack_urls << buildpack_url
       end
 
-      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
-      if buildpack_urls.size > 1
-        display "Buildpack added. Next release on #{app} will use:"
-        display_buildpacks(buildpack_urls)
-        display "Run `git push heroku master` to create a new release using these buildpacks."
-      else
-        display "Buildpack added. Next release on #{app} will use #{buildpack_url}."
-        display "Run `git push heroku master` to create a new release using this buildpack."
-      end
+      update_buildpacks(buildpack_urls, "added")
     end
 
     # buildpack:remove [BUILDPACK_URL]
@@ -168,27 +152,8 @@ module Heroku::Command
         error("Buildpack not found. Nothing was removed.")
       end
 
-      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
+      update_buildpacks(buildpack_urls, "removed")
 
-      if buildpack_urls.size > 1
-        display "Buildpack removed. Next release on #{app} will use:"
-        display_buildpacks(buildpack_urls)
-        display "Run `git push heroku master` to create a new release using these buildpacks."
-      elsif buildpack_urls.size == 1
-        display "Buildpack removed. Next release on #{app} will use #{buildpack_urls.first}."
-        display "Run `git push heroku master` to create a new release using this buildpack."
-      else
-        vars = api.get_config_vars(app).body
-        if vars.has_key?("BUILDPACK_URL")
-          display "Buildpack removed."
-          warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
-        elsif vars.has_key?("LANGUAGE_PACK_URL")
-          display "Buildpack removed."
-          warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
-        else
-          display "Buildpack removed. Next release on #{app} will detect buildpack normally."
-        end
-      end
     end
 
     # buildpack:clear
@@ -197,20 +162,15 @@ module Heroku::Command
     #
     def clear
       api.put_app_buildpacks_v3(app, {:updates => []})
-
-      vars = api.get_config_vars(app).body
-      if vars.has_key?("BUILDPACK_URL")
-        display "Buildpack(s) cleared."
-        warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
-      elsif vars.has_key?("LANGUAGE_PACK_URL")
-        display "Buildpack(s) cleared."
-        warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
-      else
-        display "Buildpack(s) cleared. Next release on #{app} will detect buildpack normally."
-      end
+      display_no_buildpacks("(s) cleared")
     end
 
     private
+
+    def update_buildpacks(buildpack_urls, action)
+      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
+      display_buildpack_change(buildpack_urls, action)
+    end
 
     def display_buildpacks(buildpacks)
       if (buildpacks.size == 1)
@@ -219,6 +179,32 @@ module Heroku::Command
         buildpacks.each_with_index do |bp, i|
           display("  #{i+1}. #{bp}")
         end
+      end
+    end
+
+    def display_buildpack_change(buildpack_urls, action)
+      if buildpack_urls.size > 1
+        display "Buildpack #{action}. Next release on #{app} will use:"
+        display_buildpacks(buildpack_urls)
+        display "Run `git push heroku master` to create a new release using these buildpacks."
+      elsif buildpack_urls.size == 1
+        display "Buildpack #{action}. Next release on #{app} will use #{buildpack_urls.first}."
+        display "Run `git push heroku master` to create a new release using this buildpack."
+      else
+        display_no_buildpacks
+      end
+    end
+
+    def display_no_buildpacks(action=" removed")
+      vars = api.get_config_vars(app).body
+      if vars.has_key?("BUILDPACK_URL")
+        display "Buildpack#{action}."
+        warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
+      elsif vars.has_key?("LANGUAGE_PACK_URL")
+        display "Buildpack#{action}."
+        warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
+      else
+        display "Buildpack#{action}. Next release on #{app} will detect buildpack normally."
       end
     end
 
