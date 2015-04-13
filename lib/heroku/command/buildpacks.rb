@@ -44,7 +44,7 @@ module Heroku::Command
         error("Usage: heroku buildpacks:set BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
-      index = get_index(1)
+      index = get_index(0)
 
       mutate_buildpacks_constructive(buildpack_url, index, "set") do |app_buildpacks|
         app_buildpacks.map do |buildpack|

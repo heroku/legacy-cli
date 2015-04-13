@@ -67,6 +67,23 @@ example has no Buildpack URL set.
           STDOUT
         end
       end
+
+      context "with two buildpack URLs set" do
+        before(:each) do
+          Excon.stubs.shift
+          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-ruby")
+        end
+
+        it "does not display a buildpack URL" do
+          stderr, stdout = execute("buildpacks")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+=== example Buildpack URLs
+1. https://github.com/heroku/heroku-buildpack-java
+2. https://github.com/heroku/heroku-buildpack-ruby
+          STDOUT
+        end
+      end
     end
 
     describe "set" do
