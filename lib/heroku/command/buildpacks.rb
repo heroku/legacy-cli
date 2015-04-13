@@ -25,7 +25,7 @@ module Heroku::Command
         display("#{app} has no Buildpack URL set.")
       else
         styled_header("#{app} Buildpack URL#{app_buildpacks.size > 1 ? 's' : ''}")
-        display_buildpacks(app_buildpacks.map{|bp| bp["buildpack"]["url"]})
+        display_buildpacks(app_buildpacks.map{|bp| bp["buildpack"]["url"]}, "")
       end
     end
 
@@ -193,12 +193,12 @@ module Heroku::Command
       display_buildpack_change(buildpack_urls, action)
     end
 
-    def display_buildpacks(buildpacks)
+    def display_buildpacks(buildpacks, indent="  ")
       if (buildpacks.size == 1)
         display(buildpacks.first)
       else
         buildpacks.each_with_index do |bp, i|
-          display("  #{i+1}. #{bp}")
+          display("#{indent}#{i+1}. #{bp}")
         end
       end
     end
