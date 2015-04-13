@@ -44,31 +44,21 @@ module Heroku::Command
         error("Usage: heroku buildpacks:set BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
-      validate_arguments!
-      index = (options[:index] || 1).to_i
-      index -= 1
+      index = get_index(1)
 
-      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
-
-      buildpack_urls = app_buildpacks.map do |buildpack|
-        ordinal = buildpack["ordinal"].to_i
-        existing_url = buildpack["buildpack"]["url"]
-        if existing_url == buildpack_url
-          error("The buildpack #{buildpack_url} is already set on your app.")
-        elsif ordinal == index
-          buildpack_url
-        else
-          existing_url
+      mutate_buildpacks(buildpack_url, index, "set") do |app_buildpacks|
+        app_buildpacks.map do |buildpack|
+          ordinal = buildpack["ordinal"].to_i
+          existing_url = buildpack["buildpack"]["url"]
+          if existing_url == buildpack_url
+            error("The buildpack #{buildpack_url} is already set on your app.")
+          elsif ordinal == index
+            buildpack_url
+          else
+            existing_url
+          end
         end
       end
-
-      # default behavior if index is out of range, or list is previously empty
-      # is to add buildpack to the list
-      if index < 0 or app_buildpacks.size <= index
-        buildpack_urls << buildpack_url
-      end
-
-      update_buildpacks(buildpack_urls, "set")
     end
 
     # buildpacks:add BUILDPACK_URL
@@ -86,31 +76,21 @@ module Heroku::Command
         error("Usage: heroku buildpacks:add BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
-      validate_arguments!
-      index = (options[:index] || -1).to_i
-      index -= 1
+      index = get_index
 
-      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
-
-      buildpack_urls = app_buildpacks.map { |buildpack|
-        ordinal = buildpack["ordinal"].to_i
-        existing_url = buildpack["buildpack"]["url"]
-        if existing_url == buildpack_url
-          error("The buildpack #{buildpack_url} is already set on your app.")
-        elsif ordinal == index
-          [buildpack_url, existing_url]
-        else
-          existing_url
-        end
-      }.flatten
-
-      # default behavior if index is out of range, or list is previously empty
-      # is to add buildpack to the list
-      if index < 0 or app_buildpacks.size <= index
-        buildpack_urls << buildpack_url
+      mutate_buildpacks(buildpack_url, index, "added") do |app_buildpacks|
+        app_buildpacks.map { |buildpack|
+          ordinal = buildpack["ordinal"].to_i
+          existing_url = buildpack["buildpack"]["url"]
+          if existing_url == buildpack_url
+            error("The buildpack #{buildpack_url} is already set on your app.")
+          elsif ordinal == index
+            [buildpack_url, existing_url]
+          else
+            existing_url
+          end
+        }.flatten
       end
-
-      update_buildpacks(buildpack_urls, "added")
     end
 
     # buildpacks:remove [BUILDPACK_URL]
@@ -122,12 +102,12 @@ module Heroku::Command
     def remove
       if buildpack_url = shift_argument
         if options[:index]
-          error("Please choose either index or Buildpack URL, but not both, as arguments to this command.")
+          error("Please choose either index or Buildpack URL, but not both.")
         end
       else
-        validate_arguments!
-        index = options[:index].to_i - 1
+        index = get_index
       end
+
 
       app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
 
@@ -171,6 +151,26 @@ module Heroku::Command
     end
 
     private
+
+    def mutate_buildpacks(buildpack_url, index, action)
+      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
+
+      buildpack_urls = yield(app_buildpacks)
+
+      # default behavior if index is out of range, or list is previously empty
+      # is to add buildpack to the list
+      if index < 0 or app_buildpacks.size <= index
+        buildpack_urls << buildpack_url
+      end
+
+      update_buildpacks(buildpack_urls, action)
+    end
+
+    def get_index(default=-1)
+      validate_arguments!
+      index = (options[:index] || default).to_i
+      index - 1
+    end
 
     def update_buildpacks(buildpack_urls, action)
       api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
