@@ -175,7 +175,7 @@ module Heroku::Command
         display_buildpacks(buildpack_urls)
         display "Run `git push heroku master` to create a new release using these buildpacks."
       elsif buildpack_urls.size == 1
-        display "Buildpack removed. Next release on #{app} will use #{buildpack_url}."
+        display "Buildpack removed. Next release on #{app} will use #{buildpack_urls.first}."
         display "Run `git push heroku master` to create a new release using this buildpack."
       else
         vars = api.get_config_vars(app).body
