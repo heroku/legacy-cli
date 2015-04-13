@@ -1,8 +1,8 @@
 require "spec_helper"
-require "heroku/command/buildpack"
+require "heroku/command/buildpacks"
 
 module Heroku::Command
-  describe Buildpack do
+  describe Buildpacks do
 
     def stub_put(*buildpacks)
       Excon.stub({
@@ -45,7 +45,7 @@ module Heroku::Command
 
     describe "index" do
       it "displays the buildpack URL" do
-        stderr, stdout = execute("buildpack")
+        stderr, stdout = execute("buildpacks")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 === example Buildpack URL
@@ -60,7 +60,7 @@ https://github.com/heroku/heroku-buildpack-ruby
         end
 
         it "does not display a buildpack URL" do
-          stderr, stdout = execute("buildpack")
+          stderr, stdout = execute("buildpacks")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 example has no Buildpack URL set.
@@ -77,7 +77,7 @@ example has no Buildpack URL set.
         end
 
         it "sets the buildpack URL" do
-          stderr, stdout = execute("buildpack:set https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:set https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -86,16 +86,16 @@ Run `git push heroku master` to create a new release using this buildpack.
         end
 
         it "handles a missing buildpack URL arg" do
-          stderr, stdout = execute("buildpack:set")
+          stderr, stdout = execute("buildpacks:set")
           expect(stderr).to eq <<-STDERR
- !    Usage: heroku buildpack:set BUILDPACK_URL.
+ !    Usage: heroku buildpacks:set BUILDPACK_URL.
  !    Must specify target buildpack URL.
           STDERR
           expect(stdout).to eq("")
         end
 
         it "sets the buildpack URL with index" do
-          stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -115,7 +115,7 @@ Run `git push heroku master` to create a new release using this buildpack.
           it "overwrites an existing buildpack URL at index" do
             stub_put(
               "https://github.com/heroku/heroku-buildpack-ruby")
-            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -131,7 +131,7 @@ Run `git push heroku master` to create a new release using this buildpack.
           end
 
           it "fails if buildpack is already set" do
-            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    The buildpack https://github.com/heroku/heroku-buildpack-ruby is already set on your app.
@@ -152,7 +152,7 @@ Run `git push heroku master` to create a new release using this buildpack.
             stub_put(
               "https://github.com/heroku/heroku-buildpack-ruby",
               "https://github.com/heroku/heroku-buildpack-nodejs")
-            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use:
@@ -167,7 +167,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
               "https://github.com/heroku/heroku-buildpack-java",
               "https://github.com/heroku/heroku-buildpack-nodejs",
               "https://github.com/heroku/heroku-buildpack-ruby")
-            stderr, stdout = execute("buildpack:set -i 99 https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:set -i 99 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use:
@@ -186,7 +186,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
           end
 
           it "fails if buildpack is already set" do
-            stderr, stdout = execute("buildpack:set -i 2 https://github.com/heroku/heroku-buildpack-java")
+            stderr, stdout = execute("buildpacks:set -i 2 https://github.com/heroku/heroku-buildpack-java")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    The buildpack https://github.com/heroku/heroku-buildpack-java is already set on your app.
@@ -204,7 +204,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
         end
 
         it "adds the buildpack URL" do
-          stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:add https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -213,16 +213,16 @@ Run `git push heroku master` to create a new release using this buildpack.
         end
 
         it "handles a missing buildpack URL arg" do
-          stderr, stdout = execute("buildpack:add")
+          stderr, stdout = execute("buildpacks:add")
           expect(stderr).to eq <<-STDERR
- !    Usage: heroku buildpack:add BUILDPACK_URL.
+ !    Usage: heroku buildpacks:add BUILDPACK_URL.
  !    Must specify target buildpack URL.
           STDERR
           expect(stdout).to eq("")
         end
 
         it "adds the buildpack URL with index" do
-          stderr, stdout = execute("buildpack:add -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:add -i 1 https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -240,7 +240,7 @@ Run `git push heroku master` to create a new release using this buildpack.
 
         it "inserts a buildpack URL at index" do
           stub_put("https://github.com/heroku/heroku-buildpack-ruby", "https://github.com/heroku/heroku-buildpack-java")
-          stderr, stdout = execute("buildpack:add -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:add -i 1 https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
@@ -252,7 +252,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
 
         it "adds a buildpack URL to the end of the list" do
           stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-ruby")
-          stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:add https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
@@ -276,7 +276,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
               "https://github.com/heroku/heroku-buildpack-java",
               "https://github.com/heroku/heroku-buildpack-ruby",
               "https://github.com/heroku/heroku-buildpack-nodejs")
-            stderr, stdout = execute("buildpack:add -i 2 https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:add -i 2 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
@@ -293,7 +293,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
               "https://github.com/heroku/heroku-buildpack-nodejs",
               "https://github.com/heroku/heroku-buildpack-ruby")
             stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
-            stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:add https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
@@ -312,7 +312,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
           end
 
           it "inserts a buildpack URL at index" do
-            stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-java")
+            stderr, stdout = execute("buildpacks:add https://github.com/heroku/heroku-buildpack-java")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    The buildpack https://github.com/heroku/heroku-buildpack-java is already set on your app.
@@ -324,7 +324,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
 
     describe "clear" do
       it "clears the buildpack URL" do
-        stderr, stdout = execute("buildpack:clear")
+        stderr, stdout = execute("buildpacks:clear")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Buildpack(s) cleared. Next release on example will detect buildpack normally.
@@ -333,7 +333,7 @@ Buildpack(s) cleared. Next release on example will detect buildpack normally.
 
       it "clears and warns about buildpack URL config var" do
         execute("config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby")
-        stderr, stdout = execute("buildpack:clear")
+        stderr, stdout = execute("buildpacks:clear")
         expect(stderr).to eq <<-STDERR
 WARNING: The BUILDPACK_URL config var is still set and will be used for the next release
         STDERR
@@ -344,7 +344,7 @@ Buildpack(s) cleared.
 
       it "clears and warns about language pack URL config var" do
         execute("config:set LANGUAGE_PACK_URL=https://github.com/heroku/heroku-buildpack-ruby")
-        stderr, stdout = execute("buildpack:clear")
+        stderr, stdout = execute("buildpacks:clear")
         expect(stderr).to eq <<-STDERR
 WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release
         STDERR
@@ -362,7 +362,7 @@ Buildpack(s) cleared.
         end
 
         it "reports an error removing index" do
-          stderr, stdout = execute("buildpack:remove -i 1")
+          stderr, stdout = execute("buildpacks:remove -i 1")
           expect(stdout).to eq("")
           expect(stderr).to eq <<-STDOUT
  !    No buildpacks were found. Next release on example will detect buildpack normally.
@@ -370,7 +370,7 @@ Buildpack(s) cleared.
         end
 
         it "reports an error removing buildpack_url" do
-          stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpacks:remove https://github.com/heroku/heroku-buildpack-ruby")
           expect(stdout).to eq("")
           expect(stderr).to eq <<-STDOUT
  !    No buildpacks were found. Next release on example will detect buildpack normally.
@@ -388,7 +388,7 @@ Buildpack(s) cleared.
           end
 
           it "removes index" do
-            stderr, stdout = execute("buildpack:remove -i 1")
+            stderr, stdout = execute("buildpacks:remove -i 1")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will detect buildpack normally.
@@ -396,7 +396,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
           end
 
           it "removes url" do
-            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:remove https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will detect buildpack normally.
@@ -411,7 +411,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
           end
 
           it "validates arguments" do
-            stderr, stdout = execute("buildpack:remove -i 1 https://github.com/heroku/heroku-buildpack-java")
+            stderr, stdout = execute("buildpacks:remove -i 1 https://github.com/heroku/heroku-buildpack-java")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    Please choose either index or Buildpack URL, but not both, as arguments to this command.
@@ -419,7 +419,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
           end
 
           it "checks if index is in range" do
-            stderr, stdout = execute("buildpack:remove -i 9")
+            stderr, stdout = execute("buildpacks:remove -i 9")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    Invalid index. Only valid value is 1.
@@ -427,7 +427,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
           end
 
           it "checks if buildpack_url is found" do
-            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-foobar")
+            stderr, stdout = execute("buildpacks:remove https://github.com/heroku/heroku-buildpack-foobar")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    Buildpack not found. Nothing was removed.
@@ -446,7 +446,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
 
           it "removes index" do
             stub_put("https://github.com/heroku/heroku-buildpack-java")
-            stderr, stdout = execute("buildpack:remove -i 2")
+            stderr, stdout = execute("buildpacks:remove -i 2")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-java.
@@ -456,7 +456,7 @@ Run `git push heroku master` to create a new release using this buildpack.
 
           it "removes index" do
             stub_put("https://github.com/heroku/heroku-buildpack-ruby")
-            stderr, stdout = execute("buildpack:remove -i 1")
+            stderr, stdout = execute("buildpacks:remove -i 1")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
@@ -466,7 +466,7 @@ Run `git push heroku master` to create a new release using this buildpack.
 
           it "removes url" do
             stub_put("https://github.com/heroku/heroku-buildpack-java")
-            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:remove https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-java.
@@ -482,7 +482,7 @@ Run `git push heroku master` to create a new release using this buildpack.
           end
 
           it "checks if index is in range" do
-            stderr, stdout = execute("buildpack:remove -i 9")
+            stderr, stdout = execute("buildpacks:remove -i 9")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
  !    Invalid index. Please choose a value between 1 and 2
@@ -506,7 +506,7 @@ Run `git push heroku master` to create a new release using this buildpack.
             stub_put(
               "https://github.com/heroku/heroku-buildpack-java",
               "https://github.com/heroku/heroku-buildpack-ruby")
-            stderr, stdout = execute("buildpack:remove -i 2")
+            stderr, stdout = execute("buildpacks:remove -i 2")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will use:
@@ -520,7 +520,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
             stub_put(
               "https://github.com/heroku/heroku-buildpack-java",
               "https://github.com/heroku/heroku-buildpack-nodejs")
-            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:remove https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
 Buildpack removed. Next release on example will use:
