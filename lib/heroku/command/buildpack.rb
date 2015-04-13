@@ -31,7 +31,7 @@ module Heroku::Command
 
     # buildpack:set BUILDPACK_URL
     #
-    # set new app buildpack
+    # set new app buildpack, overwriting into list of buildpacks if neccessary
     #
     # -i, --index NUM      # the 1-based index of the URL in the list of URLs
     #
@@ -69,10 +69,58 @@ module Heroku::Command
       if (buildpack_urls.size > 1)
         display "Buildpack set. Next release on #{app} will use:"
         display_buildpacks(buildpack_urls)
+        display "Run `git push heroku master` to create a new release using these buildpacks."
       else
         display "Buildpack set. Next release on #{app} will use #{buildpack_url}."
+        display "Run `git push heroku master` to create a new release using this buildpack."
       end
-      display "Run `git push heroku master` to create a new release using #{buildpack_url}."
+    end
+
+    # buildpack:add BUILDPACK_URL
+    #
+    # add new app buildpack, inserting into list of buildpacks if neccessary
+    #
+    # -i, --index NUM      # the 1-based index of the URL in the list of URLs
+    #
+    #Example:
+    #
+    # $ heroku buildpack:add -i 1 https://github.com/heroku/heroku-buildpack-ruby
+    #
+    def add
+      unless buildpack_url = shift_argument
+        error("Usage: heroku buildpack:add BUILDPACK_URL.\nMust specify target buildpack URL.")
+      end
+
+      validate_arguments!
+      index = (options[:index] || 1).to_i
+      index -= 1
+
+      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
+
+      buildpack_urls = app_buildpacks.map { |buildpack|
+        ordinal = buildpack["ordinal"].to_i
+        if ordinal == index
+          [buildpack_url, buildpack["buildpack"]["url"]]
+        else
+          buildpack["buildpack"]["url"]
+        end
+      }.flatten
+
+      # default behavior if index is out of range, or list is previously empty
+      # is to add buildpack to the list
+      if index < 0 or app_buildpacks.size <= index
+        buildpack_urls << buildpack_url
+      end
+
+      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
+      if (buildpack_urls.size > 1)
+        display "Buildpack added. Next release on #{app} will use:"
+        display_buildpacks(buildpack_urls)
+        display "Run `git push heroku master` to create a new release using these buildpacks."
+      else
+        display "Buildpack added. Next release on #{app} will use #{buildpack_url}."
+        display "Run `git push heroku master` to create a new release using this buildpack."
+      end
     end
 
     # buildpack:clear
@@ -98,7 +146,7 @@ module Heroku::Command
 
     def display_buildpacks(buildpacks)
       if (buildpacks.size == 1)
-        display("  #{buildpacks.first}")
+        display(buildpacks.first)
       else
         buildpacks.each_with_index do |bp, i|
           display("  #{i+1}. #{bp}")
