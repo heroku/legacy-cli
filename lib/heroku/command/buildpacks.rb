@@ -5,15 +5,15 @@ module Heroku::Command
 
   # manage the buildpack for an app
   #
-  class Buildpack < Base
+  class Buildpacks < Base
 
-    # buildpack
+    # buildpacks
     #
-    # display the buildpack_url for an app
+    # display the buildpack_url(s) for an app
     #
     #Examples:
     #
-    # $ heroku buildpack
+    # $ heroku buildpacks
     # https://github.com/heroku/heroku-buildpack-ruby
     #
     def index
@@ -29,7 +29,7 @@ module Heroku::Command
       end
     end
 
-    # buildpack:set BUILDPACK_URL
+    # buildpacks:set BUILDPACK_URL
     #
     # set new app buildpack, overwriting into list of buildpacks if neccessary
     #
@@ -37,11 +37,11 @@ module Heroku::Command
     #
     #Example:
     #
-    # $ heroku buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby
+    # $ heroku buildpacks:set -i 1 https://github.com/heroku/heroku-buildpack-ruby
     #
     def set
       unless buildpack_url = shift_argument
-        error("Usage: heroku buildpack:set BUILDPACK_URL.\nMust specify target buildpack URL.")
+        error("Usage: heroku buildpacks:set BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
       validate_arguments!
@@ -71,7 +71,7 @@ module Heroku::Command
       update_buildpacks(buildpack_urls, "set")
     end
 
-    # buildpack:add BUILDPACK_URL
+    # buildpacks:add BUILDPACK_URL
     #
     # add new app buildpack, inserting into list of buildpacks if neccessary
     #
@@ -79,11 +79,11 @@ module Heroku::Command
     #
     #Example:
     #
-    # $ heroku buildpack:add -i 1 https://github.com/heroku/heroku-buildpack-ruby
+    # $ heroku buildpacks:add -i 1 https://github.com/heroku/heroku-buildpack-ruby
     #
     def add
       unless buildpack_url = shift_argument
-        error("Usage: heroku buildpack:add BUILDPACK_URL.\nMust specify target buildpack URL.")
+        error("Usage: heroku buildpacks:add BUILDPACK_URL.\nMust specify target buildpack URL.")
       end
 
       validate_arguments!
@@ -113,7 +113,7 @@ module Heroku::Command
       update_buildpacks(buildpack_urls, "added")
     end
 
-    # buildpack:remove [BUILDPACK_URL]
+    # buildpacks:remove [BUILDPACK_URL]
     #
     # remove a buildpack set on the app
     #
@@ -161,7 +161,7 @@ module Heroku::Command
       update_buildpacks(buildpack_urls, "removed")
     end
 
-    # buildpack:clear
+    # buildpacks:clear
     #
     # clear all buildpacks set on the app
     #
