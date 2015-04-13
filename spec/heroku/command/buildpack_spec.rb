@@ -324,13 +324,38 @@ Buildpack(s) cleared.
       end
 
       context "with one buildpack" do
-        context "reports and error" do
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-ruby")
+            stub_put
+          end
+
+          it "removes index" do
+            stderr, stdout = execute("buildpack:remove -i 1")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will detect buildpack normally.
+            STDOUT
+          end
+
+          it "removes url" do
+            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will detect buildpack normally.
+            STDOUT
+          end
+        end
+
+        context "unsuccessfully" do
           before(:each) do
             Excon.stubs.shift
             stub_get("https://github.com/heroku/heroku-buildpack-java")
           end
 
-          it "invalid arguments" do
+          it "validates arguments" do
             stderr, stdout = execute("buildpack:remove -i 1 https://github.com/heroku/heroku-buildpack-java")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
@@ -338,7 +363,7 @@ Buildpack(s) cleared.
             STDOUT
           end
 
-          it "index is out of range" do
+          it "checks if index is in range" do
             stderr, stdout = execute("buildpack:remove -i 9")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
@@ -346,7 +371,7 @@ Buildpack(s) cleared.
             STDOUT
           end
 
-          it "buildpack_url is not found" do
+          it "checks if buildpack_url is found" do
             stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-foobar")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
@@ -356,14 +381,52 @@ Buildpack(s) cleared.
         end
       end
 
-      context "with two buildpack" do
-        context "reports and error" do
+      context "with two buildpacks" do
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-ruby")
+          end
+
+          it "removes index" do
+            stub_put("https://github.com/heroku/heroku-buildpack-java")
+            stderr, stdout = execute("buildpack:remove -i 2")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-java.
+Run `git push heroku master` to create a new release using this buildpack.
+            STDOUT
+          end
+
+          it "removes index" do
+            stub_put("https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpack:remove -i 1")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
+Run `git push heroku master` to create a new release using this buildpack.
+            STDOUT
+          end
+
+          it "removes url" do
+            stub_put("https://github.com/heroku/heroku-buildpack-java")
+            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will use https://github.com/heroku/heroku-buildpack-java.
+Run `git push heroku master` to create a new release using this buildpack.
+            STDOUT
+          end
+        end
+
+        context "unsuccessfully" do
           before(:each) do
             Excon.stubs.shift
             stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
           end
 
-          it "index is out of range" do
+          it "checks if index is in range" do
             stderr, stdout = execute("buildpack:remove -i 9")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
@@ -371,7 +434,47 @@ Buildpack(s) cleared.
             STDOUT
           end
         end
+      end
 
+      context "with three buildpacks" do
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get(
+            "https://github.com/heroku/heroku-buildpack-java",
+            "https://github.com/heroku/heroku-buildpack-nodejs",
+            "https://github.com/heroku/heroku-buildpack-ruby")
+          end
+
+          it "removes index" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpack:remove -i 2")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-ruby
+Run `git push heroku master` to create a new release using these buildpacks.
+            STDOUT
+          end
+
+          it "removes url" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-nodejs")
+            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack removed. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-nodejs
+Run `git push heroku master` to create a new release using these buildpacks.
+            STDOUT
+          end
+        end
       end
     end
   end
