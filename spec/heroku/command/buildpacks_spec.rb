@@ -414,7 +414,7 @@ Buildpack removed. Next release on example will detect buildpack normally.
             stderr, stdout = execute("buildpacks:remove -i 1 https://github.com/heroku/heroku-buildpack-java")
             expect(stdout).to eq("")
             expect(stderr).to eq <<-STDOUT
- !    Please choose either index or Buildpack URL, but not both, as arguments to this command.
+ !    Please choose either index or Buildpack URL, but not both.
             STDOUT
           end
 
