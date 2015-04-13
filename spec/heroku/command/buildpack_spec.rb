@@ -70,90 +70,128 @@ example has no Buildpack URL set.
     end
 
     describe "set" do
-      it "sets the buildpack URL" do
-        stderr, stdout = execute("buildpack:set https://github.com/heroku/heroku-buildpack-ruby")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
-Run `git push heroku master` to create a new release using this buildpack.
-        STDOUT
-      end
-
-      it "handles a missing buildpack URL arg" do
-        stderr, stdout = execute("buildpack:set")
-        expect(stderr).to eq <<-STDERR
- !    Usage: heroku buildpack:set BUILDPACK_URL.
- !    Must specify target buildpack URL.
-        STDERR
-        expect(stdout).to eq("")
-      end
-
-      it "sets the buildpack URL with index" do
-        stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
-Run `git push heroku master` to create a new release using this buildpack.
-        STDOUT
-      end
-
-      context "with one existing buildpack" do
-        before(:each) do
+      context "with no buildpacks" do
+        before do
           Excon.stubs.shift
-          Excon.stubs.shift
-          stub_get("https://github.com/heroku/heroku-buildpack-java")
+          stub_get
         end
 
-        it "overwrites an existing buildpack URL at index" do
-          stub_put(
-            "https://github.com/heroku/heroku-buildpack-ruby"
-          )
+        it "sets the buildpack URL" do
+          stderr, stdout = execute("buildpack:set https://github.com/heroku/heroku-buildpack-ruby")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
+Run `git push heroku master` to create a new release using this buildpack.
+          STDOUT
+        end
+
+        it "handles a missing buildpack URL arg" do
+          stderr, stdout = execute("buildpack:set")
+          expect(stderr).to eq <<-STDERR
+ !    Usage: heroku buildpack:set BUILDPACK_URL.
+ !    Must specify target buildpack URL.
+          STDERR
+          expect(stdout).to eq("")
+        end
+
+        it "sets the buildpack URL with index" do
           stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
 Run `git push heroku master` to create a new release using this buildpack.
           STDOUT
+        end
+      end
+
+      context "with one existing buildpack" do
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java")
+          end
+
+          it "overwrites an existing buildpack URL at index" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack set. Next release on example will use https://github.com/heroku/heroku-buildpack-ruby.
+Run `git push heroku master` to create a new release using this buildpack.
+            STDOUT
+          end
+        end
+
+        context "unsuccessfully" do
+          before(:each) do
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-ruby")
+          end
+
+          it "fails if buildpack is already set" do
+            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
+ !    The buildpack https://github.com/heroku/heroku-buildpack-ruby is already set on your app.
+            STDOUT
+          end
         end
       end
 
       context "with two existing buildpacks" do
-        before(:each) do
-          Excon.stubs.shift
-          Excon.stubs.shift
-          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
-        end
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          end
 
-        it "overwrites an existing buildpack URL at index" do
-          stub_put(
-            "https://github.com/heroku/heroku-buildpack-ruby",
-            "https://github.com/heroku/heroku-buildpack-nodejs"
-          )
-          stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "overwrites an existing buildpack URL at index" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-ruby",
+              "https://github.com/heroku/heroku-buildpack-nodejs")
+            stderr, stdout = execute("buildpack:set -i 1 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use:
   1. https://github.com/heroku/heroku-buildpack-ruby
   2. https://github.com/heroku/heroku-buildpack-nodejs
 Run `git push heroku master` to create a new release using these buildpacks.
-          STDOUT
-        end
+            STDOUT
+          end
 
-        it "adds buildpack URL to the end of list" do
-          stub_put(
-            "https://github.com/heroku/heroku-buildpack-java",
-            "https://github.com/heroku/heroku-buildpack-nodejs",
-            "https://github.com/heroku/heroku-buildpack-ruby"
-          )
-          stderr, stdout = execute("buildpack:set -i 99 https://github.com/heroku/heroku-buildpack-ruby")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "adds buildpack URL to the end of list" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-nodejs",
+              "https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpack:set -i 99 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 Buildpack set. Next release on example will use:
   1. https://github.com/heroku/heroku-buildpack-java
   2. https://github.com/heroku/heroku-buildpack-nodejs
   3. https://github.com/heroku/heroku-buildpack-ruby
 Run `git push heroku master` to create a new release using these buildpacks.
-          STDOUT
+            STDOUT
+          end
+        end
+
+        context "unsuccessfully" do
+          before(:each) do
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          end
+
+          it "fails if buildpack is already set" do
+            stderr, stdout = execute("buildpack:set -i 2 https://github.com/heroku/heroku-buildpack-java")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
+ !    The buildpack https://github.com/heroku/heroku-buildpack-java is already set on your app.
+            STDOUT
+          end
         end
       end
     end
@@ -226,43 +264,60 @@ Run `git push heroku master` to create a new release using these buildpacks.
       end
 
       context "with two existing buildpacks" do
-        before(:each) do
-          Excon.stubs.shift
-          Excon.stubs.shift
-          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
-        end
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          end
 
-        it "inserts a buildpack URL at index" do
-          stub_put(
-            "https://github.com/heroku/heroku-buildpack-java",
-            "https://github.com/heroku/heroku-buildpack-ruby",
-            "https://github.com/heroku/heroku-buildpack-nodejs")
-          stderr, stdout = execute("buildpack:add -i 2 https://github.com/heroku/heroku-buildpack-ruby")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "inserts a buildpack URL at index" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-ruby",
+              "https://github.com/heroku/heroku-buildpack-nodejs")
+            stderr, stdout = execute("buildpack:add -i 2 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
   1. https://github.com/heroku/heroku-buildpack-java
   2. https://github.com/heroku/heroku-buildpack-ruby
   3. https://github.com/heroku/heroku-buildpack-nodejs
 Run `git push heroku master` to create a new release using these buildpacks.
-          STDOUT
-        end
+            STDOUT
+          end
 
-        it "adds a buildpack URL to the end of the list" do
-          stub_put(
-            "https://github.com/heroku/heroku-buildpack-java",
-            "https://github.com/heroku/heroku-buildpack-nodejs",
-            "https://github.com/heroku/heroku-buildpack-ruby")
-          stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
-          stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "adds a buildpack URL to the end of the list" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-nodejs",
+              "https://github.com/heroku/heroku-buildpack-ruby")
+            stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+            stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 Buildpack added. Next release on example will use:
   1. https://github.com/heroku/heroku-buildpack-java
   2. https://github.com/heroku/heroku-buildpack-nodejs
   3. https://github.com/heroku/heroku-buildpack-ruby
 Run `git push heroku master` to create a new release using these buildpacks.
-          STDOUT
+            STDOUT
+          end
+        end
+
+        context "successfully" do
+          before(:each) do
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          end
+
+          it "inserts a buildpack URL at index" do
+            stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-java")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
+ !    The buildpack https://github.com/heroku/heroku-buildpack-java is already set on your app.
+            STDOUT
+          end
         end
       end
     end
