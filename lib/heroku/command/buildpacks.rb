@@ -109,36 +109,36 @@ module Heroku::Command
       end
 
 
-      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
-
-      if app_buildpacks.size == 0
-        error("No buildpacks were found. Next release on #{app} will detect buildpack normally.")
-      end
-
-      if index and (index < 0 or index > app_buildpacks.size)
-        if app_buildpacks.size == 1
-          error("Invalid index. Only valid value is 1.")
-        else
-          error("Invalid index. Please choose a value between 1 and #{app_buildpacks.size}")
+      mutate_buildpacks(buildpack_url, index, "removed") do |app_buildpacks|
+        if app_buildpacks.size == 0
+          error("No buildpacks were found. Next release on #{app} will detect buildpack normally.")
         end
-      end
 
-      buildpack_urls = app_buildpacks.map { |buildpack|
-        ordinal = buildpack["ordinal"].to_i
-        if ordinal == index
-          nil
-        elsif buildpack["buildpack"]["url"] == buildpack_url
-          nil
-        else
-          buildpack["buildpack"]["url"]
+        if index and (index < 0 or index > app_buildpacks.size)
+          if app_buildpacks.size == 1
+            error("Invalid index. Only valid value is 1.")
+          else
+            error("Invalid index. Please choose a value between 1 and #{app_buildpacks.size}")
+          end
         end
-      }.compact
 
-      if buildpack_urls.size == app_buildpacks.size
-        error("Buildpack not found. Nothing was removed.")
+        buildpack_urls = app_buildpacks.map { |buildpack|
+          ordinal = buildpack["ordinal"].to_i
+          if ordinal == index
+            nil
+          elsif buildpack["buildpack"]["url"] == buildpack_url
+            nil
+          else
+            buildpack["buildpack"]["url"]
+          end
+        }.compact
+
+        if buildpack_urls.size == app_buildpacks.size
+          error("Buildpack not found. Nothing was removed.")
+        end
+
+        buildpack_urls
       end
-
-      update_buildpacks(buildpack_urls, "removed")
     end
 
     # buildpacks:clear
@@ -147,7 +147,7 @@ module Heroku::Command
     #
     def clear
       api.put_app_buildpacks_v3(app, {:updates => []})
-      display_no_buildpacks("s cleared")
+      display_no_buildpacks("cleared", true)
     end
 
     private
@@ -216,16 +216,16 @@ module Heroku::Command
       end
     end
 
-    def display_no_buildpacks(action=" removed")
+    def display_no_buildpacks(action="removed", plural=false)
       vars = api.get_config_vars(app).body
       if vars.has_key?("BUILDPACK_URL")
-        display "Buildpack#{action}."
+        display "Buildpack#{plural ? "s" : ""} #{action}."
         warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
       elsif vars.has_key?("LANGUAGE_PACK_URL")
-        display "Buildpack#{action}."
+        display "Buildpack#{plural ? "s" : ""} #{action}."
         warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
       else
-        display "Buildpack#{action}. Next release on #{app} will detect buildpack normally."
+        display "Buildpack#{plural ? "s" : ""} #{action}. Next release on #{app} will detect buildpack normally."
       end
     end
 
