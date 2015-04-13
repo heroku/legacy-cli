@@ -52,10 +52,13 @@ module Heroku::Command
 
       buildpack_urls = app_buildpacks.map do |buildpack|
         ordinal = buildpack["ordinal"].to_i
-        if ordinal == index
+        existing_url = buildpack["buildpack"]["url"]
+        if existing_url == buildpack_url
+          error("The buildpack #{buildpack_url} is already set on your app.")
+        elsif ordinal == index
           buildpack_url
         else
-          buildpack["buildpack"]["url"]
+          existing_url
         end
       end
 
@@ -91,10 +94,13 @@ module Heroku::Command
 
       buildpack_urls = app_buildpacks.map { |buildpack|
         ordinal = buildpack["ordinal"].to_i
-        if ordinal == index
-          [buildpack_url, buildpack["buildpack"]["url"]]
+        existing_url = buildpack["buildpack"]["url"]
+        if existing_url == buildpack_url
+          error("The buildpack #{buildpack_url} is already set on your app.")
+        elsif ordinal == index
+          [buildpack_url, existing_url]
         else
-          buildpack["buildpack"]["url"]
+          existing_url
         end
       }.flatten
 
