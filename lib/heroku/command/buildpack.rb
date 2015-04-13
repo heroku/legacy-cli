@@ -153,7 +153,6 @@ module Heroku::Command
       end
 
       update_buildpacks(buildpack_urls, "removed")
-
     end
 
     # buildpack:clear
