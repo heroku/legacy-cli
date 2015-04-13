@@ -327,7 +327,7 @@ Run `git push heroku master` to create a new release using these buildpacks.
         stderr, stdout = execute("buildpacks:clear")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Buildpack(s) cleared. Next release on example will detect buildpack normally.
+Buildpacks cleared. Next release on example will detect buildpack normally.
         STDOUT
       end
 
@@ -338,7 +338,7 @@ Buildpack(s) cleared. Next release on example will detect buildpack normally.
 WARNING: The BUILDPACK_URL config var is still set and will be used for the next release
         STDERR
         expect(stdout).to eq <<-STDOUT
-Buildpack(s) cleared.
+Buildpacks cleared.
         STDOUT
       end
 
@@ -349,7 +349,7 @@ Buildpack(s) cleared.
 WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release
         STDERR
         expect(stdout).to eq <<-STDOUT
-Buildpack(s) cleared.
+Buildpacks cleared.
         STDOUT
       end
     end

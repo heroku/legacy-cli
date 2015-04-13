@@ -167,7 +167,7 @@ module Heroku::Command
     #
     def clear
       api.put_app_buildpacks_v3(app, {:updates => []})
-      display_no_buildpacks("(s) cleared")
+      display_no_buildpacks("s cleared")
     end
 
     private
