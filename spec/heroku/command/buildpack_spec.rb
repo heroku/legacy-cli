@@ -298,5 +298,72 @@ Buildpack(s) cleared.
         STDOUT
       end
     end
+
+    describe "remove" do
+      context "with no buildpacks" do
+        before(:each) do
+          Excon.stubs.shift
+          Excon.stubs.shift
+          stub_get
+        end
+
+        it "reports an error removing index" do
+          stderr, stdout = execute("buildpack:remove -i 1")
+          expect(stdout).to eq("")
+          expect(stderr).to eq <<-STDOUT
+ !    No buildpacks were found. Next release on example will detect buildpack normally.
+          STDOUT
+        end
+
+        it "reports an error removing buildpack_url" do
+          stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-ruby")
+          expect(stdout).to eq("")
+          expect(stderr).to eq <<-STDOUT
+ !    No buildpacks were found. Next release on example will detect buildpack normally.
+          STDOUT
+        end
+      end
+
+      context "with one buildpack" do
+        before(:each) do
+          Excon.stubs.shift
+          Excon.stubs.shift
+          stub_get("https://github.com/heroku/heroku-buildpack-java")
+        end
+
+        it "reports an error index is out of range" do
+          stderr, stdout = execute("buildpack:remove -i 9")
+          expect(stdout).to eq("")
+          expect(stderr).to eq <<-STDOUT
+ !    Invalid index. Only valid value is 1.
+          STDOUT
+        end
+
+        it "reports an error buildpack_url is not found" do
+          stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-foobar")
+          expect(stdout).to eq("")
+          expect(stderr).to eq <<-STDOUT
+ !    Buildpack not found. Nothing was removed.
+          STDOUT
+        end
+      end
+
+      context "with two buildpack" do
+        before(:each) do
+          Excon.stubs.shift
+          Excon.stubs.shift
+          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+        end
+
+        it "reports an error index is out of range" do
+          stderr, stdout = execute("buildpack:remove -i 9")
+          expect(stdout).to eq("")
+          expect(stderr).to eq <<-STDOUT
+ !    Invalid index. Please choose a value between 1 and 2
+          STDOUT
+        end
+
+      end
+    end
   end
 end

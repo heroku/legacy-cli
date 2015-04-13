@@ -66,7 +66,7 @@ module Heroku::Command
       end
 
       api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
-      if (buildpack_urls.size > 1)
+      if buildpack_urls.size > 1
         display "Buildpack set. Next release on #{app} will use:"
         display_buildpacks(buildpack_urls)
         display "Run `git push heroku master` to create a new release using these buildpacks."
@@ -113,13 +113,81 @@ module Heroku::Command
       end
 
       api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
-      if (buildpack_urls.size > 1)
+      if buildpack_urls.size > 1
         display "Buildpack added. Next release on #{app} will use:"
         display_buildpacks(buildpack_urls)
         display "Run `git push heroku master` to create a new release using these buildpacks."
       else
         display "Buildpack added. Next release on #{app} will use #{buildpack_url}."
         display "Run `git push heroku master` to create a new release using this buildpack."
+      end
+    end
+
+    # buildpack:remove [BUILDPACK_URL]
+    #
+    # remove a buildpack set on the app
+    #
+    # -i, --index NUM      # the 1-based index of the URL to remove from the list of URLs
+    #
+    def remove
+      if buildpack_url = shift_argument
+        if options[:index]
+          error("Please choose either index or Buildpack URL, but not both, as arguments to this command!")
+        end
+      else
+        validate_arguments!
+        index = options[:index].to_i - 1
+      end
+
+      app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
+
+      if app_buildpacks.size == 0
+        error("No buildpacks were found. Next release on #{app} will detect buildpack normally.")
+      end
+
+      if index and (index < 0 or index > app_buildpacks.size)
+        if app_buildpacks.size == 1
+          error("Invalid index. Only valid value is 1.")
+        else
+          error("Invalid index. Please choose a value between 1 and #{app_buildpacks.size}")
+        end
+      end
+
+      buildpack_urls = app_buildpacks.map { |buildpack|
+        ordinal = buildpack["ordinal"].to_i
+        if ordinal == index
+          nil
+        elsif buildpack["buildpack"]["url"] == buildpack_url
+          nil
+        else
+          buildpack["buildpack"]["url"]
+        end
+      }.compact
+
+      if buildpack_urls.size == app_buildpacks.size
+        error("Buildpack not found. Nothing was removed.")
+      end
+
+      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
+
+      if buildpack_urls.size > 1
+        display "Buildpack removed. Next release on #{app} will use:"
+        display_buildpacks(buildpack_urls)
+        display "Run `git push heroku master` to create a new release using these buildpacks."
+      elsif buildpack_urls.size == 1
+        display "Buildpack removed. Next release on #{app} will use #{buildpack_url}."
+        display "Run `git push heroku master` to create a new release using this buildpack."
+      else
+        vars = api.get_config_vars(app).body
+        if vars.has_key?("BUILDPACK_URL")
+          display "Buildpack removed."
+          warn "WARNING: The BUILDPACK_URL config var is still set and will be used for the next release"
+        elsif vars.has_key?("LANGUAGE_PACK_URL")
+          display "Buildpack removed."
+          warn "WARNING: The LANGUAGE_PACK_URL config var is still set and will be used for the next release"
+        else
+          display "Buildpack removed. Next release on #{app} will detect buildpack normally."
+        end
       end
     end
 
