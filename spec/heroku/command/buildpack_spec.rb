@@ -211,6 +211,59 @@ Buildpack added. Next release on example will use:
 Run `git push heroku master` to create a new release using these buildpacks.
           STDOUT
         end
+
+        it "adds a buildpack URL to the end of the list" do
+          stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-ruby")
+          stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Buildpack added. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-ruby
+Run `git push heroku master` to create a new release using these buildpacks.
+          STDOUT
+        end
+      end
+
+      context "with two existing buildpacks" do
+        before(:each) do
+          Excon.stubs.shift
+          Excon.stubs.shift
+          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+        end
+
+        it "inserts a buildpack URL at index" do
+          stub_put(
+            "https://github.com/heroku/heroku-buildpack-java",
+            "https://github.com/heroku/heroku-buildpack-ruby",
+            "https://github.com/heroku/heroku-buildpack-nodejs")
+          stderr, stdout = execute("buildpack:add -i 2 https://github.com/heroku/heroku-buildpack-ruby")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Buildpack added. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-ruby
+  3. https://github.com/heroku/heroku-buildpack-nodejs
+Run `git push heroku master` to create a new release using these buildpacks.
+          STDOUT
+        end
+
+        it "adds a buildpack URL to the end of the list" do
+          stub_put(
+            "https://github.com/heroku/heroku-buildpack-java",
+            "https://github.com/heroku/heroku-buildpack-nodejs",
+            "https://github.com/heroku/heroku-buildpack-ruby")
+          stub_put("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          stderr, stdout = execute("buildpack:add https://github.com/heroku/heroku-buildpack-ruby")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Buildpack added. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-nodejs
+  3. https://github.com/heroku/heroku-buildpack-ruby
+Run `git push heroku master` to create a new release using these buildpacks.
+          STDOUT
+        end
       end
     end
 

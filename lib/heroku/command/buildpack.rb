@@ -92,7 +92,7 @@ module Heroku::Command
       end
 
       validate_arguments!
-      index = (options[:index] || 1).to_i
+      index = (options[:index] || -1).to_i
       index -= 1
 
       app_buildpacks = api.get_app_buildpacks_v3(app)[:body]
