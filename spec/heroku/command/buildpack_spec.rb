@@ -303,7 +303,6 @@ Buildpack(s) cleared.
       context "with no buildpacks" do
         before(:each) do
           Excon.stubs.shift
-          Excon.stubs.shift
           stub_get
         end
 
@@ -325,42 +324,52 @@ Buildpack(s) cleared.
       end
 
       context "with one buildpack" do
-        before(:each) do
-          Excon.stubs.shift
-          Excon.stubs.shift
-          stub_get("https://github.com/heroku/heroku-buildpack-java")
-        end
+        context "reports and error" do
+          before(:each) do
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java")
+          end
 
-        it "reports an error index is out of range" do
-          stderr, stdout = execute("buildpack:remove -i 9")
-          expect(stdout).to eq("")
-          expect(stderr).to eq <<-STDOUT
+          it "invalid arguments" do
+            stderr, stdout = execute("buildpack:remove -i 1 https://github.com/heroku/heroku-buildpack-java")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
+ !    Please choose either index or Buildpack URL, but not both, as arguments to this command.
+            STDOUT
+          end
+
+          it "index is out of range" do
+            stderr, stdout = execute("buildpack:remove -i 9")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
  !    Invalid index. Only valid value is 1.
-          STDOUT
-        end
+            STDOUT
+          end
 
-        it "reports an error buildpack_url is not found" do
-          stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-foobar")
-          expect(stdout).to eq("")
-          expect(stderr).to eq <<-STDOUT
+          it "buildpack_url is not found" do
+            stderr, stdout = execute("buildpack:remove https://github.com/heroku/heroku-buildpack-foobar")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
  !    Buildpack not found. Nothing was removed.
-          STDOUT
+            STDOUT
+          end
         end
       end
 
       context "with two buildpack" do
-        before(:each) do
-          Excon.stubs.shift
-          Excon.stubs.shift
-          stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
-        end
+        context "reports and error" do
+          before(:each) do
+            Excon.stubs.shift
+            stub_get("https://github.com/heroku/heroku-buildpack-java", "https://github.com/heroku/heroku-buildpack-nodejs")
+          end
 
-        it "reports an error index is out of range" do
-          stderr, stdout = execute("buildpack:remove -i 9")
-          expect(stdout).to eq("")
-          expect(stderr).to eq <<-STDOUT
+          it "index is out of range" do
+            stderr, stdout = execute("buildpack:remove -i 9")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
  !    Invalid index. Please choose a value between 1 and 2
-          STDOUT
+            STDOUT
+          end
         end
 
       end

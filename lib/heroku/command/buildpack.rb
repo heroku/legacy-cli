@@ -132,7 +132,7 @@ module Heroku::Command
     def remove
       if buildpack_url = shift_argument
         if options[:index]
-          error("Please choose either index or Buildpack URL, but not both, as arguments to this command!")
+          error("Please choose either index or Buildpack URL, but not both, as arguments to this command.")
         end
       else
         validate_arguments!
