@@ -46,17 +46,11 @@ module Heroku::Command
 
       index = get_index(0)
 
-      mutate_buildpacks_constructive(buildpack_url, index, "set") do |app_buildpacks|
-        app_buildpacks.map do |buildpack|
-          ordinal = buildpack["ordinal"].to_i
-          existing_url = buildpack["buildpack"]["url"]
-          if existing_url == buildpack_url
-            error("The buildpack #{buildpack_url} is already set on your app.")
-          elsif ordinal == index
-            buildpack_url
-          else
-            existing_url
-          end
+      mutate_buildpacks_constructive(buildpack_url, index, "set") do |existing_url, ordinal|
+        if ordinal == index
+          buildpack_url
+        else
+          existing_url
         end
       end
     end
@@ -78,18 +72,12 @@ module Heroku::Command
 
       index = get_index
 
-      mutate_buildpacks_constructive(buildpack_url, index, "added") do |app_buildpacks|
-        app_buildpacks.map { |buildpack|
-          ordinal = buildpack["ordinal"].to_i
-          existing_url = buildpack["buildpack"]["url"]
-          if existing_url == buildpack_url
-            error("The buildpack #{buildpack_url} is already set on your app.")
-          elsif ordinal == index
-            [buildpack_url, existing_url]
-          else
-            existing_url
-          end
-        }.flatten
+      mutate_buildpacks_constructive(buildpack_url, index, "added") do |existing_url, ordinal|
+        if ordinal == index
+          [buildpack_url, existing_url]
+        else
+          existing_url
+        end
       end
     end
 
@@ -154,7 +142,15 @@ module Heroku::Command
 
     def mutate_buildpacks_constructive(buildpack_url, index, action)
       mutate_buildpacks(buildpack_url, index, action) do |app_buildpacks|
-        buildpack_urls = yield(app_buildpacks)
+        buildpack_urls = app_buildpacks.map { |buildpack|
+          ordinal = buildpack["ordinal"]
+          existing_url = buildpack["buildpack"]["url"]
+          if existing_url == buildpack_url
+            error("The buildpack #{buildpack_url} is already set on your app.")
+          else
+            yield(existing_url, ordinal)
+          end
+        }.flatten.compact
 
         # default behavior if index is out of range, or list is previously empty
         # is to add buildpack to the list
