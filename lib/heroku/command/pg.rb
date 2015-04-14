@@ -495,6 +495,10 @@ private
     display
   end
 
+  def in_maintenance?(app)
+    api.get_app_maintenance(app).body['maintenance']
+  end
+
   def hpg_client(attachment)
     Heroku::Client::HerokuPostgresql.new(attachment)
   end
