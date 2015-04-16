@@ -505,6 +505,15 @@ Run `git push heroku master` to create a new release using this buildpack.
  !    Invalid index. Please choose a value between 1 and 2
             STDOUT
           end
+
+          it "checks if index or url is provided" do
+            stderr, stdout = execute("buildpacks:remove")
+            expect(stdout).to eq("")
+            expect(stderr).to eq <<-STDOUT
+ !    Usage: heroku buildpacks:remove [BUILDPACK_URL].
+ !    Must specify a buildpack to remove, either by index or URL.
+            STDOUT
+          end
         end
       end
 

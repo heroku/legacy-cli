@@ -92,10 +92,11 @@ module Heroku::Command
         if options[:index]
           error("Please choose either index or Buildpack URL, but not both.")
         end
+      elsif index = get_index
+        # cool!
       else
-        index = get_index
+        error("Usage: heroku buildpacks:remove [BUILDPACK_URL].\nMust specify a buildpack to remove, either by index or URL.")
       end
-
 
       mutate_buildpacks(buildpack_url, index, "removed") do |app_buildpacks|
         if app_buildpacks.size == 0
