@@ -241,6 +241,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   # view active queries with execution time
   #
+  #   -v,--verbose # also show idle connections
+  #
   def ps
     requires_preauth
     sql = %Q(
@@ -255,11 +257,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
      WHERE
        #{query_column} <> '<insufficient privilege>'
        #{
-          if nine_two?
-            "AND state <> 'idle'"
-          else
-            "AND current_query <> '<IDLE>'"
-          end
+      # Apply idle-backend filter appropriate to versions and options.
+      case
+      when options[:verbose]
+        ''
+      when nine_two?
+        "AND state <> 'idle'"
+      else
+        "AND current_query <> '<IDLE>'"
+      end
        }
        AND #{pid_column} <> pg_backend_pid()
        ORDER BY query_start DESC
