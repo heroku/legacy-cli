@@ -152,13 +152,39 @@ STDOUT
     end
 
     context "promotion" do
+      include Support::Addons
+
       it "promotes the specified database" do
+        resource = build_addon(
+          name: "walking-slowly-42",
+          addon_service: { name: "heroku-posgresql:ronin" },
+          plan:          { name: "ronin" },
+          app:           { id: 1, name: "example" })
+
+        ronin = build_attachment(
+          name:  "HEROKU_POSTGRESQL_RONIN_URL",
+          app:   { id: 1, name: "example" },
+          addon: { id: resource[:id], name: "dreaming-ably-42" })
+
+        Excon.stub(method: :get, path: "/addons/#{resource[:id]}") do
+          { body: MultiJson.encode(resource), status: 200 }
+        end
+
+        Excon.stub(method: :get, path: "/apps/example/addon-attachments/RONIN") do
+          { body: MultiJson.encode(ronin), status: 200 }
+        end
+
+        Excon.stub(method: :post, path: "/addon-attachments") do
+          database = ronin.merge(name: "DATABASE")
+          { body: MultiJson.encode(database), status: 201 }
+        end
+
         stderr, stdout = execute("pg:promote RONIN --confirm example")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Promoting HEROKU_POSTGRESQL_RONIN_URL to DATABASE_URL... done
+Promoting walking-slowly-42 to DATABASE_URL on example... done
 STDOUT
-        expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://ronin_database_url")
+        expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://database_url")
       end
 
       it "fails if no database is specified" do
