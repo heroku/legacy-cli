@@ -1,3 +1,11 @@
+3.32.0 2015-04-21
+=================
+Added new fork implementation
+Added --verbose option to pg:ps
+Fixed bug with pg in_maintenance? flag
+Fixed issue with windows home folders and non-ascii characters
+No longer exits if netrc is missing but HEROKU_API_KEY is provided
+
 3.31.3 2015-04-09
 =================
 Fixed some bugs around pg:backups
