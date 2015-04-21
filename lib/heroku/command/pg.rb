@@ -4,7 +4,8 @@ require "heroku/client/heroku_postgresql"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 require "heroku/helpers/pg_dump_restore"
-
+require "heroku/helpers/addons/resolve"
+require "heroku/helpers/addons/api"
 require "heroku/helpers/pg_diagnose"
 
 # manage heroku-postgresql databases
@@ -19,6 +20,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   include Heroku::Helpers::HerokuPostgresql
   include Heroku::Helpers::PgDiagnose
+  include Heroku::Helpers::Addons::Resolve
+  include Heroku::Helpers::Addons::API
 
   # pg
   #
@@ -82,10 +85,21 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    attachment = generate_resolver.resolve(db)
+    addon = resolve_addon!(db)
 
-    action "Promoting #{attachment.display_name} to DATABASE_URL" do
-      hpg_promote(attachment.url)
+    attachment_name = 'DATABASE'
+    action "Promoting #{addon['name']} to #{attachment_name}_URL on #{app}" do
+      request(
+        :body     => json_encode({
+          "app"     => {"name" => app},
+          "addon"   => {"name" => addon['name']},
+          "confirm" => app,
+          "name"    => attachment_name
+        }),
+        :expects  => 201,
+        :method   => :post,
+        :path     => "/addon-attachments"
+      )
     end
   end
 

@@ -240,6 +240,7 @@ end
 
 require "support/display_message_matcher"
 require "support/organizations_mock_helper"
+require "support/addons_helper"
 
 RSpec.configure do |config|
   config.include DisplayMessageMatcher
