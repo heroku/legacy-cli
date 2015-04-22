@@ -44,6 +44,10 @@ describe Heroku::Command::Ps do
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
         expect(stderr).to eq("")
@@ -80,6 +84,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
         stderr, stdout = execute("ps")
         expect(stderr).to eq("")
@@ -107,6 +115,10 @@ STDOUT
             }
           end.to_json,
           :status => 200
+        )
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/quota" },
+            :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
@@ -137,6 +149,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
         stderr, stdout = execute("ps")
@@ -166,6 +182,10 @@ STDOUT
             }
           end.to_json,
           :status => 200
+        )
+        Excon.stub(
+          { :method => :get, :path => "/apps/example/quota" },
+            :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
