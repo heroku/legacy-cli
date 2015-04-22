@@ -5,6 +5,26 @@ module Heroku
   describe Helpers do
     include Heroku::Helpers
 
+    context "time_remaining" do
+      it "should display seconds remaining correctly" do
+        now = Time.now
+        future = Time.now + 30
+        expect(time_remaining(now, future)).to eq("30s")
+      end
+
+      it "should display minutes remaining correctly" do
+        now = Time.now
+        future = Time.now + 65
+        expect(time_remaining(now, future)).to eq("1m 5s")
+      end
+
+      it "should display hours remaining correctly" do
+        now = Time.now
+        future = Time.now + (70*60)
+        expect(time_remaining(now, future)).to eq("1h 10m")
+      end
+    end
+
     context "display_object" do
 
       it "should display Array correctly" do
