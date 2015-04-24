@@ -422,7 +422,7 @@ EOF
       redisplay <<-EOF
 An error occurred and your backup did not finish.
 
-Please run `heroku logs --ps pg-backups` for details.
+Please run `heroku pg:backups info #{transfer_name(backup)}` for details.
 
 EOF
     end
