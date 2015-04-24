@@ -122,6 +122,82 @@ module Heroku::Command
       end
     end
 
+    describe "heroku pg:backups" do
+      let(:logged_at)  { Time.now }
+      let(:started_at)  { Time.now }
+      let(:finished_at) { Time.now }
+      let(:from_name)   { 'RED' }
+      let(:source_size) { 42 }
+      let(:backup_size) { source_size / 2 }
+
+      let(:logs) { [{ 'created_at' => logged_at, 'message' => "hello world" }] }
+      let(:transfers) do
+        [
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 1, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => true },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP',
+          :num => 2, :logs => logs,
+          :from_type => 'pg_dump', :to_type => 'gof3r',
+          :started_at => started_at, :finished_at => finished_at,
+          :processed_bytes => backup_size, :source_bytes => source_size,
+          :succeeded => false },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'gof3r', :to_type => 'pg_restore', num: 3,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => true },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'gof3r', :to_type => 'pg_restore', num: 4,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => false },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'pg_dump', :to_type => 'pg_restore', num: 5,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => true },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'pg_dump', :to_type => 'pg_restore', num: 6,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => false }
+        ]
+      end
+
+      before do
+        (1..3).each do |n|
+          stub_pgapp.transfers_get(n, true).
+            returns(transfers.find { |xfer| xfer[:num] == n })
+        end
+        stub_pgapp.transfers.returns(transfers)
+      end
+
+      it "lists successful backups" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/b001\s*Finished/)
+      end
+
+      it "list failed backups" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/b002\s*Failed/)
+      end
+
+      it "lists successful restores" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/r003\s*Finished/)
+      end
+
+      it "lists failed restores" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/r004\s*Failed/)
+      end
+
+      it "lists successful copies"
+      it "lists failed copies"
+    end
+
     describe "heroku pg:backups info" do
       let(:logged_at)  { Time.now }
       let(:started_at)  { Time.now }
