@@ -178,7 +178,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       }
     end
     if display_backups.empty?
-      error("No backups. Capture one with `heroku pg:backups capture`.")
+      display("No backups. Capture one with `heroku pg:backups capture`.")
     else
       display_table(
         display_backups,
@@ -189,7 +189,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     display "\n=== Restores"
     display_restores = transfers.select do |r|
-      r[:from_type] == 'gof3r' && r[:to_type] == 'pg_restore'
+      r[:from_type] != 'pg_dump' && r[:to_type] == 'pg_restore'
     end.sort_by { |r| r[:created_at] }.reverse.map do |r|
       {
         "id" => transfer_name(r),
@@ -200,7 +200,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       }
     end
     if display_restores.empty?
-      error("No restores found. Use `heroku pg:backups restore` to restore a backup")
+      display("No restores found. Use `heroku pg:backups restore` to restore a backup")
     else
       display_table(
         display_restores,
@@ -223,7 +223,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       }
     end
     if display_restores.empty?
-      error("No copies found. Use `heroku pg:copy` to copy a database to another")
+      display("No copies found. Use `heroku pg:copy` to copy a database to another")
     else
       display_table(
         display_restores,
