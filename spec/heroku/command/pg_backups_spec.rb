@@ -158,10 +158,12 @@ module Heroku::Command
         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
          :from_type => 'pg_dump', :to_type => 'pg_restore', num: 5,
          :started_at => Time.now, :finished_at => Time.now,
+         :from_name => "CRIMSON", :to_name => "CLOVER",
          :processed_bytes => 42, :succeeded => true },
         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
          :from_type => 'pg_dump', :to_type => 'pg_restore', num: 6,
          :started_at => Time.now, :finished_at => Time.now,
+         :from_name => "CRIMSON", :to_name => "CLOVER",
          :processed_bytes => 42, :succeeded => false }
         ]
       end
@@ -194,8 +196,16 @@ module Heroku::Command
         expect(stdout).to match(/r004\s*Failed/)
       end
 
-      it "lists successful copies"
-      it "lists failed copies"
+      it "lists successful copies" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/===\sCopies/)
+        expect(stdout).to match(/c005\s*Finished/)
+    end
+
+      it "lists failed copies" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/c006\s*Failed/)
+      end
     end
 
     describe "heroku pg:backups info" do

@@ -208,6 +208,29 @@ class Heroku::Command::Pg < Heroku::Command::Base
         ["ID", "Restore Time", "Status", "Size", "Database"]
       )
     end
+
+    display "\n=== Copies"
+    display_restores = transfers.select do |r|
+      r[:from_type] == 'pg_dump' && r[:to_type] == 'pg_restore'
+    end.sort_by { |r| r[:created_at] }.reverse.map do |r|
+      {
+        "id" => transfer_name(r),
+        "created_at" => r[:created_at],
+        "status" => transfer_status(r),
+        "size" => size_pretty(r[:processed_bytes]),
+        "to_database" => r[:to_name] || 'UNKNOWN',
+        "from_database" => r[:from_name] || 'UNKNOWN'
+      }
+    end
+    if display_restores.empty?
+      error("No copies found. Use `heroku pg:copy` to copy a database to another")
+    else
+      display_table(
+        display_restores,
+        %w(id created_at status size from_database to_database),
+        ["ID", "Restore Time", "Status", "Size", "From Database", "To Database"]
+      )
+    end
   end
 
   def backup_status
