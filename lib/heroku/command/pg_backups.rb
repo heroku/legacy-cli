@@ -190,7 +190,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     display "\n=== Restores"
     display_restores = transfers.select do |r|
       r[:from_type] != 'pg_dump' && r[:to_type] == 'pg_restore'
-    end.sort_by { |r| r[:created_at] }.reverse.map do |r|
+    end.sort_by { |r| r[:created_at] }.reverse.first(20).map do |r|
       {
         "id" => transfer_name(r),
         "created_at" => r[:created_at],
@@ -212,7 +212,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     display "\n=== Copies"
     display_restores = transfers.select do |r|
       r[:from_type] == 'pg_dump' && r[:to_type] == 'pg_restore'
-    end.sort_by { |r| r[:created_at] }.reverse.map do |r|
+    end.sort_by { |r| r[:created_at] }.reverse.first(20).map do |r|
       {
         "id" => transfer_name(r),
         "created_at" => r[:created_at],
