@@ -99,6 +99,8 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   # display a config value for an app
   #
+  # -s, --shell  # output config var in shell format
+  #
   #Examples:
   #
   # $ heroku config:get A
@@ -112,7 +114,11 @@ class Heroku::Command::Config < Heroku::Command::Base
 
     vars = api.get_config_vars(app).body
     key, value = vars.detect {|k,v| k == key}
-    display(value.to_s)
+    if options[:shell]
+      display("#{key}=#{value}")
+    else
+      display(value.to_s)
+    end
   end
 
   # config:unset KEY1 [KEY2 ...]
