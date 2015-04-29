@@ -178,7 +178,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       }
     end
     if display_backups.empty?
-      error("No backups. Capture one with `heroku pg:backups capture`.")
+      display("No backups. Capture one with `heroku pg:backups capture`.")
     else
       display_table(
         display_backups,
@@ -189,8 +189,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     display "\n=== Restores"
     display_restores = transfers.select do |r|
-      r[:from_type] == 'gof3r' && r[:to_type] == 'pg_restore'
-    end.sort_by { |r| r[:created_at] }.reverse.map do |r|
+      r[:from_type] != 'pg_dump' && r[:to_type] == 'pg_restore'
+    end.sort_by { |r| r[:created_at] }.reverse.first(10).map do |r|
       {
         "id" => transfer_name(r),
         "created_at" => r[:created_at],
@@ -200,12 +200,35 @@ class Heroku::Command::Pg < Heroku::Command::Base
       }
     end
     if display_restores.empty?
-      error("No restores found. Use `heroku pg:backups restore` to restore a backup")
+      display("No restores found. Use `heroku pg:backups restore` to restore a backup")
     else
       display_table(
         display_restores,
         %w(id created_at status size database),
         ["ID", "Restore Time", "Status", "Size", "Database"]
+      )
+    end
+
+    display "\n=== Copies"
+    display_restores = transfers.select do |r|
+      r[:from_type] == 'pg_dump' && r[:to_type] == 'pg_restore'
+    end.sort_by { |r| r[:created_at] }.reverse.first(10).map do |r|
+      {
+        "id" => transfer_name(r),
+        "created_at" => r[:created_at],
+        "status" => transfer_status(r),
+        "size" => size_pretty(r[:processed_bytes]),
+        "to_database" => r[:to_name] || 'UNKNOWN',
+        "from_database" => r[:from_name] || 'UNKNOWN'
+      }
+    end
+    if display_restores.empty?
+      display("No copies found. Use `heroku pg:copy` to copy a database to another")
+    else
+      display_table(
+        display_restores,
+        %w(id created_at status size from_database to_database),
+        ["ID", "Restore Time", "Status", "Size", "From Database", "To Database"]
       )
     end
   end
@@ -399,7 +422,7 @@ EOF
       redisplay <<-EOF
 An error occurred and your backup did not finish.
 
-Please run `heroku logs --ps pg-backups` for details.
+Please run `heroku pg:backups info #{transfer_name(backup)}` for details.
 
 EOF
     end

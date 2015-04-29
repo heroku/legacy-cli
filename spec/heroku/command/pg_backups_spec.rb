@@ -122,7 +122,7 @@ module Heroku::Command
       end
     end
 
-    describe "heroku pg:backups info" do
+    describe "heroku pg:backups" do
       let(:logged_at)  { Time.now }
       let(:started_at)  { Time.now }
       let(:finished_at) { Time.now }
@@ -140,36 +140,91 @@ module Heroku::Command
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
           :succeeded => true },
-         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
-          :from_name => from_name, :to_name => 'PGBACKUPS BACKUP',
+         { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_name => from_name, :to_name => 'BACKUP',
           :num => 2, :logs => logs,
           :from_type => 'pg_dump', :to_type => 'gof3r',
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
-          :options => { "pgbackups_name" => "b047" },
-          :succeeded => true },
-         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffe',
-          :from_name => from_name, :to_name => 'BACKUP',
-          :num => 3, :logs => logs,
+          :succeeded => false },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'gof3r', :to_type => 'pg_restore', num: 3,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => true },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'gof3r', :to_type => 'pg_restore', num: 4,
+         :started_at => Time.now, :finished_at => Time.now,
+         :processed_bytes => 42, :succeeded => false },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'pg_dump', :to_type => 'pg_restore', num: 5,
+         :started_at => Time.now, :finished_at => Time.now,
+         :from_name => "CRIMSON", :to_name => "CLOVER",
+         :processed_bytes => 42, :succeeded => true },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+         :from_type => 'pg_dump', :to_type => 'pg_restore', num: 6,
+         :started_at => Time.now, :finished_at => Time.now,
+         :from_name => "CRIMSON", :to_name => "CLOVER",
+         :processed_bytes => 42, :succeeded => false },
+         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
+          :from_name => from_name, :to_name => 'PGBACKUPS BACKUP',
+          :num => 7, :logs => logs,
           :from_type => 'pg_dump', :to_type => 'gof3r',
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
+          :options => { "pgbackups_name" => "b047" },
           :succeeded => true }
         ]
       end
 
       before do
-        (1..3).each do |n|
+        (1..7).each do |n|
           stub_pgapp.transfers_get(n, true).
             returns(transfers.find { |xfer| xfer[:num] == n })
         end
         stub_pgapp.transfers.returns(transfers)
       end
 
-      it "displays info for the given backup" do
-        stderr, stdout = execute("pg:backups info b001")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
+      it "lists successful backups" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/b001\s*Finished/)
+      end
+
+      it "list failed backups" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/b002\s*Failed/)
+      end
+
+      it "lists old pgbackups" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/ob047\s*Finished/)
+      end
+
+      it "lists successful restores" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/r003\s*Finished/)
+      end
+
+      it "lists failed restores" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/r004\s*Failed/)
+      end
+
+      it "lists successful copies" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/===\sCopies/)
+        expect(stdout).to match(/c005\s*Finished/)
+      end
+
+      it "lists failed copies" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/c006\s*Failed/)
+      end
+
+      describe "heroku pg:backups info" do
+        it "displays info for the given backup" do
+          stderr, stdout = execute("pg:backups info b001")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
@@ -180,13 +235,13 @@ Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
 === Backup Logs
 #{logged_at}: hello world
-        EOF
-      end
+          EOF
+        end
 
-      it "displays info for legacy PGBackups backups" do
-        stderr, stdout = execute("pg:backups info ob047")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
+        it "displays info for legacy PGBackups backups" do
+          stderr, stdout = execute("pg:backups info ob047")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
 === Backup info: ob047
 Database:    #{from_name}
 Started:     #{started_at}
@@ -197,14 +252,14 @@ Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
 === Backup Logs
 #{logged_at}: hello world
-        EOF
-      end
+          EOF
+        end
 
-      it "defaults to the latest backup if none is specified" do
-        stderr, stdout = execute("pg:backups info")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
-=== Backup info: b003
+        it "defaults to the latest backup if none is specified" do
+          stderr, stdout = execute("pg:backups info")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
+=== Backup info: ob047
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
@@ -214,15 +269,15 @@ Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
 === Backup Logs
 #{logged_at}: hello world
-        EOF
-      end
+          EOF
+        end
 
-      it "does not display finished time or compression ratio if backup is not finished" do
-        xfer = transfers.find { |xfer| xfer[:num] == 1 }
-        xfer[:finished_at] = nil
-        stderr, stdout = execute("pg:backups info b001")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
+        it "does not display finished time or compression ratio if backup is not finished" do
+          xfer = transfers.find { |xfer| xfer[:num] == 1 }
+          xfer[:finished_at] = nil
+          stderr, stdout = execute("pg:backups info b001")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
@@ -232,15 +287,15 @@ Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B
 === Backup Logs
 #{logged_at}: hello world
-        EOF
-      end
+          EOF
+        end
 
-      it "works when the progress is at 0 bytes" do
-        xfer = transfers.find { |xfer| xfer[:num] == 1 }
-        xfer[:processed_bytes] = 0
-        stderr, stdout = execute("pg:backups info b001")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
+        it "works when the progress is at 0 bytes" do
+          xfer = transfers.find { |xfer| xfer[:num] == 1 }
+          xfer[:processed_bytes] = 0
+          stderr, stdout = execute("pg:backups info b001")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
@@ -251,15 +306,15 @@ Original DB Size: #{source_size}.0B
 Backup Size:      0.00B (0% compression)
 === Backup Logs
 #{logged_at}: hello world
-        EOF
-      end
+          EOF
+        end
 
-      it "works when the source size is 0 bytes" do
-        xfer = transfers.find { |xfer| xfer[:num] == 1 }
-        xfer[:source_bytes] = 0
-        stderr, stdout = execute("pg:backups info b001")
-        expect(stderr).to be_empty
-        expect(stdout).to eq <<-EOF
+        it "works when the source size is 0 bytes" do
+          xfer = transfers.find { |xfer| xfer[:num] == 1 }
+          xfer[:source_bytes] = 0
+          stderr, stdout = execute("pg:backups info b001")
+          expect(stderr).to be_empty
+          expect(stdout).to eq <<-EOF
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
@@ -269,9 +324,11 @@ Type:        Manual
 Backup Size: #{backup_size}.0B
 === Backup Logs
 #{logged_at}: hello world
-        EOF
+          EOF
+        end
       end
     end
+
 
     describe "heroku pg:backups restore" do
       let(:started_at)    { Time.parse('2001-01-01 00:00:00') }
