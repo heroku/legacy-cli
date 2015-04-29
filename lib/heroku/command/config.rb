@@ -42,7 +42,8 @@ class Heroku::Command::Config < Heroku::Command::Base
       vars.each {|key, value| vars[key] = value.to_s}
       if options[:shell]
         vars.keys.sort.each do |key|
-          display(%{#{key}=#{Shellwords.shellescape vars[key]}})
+          out = $stdout.tty? ? Shellwords.shellescape(vars[key]) : vars[key]
+          display(%{#{key}=#{out}})
         end
       else
         styled_header("#{app} Config Vars")
