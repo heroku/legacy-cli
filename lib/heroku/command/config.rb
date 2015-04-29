@@ -115,8 +115,9 @@ class Heroku::Command::Config < Heroku::Command::Base
 
     vars = api.get_config_vars(app).body
     key, value = vars.detect {|k,v| k == key}
-    if options[:shell]
-      display("#{key}=#{value}")
+    if options[:shell] && value
+      out = $stdout.tty? ? Shellwords.shellescape(value) : value
+      display("#{key}=#{out}")
     else
       display(value.to_s)
     end
