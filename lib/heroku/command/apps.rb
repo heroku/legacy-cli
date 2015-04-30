@@ -232,7 +232,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     params = {
       "name" => name,
       "region" => options[:region],
-      "stack" => options[:stack],
+      "stack" => Heroku::Command::Stack::Codex.in(options[:stack]),
       "locked" => options[:locked]
     }
 
