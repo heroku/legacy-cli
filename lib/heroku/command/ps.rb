@@ -1,17 +1,14 @@
-require "json"
 require "heroku/command/base"
 
 # manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
-  PROCESS_TIERS = JSON.parse <<EOF
-[
-  { "tier": "free",        "max_scale": 1,   "max_processes": 2,    "cost": { "Free": 0 } },
-  { "tier": "hobby",       "max_scale": 1,   "max_processes": null, "cost": { "Hobby": 700 } },
-  { "tier": "production",  "max_scale": 100, "max_processes": null, "cost": { "Standard-1X": 2500, "Standard-2X": 5000, "Performance": 50000 } },
-  { "tier": "traditional", "max_scale": 100, "max_processes": null, "cost": {          "1X": 3600,          "2X": 7200,          "PX": 57600 } }
-]
-EOF
+  PROCESS_TIERS =[
+    {"tier"=>"free",         "max_scale"=>1,    "max_processes"=>2,    "cost"=>{"Free"=>0}},
+    {"tier"=>"hobby",        "max_scale"=>1,    "max_processes"=>nil,  "cost"=>{"Hobby"=>700}},
+    {"tier"=>"production",   "max_scale"=>100,  "max_processes"=>nil,  "cost"=>{"Standard-1X"=>2500,  "Standard-2X"=>5000,  "Performance"=>50000}},
+    {"tier"=>"traditional",  "max_scale"=>100,  "max_processes"=>nil,  "cost"=>{"1X"=>3600,           "2X"=>7200,           "PX"=>57600}}
+  ]
 
   costs = PROCESS_TIERS.collect do |tier|
     tier["cost"].collect do |name, cents_per_month|
