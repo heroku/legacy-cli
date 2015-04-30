@@ -314,7 +314,7 @@ STDOUT
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
-web dynos now 2X ($0.10/dyno-hour)
+web dynos now 2X ($72/month)
 STDOUT
       end
 
@@ -330,7 +330,7 @@ STDOUT
             }.to_json
           },
           :body => [
-            {"quantity" => 2, "size" => "4X", "type" => "web"},
+            {"quantity" => 2, "size" => "1X", "type" => "web"},
             {"quantity" => 1, "size" => "2X", "type" => "worker"}
           ],
           :status => 200
@@ -339,8 +339,8 @@ STDOUT
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
-web dynos now 4X ($0.20/dyno-hour)
-worker dynos now 2X ($0.10/dyno-hour)
+web dynos now 1X ($36/month)
+worker dynos now 2X ($72/month)
 STDOUT
       end
 
@@ -365,8 +365,8 @@ STDOUT
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
 Resizing and restarting the specified dynos... done
-web dynos now PX ($0.80/dyno-hour)
-worker dynos now PX ($0.80/dyno-hour)
+web dynos now PX ($576/month)
+worker dynos now PX ($576/month)
 STDOUT
       end
 
