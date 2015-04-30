@@ -114,8 +114,12 @@ class Heroku::Command::Certs < Heroku::Command::Base
       heroku.ssl_endpoint_info(app, cname)
     end
 
-    display "Certificate details:"
-    display_certificate_info(endpoint)
+    if endpoint
+      display "Certificate details:"
+      display_certificate_info(endpoint)
+    else
+      error "No certificate found."
+    end
   end
 
   # certs:remove
