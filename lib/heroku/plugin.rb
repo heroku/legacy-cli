@@ -12,10 +12,13 @@ module Heroku
       heroku-certs
       heroku-credentials
       heroku-dyno-size
+      heroku-dyno-types
+      heroku-fork
       heroku-kill
       heroku-labs
       heroku-logging
       heroku-netrc
+      heroku-orgs
       heroku-pgdumps
       heroku-postgresql
       heroku-push
@@ -29,8 +32,6 @@ module Heroku
       heroku-two-factor
       pgbackups-automate
       pgcmd
-      heroku-fork
-      heroku-orgs
     )
 
     attr_reader :name, :uri
