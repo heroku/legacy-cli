@@ -45,7 +45,7 @@ describe Heroku::Command::Ps do
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
             :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
@@ -85,7 +85,7 @@ STDOUT
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
             :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
@@ -117,7 +117,7 @@ STDOUT
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
             :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
@@ -150,7 +150,7 @@ STDOUT
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
             :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
@@ -184,7 +184,7 @@ STDOUT
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
             :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
@@ -222,13 +222,13 @@ STDOUT
           :status => 200
         )
         Excon.stub(
-          { :method => :get, :path => "/apps/example/quota" },
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
           :body =>
             {
               "allow_until"       => allow_until.iso8601,
               "deny_until"        => nil,
             }.to_json,
-          :status => 404
+          :status => 200
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).once.times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_remaining).and_return("20s")
