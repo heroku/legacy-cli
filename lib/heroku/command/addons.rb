@@ -224,7 +224,7 @@ module Heroku::Command
       end
     end
 
-    # addons:upgrade ADDON_NAME PLAN
+    # addons:upgrade ADDON_NAME ADDON_SERVICE:PLAN
     #
     # upgrade an existing add-on resource to PLAN
     #
@@ -265,7 +265,7 @@ module Heroku::Command
       end
     end
 
-    # addons:downgrade ADDON_NAME PLAN
+    # addons:downgrade ADDON_NAME ADDON_SERVICE:PLAN
     #
     # downgrade an existing add-on resource to PLAN
     #
