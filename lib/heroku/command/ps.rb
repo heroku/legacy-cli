@@ -99,10 +99,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
     validate_arguments!
     quota_resp = api.request(
       :expects => [200, 404],
-      :method  => :get,
-      :path    => "/apps/#{app}/quota",
+      :method  => :post,
+      :path    => "/apps/#{app}/actions/get-quota",
       :headers => {
-        "Accept"       => "application/vnd.heroku+json; version=3",
+        "Accept"       => "application/vnd.heroku+json; version=3.app-quotas",
         "Content-Type" => "application/json"
       }
     )
