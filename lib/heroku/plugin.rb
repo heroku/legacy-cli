@@ -8,6 +8,7 @@ module Heroku
     class ErrorUpdatingSymlinkPlugin < StandardError; end
 
     DEPRECATED_PLUGINS = %w(
+      heroku-addon-attachments
       heroku-cedar
       heroku-certs
       heroku-credentials
