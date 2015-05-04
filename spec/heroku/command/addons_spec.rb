@@ -3,13 +3,15 @@ require "heroku/command/addons"
 
 module Heroku::Command
   describe Addons do
+    include Support::Addons
+    let(:addon) { build_addon(name: "my_addon", app: { name: "example" }) }
+
     before do
       @addons = prepare_command(Addons)
       stub_core.release("example", "current").returns( "name" => "v99" )
     end
 
-    describe "index" do
-
+    describe "#index" do
       before(:each) do
         stub_core
         api.post_app("name" => "example", "stack" => "cedar")
@@ -20,170 +22,254 @@ module Heroku::Command
       end
 
       it "should display no addons when none are configured" do
+        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          { body: "[]", status: 200 }
+        end
+
+        Excon.stub(method: :get, path: %r(/apps/example/addon-attachments)) do
+          { body: "[]", status: 200 }
+        end
+
         stderr, stdout = execute("addons")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-example has no add-ons.
+=== Resources for example
+There are no add-ons.
+
+=== Attachments for example
+There are no attachments.
 STDOUT
+
+        Excon.stubs.shift(2)
       end
 
       it "should list addons and attachments" do
-        Excon.stub(
-          {
-            :expects => 200,
-            :method => :get,
-            :path => %r{^/apps/example/addons$}
-          },
-          {
-            :body   => MultiJson.dump([
-              { 'configured' => false, 'name' => 'deployhooks:email' },
-              { 'attachment_name' => 'HEROKU_POSTGRESQL_RED', 'configured' => true, 'name' => 'heroku-postgresql:ronin' },
-              { 'configured' => true, 'name' => 'deployhooks:http' }
-            ]),
-            :status => 200,
-          }
-        )
+        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          hooks = build_addon(
+            name: "swimming-nicely-42",
+            plan: { name: "deployhooks:http", price: { cents: 0, unit: "month" }},
+            app:  { name: "example" })
+
+          hpg = build_addon(
+            name: "jumping-slowly-76",
+            plan: { name: "heroku-postgresql:ronin", price: { cents: 20000, unit: "month" }},
+            app:  { name: "example" })
+
+          { body: MultiJson.encode([hooks, hpg]), status: 200 }
+        end
+
+        Excon.stub(method: :get, path: %(/apps/example/addon-attachments)) do
+          hpg = build_attachment(
+            name:  "HEROKU_POSTGRESQL_CYAN",
+            addon: { name: "heroku-postgresql-12345", app: { name: "example" }},
+            app:   { name: "example" })
+
+          { body: MultiJson.encode([hpg]), status: 200 }
+        end
+
         stderr, stdout = execute("addons")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-=== example Configured Add-ons
-deployhooks:http
-heroku-postgresql:ronin  HEROKU_POSTGRESQL_RED
+=== Resources for example
+Plan                     Name                Price
+-----------------------  ------------------  -------------
+deployhooks:http         swimming-nicely-42  free
+heroku-postgresql:ronin  jumping-slowly-76   $200.00/month
 
-=== example Add-ons to Configure
-deployhooks:email  https://addons-sso.heroku.com/apps/example/addons/deployhooks:email
-
+=== Attachments for example
+Name                    Add-on                   Billing App
+----------------------  -----------------------  -----------
+HEROKU_POSTGRESQL_CYAN  heroku-postgresql-12345  example
 STDOUT
-        Excon.stubs.shift
+        Excon.stubs.shift(2)
       end
 
     end
 
     describe "list" do
+      before do
+        Excon.stub(method: :get, path: %r(/addon-services)) do
+          services = [
+            { "name" => "cloudcounter:basic", "state" => "alpha" },
+            { "name" => "cloudcounter:pro", "state" => "public" },
+            { "name" => "cloudcounter:gold", "state" => "public" },
+            { "name" => "cloudcounter:old", "state" => "disabled" },
+            { "name" => "cloudcounter:platinum", "state" => "beta" }
+          ]
 
-      it "sends region option to the server" do
-        stub_request(:get, %r{/addons\?region=eu$}).
+          { body: MultiJson.encode(services), status: 200 }
+        end
+      end
+
+      after do
+        Excon.stubs.shift
+      end
+
+      # TODO: plugin code doesn't support this. Do we need it?
+      xit "sends region option to the server" do
+        stub_request(:get, %r{/addon-services\?region=eu$}).
           to_return(:body => MultiJson.dump([]))
         execute("addons:list --region=eu")
       end
 
-      it "lists available addons" do
-        stub_core.addons.returns([
-          { "name" => "cloudcounter:basic", "state" => "alpha" },
-          { "name" => "cloudcounter:pro", "state" => "public" },
-          { "name" => "cloudcounter:gold", "state" => "public" },
-          { "name" => "cloudcounter:old", "state" => "disabled" },
-          { "name" => "cloudcounter:platinum", "state" => "beta" }
-        ])
-        stderr, stdout = execute("addons:list")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-=== alpha
-cloudcounter:basic
+      describe "when using the deprecated `addons:list` command" do
+        it "displays a deprecation warning" do
+          stderr, stdout = execute("addons:list")
+          expect(stderr).to eq("")
+          expect(stdout).to include "WARNING: `heroku addons:list` has been deprecated. Please use `heroku addons:services` instead."
+        end
+      end
 
-=== available
-cloudcounter:gold, pro
+      describe "when using correct `addons:services` command" do
+        it "displays all services" do
+          stderr, stdout = execute("addons:services")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Slug                   Name  State
+---------------------  ----  --------
+cloudcounter:basic           alpha
+cloudcounter:pro             public
+cloudcounter:gold            public
+cloudcounter:old             disabled
+cloudcounter:platinum        beta
 
-=== beta
-cloudcounter:platinum
-
-=== disabled
-cloudcounter:old
-
-STDOUT
+See plans with `heroku addons:plans SERVICE`
+          STDOUT
+        end
       end
     end
 
     describe 'v1-style command line params' do
-      it "understands foo=baz" do
-        allow(@addons).to receive(:args).and_return(%w(my_addon foo=baz))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
-        @addons.add
+      before do
+        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+          { body: MultiJson.encode(addon), status: 201 }
+        end
       end
 
-      it "gives a deprecation notice with an example" do
-        stub_request(:post, %r{apps/example/addons/my_addon$}).
-          with(:body => {:config => {:foo => 'bar', :extra => "XXX"}}).
-          to_return(:body => MultiJson.dump({ 'price' => 'free' }))
-        Excon.stub(
-          {
-            :expects => 200,
-            :method => :get,
-            :path => %r{^/apps/example/releases/current}
-          },
-          {
-            :body   => MultiJson.dump({ 'name' => 'v99' }),
-            :status => 200,
-          }
-        )
-        stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-Warning: non-unix style params have been deprecated, use --extra=XXX instead
-Adding my_addon on example... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation.
-STDOUT
+      after do
         Excon.stubs.shift
+      end
+
+      it "understands foo=baz" do
+        allow(@addons).to receive(:args).and_return(%w(my_addon foo=baz))
+
+        allow(@addons.api).to receive(:request) { |params|
+          expect(params[:body]).to include '"foo":"baz"'
+        }.and_return(double(body: stringify(addon)))
+
+        @addons.create
+      end
+
+      describe "addons:add" do
+        before do
+          Excon.stub(method: :get, path: %r{^/apps/example/releases/current}) do
+            { body: MultiJson.dump({ 'name' => 'v99' }), status: 200 }
+          end
+
+          Excon.stub(method: :post, path: %r{apps/example/addons/my_addon$}) do
+            { body: MultiJson.encode(price: "free"), status: 200 }
+          end
+        end
+
+        after do
+          Excon.stubs.shift(2)
+        end
+
+        it "shows a deprecation warning about addon:add vs addons:create" do
+          stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
+          expect(stderr).to eq("")
+          expect(stdout).to include "WARNING: `heroku addons:add` has been deprecated. Please use `heroku addons:create` instead."
+        end
+
+        it "shows a deprecation warning about non-unix params" do
+          stderr, stdout = execute("addons:add my_addon --foo=bar extra=XXX")
+          expect(stderr).to eq("")
+          expect(stdout).to include "Warning: non-unix style params have been deprecated, use --extra=XXX instead"
+        end
       end
     end
 
     describe 'unix-style command line params' do
       it "understands --foo=baz" do
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo=baz))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
-        @addons.add
+
+        allow(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include '"foo":"baz"'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "understands --foo baz" do
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo baz))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz' })
-        @addons.add
+
+        expect(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include '"foo":"baz"'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "treats lone switches as true" do
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => true })
-        @addons.add
+
+        expect(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include '"foo":true'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "converts 'true' to boolean" do
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo=true))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => true })
-        @addons.add
+
+        expect(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include '"foo":true'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "works with many config vars" do
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => true, 'bob' => true })
-        @addons.add
-      end
 
-      it "sends the variables to the server" do
-        stub_request(:post, %r{apps/example/addons/my_addon$}).
-          with(:body => {:config => { 'foo' => 'baz', 'bar' => 'yes', 'baz' => 'foo', 'bab' => 'true', 'bob' => 'true' }})
-        stderr, stdout = execute("addons:add my_addon --foo  baz --bar  yes --baz=foo --bab --bob=true")
-        expect(stderr).to eq("")
+        expect(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include({ foo: 'baz', bar: 'yes', baz: 'foo', bab: true, bob: true }.to_json)
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "raises an error for spurious arguments" do
         allow(@addons).to receive(:args).and_return(%w(my_addon spurious))
-        expect { @addons.add }.to raise_error(CommandFailed)
+        expect { @addons.create }.to raise_error(CommandFailed)
       end
     end
 
     describe "mixed options" do
       it "understands foo=bar and --baz=bar on the same line" do
         allow(@addons).to receive(:args).and_return(%w(my_addon foo=baz --baz=bar bob=true --bar))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', { 'foo' => 'baz', 'baz' => 'bar', 'bar' => true, 'bob' => true })
-        @addons.add
+
+        expect(@addons).to receive(:request) { |args|
+          expect(args[:body]).to include '"foo":"baz"'
+          expect(args[:body]).to include '"baz":"bar"'
+          expect(args[:body]).to include '"bar":true'
+          expect(args[:body]).to include '"bob":true'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "sends the variables to the server" do
-        stub_request(:post, %r{apps/example/addons/my_addon$}).
-          with(:body => {:config => { 'foo' => 'baz', 'baz' => 'bar', 'bar' => 'true', 'bob' => 'true' }})
+        Excon.stub(method: :post, path: %r{/apps/example/addons$}) do
+          { body: MultiJson.encode(addon), status: 201 }
+        end
+
         stderr, stdout = execute("addons:add my_addon foo=baz --baz=bar bob=true --bar")
         expect(stderr).to eq("")
         expect(stdout).to include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
+
+        Excon.stubs.shift
       end
     end
 
@@ -191,26 +277,12 @@ STDOUT
       it "should only resolve for heroku-postgresql addon" do
         %w{fork follow rollback}.each do |switch|
           allow(@addons).to receive(:args).and_return("addon --#{switch} HEROKU_POSTGRESQL_RED".split)
-          expect(@addons.heroku).to receive(:install_addon).
-            with('example', 'addon', {switch => 'HEROKU_POSTGRESQL_RED'})
-          @addons.add
-        end
-      end
 
-      it "should translate --fork, --follow, and --rollback" do
-        %w{fork follow rollback}.each do |switch|
-          allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver).to receive(:app_config_vars).and_return({})
-          allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver).to receive(:app_attachments).and_return([Heroku::Helpers::HerokuPostgresql::Attachment.new({
-              'app' => {'name' => 'sushi'},
-              'name' => 'HEROKU_POSTGRESQL_RED',
-              'config_var' => 'HEROKU_POSTGRESQL_RED_URL',
-              'resource' => {'name'  => 'loudly-yelling-1232',
-                             'value' => 'postgres://red_url',
-                             'type'  => 'heroku-postgresql:ronin' }})
-          ])
-          allow(@addons).to receive(:args).and_return("heroku-postgresql --#{switch} HEROKU_POSTGRESQL_RED".split)
-          expect(@addons.heroku).to receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://red_url'})
-          @addons.add
+          allow(@addons).to receive(:request) { |args|
+            expect(args[:body]).to include %("#{switch}":"HEROKU_POSTGRESQL_RED")
+          }.and_return(stringify(addon))
+
+          @addons.create
         end
       end
 
@@ -219,17 +291,22 @@ STDOUT
           allow(@addons).to receive(:app_config_vars).and_return({})
           allow(@addons).to receive(:app_attachments).and_return([])
           allow(@addons).to receive(:args).and_return("heroku-postgresql:ronin --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
-          expect(@addons.heroku).to receive(:install_addon).with('example', 'heroku-postgresql:ronin', {switch => 'postgres://foo:yeah@awesome.com:234/bestdb'})
-          @addons.add
+
+          allow(@addons).to receive(:request) { |args|
+            expect(args[:body]).to include %("#{switch}":"postgres://foo:yeah@awesome.com:234/bestdb")
+          }.and_return(stringify(addon))
+
+          @addons.create
         end
       end
 
-      it "should fail if fork / follow across applications and no plan is specified" do
+      # TODO: ?
+      xit "should fail if fork / follow across applications and no plan is specified" do
         %w{fork follow}.each do |switch|
           allow(@addons).to receive(:app_config_vars).and_return({})
           allow(@addons).to receive(:app_attachments).and_return([])
           allow(@addons).to receive(:args).and_return("heroku-postgresql --#{switch} postgres://foo:yeah@awesome.com:234/bestdb".split)
-          expect { @addons.add }.to raise_error(CommandFailed)
+          expect { @addons.create }.to raise_error(CommandFailed)
         end
       end
     end
@@ -249,6 +326,7 @@ STDOUT
           }
         )
       end
+
       after do
         Excon.stubs.shift
       end
@@ -256,54 +334,104 @@ STDOUT
 
       it "requires an addon name" do
         allow(@addons).to receive(:args).and_return([])
-        expect { @addons.add }.to raise_error(CommandFailed)
+        expect { @addons.create }.to raise_error(CommandFailed)
       end
 
       it "adds an addon" do
         allow(@addons).to receive(:args).and_return(%w(my_addon))
-        expect(@addons.heroku).to receive(:install_addon).with('example', 'my_addon', {})
-        @addons.add
+
+        allow(@addons).to receive(:request) { |args|
+          expect(args[:path]).to eq "/apps/example/addons"
+          expect(args[:body]).to include '"name":"my_addon"'
+        }.and_return(stringify(addon))
+
+        @addons.create
       end
 
       it "adds an addon with a price" do
-        stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "free" })
-        stderr, stdout = execute("addons:add my_addon")
+        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+          addon = build_addon(
+            name:          "my_addon",
+            addon_service: { name: "my_addon" },
+            app:           { name: "example" })
+
+          { body: MultiJson.encode(addon), status: 201 }
+        end
+
+        stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
-        expect(stdout).to match(/\(free\)/)
+        expect(stdout).to match /Creating my_addon... done/
+
+        Excon.stubs.shift
       end
 
       it "adds an addon with a price and message" do
-        stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "free", "message" => "foo" })
-        stderr, stdout = execute("addons:add my_addon")
+        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+          addon = build_addon(
+            name:          "my_addon",
+            addon_service: { name: "my_addon" },
+            app:           { name: "example" }
+          ).merge(provision_message: "OMG A MESSAGE")
+
+          { body: MultiJson.encode(addon), status: 201 }
+        end
+
+        stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Adding my_addon on example... done, v99 (free)
-foo
+Creating my_addon... done
+Adding my_addon to example... done
+OMG A MESSAGE
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
+
+        Excon.stubs.shift
       end
 
       it "excludes addon plan from docs message" do
-        stub_core.install_addon("example", "my_addon:test", {}).returns({ "price" => "free", "message" => "foo" })
-        stderr, stdout = execute("addons:add my_addon:test")
+        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+          addon = build_addon(
+            name:          "my_addon",
+            addon_service: { name: "my_addon" },
+            app:           { name: "example" })
+
+          { body: MultiJson.encode(addon), status: 201 }
+        end
+
+        stderr, stdout = execute("addons:create my_addon:test")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Adding my_addon:test on example... done, v99 (free)
-foo
+Creating my_addon... done
+Adding my_addon to example... done
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
+
+        Excon.stubs.shift
       end
 
       it "adds an addon with a price and multiline message" do
+        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+          addon = build_addon(
+            name:          "my_addon",
+            addon_service: { name: "my_addon" },
+            app:           { name: "example" }
+          ).merge(provision_message: "foo\nbar")
+
+          { body: MultiJson.encode(addon), status: 201 }
+        end
+
         stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
-        stderr, stdout = execute("addons:add my_addon")
+        stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Adding my_addon on example... done, v99 ($200/mo)
+Creating my_addon... done
+Adding my_addon to example... done
 foo
 bar
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
+
+        Excon.stubs.shift
       end
 
       it "displays an error with unexpected options" do
@@ -313,6 +441,12 @@ OUTPUT
     end
 
     describe 'upgrading' do
+      let(:addon) do
+        build_addon(name: "my_addon",
+                    app:  { name: "example" },
+                    plan: { name: "my_addon" })
+      end
+
       before do
         allow(@addons).to receive(:args).and_return(%w(my_addon))
         Excon.stub(
@@ -327,6 +461,7 @@ OUTPUT
           }
         )
       end
+
       after do
         Excon.stubs.shift
       end
@@ -337,54 +472,69 @@ OUTPUT
       end
 
       it "upgrades an addon" do
+        allow(@addons).to receive(:resolve_addon!).and_return(stringify(addon))
         allow(@addons).to receive(:args).and_return(%w(my_addon))
-        expect(@addons.heroku).to receive(:upgrade_addon).with('example', 'my_addon', {})
+
+        expect(@addons.api).to receive(:request) { |args|
+          expect(args[:method]).to eq :patch
+          expect(args[:path]).to eq "/apps/example/addons/my_addon"
+        }
+
         @addons.upgrade
       end
 
-      it "upgrade an addon with config vars" do
+      # TODO: need this?
+      xit "upgrade an addon with config vars" do
+        allow(@addons).to receive(:resolve_addon!).and_return(stringify(addon))
         allow(@addons).to receive(:args).and_return(%w(my_addon --foo=baz))
         expect(@addons.heroku).to receive(:upgrade_addon).with('example', 'my_addon', { 'foo' => 'baz' })
         @addons.upgrade
       end
 
-      it "adds an addon with a price" do
-        stub_core.upgrade_addon("example", "my_addon", {}).returns({ "price" => "free" })
-        stderr, stdout = execute("addons:upgrade my_addon")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-OUTPUT
-Upgrading to my_addon on example... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation.
-OUTPUT
-      end
+      it "upgrades an addon with a price" do
+        my_addon = build_addon(
+          name:          "my_addon",
+          plan:          { name: "my_plan" },
+          addon_service: { name: "my_service" },
+          app:           { name: "example" })
 
-      it "adds an addon with a price and message" do
-        stub_core.upgrade_addon("example", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
-        stderr, stdout = execute("addons:upgrade my_addon")
+        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          { body: MultiJson.encode([my_addon]), status: 200 }
+        end
+
+        Excon.stub(method: :patch, path: %r(/apps/example/addons/my_addon)) do
+          { body: MultiJson.encode(my_addon), status: 200 }
+        end
+
+        stderr, stdout = execute("addons:upgrade my_service")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Upgrading to my_addon on example... done, v99 (free)
-Don't Panic
-Use `heroku addons:docs my_addon` to view documentation.
+WARNING: No add-on name specified (see `heroku help addons:upgrade`)
+Finding add-on from service my_service on app example... done
+Found my_addon (my_plan) on example.
+Changing my_addon plan to my_service... done
 OUTPUT
+
+        Excon.stubs.shift(2)
       end
     end
 
     describe 'downgrading' do
+      let(:addon) do
+        build_addon(
+          name:          "my_addon",
+          addon_service: { name: "my_service" },
+          plan:          { name: "my_plan" },
+          app:           { name: "example" })
+      end
+
       before do
-        allow(@addons).to receive(:args).and_return(%w(my_addon))
         Excon.stub(
-          {
-            :expects => 200,
-            :method => :get,
-            :path => %r{^/apps/example/releases/current}
-          },
-          {
-            :body   => MultiJson.dump({ 'name' => 'v99' }),
-            :status => 200,
-          }
+          { :expects => 200, :method => :get, :path => %r{^/apps/example/releases/current} },
+          { :body   => MultiJson.dump({ 'name' => 'v99' }), :status => 200, }
         )
       end
+
       after do
         Excon.stubs.shift
       end
@@ -395,58 +545,98 @@ OUTPUT
       end
 
       it "downgrades an addon" do
-        allow(@addons).to receive(:args).and_return(%w(my_addon))
-        expect(@addons.heroku).to receive(:upgrade_addon).with('example', 'my_addon', {})
+        allow(@addons).to receive(:args).and_return(%w(my_service low_plan))
+
+        allow(@addons.api).to receive(:request) { |args|
+          expect(args[:method]).to eq :patch
+          expect(args[:path]).to eq "/apps/example/addons/my_service"
+        }.and_return(stringify(addon))
+
         @addons.downgrade
       end
 
       it "downgrade an addon with config vars" do
-        allow(@addons).to receive(:args).and_return(%w(my_addon --foo=baz))
-        expect(@addons.heroku).to receive(:upgrade_addon).with('example', 'my_addon', { 'foo' => 'baz' })
+        allow(@addons).to receive(:args).and_return(%w(my_service --foo=baz))
+
+        allow(@addons.api).to receive(:request) { |args|
+          expect(args[:method]).to eq :patch
+          expect(args[:path]).to eq "/apps/example/addons/my_service"
+        }.and_return(stringify(addon))
+
         @addons.downgrade
       end
 
-      it "downgrades an addon with a price" do
-        stub_core.upgrade_addon("example", "my_addon", {}).returns({ "price" => "free" })
-        stderr, stdout = execute("addons:downgrade my_addon")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-OUTPUT
-Downgrading to my_addon on example... done, v99 (free)
-Use `heroku addons:docs my_addon` to view documentation.
-OUTPUT
-      end
+      describe "console output" do
+        before do
+          my_addon = build_addon(
+            name:          "my_addon",
+            plan:          { name: "my_plan" },
+            addon_service: { name: "my_service" },
+            app:           { name: "example" })
 
-      it "downgrades an addon with a price and message" do
-        stub_core.upgrade_addon("example", "my_addon", {}).returns({ "price" => "free", "message" => "Don't Panic" })
-        stderr, stdout = execute("addons:downgrade my_addon")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-OUTPUT
-Downgrading to my_addon on example... done, v99 (free)
-Don't Panic
-Use `heroku addons:docs my_addon` to view documentation.
+          Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+            { body: MultiJson.encode([my_addon]), status: 200 }
+          end
+
+          Excon.stub(method: :patch, path: %r(/apps/example/addons/my_service)) do
+            { body: MultiJson.encode(my_addon), status: 200 }
+          end
+        end
+
+        after do
+          Excon.stubs.shift(2)
+        end
+
+        it "downgrades an addon with a price" do
+          stderr, stdout = execute("addons:downgrade my_service low_plan")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-OUTPUT
+Changing my_service plan to low_plan... done
 OUTPUT
+        end
       end
     end
 
-    it "does not remove addons with no confirm" do
+    it "does not destroy addons with no confirm" do
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
+      allow(@addons).to receive(:resolve_addon!).and_return({"app" => { "name" => "example" }})
       expect(@addons).to receive(:confirm_command).once.and_return(false)
-      expect(@addons.heroku).not_to receive(:uninstall_addon)
-      @addons.remove
+      expect(@addons.api).not_to receive(:request).with(hash_including(method: :delete))
+      @addons.destroy
     end
 
-    it "removes addons after prompting for confirmation" do
+    it "destroys addons after prompting for confirmation" do
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
       expect(@addons).to receive(:confirm_command).once.and_return(true)
-      expect(@addons.heroku).to receive(:uninstall_addon).with('example', 'addon1', :confirm => "example")
-      @addons.remove
+      allow(@addons).to receive(:get_attachments).and_return([])
+      allow(@addons).to receive(:resolve_addon!).and_return({
+        "id"          => "abc123", 
+        "config_vars" => [],
+        "app"         => { "id" => "123", "name" => "example" }
+      })
+
+      allow(@addons.api).to receive(:request) { |args|
+        expect(args[:path]).to eq "/apps/123/addons/abc123"
+      }
+
+      @addons.destroy
     end
 
-    it "removes addons with confirm option" do
+    it "destroys addons with confirm option" do
       allow(Heroku::Command).to receive(:current_options).and_return(:confirm => "example")
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
-      expect(@addons.heroku).to receive(:uninstall_addon).with('example', 'addon1', :confirm => "example")
-      @addons.remove
+      allow(@addons).to receive(:get_attachments).and_return([])
+      allow(@addons).to receive(:resolve_addon!).and_return({
+        "id"          => "abc123", 
+        "config_vars" => [],
+        "app"         => { "id" => "123", "name" => "example" }
+      })
+
+      allow(@addons.api).to receive(:request) { |args|
+        expect(args[:path]).to eq "/apps/123/addons/abc123"
+      }
+
+      @addons.destroy
     end
 
     describe "opening add-on docs" do
@@ -454,6 +644,8 @@ OUTPUT
       before(:each) do
         stub_core
         api.post_app("name" => "example", "stack" => "cedar")
+        require "launchy"
+        allow(Launchy).to receive(:open)
       end
 
       after(:each) do
@@ -475,63 +667,44 @@ STDERR
         stderr, stdout = execute('addons:docs redistogo:nano')
         expect(stderr).to eq('')
         expect(stdout).to eq <<-STDOUT
-Opening redistogo:nano docs... done
+Opening redistogo docs... done
 STDOUT
       end
 
-      it "complains about ambiguity" do
-        Excon.stub(
-          {
-            :expects => 200,
-            :method => :get,
-            :path => %r{^/addons$}
-          },
-          {
-            :body   => MultiJson.dump([
-              { 'name' => 'qux:foo' },
-              { 'name' => 'quux:bar' }
-            ]),
-            :status => 200,
-          }
-        )
-        stderr, stdout = execute('addons:docs qu')
-        expect(stderr).to eq <<-STDERR
- !    Ambiguous addon name: qu
- !    Perhaps you meant `qux:foo` or `quux:bar`.
-STDERR
+      it "complains when many_per_app" do
+        addon1 = stringify(addon.merge(name: "my_addon1", addon_service: { name: "my_service" }))
+        addon2 = stringify(addon.merge(name: "my_addon2", addon_service: { name: "my_service_2" }))
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([addon1, addon2])
+
+        stderr, stdout = execute('addons:docs my_service')
         expect(stdout).to eq('')
-        Excon.stubs.shift
+        expect(stderr).to eq <<-STDERR
+ !    Multiple add-ons match "my_service".
+ !    Use the name of one of the add-on resources:
+ !    
+ !    - my_addon1 (my_service)
+ !    - my_addon2 (my_service_2)
+STDERR
       end
 
-      it "complains if no such addon exists" do
+      it "optimistically opens the page if nothing matches" do
+        Excon.stub(method: :get, path: %r(/addons/unknown)) do
+          { status: 404 }
+        end
+
+        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          { body: "[]", status: 200 }
+        end
+
+        expect(Launchy).to receive(:open).with("https://devcenter.heroku.com/articles/unknown").and_return(Thread.new {})
         stderr, stdout = execute('addons:docs unknown')
-        expect(stderr).to eq <<-STDERR
- !    `unknown` is not a heroku add-on.
- !    See `heroku addons:list` for all available addons.
-STDERR
-        expect(stdout).to eq('')
-      end
+        expect(stdout).to eq "Opening unknown docs... done\n"
 
-      it "suggests alternatives if addon has typo" do
-        stderr, stdout = execute('addons:docs redisgoto')
-        expect(stderr).to eq <<-STDERR
- !    `redisgoto` is not a heroku add-on.
- !    Perhaps you meant `redistogo`.
- !    See `heroku addons:list` for all available addons.
-STDERR
-        expect(stdout).to eq('')
-      end
-
-      it "complains if addon is not installed" do
-        stderr, stdout = execute('addons:open deployhooks:http')
-        expect(stderr).to eq <<-STDOUT
- !    Addon not installed: deployhooks:http
-STDOUT
-        expect(stdout).to eq('')
+        Excon.stubs.shift(2)
       end
     end
-    describe "opening an addon" do
 
+    describe "opening an addon" do
       before(:each) do
         stub_core
         api.post_app("name" => "example", "stack" => "cedar")
@@ -551,66 +724,53 @@ STDERR
       end
 
       it "opens the addon if only one matches" do
-        api.post_addon('example', 'redistogo:nano')
+        addon.merge!(addon_service: { name: "redistogo:nano" })
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([stringify(addon)])
         require("launchy")
-        expect(Launchy).to receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/redistogo:nano").and_return(Thread.new {})
+        expect(Launchy).to receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/#{addon[:id]}").and_return(Thread.new {})
         stderr, stdout = execute('addons:open redistogo:nano')
         expect(stderr).to eq('')
         expect(stdout).to eq <<-STDOUT
-Opening redistogo:nano for example... done
+Opening redistogo:nano (my_addon) for example... done
 STDOUT
       end
 
       it "complains about ambiguity" do
-        Excon.stub(
-          {
-            :expects => 200,
-            :method => :get,
-            :path => %r{^/apps/example/addons$}
-          },
-          {
-            :body   => MultiJson.dump([
-              { 'name' => 'deployhooks:email' },
-              { 'name' => 'deployhooks:http' }
-            ]),
-            :status => 200,
-          }
-        )
+        addon.merge!(addon_service: { name: "deployhooks:email" })
+        email = stringify(addon.merge(name: "my_email", plan: { name: "email" }))
+        http  = stringify(addon.merge(name: "my_http",  plan: { name: "http" }))
+
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([email, http])
+
         stderr, stdout = execute('addons:open deployhooks')
         expect(stderr).to eq <<-STDERR
- !    Ambiguous addon name: deployhooks
- !    Perhaps you meant `deployhooks:email` or `deployhooks:http`.
+ !    Multiple add-ons match "deployhooks".
+ !    Use the name of add-on resource:
+ !    
+ !    - my_email (email)
+ !    - my_http (http)
 STDERR
         expect(stdout).to eq('')
-        Excon.stubs.shift
       end
 
       it "complains if no such addon exists" do
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([])
         stderr, stdout = execute('addons:open unknown')
         expect(stderr).to eq <<-STDERR
- !    `unknown` is not a heroku add-on.
- !    See `heroku addons:list` for all available addons.
-STDERR
-        expect(stdout).to eq('')
-      end
-
-      it "suggests alternatives if addon has typo" do
-        stderr, stdout = execute('addons:open redisgoto')
-        expect(stderr).to eq <<-STDERR
- !    `redisgoto` is not a heroku add-on.
- !    Perhaps you meant `redistogo`.
- !    See `heroku addons:list` for all available addons.
+ !    Can not find add-on with "unknown"
 STDERR
         expect(stdout).to eq('')
       end
 
       it "complains if addon is not installed" do
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([])
         stderr, stdout = execute('addons:open deployhooks:http')
         expect(stderr).to eq <<-STDOUT
- !    Addon not installed: deployhooks:http
+ !    Can not find add-on with "deployhooks:http"
 STDOUT
         expect(stdout).to eq('')
       end
     end
+
   end
 end

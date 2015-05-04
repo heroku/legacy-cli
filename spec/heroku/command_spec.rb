@@ -23,11 +23,22 @@ describe Heroku::Command do
   }
 
   describe "when the command requires confirmation" do
+    include Support::Addons
 
     let(:response_that_requires_confirmation) do
       {:status => 423,
        :headers => { :x_confirmation_required => 'my_addon' },
        :body => 'terms of service required'}
+    end
+
+    before do
+      Excon.stub(method: :post, path: %r(/apps/[^/]+/addons)) do |args|
+        { body: MultiJson.encode(build_addon(name: "my_addon", app: { name: "example" })), status: 201 }
+      end
+    end
+
+    after do
+      Excon.stubs.shift
     end
 
     context "when the app is unknown" do
@@ -65,10 +76,16 @@ describe Heroku::Command do
 
       context "and the user includes --confirm APP" do
         it "should set --app to APP and not ask for confirmation" do
-          stub_request(:post, %r{apps/example/addons/my_addon$}).
-            with(:body => {:confirm => 'example'})
+          addon = build_addon(name: "my_addon", app: { name: "example" })
+
+          Excon.stub(method: :post, path: %r(/apps/example/addons)) { |args|
+            expect(args[:body]).to include '"confirm":"example"'
+            { body: MultiJson.encode(build_addon(name: "my_addon", app: { name: "example" })), status: 201 }
+          }
 
           run "addons:add my_addon --confirm example"
+
+          Excon.stubs.shift
         end
       end
 
@@ -103,6 +120,16 @@ describe Heroku::Command do
   end
 
   describe "parsing errors" do
+    before do
+      Excon.stub(method: :post, path: %r(/apps/example/addons)) { |args|
+        { body: MultiJson.encode(build_addon(name: "my_addon", app: { name: "example" })), status: 201 }
+      }
+    end
+
+    after do
+      Excon.stubs.shift
+    end
+
     it "extracts error messages from response when available in XML" do
       expect(Heroku::Command.extract_error('<errors><error>Invalid app name</error></errors>')).to eq('Invalid app name')
     end
