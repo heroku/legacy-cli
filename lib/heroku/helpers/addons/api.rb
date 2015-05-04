@@ -1,7 +1,7 @@
 module Heroku::Helpers
   module Addons
     module API
-      VERSION="3.switzerland".freeze
+      VERSION="3".freeze
 
       def request(options = {})
         defaults = {
