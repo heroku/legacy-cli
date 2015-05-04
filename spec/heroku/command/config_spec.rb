@@ -6,10 +6,15 @@ module Heroku::Command
     before(:each) do
       stub_core
       api.post_app("name" => "example", "stack" => "cedar")
+
+      Excon.stub(method: :get, path: %r{^/apps/example/releases/current}) do
+        { body: MultiJson.dump({ 'name' => 'v1' }), status: 200 }
+      end
     end
 
     after(:each) do
       api.delete_app("example")
+      Excon.stubs.shift
     end
 
     it "shows all configs" do
@@ -132,6 +137,13 @@ STDOUT
       context "when more than one key is provided" do
 
         it "unsets all given keys" do
+          request_number = 1
+          Excon.stub(method: :get, path: %r{^/apps/example/releases/current}) do |req|
+            response = { body: MultiJson.dump({ 'name' => "v#{request_number}" }), status: 200 }
+            request_number += 1
+            response
+          end
+
           stderr, stdout = execute("config:unset A B")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-STDOUT
