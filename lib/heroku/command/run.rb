@@ -30,12 +30,12 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   #Example:
   #
-  # $ heroku run bash
+  # $ heroku run -- bash
   # Running `bash` attached to terminal... up, run.1
   # ~ $
   #
   def index
-    if args.include? '--exit-code'
+    if ARGV.include?('--') || ARGV.include?('--exit-code')
       v4_run
       return
     end
