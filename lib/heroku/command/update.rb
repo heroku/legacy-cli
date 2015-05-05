@@ -18,7 +18,6 @@ class Heroku::Command::Update < Heroku::Command::Base
     validate_arguments!
     update_from_url(false)
     if Heroku::JSPlugin.setup?
-      display("Updating Toolbelt v4...")
       Heroku::JSPlugin.update
     end
   end
