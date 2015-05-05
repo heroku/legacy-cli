@@ -1,3 +1,8 @@
+3.35.0 2015-05-05
+=================
+Added --exit-code flag to run command
+Fixed addons:open for paranoid apps
+
 3.34.0 2015-05-04
 =================
 Pull in heroku-addon-attachments plugin
