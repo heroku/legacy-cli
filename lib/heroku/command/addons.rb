@@ -371,6 +371,7 @@ module Heroku::Command
         error("Usage: heroku addons:open ADDON\nMust specify ADDON to open.")
       end
       validate_arguments!
+      requires_preauth
 
       addon = resolve_addon!(addon_name)
       return addon if addon.is_a?(String)
