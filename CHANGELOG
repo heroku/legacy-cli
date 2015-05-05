@@ -1,3 +1,7 @@
+3.35.1 2015-05-05
+=================
+Enabled v4 version of run for commands with a '--' argument
+
 3.35.0 2015-05-05
 =================
 Added --exit-code flag to run command
