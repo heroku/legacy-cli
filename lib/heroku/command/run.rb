@@ -35,6 +35,10 @@ class Heroku::Command::Run < Heroku::Command::Base
   # ~ $
   #
   def index
+    if args.include? '--exit-code'
+      v4_run
+      return
+    end
     command = args.join(" ")
     error("Usage: heroku run COMMAND") if command.empty?
     warn_if_using_jruby
@@ -203,4 +207,9 @@ protected
     File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
   end
 
+  def v4_run
+    Heroku::JSPlugin.setup
+    Heroku::JSPlugin.install('heroku-run') unless Heroku::JSPlugin.is_plugin_installed?('heroku-run')
+    Heroku::JSPlugin.run('_run', nil, ARGV[1..-1])
+  end
 end
