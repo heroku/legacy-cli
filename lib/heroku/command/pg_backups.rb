@@ -513,16 +513,19 @@ EOF
     db = shift_argument
     validate_arguments!
 
+    if db.nil?
+      abort("Must specify database to unschedule backups for")
+    end
+
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
 
     schedule = hpg_client(attachment).schedules.find do |s|
-      # attachment.name is HEROKU_POSTGRESQL_COLOR
       # s[:name] is HEROKU_POSTGRESQL_COLOR_URL
-      s[:name] =~ /#{attachment.name}/ || attachment.name =~ /#{s[:name]}/
+      s[:name] =~ /#{db}/i
     end
 
     if schedule.nil?
-      display "No automatic daily backups for #{attachment.name} found"
+      display "No automatic daily backups for #{db || attachment.name} found"
     else
       hpg_client(attachment).unschedule(schedule[:uuid])
       display "Stopped automatic daily backups for #{attachment.name}"
