@@ -210,6 +210,6 @@ protected
   def v4_run
     Heroku::JSPlugin.setup
     Heroku::JSPlugin.install('heroku-run') unless Heroku::JSPlugin.is_plugin_installed?('heroku-run')
-    Heroku::JSPlugin.run('_run', nil, ARGV[1..-1])
+    Heroku::JSPlugin.run('run', nil, ARGV[1..-1])
   end
 end
