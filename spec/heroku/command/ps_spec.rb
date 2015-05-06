@@ -44,6 +44,10 @@ describe Heroku::Command::Ps do
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(10).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
         expect(stderr).to eq("")
@@ -80,6 +84,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return('2012/09/11 12:34:56 (~ 0s ago)')
         stderr, stdout = execute("ps")
         expect(stderr).to eq("")
@@ -107,6 +115,10 @@ STDOUT
             }
           end.to_json,
           :status => 200
+        )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+            :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
@@ -136,6 +148,10 @@ STDOUT
             }
           end.to_json,
           :status => 200
+        )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+            :status => 404
         )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).twice.and_return("2012/09/11 12:34:56 (~ 0s ago)")
 
@@ -167,6 +183,10 @@ STDOUT
           end.to_json,
           :status => 200
         )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+            :status => 404
+        )
         expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).exactly(4).times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
         stderr, stdout = execute("ps")
         expect(stderr).to eq("")
@@ -181,6 +201,45 @@ STDOUT
 
       end
 
+    end
+
+    it "displays how much run-time is left if the application has quota (seconds)" do
+      allow_until = (Time.now + 30).getutc
+      Excon.stub(
+          { :method => :get, :path => "/apps/example/dynos" },
+          :body => 1.times.map do |i|
+            {
+              "size"       => "1X",
+              "updated_at" => "2012-09-11T12:34:56Z",
+              "command"    => "bundle exec thin start -p $PORT",
+              "created_at" => "2012-09-11T12:30:56Z",
+              "id"         => "a94d0fa2-8509-4dab-8742-be7bfe768ecc",
+              "name"       => "web.#{i+1}",
+              "state"      => "up",
+              "type"       => "web"
+            }
+          end.to_json,
+          :status => 200
+        )
+        Excon.stub(
+          { :method => :post, :path => "/apps/example/actions/get-quota" },
+          :body =>
+            {
+              "allow_until"       => allow_until.iso8601,
+              "deny_until"        => nil,
+            }.to_json,
+          :status => 200
+        )
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_ago).once.times.and_return("2012/09/11 12:34:56 (~ 0s ago)")
+        expect_any_instance_of(Heroku::Command::Ps).to receive(:time_remaining).and_return("20s")
+        stderr, stdout = execute("ps")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+Free quota left: 20s
+=== web (1X): `bundle exec thin start -p $PORT`
+web.1: up 2012/09/11 12:34:56 (~ 0s ago)
+
+STDOUT
     end
 
     describe "ps:restart" do

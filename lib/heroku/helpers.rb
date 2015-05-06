@@ -139,6 +139,15 @@ module Heroku
       message
     end
 
+    def time_remaining(from, to)
+      secs = (to - from).to_i
+      mins  = secs / 60
+      hours = mins / 60
+      return "#{hours}h #{mins % 60}m" if hours > 0
+      return "#{mins}m #{secs % 60}s" if mins > 0
+      return "#{secs}s" if secs >= 0
+    end
+
     def truncate(text, length)
       return "" if text.nil?
       if text.size > length
