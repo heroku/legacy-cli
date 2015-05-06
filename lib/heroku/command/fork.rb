@@ -16,8 +16,7 @@ module Heroku::Command
     # --skip-pg            # skip postgres databases
     #
     def index
-      Heroku::JSPlugin.setup
-      Heroku::JSPlugin.install('heroku-fork') unless Heroku::JSPlugin.is_plugin_installed?('heroku-fork')
+      Heroku::JSPlugin.install('heroku-fork')
       Heroku::JSPlugin.run('fork', nil, ARGV[1..-1])
     end
   end
