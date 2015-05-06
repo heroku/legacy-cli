@@ -107,7 +107,32 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    resp = api.request(
+    quota_resp = api.request(
+      :expects => [200, 404],
+      :method  => :post,
+      :path    => "/apps/#{app}/actions/get-quota",
+      :headers => {
+        "Accept"       => "application/vnd.heroku+json; version=3.app-quotas",
+        "Content-Type" => "application/json"
+      }
+    )
+
+    if quota_resp.status = 200
+      quota = quota_resp.body
+      now = Time.now.getutc
+      quota_message = if quota["allow_until"]
+                        "Free quota left:"
+                      elsif quota["deny_until"]
+                        "Free quota exhausted. Unidle available in:"
+                      end
+      if quota_message
+        quota_timestamp = (quota["allow_until"] ? Time.parse(quota["allow_until"]).getutc : Time.parse(quota["deny_until"]).getutc)
+        time_left = time_remaining(Time.now.getutc, quota_timestamp)
+        display("#{quota_message} #{time_left}")
+      end
+    end
+
+    processes_resp = api.request(
       :expects => 200,
       :method  => :get,
       :path    => "/apps/#{app}/dynos",
@@ -116,7 +141,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         "Content-Type" => "application/json"
       }
     )
-    processes = resp.body
+    processes = processes_resp.body
 
     processes_by_command = Hash.new {|hash,key| hash[key] = []}
     processes.each do |process|
