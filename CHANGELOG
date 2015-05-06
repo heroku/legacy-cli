@@ -1,3 +1,11 @@
+3.36.0 2015-05-06
+=================
+Included hpg addon:create shortcuts from heroku-pg-extras
+Add quota indicator for ps
+Show release update warnings less frequently
+Switch to v4 version of maintenance commands
+Switch to v4 version of git commands
+
 3.35.1 2015-05-05
 =================
 Enabled v4 version of run for commands with a '--' argument
