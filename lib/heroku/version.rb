@@ -1,3 +1,3 @@
 module Heroku
-  VERSION = "3.35.1"
+  VERSION = "3.36.0"
 end
