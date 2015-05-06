@@ -104,7 +104,8 @@ module Heroku::Command
 
       requires_preauth
 
-      service_plan = args.shift
+      service_plan = expand_hpg_shorthand(args.shift)
+
       raise CommandFailed.new("Missing requested service or plan") if service_plan.nil? || %w{--fork --follow --rollback}.include?(service_plan)
 
       config = parse_options(args)
@@ -384,6 +385,18 @@ module Heroku::Command
 
     def addon_docs_url(addon)
       "https://devcenter.#{heroku.host}/articles/#{addon.split(':').first}"
+    end
+
+    def expand_hpg_shorthand(addon_plan)
+      if addon_plan =~ /\Ahpg:/
+        addon_plan = "heroku-postgresql:#{addon_plan.split(':').last}"
+      end
+      if addon_plan =~ /\Aheroku-postgresql:[spe]\d+\z/
+        addon_plan.gsub!(/:s/,':standard-')
+        addon_plan.gsub!(/:p/,':premium-')
+        addon_plan.gsub!(/:e/,':enterprise-')
+      end
+      addon_plan
     end
 
     #this will clean up when we officially deprecate
