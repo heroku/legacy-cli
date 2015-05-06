@@ -24,8 +24,7 @@ module Heroku::Command
     # -r, --r
     #
     def index
-      Heroku::JSPlugin.setup
-      Heroku::JSPlugin.install('heroku-local') unless Heroku::JSPlugin.is_plugin_installed?('heroku-local')
+      Heroku::JSPlugin.install('heroku-local')
       Heroku::JSPlugin.run('local', nil, ARGV[1..-1])
     end
   end
