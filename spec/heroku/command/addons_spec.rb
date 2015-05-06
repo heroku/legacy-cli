@@ -348,6 +348,17 @@ See plans with `heroku addons:plans SERVICE`
         @addons.create
       end
 
+      it "expands hgp:s0 to heroku-postgresql:standard-0" do
+        allow(@addons).to receive(:args).and_return(%w(hpg:s0))
+
+        allow(@addons).to receive(:request) { |args|
+          expect(args[:path]).to eq "/apps/example/addons"
+          expect(args[:body]).to include '"name":"heroku-postgresql:standard-0"'
+        }.and_return(stringify(addon))
+
+        @addons.create
+      end
+
       it "adds an addon with a price" do
         Excon.stub(method: :post, path: %r(/apps/example/addons)) do
           addon = build_addon(
