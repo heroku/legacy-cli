@@ -174,12 +174,6 @@ module Heroku
       display "Git remote #{remote} added" if $?.success?
     end
 
-    def update_git_remote(remote, url)
-      return unless has_git_remote? remote
-      git "remote set-url #{remote} #{url}"
-      display "Git remote #{remote} updated" if $?.success?
-    end
-
     def longest(items)
       items.map { |i| i.to_s.length }.sort.last
     end

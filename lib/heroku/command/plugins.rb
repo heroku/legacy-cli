@@ -109,8 +109,7 @@ module Heroku::Command
     private
 
     def js_plugin_install(name)
-      Heroku::JSPlugin.setup
-      Heroku::JSPlugin.install(name)
+      Heroku::JSPlugin.install(name, force: true)
     end
 
     def ruby_plugin_install(name)

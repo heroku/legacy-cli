@@ -36,7 +36,8 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def index
     if ARGV.include?('--') || ARGV.include?('--exit-code')
-      v4_run
+      Heroku::JSPlugin.install('heroku-run')
+      Heroku::JSPlugin.run('run', nil, ARGV[1..-1])
       return
     end
     command = args.join(" ")
@@ -205,11 +206,5 @@ protected
   def console_history_add(app, cmd)
     Readline::HISTORY.push(cmd)
     File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
-  end
-
-  def v4_run
-    Heroku::JSPlugin.setup
-    Heroku::JSPlugin.install('heroku-run') unless Heroku::JSPlugin.is_plugin_installed?('heroku-run')
-    Heroku::JSPlugin.run('run', nil, ARGV[1..-1])
   end
 end

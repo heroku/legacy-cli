@@ -67,8 +67,9 @@ class Heroku::JSPlugin
     @commands_info ||= json_decode(`#{bin} commands --json`)
   end
 
-  def self.install(name)
-    system "#{bin} plugins:install #{name}"
+  def self.install(name, opts={})
+    self.setup
+    system "#{bin} plugins:install #{name}" if opts[:force] || !self.is_plugin_installed?(name)
   end
 
   def self.uninstall(name)
