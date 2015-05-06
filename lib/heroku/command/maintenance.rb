@@ -14,14 +14,8 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
   # off
   #
   def index
-    validate_arguments!
-
-    case api.get_app_maintenance(app).body['maintenance']
-    when true
-      display('on')
-    when false
-      display('off')
-    end
+    Heroku::JSPlugin.install('heroku-apps')
+    Heroku::JSPlugin.run('maintenance', nil, ARGV[1..-1])
   end
 
   # maintenance:on
@@ -34,11 +28,8 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
   # Enabling maintenance mode for example
   #
   def on
-    validate_arguments!
-
-    action("Enabling maintenance mode for #{app}") do
-      api.post_app_maintenance(app, '1')
-    end
+    Heroku::JSPlugin.install('heroku-apps')
+    Heroku::JSPlugin.run('maintenance', 'on', ARGV[1..-1])
   end
 
   # maintenance:off
@@ -51,11 +42,8 @@ class Heroku::Command::Maintenance < Heroku::Command::Base
   # Disabling maintenance mode for example
   #
   def off
-    validate_arguments!
-
-    action("Disabling maintenance mode for #{app}") do
-      api.post_app_maintenance(app, '0')
-    end
+    Heroku::JSPlugin.install('heroku-apps')
+    Heroku::JSPlugin.run('maintenance', 'off', ARGV[1..-1])
   end
 
 end
