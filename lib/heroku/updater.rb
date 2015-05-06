@@ -50,6 +50,10 @@ module Heroku
       compare_versions(latest_version, latest_local_version) > 0
     end
 
+    def self.needs_minor_update?
+      latest_version[0..3] != latest_local_version[0..3]
+    end
+
     def self.client_version_from_path(path)
       version_file = File.join(path, "lib/heroku/version.rb")
       if File.exists?(version_file)
@@ -87,18 +91,18 @@ module Heroku
     end
 
     def self.autoupdate
-      return warn_if_out_of_date if disable
       # if we've updated in the last hour, don't try again
       if File.exists?(last_autoupdate_path)
         return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60
       end
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
       FileUtils.touch last_autoupdate_path
+      return warn_if_out_of_date if disable
       update
     end
 
     def self.warn_if_out_of_date
-      $stderr.puts "WARNING: Toolbelt v#{latest_version} update available." if needs_update?
+      $stderr.puts "WARNING: Toolbelt v#{latest_version} update available." if needs_minor_update?
     end
 
     def self.update(prerelease=false)
