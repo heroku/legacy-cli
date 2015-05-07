@@ -525,7 +525,7 @@ EOF
     end
 
     if schedule.nil?
-      display "No automatic daily backups for #{db || attachment.name} found"
+      display "No automatic daily backups for #{attachment.name} found"
     else
       hpg_client(attachment).unschedule(schedule[:uuid])
       display "Stopped automatic daily backups for #{attachment.name}"
