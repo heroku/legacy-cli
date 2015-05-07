@@ -1,8 +1,12 @@
 require 'heroku/helpers'
 require 'heroku/plugin'
-require 'heroku/jsplugin'
 require 'heroku/version'
-require "optparse"
+require 'heroku/http_instrumentor'
+require 'heroku/git'
+require 'heroku-api'
+require 'optparse'
+require 'rest_client'
+require 'multi_json'
 
 module Heroku
   module Command

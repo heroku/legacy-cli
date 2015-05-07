@@ -5,6 +5,17 @@ class Heroku::JSPlugin
     @is_setup ||= File.exists? bin
   end
 
+  def self.try_takeover(command, args)
+    command = command.split(':')
+    if command.length == 1
+      command = commands.find { |t| t["topic"] == command[0] && t["command"] == nil }
+    else
+      command = commands.find { |t| t["topic"] == command[0] && t["command"] == command[1] }
+    end
+    return if !command || command["hidden"]
+    run(command['topic'], command['command'], ARGV[1..-1])
+  end
+
   def self.load!
     return unless setup?
     this = self
@@ -32,7 +43,8 @@ class Heroku::JSPlugin
         :method    => :run,
         :banner    => plugin['usage'],
         :summary   => " #{plugin['description']}",
-        :help      => help
+        :help      => help,
+        :hidden    => plugin['hidden'],
       )
     end
   end
@@ -111,6 +123,7 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
+    debug("running #{cmd} on v4")
     exec self.bin, cmd, *args
   end
 
