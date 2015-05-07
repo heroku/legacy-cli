@@ -1,3 +1,8 @@
+3.36.1 2015-05-07
+=================
+Big performance boost to v4 commands by running them before v3 is setup
+Optimize ruby require order
+
 3.36.0 2015-05-06
 =================
 Included hpg addon:create shortcuts from heroku-pg-extras
