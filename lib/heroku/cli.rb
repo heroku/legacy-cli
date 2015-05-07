@@ -9,16 +9,7 @@ load('heroku/updater.rb') # reload updater after possible inject_loadpath
 require 'heroku'
 require 'heroku/jsplugin'
 require 'heroku/rollbar'
-require 'multi_json'
-
-begin
-  # attempt to load the JSON parser bundled with ruby for multi_json
-  # we're doing this because several users apparently have gems broken
-  # due to OS upgrades. see: https://github.com/heroku/heroku/issues/932
-  require 'json'
-rescue LoadError
-  # let multi_json fallback to yajl/oj/okjson
-end
+require 'json'
 
 class Heroku::CLI
 

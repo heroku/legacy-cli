@@ -6,6 +6,7 @@ require 'heroku/git'
 require 'heroku-api'
 require 'optparse'
 require 'rest_client'
+require 'multi_json'
 
 module Heroku
   module Command
