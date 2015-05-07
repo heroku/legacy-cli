@@ -5,6 +5,17 @@ class Heroku::JSPlugin
     @is_setup ||= File.exists? bin
   end
 
+  def self.try_takeover(command, args)
+    command = command.split(':')
+    if command.length == 1
+      command = commands.find { |t| t["topic"] == command[0] && t["command"] == nil }
+    else
+      command = commands.find { |t| t["topic"] == command[0] && t["command"] == command[1] }
+    end
+    return if !command || command["hidden"]
+    run(command['topic'], command['command'], ARGV[1..-1])
+  end
+
   def self.load!
     return unless setup?
     this = self
