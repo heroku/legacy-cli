@@ -182,5 +182,9 @@ module Heroku
     def self.last_autoupdate_path
       File.join(Heroku::Helpers.home_directory, ".heroku", "autoupdate.last")
     end
+
+    def self.warn_if_updating
+      warn "WARNING: Toolbelt is currently updating" if File.exists?(updating_lock_path)
+    end
   end
 end
