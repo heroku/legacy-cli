@@ -298,10 +298,11 @@ module Heroku
 
     def self.extract_error(body, options={})
       default_error = block_given? ? yield : "Internal server error.\nRun `heroku status` to check for known platform issues."
-      parse_error_xml(body) || parse_error_json(body) || parse_error_plain(body) || default_error
+      parse_error_json(body) || parse_error_xml(body) || parse_error_plain(body) || default_error
     end
 
     def self.parse_error_xml(body)
+      require 'rexml/document'
       xml_errors = REXML::Document.new(body).elements.to_a("//errors/error")
       msg = xml_errors.map { |a| a.text }.join(" / ")
       return msg unless msg.empty?

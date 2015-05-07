@@ -1,4 +1,3 @@
-require 'rexml/document'
 require 'uri'
 require 'time'
 require 'heroku/auth'
@@ -654,6 +653,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def xml(raw)   # :nodoc:
+    require 'rexml/document'
     REXML::Document.new(raw)
   end
 
