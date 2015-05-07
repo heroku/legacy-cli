@@ -51,7 +51,7 @@ class Heroku::JSPlugin
 
   def self.plugins
     return [] unless setup?
-    @plugins ||= `#{bin} plugins`.lines.map do |line|
+    @plugins ||= `"#{bin}" plugins`.lines.map do |line|
       name, version = line.split
       { :name => name, :version => version }
     end
@@ -76,24 +76,24 @@ class Heroku::JSPlugin
   end
 
   def self.commands_info
-    @commands_info ||= json_decode(`#{bin} commands --json`)
+    @commands_info ||= json_decode(`"#{bin}" commands --json`)
   end
 
   def self.install(name, opts={})
     self.setup
-    system "#{bin} plugins:install #{name}" if opts[:force] || !self.is_plugin_installed?(name)
+    system "\"#{bin}\" plugins:install #{name}" if opts[:force] || !self.is_plugin_installed?(name)
   end
 
   def self.uninstall(name)
-    system "#{bin} plugins:uninstall #{name}"
+    system "\"#{bin}\" plugins:uninstall #{name}"
   end
 
   def self.update
-    system "#{bin} update"
+    system "\"#{bin}\" update"
   end
 
   def self.version
-    `#{bin} version`
+    `"#{bin}" version`
   end
 
   def self.bin
