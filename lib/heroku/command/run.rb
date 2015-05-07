@@ -27,12 +27,16 @@ class Heroku::Command::Run < Heroku::Command::Base
   # run an attached dyno
   #
   # -s, --size SIZE      # specify dyno size
+  # --exit-code          # return exit code from process
   #
   #Example:
   #
-  # $ heroku run -- bash
+  # $ heroku run bash
   # Running `bash` attached to terminal... up, run.1
   # ~ $
+  #
+  # $ heroku run -s hobby -- myscript.sh -a arg1 -s arg2
+  # Running `myscript.sh -a arg1 -s arg2` attached to terminal... up, run.1
   #
   def index
     if ARGV.include?('--') || ARGV.include?('--exit-code')
