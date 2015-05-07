@@ -212,14 +212,12 @@ module Heroku
     end
 
     def json_encode(object)
-      MultiJson.dump(object)
-    rescue MultiJson::ParseError
-      nil
+      JSON.generate(object)
     end
 
     def json_decode(json)
-      MultiJson.load(json)
-    rescue MultiJson::ParseError
+      JSON.parse(json)
+    rescue JSON::ParserError
       nil
     end
 
