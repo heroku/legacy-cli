@@ -1,4 +1,3 @@
-require "heroku/client"
 require "heroku/updater"
 require "heroku/version"
 
