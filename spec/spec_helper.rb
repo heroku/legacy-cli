@@ -8,6 +8,7 @@ Coveralls.wear!
 require "excon"
 
 require "heroku/cli"
+require "heroku/client"
 require "rspec"
 require "rr"
 require "fakefs/safe"
