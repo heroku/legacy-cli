@@ -402,15 +402,24 @@ EOF
     # pending, running, complete--poll endpoint to get
     backup = nil
     ticks = 0
+    failed_count = 0
     begin
-      backup = hpg_app_client(app).transfers_get(transfer_id)
-      status = if backup[:started_at]
-                 "Running... #{size_pretty(backup[:processed_bytes])}"
-               else
-                 "Pending... #{spinner(ticks)}"
-               end
-      redisplay status
-      ticks += 1
+      begin
+        backup = hpg_app_client(app).transfers_get(transfer_id)
+        failed_count = 0
+        status = if backup[:started_at]
+                   "Running... #{size_pretty(backup[:processed_bytes])}"
+                 else
+                   "Pending... #{spinner(ticks)}"
+                 end
+        redisplay status
+        ticks += 1
+      rescue RestClient::Exception
+        failed_count += 1
+        if failed_count > 120
+          raise
+        end
+      end
       sleep 1
     end until backup[:finished_at]
     if backup[:succeeded]
