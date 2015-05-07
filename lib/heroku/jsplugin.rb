@@ -123,6 +123,7 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
+    debug("running #{cmd} on v4")
     exec self.bin, cmd, *args
   end
 
