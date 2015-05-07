@@ -43,7 +43,8 @@ class Heroku::JSPlugin
         :method    => :run,
         :banner    => plugin['usage'],
         :summary   => " #{plugin['description']}",
-        :help      => help
+        :help      => help,
+        :hidden    => plugin['hidden'],
       )
     end
   end
