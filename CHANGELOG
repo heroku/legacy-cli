@@ -1,3 +1,9 @@
+3.36.2 2015-05-07
+=================
+Documented new run functionality
+Fixed issue on windows with spaces in username
+Show warning if Toolbelt is currently updating
+
 3.36.1 2015-05-07
 =================
 Big performance boost to v4 commands by running them before v3 is setup
