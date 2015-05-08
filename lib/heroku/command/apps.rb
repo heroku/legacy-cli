@@ -103,7 +103,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
       styled_header(app_data["name"])
     end
 
-    addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
+    begin
+      addons_data = api.get_addons(app).body.map {|addon| addon['name']}.sort
+    rescue
+      addons_data = {}
+    end
     collaborators_data = api.get_collaborators(app).body.map {|collaborator| collaborator["email"]}.sort
     collaborators_data.reject! {|email| email == app_data["owner_email"]}
 
