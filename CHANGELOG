@@ -1,3 +1,8 @@
+3.36.3 2015-05-07
+=================
+Autofix broken v4 installs
+More robust backup polling
+
 3.36.2 2015-05-07
 =================
 Documented new run functionality
