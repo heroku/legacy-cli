@@ -72,6 +72,8 @@ class Heroku::JSPlugin
     commands_info['commands']
   rescue
     $stderr.puts "error loading plugin commands"
+    # Remove v4 if it is causing issues (for now)
+    File.delete(bin)
     return []
   end
 
