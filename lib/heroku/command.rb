@@ -151,7 +151,7 @@ module Heroku
       opts = {}
       invalid_options = []
 
-      parser = OptionParser.new do |parser|
+      p = OptionParser.new do |parser|
         # remove OptionParsers Officious['version'] to avoid conflicts
         # see: https://github.com/ruby/ruby/blob/trunk/lib/optparse.rb#L814
         parser.base.long.delete('version')
@@ -169,7 +169,7 @@ module Heroku
       end
 
       begin
-        parser.order!(args) do |nonopt|
+        p.order!(args) do |nonopt|
           invalid_options << nonopt
           @anonymized_args << '!'
           @normalized_args << '!'
