@@ -73,7 +73,7 @@ class Heroku::JSPlugin
   rescue
     $stderr.puts "error loading plugin commands"
     # Remove v4 if it is causing issues (for now)
-    File.delete(bin)
+    File.delete(bin) rescue nil
     return []
   end
 
