@@ -44,7 +44,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #  delete BACKUP_ID               # delete an existing backup
   #  schedule DATABASE              # schedule nightly backups for given database
   #    --at '<hour>:00 <timezone>'  #   at a specific (24h clock) hour in the given timezone
-  #  unschedule DATABASE            # stop nightly backup for database
+  #  unschedule SCHEDULE            # stop nightly backup for database
   #  schedules                      # list backup schedule
   def backups
     if args.count == 0
@@ -514,7 +514,16 @@ EOF
     validate_arguments!
 
     if db.nil?
-      abort("Must specify database to unschedule backups for")
+      # try to provide a more informative error message, but rescue to
+      # a generic error message in case things go poorly
+      begin
+        attachment = arbitrary_app_db
+        schedules = hpg_client(attachment).schedules
+        schedule_names = schedules.map { |s| s[:name] }.join(", ")
+        abort("Must specify schedule to cancel: existing schedules are #{schedule_names}")
+      rescue StandardError
+        abort("Must specify schedule to cancel")
+      end
     end
 
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
