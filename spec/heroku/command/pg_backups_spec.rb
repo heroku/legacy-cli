@@ -145,7 +145,7 @@ module Heroku::Command
 
       it "complains when called without an argument" do
         stderr, stdout = execute("pg:backups unschedule --confirm example")
-        expect(stderr).to match(/Must specify database to unschedule/)
+        expect(stderr).to match(/Must specify schedule to cancel/)
         expect(stdout).to be_empty
       end
 
