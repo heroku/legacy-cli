@@ -44,7 +44,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #  delete BACKUP_ID               # delete an existing backup
   #  schedule DATABASE              # schedule nightly backups for given database
   #    --at '<hour>:00 <timezone>'  #   at a specific (24h clock) hour in the given timezone
-  #  unschedule SCHEDULE            # stop nightly backup for database
+  #  unschedule SCHEDULE            # stop nightly backups on this schedule
   #  schedules                      # list backup schedule
   def backups
     if args.count == 0
@@ -522,7 +522,7 @@ EOF
         schedule_names = schedules.map { |s| s[:name] }.join(", ")
         abort("Must specify schedule to cancel: existing schedules are #{schedule_names}")
       rescue StandardError
-        abort("Must specify schedule to cancel")
+        abort("Must specify schedule to cancel. Run `heroku help pg:backups` for usage information.")
       end
     end
 
