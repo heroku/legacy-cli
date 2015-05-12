@@ -82,7 +82,10 @@ module Heroku::Helpers
 
       def get_plan_price(service_and_plan)
         service, plan = service_and_plan.split(':')
+
         addon_plan = get_plan(service: service, plan: plan)
+        return unless addon_plan
+
         addon_plan['price']
       end
 
