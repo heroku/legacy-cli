@@ -1,3 +1,5 @@
+require 'rbconfig'
+
 class Heroku::JSPlugin
   extend Heroku::Helpers
 
