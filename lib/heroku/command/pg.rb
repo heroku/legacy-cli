@@ -88,14 +88,26 @@ class Heroku::Command::Pg < Heroku::Command::Base
     db = db.sub(/_URL$/, '') # allow promoting with a var name
     addon = resolve_addon!(db)
 
-    attachment_name = 'DATABASE'
-    action "Promoting #{addon['name']} to #{attachment_name}_URL on #{app}" do
+    promoted_name = 'DATABASE'
+
+    action "Ensuring an alternate alias for existing #{promoted_name}" do
+      backup = find_or_create_non_database_attachment(app)
+
+      if backup
+        @status = backup['name']
+      else
+        @status = "not needed"
+      end
+
+    end
+
+    action "Promoting #{addon['name']} to #{promoted_name}_URL on #{app}" do
       request(
         :body     => json_encode({
           "app"     => {"name" => app},
           "addon"   => {"name" => addon['name']},
           "confirm" => app,
-          "name"    => attachment_name
+          "name"    => promoted_name
         }),
         :expects  => 201,
         :method   => :post,
@@ -667,5 +679,41 @@ private
     # some people alais psql, so we need to find the real psql
     # but windows doesn't have the command command
     running_on_windows? ? 'psql' : 'command psql'
+  end
+
+  # Finds or creates a non-DATABASE attachment for the DB currently
+  # attached as DATABASE.
+  #
+  # If current DATABASE is attached by other names, return one of them.
+  # If current DATABASE is only attachment, create a new one and return it.
+  # If no current DATABASE, return nil.
+  def find_or_create_non_database_attachment(app)
+    attachments = get_attachments(:app => app)
+
+    current_attachment = attachments.detect { |att| att['name'] == 'DATABASE' }
+    current_addon      = current_attachment && current_attachment['addon']
+
+    if current_addon
+      existing = attachments.
+        select { |att| att['addon']['id'] == current_addon['id'] }.
+        detect { |att| att['name'] != 'DATABASE' }
+
+      return existing if existing
+
+      # The current add-on occupying the DATABASE attachment has no
+      # other attachments. In order to promote this database without
+      # error, we can create a secondary attachment, just-in-time.
+      request(
+        # Note: no attachment name provided; let the API choose one
+        :body     => json_encode({
+          "app"     => {"name" => app},
+          "addon"   => {"name" => current_addon['name']},
+          "confirm" => app
+        }),
+        :expects  => 201,
+        :method   => :post,
+        :path     => "/addon-attachments"
+      )
+    end
   end
 end
