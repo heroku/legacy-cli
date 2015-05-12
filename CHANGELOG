@@ -1,3 +1,10 @@
+3.36.5 2015-05-11
+=================
+Added redis commands
+Added plugins:link v4 shim
+Bug fixe for users with partial privileges on apps:info
+Removed usage tracking
+
 3.36.4 2015-05-07
 =================
 Made v4 autofix safer
