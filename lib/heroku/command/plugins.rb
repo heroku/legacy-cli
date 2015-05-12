@@ -106,6 +106,19 @@ module Heroku::Command
       end
     end
 
+    # heroku plugins:link [PATH]
+    # Links a local plugin into CLI.
+    # This is useful when developing plugins locally.
+    # It simply symlinks the specified path into ~/.heroku/node_modules
+
+    #Example:
+    # $ heroku plugins:link .
+    #
+    def link
+      Heroku::JSPlugin.setup
+      Heroku::JSPlugin.run('plugins', 'link', ARGV[1..-1])
+    end
+
     private
 
     def js_plugin_install(name)
