@@ -130,7 +130,11 @@ module Heroku::Command
         :method   => :post,
         :path     => "/apps/#{app}/addons"
       )
+      installed_service, installed_plan = addon['plan']['name'].split(':')
+      addon_plan = get_plan(service: installed_service, plan: installed_plan)
+      formatted_price = format_price(addon_plan['price'])
 
+      status("(#{formatted_price})")
       action("Creating #{addon['name'].downcase}") {}
       action("Adding #{addon['name'].downcase} to #{app}") {}
 
