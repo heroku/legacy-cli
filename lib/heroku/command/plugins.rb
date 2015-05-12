@@ -106,7 +106,7 @@ module Heroku::Command
       end
     end
 
-    # heroku plugins:link [PATH]
+    # plugins:link [PATH]
     # Links a local plugin into CLI.
     # This is useful when developing plugins locally.
     # It simply symlinks the specified path into ~/.heroku/node_modules
