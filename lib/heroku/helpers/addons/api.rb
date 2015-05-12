@@ -80,6 +80,12 @@ module Heroku::Helpers
       rescue Heroku::API::Errors::NotFound
       end
 
+      def get_plan_price(service_and_plan)
+        service, plan = service_and_plan.split(':')
+        addon_plan = get_plan(service: service, plan: plan)
+        addon_plan['price']
+      end
+
       private
 
       def addons_path(options)
