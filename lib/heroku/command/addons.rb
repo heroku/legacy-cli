@@ -131,8 +131,9 @@ module Heroku::Command
         :path     => "/apps/#{app}/addons"
       )
 
-      formatted_price = format_price get_plan_price(addon['plan']['name'])
-      status("(#{formatted_price})")
+      if public_plan_price = get_plan_price(addon['plan']['name'])
+        status "(#{format_price public_plan_price})"
+      end
 
       action("Creating #{addon['name'].downcase}") {}
       action("Adding #{addon['name'].downcase} to #{app}") {}
@@ -318,8 +319,10 @@ module Heroku::Command
             :method   => :delete,
             :path     => "/apps/#{app['id']}/addons/#{addon['id']}"
           ).body
-          formatted_price = format_price get_plan_price(addon['plan']['name'])
-          status "(#{formatted_price})"
+
+          if public_plan_price = get_plan_price(addon['plan']['name'])
+            status "(#{format_price public_plan_price})"
+          end
         end
 
         if addon['config_vars'].any? # litmus test for whether the add-on's attachments have vars
