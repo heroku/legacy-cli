@@ -85,6 +85,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
+    db = db.sub(/_URL$/, '') # allow promoting with a var name
     addon = resolve_addon!(db)
 
     attachment_name = 'DATABASE'
