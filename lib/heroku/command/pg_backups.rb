@@ -415,6 +415,7 @@ EOF
         redisplay status
         ticks += 1
       rescue RestClient::Exception
+        backup = {}
         failed_count += 1
         if failed_count > 120
           raise
