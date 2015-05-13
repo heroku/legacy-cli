@@ -238,7 +238,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end.compact
 
     if changes.empty?
-      error("Usage: heroku ps:scale DYNO1=AMOUNT1[:SIZE] [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.")
+      error("Usage: heroku ps:scale DYNO1=AMOUNT1[:SIZE] [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.\nDYNO must be alphanumeric.")
     end
 
     action("Scaling dynos") do
