@@ -1,3 +1,9 @@
+3.36.7 2015-05-12
+=================
+Update plugins if they fail to load
+Show message for ps validation
+Moved heroku status to v4 CLI
+
 3.36.6 2015-05-12
 =================
 Fixed bug with pgbackups polling
