@@ -35,7 +35,7 @@ module Heroku::Helpers
         display("") # separate sections
 
         styled_header("Attachments")
-        display_attachments(get_attachments(:resource => identifier), ['App', 'Name'])
+        display_attachments(get_attachments(:resource => resource['id']), ['App', 'Name'])
       end
 
       # Shows all add-ons owned by and attachments attached to the provided app. For example:
