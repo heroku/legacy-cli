@@ -108,7 +108,8 @@ module Heroku::Helpers::HerokuPostgresql
         }
       @hpg_databases = Hash[ pairs ]
 
-      if find_database_url_real_attachment
+      # TODO: don't bother doing this if DATABASE_URL is already present in hash!
+      if !@hpg_databases.key?('DATABASE_URL') && find_database_url_real_attachment
         @hpg_databases['DATABASE_URL'] = find_database_url_real_attachment
       end
 
