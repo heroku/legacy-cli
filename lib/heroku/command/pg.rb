@@ -529,7 +529,8 @@ private
     @resolver = generate_resolver
     dbs = @resolver.all_databases
 
-    unique_dbs = dbs.reject { |config, att| 'DATABASE_URL' == config }.map{|config, att| att}.compact
+    has_promoted = dbs.any? { |_, att| att.primary_attachment? }
+    unique_dbs = dbs.reject { |var, _| has_promoted && 'DATABASE_URL' == var }.map{|_, att| att}.compact
 
     db_infos = {}
     mutex = Mutex.new
