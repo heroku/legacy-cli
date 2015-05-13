@@ -86,7 +86,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     validate_arguments!
 
     db = db.sub(/_URL$/, '') # allow promoting with a var name
-    addon = resolve_addon!(db)
+    addon = resolve_addon!(db) { |addon| addon['addon_service']['name'] == 'heroku-postgresql' }
 
     promoted_name = 'DATABASE'
 
