@@ -68,20 +68,6 @@ module Heroku
           expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("updated\n")
         end
 
-        it "warns on legacy plugins" do
-          `cd #{@sandbox}/heroku_plugin && git config --unset branch.master.remote`
-          stderr = capture_stderr do
-            begin
-              Plugin.new('heroku_plugin').update
-            rescue SystemExit
-            end
-          end
-          expect(stderr).to eq <<-STDERR
- !    heroku_plugin is a legacy plugin installation.
- !    Enable updating by reinstalling with `heroku plugins:install`.
-STDERR
-        end
-
         it "raises exception on symlinked plugins" do
           `cd #{@sandbox} && ln -s heroku_plugin heroku_plugin_symlink`
           expect { Plugin.new('heroku_plugin_symlink').update }.to raise_error Heroku::Plugin::ErrorUpdatingSymlinkPlugin
