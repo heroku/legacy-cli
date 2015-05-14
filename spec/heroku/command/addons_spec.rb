@@ -636,15 +636,18 @@ OUTPUT
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
       expect(@addons).to receive(:confirm_command).once.and_return(true)
       allow(@addons).to receive(:get_attachments).and_return([])
+      allow(@addons).to receive(:get_plan_price).and_return(nil)
       allow(@addons).to receive(:resolve_addon!).and_return({
-        "id"          => "abc123", 
+        "id"          => "abc123",
         "config_vars" => [],
-        "app"         => { "id" => "123", "name" => "example" }
+        "app"         => { "id" => "123", "name" => "example" },
+        "plan"        => { "name" => "example-addon:premium" }
+
       })
 
       allow(@addons.api).to receive(:request) { |args|
         expect(args[:path]).to eq "/apps/123/addons/abc123"
-      }
+      }.and_return(OpenStruct.new(body: stringify(addon)))
 
       @addons.destroy
     end
