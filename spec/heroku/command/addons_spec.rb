@@ -169,10 +169,14 @@ See plans with `heroku addons:plans SERVICE`
           Excon.stub(method: :post, path: %r{apps/example/addons/my_addon$}) do
             { body: MultiJson.encode(price: "free"), status: 200 }
           end
+
+          Excon.stub(method: :get, path: %r{^/addon-services/example-addon/plans/premium}) do
+            { body: nil, status: 200 }
+          end
         end
 
         after do
-          Excon.stubs.shift(2)
+          Excon.stubs.shift(3)
         end
 
         it "shows a deprecation warning about addon:add vs addons:create" do
