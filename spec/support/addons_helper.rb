@@ -14,6 +14,7 @@ module Support
 
         plan: {
           id: SecureRandom.uuid,
+          name: "example-addon:premium"
         }.merge(addon.fetch(:plan, {})),
 
         app: {

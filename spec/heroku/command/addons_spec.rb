@@ -265,6 +265,16 @@ See plans with `heroku addons:plans SERVICE`
           { body: MultiJson.encode(addon), status: 201 }
         end
 
+        expect(@addons.api).to receive(:request) { |args|
+          expect(args[:path]).to eq "/apps/example/addons"
+          expect(args[:method]).to eq :post
+        }.and_return(OpenStruct.new(body: stringify(addon)))
+
+        expect(@addons.api).to receive(:request) { |args|
+          expect(args[:path]).to eq "/addon-services/example-addon/plans/premium"
+          expect(args[:method]).to eq :get
+        }.and_return(OpenStruct.new(body: { 'plan' => { 'cents' => '10000' } }))
+
         stderr, stdout = execute("addons:add my_addon foo=baz --baz=bar bob=true --bar")
         expect(stderr).to eq("")
         expect(stdout).to include("Warning: non-unix style params have been deprecated, use --foo=baz --bob=true instead")
@@ -487,11 +497,17 @@ OUTPUT
         allow(@addons).to receive(:args).and_return(%w(my_addon))
 
         expect(@addons.api).to receive(:request) { |args|
-          expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_addon"
-        }
+          expect(args[:method]).to eq :patch
+        }.and_return(OpenStruct.new(body: { 'plan' => { 'name' => 'example-addon:premium' } }))
+
+        expect(@addons.api).to receive(:request) { |args|
+          expect(args[:path]).to eq "/addon-services/example-addon/plans/premium"
+          expect(args[:method]).to eq :get
+        }.and_return(OpenStruct.new(body: { 'plan' => { 'cents' => '10000' } }))
 
         @addons.upgrade
+        Excon.stubs.shift
       end
 
       # TODO: need this?
