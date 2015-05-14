@@ -16,8 +16,8 @@ module Heroku::Helpers
       # Finds attachments that match provided identifier.
       #
       # Always returns an Array of 0 or more results.
-      def resolve_attachment(identifier)
-        case identifier
+      def resolve_attachment(identifier, &filter)
+        results = case identifier
         when UUID
           [get_attachment(identifier)].compact
         when ATTACHMENT
@@ -35,13 +35,15 @@ module Heroku::Helpers
         else
           []
         end
+
+        filter ? results.select(&filter) : results
       end
 
       # Finds a single attachment unambiguously given an identifier.
       #
       # Returns an attachment hash or exits with an error.
-      def resolve_attachment!(identifier)
-        results = resolve_attachment(identifier)
+      def resolve_attachment!(identifier, &filter)
+        results = resolve_attachment(identifier, &filter)
 
         case results.count
         when 1
@@ -68,8 +70,8 @@ module Heroku::Helpers
       # Returns an array in every case except for when using a service name for an
       # non-existent add-on. In that case, the error message is returned.
       #
-      def resolve_addon(identifier)
-        case identifier
+      def resolve_addon(identifier, &filter)
+        results = case identifier
         when UUID
           return [get_addon(identifier)].compact
         when ATTACHMENT
@@ -110,13 +112,15 @@ module Heroku::Helpers
 
           []
         end
+
+        filter ? results.select(&filter) : results
       end
 
       # Finds a single add-on unambiguously given an identifier.
       #
       # Returns an add-on hash or exits with an error.
-      def resolve_addon!(identifier)
-        results = resolve_addon(identifier)
+      def resolve_addon!(identifier, &filter)
+        results = resolve_addon(identifier, &filter)
 
         case results.count
         when 1
