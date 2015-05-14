@@ -154,15 +154,15 @@ STDOUT
     context "promotion" do
       include Support::Addons
 
-      it "promotes the specified database" do
+      before do
         resource = build_addon(
           name: "walking-slowly-42",
-          addon_service: { name: "heroku-posgresql:ronin" },
+          addon_service: { name: "heroku-postgresql" },
           plan:          { name: "ronin" },
           app:           { id: 1, name: "example" })
 
         ronin = build_attachment(
-          name:  "HEROKU_POSTGRESQL_RONIN_URL",
+          name:  "HEROKU_POSTGRESQL_RONIN",
           app:   { id: 1, name: "example" },
           addon: { id: resource[:id], name: "dreaming-ably-42" })
 
@@ -170,18 +170,50 @@ STDOUT
           { body: MultiJson.encode(resource), status: 200 }
         end
 
-        Excon.stub(method: :get, path: "/apps/example/addon-attachments/RONIN") do
+        Excon.stub(method: :get, path: "/addons/#{resource[:name]}") do
+          { body: MultiJson.encode(resource), status: 200 }
+        end
+
+        Excon.stub(method: :get, path: "/apps/example/addon-attachments/HEROKU_POSTGRESQL_RONIN") do
           { body: MultiJson.encode(ronin), status: 200 }
+        end
+
+        Excon.stub(method: :get, path: "/apps/example/addon-attachments/RONIN") do
+          { body: MultiJson.encode({}), status: 404 }
+        end
+
+        Excon.stub(method: :get, path: "/apps/example/addon-attachments") do
+          { body: MultiJson.encode([ronin]), status: 200 }
         end
 
         Excon.stub(method: :post, path: "/addon-attachments") do
           database = ronin.merge(name: "DATABASE")
           { body: MultiJson.encode(database), status: 201 }
         end
+      end
 
+      it "promotes the specified database resource name" do
+        stderr, stdout = execute("pg:promote walking-slowly-42 --confirm example")
+        expect(stderr).to eq("")
+        expect(stdout).to include <<-STDOUT
+Promoting walking-slowly-42 to DATABASE_URL on example... done
+STDOUT
+        expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://database_url")
+      end
+
+      it "promotes the specified database by config var" do
+        stderr, stdout = execute("pg:promote HEROKU_POSTGRESQL_RONIN_URL --confirm example")
+        expect(stderr).to eq("")
+        expect(stdout).to include <<-STDOUT
+Promoting walking-slowly-42 to DATABASE_URL on example... done
+STDOUT
+        expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://database_url")
+      end
+
+      it "promotes the specified database by attachment substring" do
         stderr, stdout = execute("pg:promote RONIN --confirm example")
         expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
+        expect(stdout).to include <<-STDOUT
 Promoting walking-slowly-42 to DATABASE_URL on example... done
 STDOUT
         expect(api.get_config_vars("example").body["DATABASE_URL"]).to eq("postgres://database_url")
