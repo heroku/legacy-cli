@@ -1,3 +1,11 @@
+3.36.8 2015-05-14
+=================
+Changed fork to use --from and --to instead of --app
+Added note that process types must be alphanumeric for ps:scale
+Fixed issues with DATABASE_URL
+Fixed display of addon attachments when specifying attachment name
+Improved updating text
+
 3.36.7 2015-05-12
 =================
 Update plugins if they fail to load
