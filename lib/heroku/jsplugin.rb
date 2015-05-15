@@ -4,7 +4,7 @@ class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.setup?
-    @is_setup ||= File.exists? bin
+    File.exists? bin
   end
 
   def self.try_takeover(command, args)
@@ -109,6 +109,7 @@ class Heroku::JSPlugin
   end
 
   def self.setup
+    copy_ca_cert
     return if File.exist? bin
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
@@ -123,6 +124,13 @@ class Heroku::JSPlugin
       raise 'SHA mismatch for heroku-cli'
     end
     $stderr.puts " done"
+  end
+
+  def self.copy_ca_cert
+    to = File.join(Heroku::Helpers.home_directory, ".heroku", "cacert.pem")
+    return if File.exists?(to)
+    from = File.expand_path("../../../data/cacert.pem", __FILE__)
+    FileUtils.copy(from, to)
   end
 
   def self.run(topic, command, args)
