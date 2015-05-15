@@ -80,6 +80,7 @@ class Heroku::JSPlugin
   end
 
   def self.commands_info
+    copy_ca_cert rescue nil # TODO: remove this once most of the users have the cacert setup
     @commands_info ||= json_decode(`"#{bin}" commands --json`)
   end
 
