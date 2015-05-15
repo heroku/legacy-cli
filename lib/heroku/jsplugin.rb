@@ -171,7 +171,7 @@ class Heroku::JSPlugin
   end
 
   def self.excon_opts
-    if os == 'windows'
+    if os == 'windows' || ENV['HEROKU_SSL_VERIFY'] == 'disable'
       # S3 SSL downloads do not work from ruby in Windows
       {:ssl_verify_peer => false}
     else
