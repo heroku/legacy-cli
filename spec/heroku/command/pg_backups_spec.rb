@@ -122,6 +122,40 @@ module Heroku::Command
       end
     end
 
+    describe "heroku pg:backups unschedule" do
+      let(:schedules) do
+        [ { name: 'HEROKU_POSTGRESQL_GREEN_URL',
+            uuid: 'ffffffff-ffff-ffff-ffff-ffffffffffff' },
+          { name: 'DATABASE_URL',
+            uuid: 'ffffffff-ffff-ffff-ffff-fffffffffffe' } ]
+      end
+
+      before do
+        stub_pg.schedules.returns(schedules)
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return(example_attachments)
+      end
+
+      it "unschedules the specified backup" do
+        stub_pg.unschedule
+        stderr, stdout = execute("pg:backups unschedule green --confirm example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/Stopped automatic daily backups for/)
+      end
+
+      it "complains when called without an argument" do
+        stderr, stdout = execute("pg:backups unschedule --confirm example")
+        expect(stderr).to match(/Must specify schedule to cancel/)
+        expect(stdout).to be_empty
+      end
+
+      it "indicates when no matching backup can be unscheduled" do
+        stderr, stdout = execute("pg:backups unschedule red --confirm example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/No automatic daily backups for/)
+      end
+    end
+
     describe "heroku pg:backups" do
       let(:logged_at)  { Time.now }
       let(:started_at)  { Time.now }
