@@ -1,5 +1,5 @@
-3.36.9 2015-05-15
-=================
+3.36.10 2015-05-15
+==================
 Updated CA Certs
 Add cacert.pem to ~/.heroku for use in v4 CLI
 Fix pgbackups:unschedule issues
