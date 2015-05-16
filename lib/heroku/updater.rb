@@ -133,7 +133,7 @@ module Heroku
           version = client_version_from_path(download_dir)
 
           # do not replace beta version if it is old
-          return if version < latest_local_version
+          return if compare_versions(version, latest_local_version) < 0
 
           FileUtils.rm_rf updated_client_path
           FileUtils.mkdir_p File.dirname(updated_client_path)
