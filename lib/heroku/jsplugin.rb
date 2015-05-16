@@ -25,7 +25,7 @@ class Heroku::JSPlugin
       Heroku::Command.register_namespace(
         :name => topic['name'],
         :description => " #{topic['description']}"
-      ) unless Heroku::Command.namespaces.include?(topic['name'])
+      ) unless topic['hidden'] || Heroku::Command.namespaces.include?(topic['name'])
     end
     commands.each do |plugin|
       help = "\n\n  #{plugin['fullHelp'].split("\n").join("\n  ")}"
