@@ -110,10 +110,10 @@ class Heroku::JSPlugin
   end
 
   def self.setup
-    copy_ca_cert
     return if File.exist? bin
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
+    copy_ca_cert
     opts = excon_opts.merge(:middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress])
     resp = Excon.get(url, opts)
     open(bin, "wb") do |file|
