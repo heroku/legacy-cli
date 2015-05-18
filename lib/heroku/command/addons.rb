@@ -124,12 +124,14 @@ module Heroku::Command
           # endpoint is designed to communicate this data.
           #
           # WARNING: Do not depend on this having any effect permanently.
+          "Accept-Expansion" => "plan",
           "X-Heroku-Legacy-Provider-Messages" => "true"
         },
         :expects  => 201,
         :method   => :post,
         :path     => "/apps/#{app}/addons"
       )
+      @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
 
       action("Creating #{addon['name'].downcase}") {}
       action("Adding #{addon['name'].downcase} to #{app}") {}
