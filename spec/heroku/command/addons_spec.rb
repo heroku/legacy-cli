@@ -382,7 +382,7 @@ See plans with `heroku addons:plans SERVICE`
             name:          "my_addon",
             addon_service: { name: "my_addon" },
             app:           { name: "example" }
-          ).merge(provision_message: "OMG A MESSAGE")
+          ).merge(provision_message: "OMG A MESSAGE", plan: { price: { 'cents' => 1000, 'unit' => 'month' }})
 
           { body: MultiJson.encode(addon), status: 201 }
         end
@@ -390,7 +390,7 @@ See plans with `heroku addons:plans SERVICE`
         stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, ($10.00/month)
 Adding my_addon to example... done
 OMG A MESSAGE
 Use `heroku addons:docs my_addon` to view documentation.
@@ -412,7 +412,7 @@ OUTPUT
         stderr, stdout = execute("addons:create my_addon:test")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, (free)
 Adding my_addon to example... done
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
@@ -435,7 +435,7 @@ OUTPUT
         stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, (free)
 Adding my_addon to example... done
 foo
 bar
