@@ -629,7 +629,7 @@ OUTPUT
 
       allow(@addons.api).to receive(:request) { |args|
         expect(args[:path]).to eq "/apps/123/addons/abc123"
-      }
+      }.and_return(OpenStruct.new(body: stringify(addon)))
 
       @addons.destroy
     end
@@ -646,7 +646,7 @@ OUTPUT
 
       allow(@addons.api).to receive(:request) { |args|
         expect(args[:path]).to eq "/apps/123/addons/abc123"
-      }
+      }.and_return(OpenStruct.new(body: stringify(addon)))
 
       @addons.destroy
     end

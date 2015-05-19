@@ -308,15 +308,19 @@ module Heroku::Command
         addon_attachments = get_attachments(:resource => addon['id'])
 
         action("Destroying #{addon['name']} on #{app['name']}") do
-          api.request(
+          addon = api.request(
             :body     => json_encode({
               "force" => options[:force],
             }),
             :expects  => 200..300,
-            :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+            :headers  => {
+              "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+              "Accept-Expansion" => "plan"
+            },
             :method   => :delete,
             :path     => "/apps/#{app['id']}/addons/#{addon['id']}"
-          )
+          ).body
+          @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
         end
 
         if addon['config_vars'].any? # litmus test for whether the add-on's attachments have vars
