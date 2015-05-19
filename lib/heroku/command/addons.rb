@@ -256,15 +256,19 @@ module Heroku::Command
       raise CommandFailed.new("Missing add-on plan") if plan.nil?
 
       action("Changing #{addon_name} plan to #{plan}") do
-        api.request(
+        addon = api.request(
           :body     => json_encode({
             "plan"   => { "name" => plan }
           }),
           :expects  => 200..300,
-          :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+          :headers  => {
+            "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+            "Accept-Expansion" => "plan"
+          },
           :method   => :patch,
           :path     => "/apps/#{app}/addons/#{addon_name}"
-        )
+        ).body
+        @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
       end
     end
 

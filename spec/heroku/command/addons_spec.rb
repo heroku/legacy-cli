@@ -489,7 +489,7 @@ OUTPUT
         expect(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_addon"
-        }
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.upgrade
       end
@@ -507,7 +507,8 @@ OUTPUT
           name:          "my_addon",
           plan:          { name: "my_plan" },
           addon_service: { name: "my_service" },
-          app:           { name: "example" })
+          app:           { name: "example" },
+          price:         { cents: 0, unit: "month" })
 
         Excon.stub(method: :get, path: %r(/apps/example/addons)) do
           { body: MultiJson.encode([my_addon]), status: 200 }
@@ -523,7 +524,7 @@ OUTPUT
 WARNING: No add-on name specified (see `heroku help addons:upgrade`)
 Finding add-on from service my_service on app example... done
 Found my_addon (my_plan) on example.
-Changing my_addon plan to my_service... done
+Changing my_addon plan to my_service... done, (free)
 OUTPUT
 
         Excon.stubs.shift(2)
@@ -561,7 +562,7 @@ OUTPUT
         allow(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_service"
-        }.and_return(stringify(addon))
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.downgrade
       end
@@ -572,7 +573,7 @@ OUTPUT
         allow(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_service"
-        }.and_return(stringify(addon))
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.downgrade
       end
@@ -602,7 +603,7 @@ OUTPUT
           stderr, stdout = execute("addons:downgrade my_service low_plan")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-OUTPUT
-Changing my_service plan to low_plan... done
+Changing my_service plan to low_plan... done, (free)
 OUTPUT
         end
       end
