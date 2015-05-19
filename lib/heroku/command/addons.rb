@@ -124,12 +124,14 @@ module Heroku::Command
           # endpoint is designed to communicate this data.
           #
           # WARNING: Do not depend on this having any effect permanently.
+          "Accept-Expansion" => "plan",
           "X-Heroku-Legacy-Provider-Messages" => "true"
         },
         :expects  => 201,
         :method   => :post,
         :path     => "/apps/#{app}/addons"
       )
+      @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
 
       action("Creating #{addon['name'].downcase}") {}
       action("Adding #{addon['name'].downcase} to #{app}") {}
@@ -254,15 +256,19 @@ module Heroku::Command
       raise CommandFailed.new("Missing add-on plan") if plan.nil?
 
       action("Changing #{addon_name} plan to #{plan}") do
-        api.request(
+        addon = api.request(
           :body     => json_encode({
             "plan"   => { "name" => plan }
           }),
           :expects  => 200..300,
-          :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+          :headers  => {
+            "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+            "Accept-Expansion" => "plan"
+          },
           :method   => :patch,
           :path     => "/apps/#{app}/addons/#{addon_name}"
-        )
+        ).body
+        @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
       end
     end
 
@@ -302,15 +308,19 @@ module Heroku::Command
         addon_attachments = get_attachments(:resource => addon['id'])
 
         action("Destroying #{addon['name']} on #{app['name']}") do
-          api.request(
+          addon = api.request(
             :body     => json_encode({
               "force" => options[:force],
             }),
             :expects  => 200..300,
-            :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+            :headers  => {
+              "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+              "Accept-Expansion" => "plan"
+            },
             :method   => :delete,
             :path     => "/apps/#{app['id']}/addons/#{addon['id']}"
-          )
+          ).body
+          @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
         end
 
         if addon['config_vars'].any? # litmus test for whether the add-on's attachments have vars

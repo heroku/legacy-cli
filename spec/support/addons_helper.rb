@@ -14,6 +14,9 @@ module Support
 
         plan: {
           id: SecureRandom.uuid,
+          price: {
+            cents: 0, unit: 'month'
+          }
         }.merge(addon.fetch(:plan, {})),
 
         app: {
