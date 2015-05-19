@@ -382,7 +382,7 @@ See plans with `heroku addons:plans SERVICE`
             name:          "my_addon",
             addon_service: { name: "my_addon" },
             app:           { name: "example" }
-          ).merge(provision_message: "OMG A MESSAGE")
+          ).merge(provision_message: "OMG A MESSAGE", plan: { price: { 'cents' => 1000, 'unit' => 'month' }})
 
           { body: MultiJson.encode(addon), status: 201 }
         end
@@ -390,7 +390,7 @@ See plans with `heroku addons:plans SERVICE`
         stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, ($10.00/month)
 Adding my_addon to example... done
 OMG A MESSAGE
 Use `heroku addons:docs my_addon` to view documentation.
@@ -412,7 +412,7 @@ OUTPUT
         stderr, stdout = execute("addons:create my_addon:test")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, (free)
 Adding my_addon to example... done
 Use `heroku addons:docs my_addon` to view documentation.
 OUTPUT
@@ -435,7 +435,7 @@ OUTPUT
         stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
-Creating my_addon... done
+Creating my_addon... done, (free)
 Adding my_addon to example... done
 foo
 bar
@@ -489,7 +489,7 @@ OUTPUT
         expect(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_addon"
-        }
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.upgrade
       end
@@ -507,7 +507,8 @@ OUTPUT
           name:          "my_addon",
           plan:          { name: "my_plan" },
           addon_service: { name: "my_service" },
-          app:           { name: "example" })
+          app:           { name: "example" },
+          price:         { cents: 0, unit: "month" })
 
         Excon.stub(method: :get, path: %r(/apps/example/addons)) do
           { body: MultiJson.encode([my_addon]), status: 200 }
@@ -523,7 +524,7 @@ OUTPUT
 WARNING: No add-on name specified (see `heroku help addons:upgrade`)
 Finding add-on from service my_service on app example... done
 Found my_addon (my_plan) on example.
-Changing my_addon plan to my_service... done
+Changing my_addon plan to my_service... done, (free)
 OUTPUT
 
         Excon.stubs.shift(2)
@@ -561,7 +562,7 @@ OUTPUT
         allow(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_service"
-        }.and_return(stringify(addon))
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.downgrade
       end
@@ -572,7 +573,7 @@ OUTPUT
         allow(@addons.api).to receive(:request) { |args|
           expect(args[:method]).to eq :patch
           expect(args[:path]).to eq "/apps/example/addons/my_service"
-        }.and_return(stringify(addon))
+        }.and_return(OpenStruct.new(body: stringify(addon)))
 
         @addons.downgrade
       end
@@ -602,7 +603,7 @@ OUTPUT
           stderr, stdout = execute("addons:downgrade my_service low_plan")
           expect(stderr).to eq("")
           expect(stdout).to eq <<-OUTPUT
-Changing my_service plan to low_plan... done
+Changing my_service plan to low_plan... done, (free)
 OUTPUT
         end
       end
@@ -628,7 +629,7 @@ OUTPUT
 
       allow(@addons.api).to receive(:request) { |args|
         expect(args[:path]).to eq "/apps/123/addons/abc123"
-      }
+      }.and_return(OpenStruct.new(body: stringify(addon)))
 
       @addons.destroy
     end
@@ -645,7 +646,7 @@ OUTPUT
 
       allow(@addons.api).to receive(:request) { |args|
         expect(args[:path]).to eq "/apps/123/addons/abc123"
-      }
+      }.and_return(OpenStruct.new(body: stringify(addon)))
 
       @addons.destroy
     end
