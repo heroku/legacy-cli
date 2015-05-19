@@ -180,7 +180,7 @@ module Heroku::Command
           "name"    => attachment_name
         }),
         :expects  => [201, 422],
-        :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+        :headers  => { "Accept" => "application/vnd.heroku+json; version=3" },
         :method   => :post,
         :path     => "/addon-attachments"
       )
@@ -217,7 +217,7 @@ module Heroku::Command
       action("Removing #{attachment_name} attachment to #{addon_name} from #{app}") do
         api.request(
           :expects  => 200..300,
-          :headers  => { "Accept" => "application/vnd.heroku+json; version=3.switzerland" },
+          :headers  => { "Accept" => "application/vnd.heroku+json; version=3" },
           :method   => :delete,
           :path     => "/addon-attachments/#{addon_attachment['id']}"
         ).body
@@ -262,7 +262,7 @@ module Heroku::Command
           }),
           :expects  => 200..300,
           :headers  => {
-            "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+            "Accept" => "application/vnd.heroku+json; version=3",
             "Accept-Expansion" => "plan"
           },
           :method   => :patch,
@@ -314,7 +314,7 @@ module Heroku::Command
             }),
             :expects  => 200..300,
             :headers  => {
-              "Accept" => "application/vnd.heroku+json; version=3.switzerland",
+              "Accept" => "application/vnd.heroku+json; version=3",
               "Accept-Expansion" => "plan"
             },
             :method   => :delete,
