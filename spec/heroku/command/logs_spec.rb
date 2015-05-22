@@ -54,7 +54,19 @@ STDOUT
 STDOUT
         ENV["TERM"] = term
       end
+
+      it "uses ansi if --force-colors is passed, even if stdout is not a tty and TERM is not set" do
+        old_term = ENV.delete("TERM")
+        old_stdout_isatty = $stdout.isatty
+        stub($stdout).isatty.returns(false)
+        stderr, stdout = execute("logs --force-colors")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+\e[36m2011-01-01T00:00:00+00:00 app[web.1]:\e[0m test
+STDOUT
+        ENV["TERM"] = old_term
+        stub($stdout).isatty.returns(old_stdout_isatty)
+      end
     end
   end
-
 end
