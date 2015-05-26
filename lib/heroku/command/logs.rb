@@ -13,6 +13,7 @@ class Heroku::Command::Logs < Heroku::Command::Base
   # -p, --ps PS          # only display logs from the given process
   # -s, --source SOURCE  # only display logs from the given source
   # -t, --tail           # continually stream logs
+  # --force-colors       # Force use of ANSI color characters (even on non-tty outputs)
   #
   #Example:
   #
@@ -29,7 +30,7 @@ class Heroku::Command::Logs < Heroku::Command::Base
     opts << "ps=#{URI.encode(options[:ps])}"         if options[:ps]
     opts << "source=#{URI.encode(options[:source])}" if options[:source]
 
-    log_displayer = ::Heroku::Helpers::LogDisplayer.new(heroku, app, opts)
+    log_displayer = ::Heroku::Helpers::LogDisplayer.new(heroku, app, opts, options[:force_colors])
     log_displayer.display_logs
   end
 
