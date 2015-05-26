@@ -24,7 +24,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
     attachment = target.attachment || source.attachment
 
     message = "WARNING: Destructive Action"
-    message << "\nTransferring data from #{source.name} to #{target.name}"
+    message << "\nThis command will remove all data from #{target.name}"
+    message << "\nData from #{source.name} will then be transferred to #{target.name}"
     message << "\nThis command will affect the app: #{app}"
 
     if confirm_command(app, message)
