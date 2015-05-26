@@ -5,10 +5,10 @@ module Heroku::Helpers
 
     include Heroku::Helpers
 
-    attr_reader :heroku, :app, :opts
+    attr_reader :heroku, :app, :opts, :force_colors
 
-    def initialize(heroku, app, opts)
-      @heroku, @app, @opts = heroku, app, opts
+    def initialize(heroku, app, opts, force_colors = false)
+      @heroku, @app, @opts, @force_colors = heroku, app, opts, force_colors
     end
 
     def display_logs
@@ -17,19 +17,11 @@ module Heroku::Helpers
       @token = nil
 
       heroku.read_logs(app, opts) do |chunk|
-        unless chunk.empty?
-          if STDOUT.isatty && ENV.has_key?("TERM")
-            display(colorize(chunk))
-          else
-            display(chunk)
-          end
-        end
+        display(display_colors? ? colorize(chunk) : chunk) unless chunk.empty?
       end
     rescue Errno::EPIPE
     rescue Interrupt => interrupt
-      if STDOUT.isatty && ENV.has_key?("TERM")
-        display("\e[0m")
-      end
+      display("\e[0m") if display_colors?
       raise(interrupt)
     end
 
@@ -66,5 +58,10 @@ module Heroku::Helpers
       [1, 2, 4].map { |i| parsed[i] }
     end
 
+  private
+
+    def display_colors?
+      force_colors || (STDOUT.isatty && ENV.has_key?("TERM"))
+    end
   end
 end
