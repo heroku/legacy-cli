@@ -1,29 +1,48 @@
 require "heroku/command/base"
+require "heroku/api/domains_v3_domain_cname"
 
 module Heroku::Command
 
-  # manage custom domains
+  # manage domains
   #
   class Domains < Base
 
     # domains
     #
-    # list custom domains for an app
+    # list domains for an app
     #
     #Examples:
     #
     # $ heroku domains
-    # === Domain names for example
-    # example.com
+    # === example Heroku Domain
+    # example.herokuapp.com
+    #
+    # === example Custom Domains
+    # Domain Name  DNS Target
+    # -----------  ---------------------
+    # example.com  example.herokuapp.com
     #
     def index
       validate_arguments!
-      domains = api.get_domains(app).body
-      if domains.length > 0
-        styled_header("#{app} Domain Names")
-        styled_array domains.map {|domain| domain["domain"]}
+      domains = api.get_domains_v3_domain_cname(app).body
+
+      styled_header("#{app} Heroku Domain")
+      heroku_domain = domains.detect { |d| d['kind'] == 'heroku' || d['kind'] == 'default' } # TODO: remove 'default' after API change
+      if heroku_domain
+        display heroku_domain['hostname']
       else
-        display("#{app} has no domain names.")
+        output_with_bang "Not found"
+      end
+
+      display
+
+      styled_header("#{app} Custom Domains")
+      custom_domains = domains.select{ |d| d['kind'] == 'custom' }
+      if custom_domains.length > 0
+        display_table(custom_domains, ['hostname', 'cname'], ['Domain Name', 'DNS Target'])
+      else
+        display("#{app} has no custom domains.")
+        display("Use `heroku domains:add DOMAIN` to add one.")
       end
     end
 
@@ -36,14 +55,19 @@ module Heroku::Command
     # $ heroku domains:add example.com
     # Adding example.com to example... done
     #
+    # !   Configure your app's DNS provider to point to the DNS Target example.herokuapp.com
+    # !   For help with custom domains, see https://devcenter.heroku.com/articles/custom-domains
+    #
     def add
       unless domain = shift_argument
         error("Usage: heroku domains:add DOMAIN\nMust specify DOMAIN to add.")
       end
       validate_arguments!
-      action("Adding #{domain} to #{app}") do
-        api.post_domain(app, domain)
+      domain = action("Adding #{domain} to #{app}") do
+        api.post_domains_v3_domain_cname(app, domain).body
       end
+      output_with_bang "Configure your app's DNS provider to point to the DNS Target #{domain['cname']}"
+      output_with_bang "For help, see https://devcenter.heroku.com/articles/custom-domains"
     end
 
     # domains:remove DOMAIN
