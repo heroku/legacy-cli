@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/api/domains_v3_domain_cname"
 
 module Heroku::Command
 
@@ -13,17 +14,28 @@ module Heroku::Command
     #Examples:
     #
     # $ heroku domains
-    # === Domain names for example
-    # example.com
+    # === Development Domain
+    # example.herokuapp.com
+    #
+    # === Custom Domains
+    # Domain Name  CNAME Target
+    # -----------  ---------------------
+    # example.com  example.herokudns.com
     #
     def index
       validate_arguments!
-      domains = api.get_domains(app).body
-      if domains.length > 0
-        styled_header("#{app} Domain Names")
-        styled_array domains.map {|domain| domain["domain"]}
+      domains = api.get_domains_v3_domain_cname(app).body
+
+      styled_header("Development Domain")
+      display domains.detect{ |d| d['kind'] == 'default' }['hostname']
+      display
+
+      custom_domains = domains.select{ |d| d['kind'] == 'custom' }
+      if custom_domains.length > 0
+        styled_header("Custom Domains")
+        display_table(custom_domains, ['hostname', 'cname'], ['Domain Name', 'CNAME Target'])
       else
-        display("#{app} has no domain names.")
+        display("#{app} has no custom domain names.")
       end
     end
 

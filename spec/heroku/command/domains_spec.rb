@@ -17,26 +17,51 @@ module Heroku::Command
       stub_core
     end
 
+    # TODO: rename after 3.domain-cname is merged
+    def stub_get_domains_v3_domain_cname(*custom_hostnames)
+      Excon.stub(
+        :headers => { "Accept" => "application/vnd.heroku+json; version=3.domain-cname" },
+        :method => :get,
+        :path => '/apps/example/domains') do
+        {
+          :body => (
+            [{ 'kind' => 'default', 'hostname' => 'example.herokuapp.com', 'cname' => nil }] +
+            custom_hostnames.map { |hostname|
+                { 'kind' => 'custom',  'hostname' => hostname, 'cname' => 'example.herokudns.com' }
+              }
+            ).to_json,
+        }
+      end
+    end
+
     context("index") do
 
-      it "lists message with no domains" do
+      it "lists message with no custom domains" do
+        stub_get_domains_v3_domain_cname()
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-example has no domain names.
+=== Development Domain
+example.herokuapp.com
+
+example has no custom domain names.
 STDOUT
       end
 
       it "lists domains when some exist" do
-        api.post_domain("example", "example.com")
+        stub_get_domains_v3_domain_cname('example1.com', 'example2.com')
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-=== example Domain Names
-example.com
+=== Development Domain
+example.herokuapp.com
 
+=== Custom Domains
+Domain Name   CNAME Target
+------------  ---------------------
+example1.com  example.herokudns.com
+example2.com  example.herokudns.com
 STDOUT
-        api.delete_domain("example", "example.com")
       end
 
     end
