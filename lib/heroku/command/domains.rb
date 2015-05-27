@@ -48,14 +48,19 @@ module Heroku::Command
     # $ heroku domains:add example.com
     # Adding example.com to example... done
     #
+    # !   Configure your application’s DNS to point to example.herokudns.com
+    # !   For help with custom domains, see https://devcenter.heroku.com/articles/custom-domains
+    #
     def add
       unless domain = shift_argument
         error("Usage: heroku domains:add DOMAIN\nMust specify DOMAIN to add.")
       end
       validate_arguments!
-      action("Adding #{domain} to #{app}") do
-        api.post_domain(app, domain)
+      domain = action("Adding #{domain} to #{app}") do
+        api.post_domains_v3_domain_cname(app, domain).body
       end
+      output_with_bang "Configure your application's DNS to point to #{domain['cname']}"
+      output_with_bang "For help, see https://devcenter.heroku.com/articles/custom-domains"
     end
 
     # domains:remove DOMAIN

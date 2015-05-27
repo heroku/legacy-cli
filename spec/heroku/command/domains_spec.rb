@@ -34,6 +34,22 @@ module Heroku::Command
       end
     end
 
+    # TODO: rename after 3.domain-cname is merged
+    def stub_post_domains_v3_domain_cname(custom_hostname)
+      Excon.stub(
+      :headers => {
+        "Accept" => "application/vnd.heroku+json; version=3.domain-cname",
+        "Content-Type" => "application/json"
+      },
+      :method => :post,
+      :path => '/apps/example/domains') do
+        {
+          :status => 201,
+          :body => { 'kind' => 'custom',  'hostname' => custom_hostname, 'cname' => 'example.herokudns.com' }.to_json,
+        }
+      end
+    end
+
     context("index") do
 
       it "lists message with no custom domains" do
@@ -67,12 +83,14 @@ STDOUT
     end
 
     it "adds domain names" do
+      stub_post_domains_v3_domain_cname('example.com')
       stderr, stdout = execute("domains:add example.com")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
 Adding example.com to example... done
+ !    Configure your application's DNS to point to example.herokudns.com
+ !    For help, see https://devcenter.heroku.com/articles/custom-domains
 STDOUT
-      api.delete_domain("example", "example.com")
     end
 
     it "shows usage if no domain specified for add" do
