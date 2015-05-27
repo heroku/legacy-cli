@@ -23,7 +23,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     attachment = target.attachment || source.attachment
 
-    if confirm_command
+    message = "WARNING: Destructive Action"
+    message << "\nThis command will remove all data from #{target.name}"
+    message << "\nData from #{source.name} will then be transferred to #{target.name}"
+    message << "\nThis command will affect the app: #{app}"
+
+    if confirm_command(app, message)
       xfer = hpg_client(attachment).pg_copy(source.name, source.url,
                                             target.name, target.url)
       poll_transfer('copy', xfer[:uuid])
