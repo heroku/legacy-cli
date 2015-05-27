@@ -64,7 +64,22 @@ module Heroku::Command
 
     context("index") do
 
-      it "lists message with no custom domains" do
+      it "lists message with no domains" do
+        Excon.stub(:path => '/apps/example/domains') {{ :body => [].to_json }}
+
+        stderr, stdout = execute("domains")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+=== Development Domain
+ !    Not found
+
+=== Custom Domains
+example has no custom domains.
+Use `heroku domains:add DOMAIN` to add one.
+STDOUT
+      end
+
+      it "lists message with development domain but no custom domains" do
         stub_get_domains_v3_domain_cname()
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")
@@ -72,11 +87,13 @@ module Heroku::Command
 === Development Domain
 example.herokuapp.com
 
-example has no custom domain names.
+=== Custom Domains
+example has no custom domains.
+Use `heroku domains:add DOMAIN` to add one.
 STDOUT
       end
 
-      it "lists domains when some exist" do
+      it "lists development and custom domains when some exist" do
         stub_get_domains_v3_domain_cname('example1.com', 'example2.com')
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")

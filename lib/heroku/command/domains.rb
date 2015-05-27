@@ -27,15 +27,22 @@ module Heroku::Command
       domains = api.get_domains_v3_domain_cname(app).body
 
       styled_header("Development Domain")
-      display domains.detect{ |d| d['kind'] == 'default' }['hostname']
+      default_domain = domains.detect { |d| d['kind'] == 'default' }
+      if default_domain
+        display default_domain['hostname']
+      else
+        output_with_bang "Not found"
+      end
+
       display
 
+      styled_header("Custom Domains")
       custom_domains = domains.select{ |d| d['kind'] == 'custom' }
       if custom_domains.length > 0
-        styled_header("Custom Domains")
         display_table(custom_domains, ['hostname', 'cname'], ['Domain Name', 'CNAME Target'])
       else
-        display("#{app} has no custom domain names.")
+        display("#{app} has no custom domains.")
+        display("Use `heroku domains:add DOMAIN` to add one.")
       end
     end
 
