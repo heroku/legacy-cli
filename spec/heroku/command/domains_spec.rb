@@ -25,11 +25,19 @@ module Heroku::Command
         :path => '/apps/example/domains') do
         {
           :body => (
-            [{ 'kind' => 'default', 'hostname' => 'example.herokuapp.com', 'cname' => nil }] +
-            custom_hostnames.map { |hostname|
-                { 'kind' => 'custom',  'hostname' => hostname, 'cname' => 'example.herokudns.com' }
-              }
-            ).to_json,
+          [
+            {
+              'kind' => 'default',
+              'hostname' => 'example.herokuapp.com',
+              'cname' => nil
+            }
+          ] + custom_hostnames.map { |hostname|
+            { 'kind' => 'custom',
+              'hostname' => hostname,
+              'cname' => 'example.herokudns.com'
+            }
+          }
+          ).to_json,
         }
       end
     end
@@ -37,15 +45,19 @@ module Heroku::Command
     # TODO: rename after 3.domain-cname is merged
     def stub_post_domains_v3_domain_cname(custom_hostname)
       Excon.stub(
-      :headers => {
-        "Accept" => "application/vnd.heroku+json; version=3.domain-cname",
-        "Content-Type" => "application/json"
-      },
-      :method => :post,
-      :path => '/apps/example/domains') do
+        :headers => {
+          "Accept" => "application/vnd.heroku+json; version=3.domain-cname",
+          "Content-Type" => "application/json"
+        },
+        :method => :post,
+        :path => '/apps/example/domains') do
         {
           :status => 201,
-          :body => { 'kind' => 'custom',  'hostname' => custom_hostname, 'cname' => 'example.herokudns.com' }.to_json,
+          :body => {
+            'kind' => 'custom',
+            'hostname' => custom_hostname,
+            'cname' => 'example.herokudns.com'
+          }.to_json,
         }
       end
     end
