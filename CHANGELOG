@@ -1,3 +1,10 @@
+3.37.2 2015-05-27
+=================
+Made confirmation language clearer for pg:copy
+Add --force-colors to logs
+Removed switzerland variant
+Display price of add-on plan on some commands
+
 3.37.1 2015-05-18
 =================
 Hide hidden commands
