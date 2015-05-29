@@ -135,6 +135,7 @@ class Heroku::Command::Config < Heroku::Command::Base
   # Unsetting B and restarting example... done, v124
   #
   def unset
+    requires_preauth
     if args.empty?
       error("Usage: heroku config:unset KEY1 [KEY2 ...]\nMust specify KEY to unset.")
     end
