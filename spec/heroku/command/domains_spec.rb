@@ -102,7 +102,7 @@ STDOUT
 example.herokuapp.com
 
 === Custom Domains
-Domain Name   CNAME Target
+Domain Name   DNS Target
 ------------  ---------------------
 example1.com  example.herokudns.com
 example2.com  example.herokudns.com

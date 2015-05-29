@@ -18,7 +18,7 @@ module Heroku::Command
     # example.herokuapp.com
     #
     # === Custom Domains
-    # Domain Name  CNAME Target
+    # Domain Name  DNS Target
     # -----------  ---------------------
     # example.com  example.herokudns.com
     #
@@ -39,7 +39,7 @@ module Heroku::Command
       styled_header("Custom Domains")
       custom_domains = domains.select{ |d| d['kind'] == 'custom' }
       if custom_domains.length > 0
-        display_table(custom_domains, ['hostname', 'cname'], ['Domain Name', 'CNAME Target'])
+        display_table(custom_domains, ['hostname', 'cname'], ['Domain Name', 'DNS Target'])
       else
         display("#{app} has no custom domains.")
         display("Use `heroku domains:add DOMAIN` to add one.")
