@@ -248,7 +248,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
                backups = client.transfers
                last_backup = backups.select do |b|
                  b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
-               end.sort_by { |b| b[:num] }.last
+               end.sort_by { |b| b[:created_at] }.last
                if last_backup.nil?
                  error("No backups. Capture one with `heroku pg:backups capture`.")
                else
@@ -471,7 +471,7 @@ EOF
     else
       last_successful_backup = client.transfers.select do |xfer|
         xfer[:succeeded] && xfer[:to_type] == 'gof3r'
-      end.sort_by { |b| b[:num] }.last
+      end.sort_by { |b| b[:created_at] }.last
       if last_successful_backup.nil?
         error("No backups. Capture one with `heroku pg:backups capture`.")
       else
