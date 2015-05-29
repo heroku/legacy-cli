@@ -45,7 +45,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #  restore [[BACKUP_ID] DATABASE] # restore a backup (default latest) to a database (default DATABASE_URL)
   #  public-url BACKUP_ID           # get secret but publicly accessible URL for BACKUP_ID to download it
   #    -q, --quiet                  #   Hide expiration message (for use in scripts)
-  #  cancel                         # cancel an in-progress backup
+  #  cancel [BACKUP_ID]             # cancel an in-progress backup or restore (default newest)
   #  delete BACKUP_ID               # delete an existing backup
   #  schedule DATABASE              # schedule nightly backups for given database
   #    --at '<hour>:00 <timezone>'  #   at a specific (24h clock) hour in the given timezone
@@ -491,10 +491,27 @@ EOF
   end
 
   def cancel_backup
+    backup_name = shift_argument
     validate_arguments!
 
     client = hpg_app_client(app)
-    transfer = client.transfers.find { |b| b[:finished_at].nil? }
+
+    transfer = if backup_name
+                 backup_num = transfer_num(backup_name)
+                 if backup_num.nil?
+                   error("No such backup/restore: #{backup_name}")
+                 else
+                   client.transfers_get(backup_num)
+                 end
+               else
+                 last_transfer = client.transfers.sort_by { |b| b[:created_at] }.reverse.find { |b| b[:finished_at].nil? }
+                 if last_transfer.nil?
+                   error("No active backups/restores")
+                 else
+                   last_transfer
+                 end
+               end
+
     client.transfers_cancel(transfer[:uuid])
     display "Canceled #{transfer_name(transfer)}"
   end
