@@ -73,10 +73,10 @@ class Heroku::Command::Config < Heroku::Command::Base
       error("Usage: heroku config:set KEY1=VALUE1 [KEY2=VALUE2 ...]\nMust specify KEY and VALUE to set.")
     end
 
-    vars = args.inject({}) do |vars, arg|
+    vars = args.inject({}) do |v, arg|
       key, value = arg.split('=', 2)
-      vars[key] = value
-      vars
+      v[key] = value
+      v
     end
 
     action("Setting config vars and restarting #{app}") do
@@ -86,7 +86,7 @@ class Heroku::Command::Config < Heroku::Command::Base
         if release = api.get_release(app, 'current').body
           release['name']
         end
-      rescue Heroku::API::Errors::RequestFailed => e
+      rescue Heroku::API::Errors::RequestFailed
       end
     end
 
@@ -147,7 +147,7 @@ class Heroku::Command::Config < Heroku::Command::Base
           if release = api.get_release(app, 'current').body
             release['name']
           end
-        rescue Heroku::API::Errors::RequestFailed => e
+        rescue Heroku::API::Errors::RequestFailed
         end
       end
     end
