@@ -229,7 +229,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     change_map = {}
 
     changes = args.map do |arg|
-      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::(\w+))?$/).first
+      if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::([\w-]+))?$/).first
         formation, quantity, size = change
         quantity.gsub!("=", "") # only allow + and - on quantity
         change_map[formation] = [quantity, size]
