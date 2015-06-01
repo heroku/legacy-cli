@@ -23,16 +23,4 @@ apikey01
 STDOUT
     end
   end
-
-  describe "auth:whoami" do
-    it "displays the user's email address" do
-      stderr, stdout = execute("auth:whoami")
-      expect(stderr).to eq("")
-      expect(stdout).to eq <<-STDOUT
-email@example.com
-STDOUT
-    end
-
-  end
-
 end
