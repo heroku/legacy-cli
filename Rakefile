@@ -33,6 +33,7 @@ task :can_release do
     $stderr.puts "cannot release, #{version}, HEROKU_RELEASE_ACCESS and HEROKU_RELEASE_SECRET must be set"
     exit(1)
   end
+  system './bin/heroku auth:whoami' or exit 1
   if `gem list ^heroku$ --remote` == "heroku (#{version})\n"
     $stderr.puts "cannot release #{version}, v#{version} is already released"
     exit(1)
