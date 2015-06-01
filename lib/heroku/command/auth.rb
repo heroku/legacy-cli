@@ -78,6 +78,6 @@ class Heroku::Command::Auth < Heroku::Command::Base
   #
   def whoami
     Heroku::JSPlugin.setup
-    Heroku::JSPlugin.run('whoami', nil, ARGV[1..-1])
+    Heroku::JSPlugin.run('auth', 'whoami', ARGV[1..-1])
   end
 end
