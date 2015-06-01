@@ -144,7 +144,7 @@ class Heroku::JSPlugin
     case RbConfig::CONFIG['host_cpu']
     when /x86_64/
       "amd64"
-    when "arm"
+    when /arm/
       "arm"
     else
       "386"
