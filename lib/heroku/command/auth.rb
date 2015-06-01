@@ -77,10 +77,7 @@ class Heroku::Command::Auth < Heroku::Command::Base
   # email@example.com
   #
   def whoami
-    validate_arguments!
-
-    display Heroku::Auth.user
+    Heroku::JSPlugin.setup
+    Heroku::JSPlugin.run('whoami', nil, ARGV[1..-1])
   end
-
 end
-
