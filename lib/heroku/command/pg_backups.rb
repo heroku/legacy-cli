@@ -576,6 +576,9 @@ EOF
   def list_schedules
     validate_arguments!
     attachment = arbitrary_app_db
+    if attachment.nil?
+      abort("#{app} has no heroku-postgresql databases.")
+    end
 
     schedules = hpg_client(attachment).schedules
     if schedules.empty?
