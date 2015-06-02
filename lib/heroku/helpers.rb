@@ -6,7 +6,7 @@ module Heroku
     extend self
 
     def home_directory
-      if running_on_windows?
+      if running_on_windows? && RUBY_VERSION == '1.9.3'
         # https://bugs.ruby-lang.org/issues/10126
         Dir.home.force_encoding('cp775')
       else
