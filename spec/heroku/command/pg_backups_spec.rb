@@ -122,6 +122,47 @@ module Heroku::Command
       end
     end
 
+    describe "heroku pg:backups schedules" do
+      let(:schedules) do
+        [ { name: 'HEROKU_POSTGRESQL_GREEN_URL',
+            uuid: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+            hour: 4, timezone: 'US/Pacific' },
+          { name: 'DATABASE_URL',
+            uuid: 'ffffffff-ffff-ffff-ffff-fffffffffffe',
+            hour: 20, timezone: 'UTC'  } ]
+      end
+
+      it "lists the existing schedules" do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return(example_attachments)
+        stub_pg.schedules.returns(schedules)
+        stderr, stdout = execute("pg:backups schedules")
+        expect(stderr).to be_empty
+        expect(stdout).to eq(<<-EOF)
+=== Backup Schedules
+HEROKU_POSTGRESQL_GREEN_URL: daily at 4:00 (US/Pacific)
+DATABASE_URL: daily at 20:00 (UTC)
+EOF
+      end
+
+      it "reports there are no schedules when none exist" do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return(example_attachments)
+        stub_pg.schedules.returns([])
+        stderr, stdout = execute("pg:backups schedules")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/No backup schedules found/)
+      end
+
+      it "reports there are no databases when the app has none" do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return([])
+        stderr, stdout = execute("pg:backups schedules")
+        expect(stderr).to match(/example has no heroku-postgresql databases/)
+        expect(stdout).to be_empty
+      end
+    end
+
     describe "heroku pg:backups unschedule" do
       let(:schedules) do
         [ { name: 'HEROKU_POSTGRESQL_GREEN_URL',
