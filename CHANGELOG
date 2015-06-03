@@ -1,3 +1,8 @@
+3.37.6 2015-06-03
+=================
+Fix non-ascii windows username issue for Ruby 2.0+
+Increased pgbackups polling sleep interval to prevent rate limiting
+
 3.37.5 2015-06-01
 =================
 Fixed auth:whoami on first run
