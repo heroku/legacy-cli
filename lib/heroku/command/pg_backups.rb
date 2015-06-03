@@ -426,7 +426,7 @@ EOF
           raise
         end
       end
-      sleep 1
+      sleep 3
     end until backup[:finished_at]
     if backup[:succeeded]
       redisplay "#{action.capitalize} completed\n"
