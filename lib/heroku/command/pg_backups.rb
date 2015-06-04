@@ -26,9 +26,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     message = "WARNING: Destructive Action"
     message << "\nThis command will remove all data from #{target.name}"
     message << "\nData from #{source.name} will then be transferred to #{target.name}"
-    message << "\nThis command will affect the app: #{app}"
+    message << "\nThis command will affect the app: #{attachment.app}"
 
-    if confirm_command(app, message)
+    if confirm_command(attachment.app, message)
       xfer = hpg_client(attachment).pg_copy(source.name, source.url,
                                             target.name, target.url)
       poll_transfer('copy', xfer[:uuid])
@@ -369,8 +369,12 @@ EOF
       restore_url = restore_from
     else
       # assume we're restoring from a backup
-      backup_name = restore_from
-      backups = hpg_app_client(app).transfers.select do |b|
+      if restore_from =~ /::/
+        backup_app, backup_name = restore_from.split('::')
+      else
+        backup_app, backup_name = [app, restore_from]
+      end
+      backups = hpg_app_client(backup_app).transfers.select do |b|
         b[:from_type] == 'pg_dump' && b[:to_type] == 'gof3r'
       end
       backup = if backup_name == :latest
@@ -380,16 +384,16 @@ EOF
                  backups.find { |b| transfer_name(b) == backup_name }
                end
       if backups.empty?
-        abort("No backups. Capture one with `heroku pg:backups capture`.")
+        abort("No backups for #{backup_app}. Capture one with `heroku pg:backups capture`.")
       elsif backup.nil?
-        abort("Backup #{backup_name} not found.")
+        abort("Backup #{backup_name} not found for #{backup_app}.")
       elsif !backup[:succeeded]
-        abort("Backup #{backup_name} did not complete successfully; cannot restore it.")
+        abort("Backup #{backup_name} for #{backup_app} did not complete successfully; cannot restore it.")
       end
       restore_url = backup[:to_url]
     end
 
-    if confirm_command
+    if confirm_command(attachment.app)
       restore = hpg_client(attachment).backups_restore(restore_url)
       display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
@@ -397,7 +401,6 @@ will continue restoring. Use heroku pg:backups to check progress.
 Stop a running restore with heroku pg:backups cancel.
 
 #{transfer_name(restore)} ---restore---> #{attachment.name}
-
 EOF
       poll_transfer('restore', restore[:uuid])
     end
