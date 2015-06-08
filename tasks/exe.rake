@@ -44,7 +44,7 @@ end
 def cache_file_from_bucket(filename)
   FileUtils.mkdir_p $cache_path
   file_cache_path = File.join($cache_path, filename)
-  system "curl -# http://heroku-toolbelt.s3.amazonaws.com/#{filename} -o '#{file_cache_path}'" unless File.exists? file_cache_path
+  system "curl -# https://heroku-toolbelt.s3.amazonaws.com/#{filename} -o '#{file_cache_path}'" unless File.exists? file_cache_path
   file_cache_path
 end
 
