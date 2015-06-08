@@ -522,7 +522,12 @@ EOF
   def schedule_backups
     db = shift_argument
     validate_arguments!
-    at = options[:at] || '04:00 UTC'
+
+    at = options[:at]
+    if !at
+      error("You must specifiy a time to schedule backups, i.e --at '04:00 UTC'")
+    end
+
     schedule_opts = parse_schedule_time(at)
 
     resolver = generate_resolver
@@ -612,7 +617,10 @@ EOF
                  'CST' => 'America/Chicago',
                  'CDT' => 'America/Chicago',
                  'EST' => 'America/New_York',
-                 'EDT' => 'America/New_York'
+                 'EDT' => 'America/New_York',
+                 'Z'   => 'UTC',
+                 'GMT' => 'Europe/London',
+                 'BST' => 'Europe/London',
                 }
     if remap_tzs.has_key? tz.upcase
       tz = remap_tzs[tz.upcase]
