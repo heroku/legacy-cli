@@ -448,6 +448,8 @@ module Heroku
       rollbar_id = Rollbar.error(error)
       $stderr.puts(format_error(error, message, rollbar_id))
       error_log(message, error.message, error.backtrace.join("\n"))
+    rescue => e
+      $stderr.puts e, e.backtrace, error, error.backtrace
     end
 
     def error_log(*obj)
