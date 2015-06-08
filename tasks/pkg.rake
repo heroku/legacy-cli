@@ -35,13 +35,13 @@ file dist("heroku-toolbelt-#{version}.pkg") => distribution_files("pkg") do |t|
     end
 
     unless File.exists?(dist('foreman-0.75.0.pkg'))
-      sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/foreman-0.75.0.pkg -o #{dist('foreman-0.75.0.pkg')} }
+      sh %{ curl https://heroku-toolbelt.s3.amazonaws.com/foreman-0.75.0.pkg -o #{dist('foreman-0.75.0.pkg')} }
     end
     sh %{ pkgutil --expand #{dist('foreman-0.75.0.pkg')} foreman }
     mv "foreman/foreman.pkg", "pkg/foreman.pkg"
 
     unless File.exists?(dist('ruby.pkg'))
-      sh %{ curl http://heroku-toolbelt.s3.amazonaws.com/ruby.pkg -o #{dist('ruby.pkg')} }
+      sh %{ curl https://heroku-toolbelt.s3.amazonaws.com/ruby.pkg -o #{dist('ruby.pkg')} }
     end
     sh %{ pkgutil --expand #{dist('ruby.pkg')} ruby }
     mv "ruby/ruby-1.9.3-p194.pkg", "pkg/ruby.pkg"
