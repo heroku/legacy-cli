@@ -23,7 +23,7 @@ module Heroku
     end
 
     def self.latest_version
-      http_get('http://assets.heroku.com/heroku-client/VERSION').chomp
+      http_get('https://assets.heroku.com/heroku-client/VERSION').chomp
     end
 
     def self.official_zip_hash
@@ -118,7 +118,7 @@ module Heroku
           if prerelease
             url = "https://toolbelt.heroku.com/download/beta-zip"
           else
-            url = "https://toolbelt.heroku.com/download/zip"
+            url = "https://toolbelth.heroku.com/download/zip"
           end
 
           download_file(url, zip_filename)
