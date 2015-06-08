@@ -118,7 +118,7 @@ module Heroku
           if prerelease
             url = "https://toolbelt.heroku.com/download/beta-zip"
           else
-            url = "https://toolbelth.heroku.com/download/zip"
+            url = "https://toolbelt.heroku.com/download/zip"
           end
 
           download_file(url, zip_filename)
