@@ -23,12 +23,22 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     attachment = target.attachment || source.attachment
 
+    if target.attachment.nil?
+      target_url = URI.parse(target.url)
+      confirm_with = target_url.path[1..-1]
+      confirm_with = target_url.host if confirm_with.empty?
+      affected = target.name.downcase
+    else
+      confirm_with = target.attachment.app
+      affected = "the app #{target.attachment.app}"
+    end
+
     message = "WARNING: Destructive Action"
     message << "\nThis command will remove all data from #{target.name}"
     message << "\nData from #{source.name} will then be transferred to #{target.name}"
-    message << "\nThis command will affect the app: #{attachment.app}"
+    message << "\nThis command will affect #{affected}"
 
-    if confirm_command(attachment.app, message)
+    if confirm_command(confirm_with, message)
       xfer = hpg_client(attachment).pg_copy(source.name, source.url,
                                             target.name, target.url)
       poll_transfer('copy', xfer[:uuid])
