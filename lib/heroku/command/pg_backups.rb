@@ -30,7 +30,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       affected = target.name.downcase
     else
       confirm_with = target.attachment.app
-      affected = "the app #{target.attachment.app}"
+      affected = "the app: #{target.attachment.app}"
     end
 
     message = "WARNING: Destructive Action"
