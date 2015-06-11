@@ -519,7 +519,10 @@ EOF
   def schedule_backups
     db = shift_argument
     validate_arguments!
-    at = options[:at] || '04:00 UTC'
+    if !options[:at]
+      error("A time must be specified when scheduling backups")
+    end
+    at = options[:at]
     schedule_opts = parse_schedule_time(at)
 
     resolver = generate_resolver
