@@ -1,3 +1,8 @@
+3.37.7 2015-06-11
+=================
+pgbackups bug fixes https://github.com/heroku/heroku/pull/1604
+Ensure errors are shown when there is an error displaying the error
+
 3.37.6 2015-06-03
 =================
 Fix non-ascii windows username issue for Ruby 2.0+
