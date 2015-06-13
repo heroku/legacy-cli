@@ -69,8 +69,6 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
     # add windows helper executables to the heroku cli
     cp resource("exe/heroku.bat"),  "#{heroku_cli_path}/bin/heroku.bat"
     cp resource("exe/heroku"),      "#{heroku_cli_path}/bin/heroku"
-    cp resource("exe/foreman.bat"), "#{heroku_cli_path}/bin/foreman.bat"
-    cp resource("exe/foreman"),     "#{heroku_cli_path}/bin/foreman"
     cp resource("exe/ssh-keygen.bat"), "#{heroku_cli_path}/bin/ssh-keygen.bat"
 
     # render the iss file used by inno setup to compile the installer
