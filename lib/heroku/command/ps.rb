@@ -17,7 +17,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
   end
   COSTS = Hash[*costs.flatten]
 
-
   # ps:dynos [QTY]
   #
   # DEPRECATED: use `heroku ps:scale dynos=N`
@@ -226,12 +225,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # Scaling dynos... done, now running web at 3:2X, worker at 1:1X.
   #
   def scale
+    requires_preauth
     change_map = {}
 
     changes = args.map do |arg|
       if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::([\w-]+))?$/).first
         formation, quantity, size = change
-        quantity.gsub!("=", "") # only allow + and - on quantity
+        quantity = quantity[1..-1].to_i if quantity[0] == "="
         change_map[formation] = [quantity, size]
         { "process" => formation, "quantity" => quantity, "size" => size}
       end
@@ -242,6 +242,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     action("Scaling dynos") do
+      change_tier_if_needed(edge_app_formation.body, changes)
+
       # The V3 API supports atomic scale+resize, so we make a raw request here
       # since the heroku-api gem still only supports V2.
       resp = api.request(
@@ -381,10 +383,11 @@ class Heroku::Command::Ps < Heroku::Command::Base
       }
     end
 
-    # in case of an app not yet released
-    annotated = [tier_info] if annotated.empty?
-
-    display_table(annotated, annotated.first.keys, annotated.first.keys)
+    if annotated.empty?
+      puts "No dynos active.\nUse `heroku ps:scale` to scale up dynos."
+    else
+      display_table(annotated, annotated.first.keys, annotated.first.keys)
+    end
   end
 
   def edge_app_info
@@ -409,6 +412,84 @@ class Heroku::Command::Ps < Heroku::Command::Base
         "Content-Type" => "application/json"
       }
     )
+  end
+
+  def change_tier_if_needed(formation, changes)
+    # first find what tier(s) the user wants to move to
+    # if there are multiple it will be caught later
+    new_tiers = tiers_in_formation(changes)
+
+    # no tier specified, so we don't need to change anything
+    return if new_tiers.length == 0
+
+    # we have an unknown tier
+    # instead of validating in the CLI, just continue
+    # the API will error if there is an issue
+    return unless new_tiers.all?
+
+    new_tier = new_tiers[0]
+    current_tier = tiers_in_formation(formation).first
+
+    # the formation has no tier
+    # change the tier to the requested one
+    return patch_tier(new_tier) unless current_tier
+
+    # tiers in formation and ps:scale are the same
+    # just continue
+    return if new_tier == current_tier
+
+    # is the user changing all the dyno types to the new tier?
+    if consistent_tier_after_changes?(formation, changes)
+      # all dyno types are changing to the new tier so we can change to it
+      patch_tier(new_tier)
+    else
+      # some of the proposed changes are in a different tier than existing dyno types
+      # this is not allowed
+      from_type = formation[0]["size"]
+      to_type   = changes[0]["size"]
+      error("Cannot mix #{to_type} with #{from_type} dynos.\nTo change all dynos to #{to_type}, run `heroku ps:type #{to_type}`.")
+    end
+  end
+
+  def tiers_in_formation(formation)
+    tier_map = {
+      "free"        => "free",
+      "hobby"       => "hobby",
+      "standard-1x" => "production",
+      "standard-2x" => "production",
+      "performance" => "production",
+    }
+    formation
+      .select { |p| p["size"]}            # types with a size
+      .select { |p| p["quantity"] > 0 }   # types that have active dynos
+      .map    { |p| p["size"]}            # get the size of the type
+      .map    { |s| tier_map[s.downcase]} # get the tier of the size
+      .uniq
+  end
+
+  def consistent_tier_after_changes?(formation, changes)
+    formation = pretend_changes_to_formation(formation, changes)
+    tiers_in_formation(formation).length == 1
+  end
+
+  # return a new formation object with changes applied
+  # in-memory only, does not hit API
+  def pretend_changes_to_formation(formation, changes)
+    formation = deep_clone(formation)
+    changes.each do |change|
+      ps = formation.find{|p| p["type"] == change["process"]}
+      next unless ps
+      ps["size"] = change["size"] if change["size"]
+      q = change["quantity"]
+      if q.is_a? Fixnum
+        ps["quantity"] = q
+      elsif q.start_with? '+'
+        ps["quantity"] += q[1..-1].to_i
+      elsif q.start_with? '-'
+        ps["quantity"] -= q[1..-1].to_i
+      end
+    end
+    formation
   end
 
   def special_case_change_tier_and_resize(type)
