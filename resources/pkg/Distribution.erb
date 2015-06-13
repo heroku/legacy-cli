@@ -4,17 +4,12 @@
   <options customize="allow" allow-external-scripts="yes"/>
   <domains enable_localSystem="true"/>
   <choices-outline>
-    <line choice="foreman"/>
     <line choice="heroku-client"/>
   </choices-outline>
-  <choice id="foreman" title="Foreman">
-    <pkg-ref id="io.foreman.installer" />
-  </choice>
   <choice id="heroku-client" title="Heroku Client">
     <pkg-ref id="com.heroku.client"/>
     <pkg-ref id="org.ruby-lang.installer"/>
   </choice>
-  <pkg-ref id="io.foreman.installer" installKBytes="651" auth="Root">#foreman.pkg</pkg-ref>
   <pkg-ref id="com.heroku.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#heroku-client.pkg</pkg-ref>
   <pkg-ref id="org.ruby-lang.installer" installKBytes="9132" auth="Root">#ruby.pkg</pkg-ref>
 </installer-script>
