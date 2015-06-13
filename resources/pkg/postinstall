@@ -42,4 +42,4 @@ case $(which heroku) in
 esac
 
 # symlink binary to /usr/bin/heroku
-ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
+sudo ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
