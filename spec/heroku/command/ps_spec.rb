@@ -273,6 +273,7 @@ STDOUT
     describe "ps:scale" do
 
       it "can scale using key/value format" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
                    { :body => [{"quantity" => "5", "size" => "1X", "type" => "web"}],
                      :status => 200})
@@ -284,6 +285,7 @@ STDOUT
       end
 
       it "can scale relative amounts" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
                    { :body => [{"quantity" => "3", "size" => "1X", "type" => "web"}],
                      :status => 200})
@@ -295,11 +297,12 @@ STDOUT
       end
 
       it "can resize while scaling" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => "4", "size" => "2X"}]
+              "updates" => [{"process" => "web", "quantity" => 4, "size" => "2X"}]
             }.to_json
           },
           :body => [{"quantity" => 4, "size" => "2X", "type" => "web"}],
@@ -313,13 +316,14 @@ STDOUT
       end
 
       it "can scale multiple types in one call" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
               "updates" => [
-                {"process" => "web",    "quantity" => "4", "size" => "1X"},
-                {"process" => "worker", "quantity" => "2", "size" => "2x"},
+                {"process" => "web",    "quantity" => 4, "size" => "1X"},
+                {"process" => "worker", "quantity" => 2, "size" => "2x"},
               ]
             }.to_json
           },
@@ -338,11 +342,12 @@ STDOUT
       end
 
       it "accepts PX as a valid size" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => "4", "size" => "PX"}]
+              "updates" => [{"process" => "web", "quantity" => 4, "size" => "PX"}]
             }.to_json
           },
           :body => [{"quantity" => 4, "size" => "PX", "type" => "web"}],
