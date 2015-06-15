@@ -572,5 +572,10 @@ module Heroku
     def warn_if_using_jruby
       stderr_puts "WARNING: jruby is known to cause issues when used with the toolbelt." if RUBY_PLATFORM == "java"
     end
+
+    # cheap deep clone
+    def deep_clone(obj)
+      json_decode(json_encode(obj))
+    end
   end
 end
