@@ -3,19 +3,7 @@ require "heroku/command/base"
 # manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
-  PROCESS_TIERS =[
-    {"tier"=>"free",         "max_scale"=>1,    "max_processes"=>2,    "cost"=>{"Free"=>0}},
-    {"tier"=>"hobby",        "max_scale"=>1,    "max_processes"=>nil,  "cost"=>{"Hobby"=>700}},
-    {"tier"=>"production",   "max_scale"=>100,  "max_processes"=>nil,  "cost"=>{"Standard-1X"=>2500,  "Standard-2X"=>5000,  "Performance"=>50000}},
-    {"tier"=>"traditional",  "max_scale"=>100,  "max_processes"=>nil,  "cost"=>{"1X"=>3600,           "2X"=>7200,           "PX"=>57600}}
-  ]
-
-  costs = PROCESS_TIERS.collect do |tier|
-    tier["cost"].collect do |name, cents_per_month|
-      [name, (cents_per_month / 100)]
-    end
-  end
-  COSTS = Hash[*costs.flatten]
+  COSTS = {"Free"=>0, "Hobby"=>7, "Standard-1X"=>25, "Standard-2X"=>50, "Performance"=>500, "1X"=>36, "2X"=>72, "PX"=>576}
 
   # ps:dynos [QTY]
   #
@@ -226,14 +214,12 @@ class Heroku::Command::Ps < Heroku::Command::Base
   #
   def scale
     requires_preauth
-    change_map = {}
 
     changes = args.map do |arg|
       if change = arg.scan(/^([a-zA-Z0-9_]+)([=+-]\d+)(?::([\w-]+))?$/).first
         formation, quantity, size = change
         quantity = quantity[1..-1].to_i if quantity[0] == "="
-        change_map[formation] = [quantity, size]
-        { "process" => formation, "quantity" => quantity, "size" => size}
+        { "type" => formation, "quantity" => quantity, "size" => size}
       end
     end.compact
 
@@ -242,23 +228,8 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     action("Scaling dynos") do
-      change_tier_if_needed(edge_app_formation.body, changes)
-
-      # The V3 API supports atomic scale+resize, so we make a raw request here
-      # since the heroku-api gem still only supports V2.
-      resp = api.request(
-        :expects => 200,
-        :method  => :patch,
-        :path    => "/apps/#{app}/formation",
-        :body    => json_encode("updates" => changes),
-        :headers => {
-          "Accept"       => "application/vnd.heroku+json; version=3",
-          "Content-Type" => "application/json"
-        }
-      )
-      new_scales = resp.body.
-        select {|p| change_map[p['type']] }.
-        map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
+      new_scales = scale_dynos(get_formation, changes)
+                   .map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
       status("now running " + new_scales.join(", ") + ".")
     end
   end
@@ -306,55 +277,35 @@ class Heroku::Command::Ps < Heroku::Command::Base
   # called with no arguments shows the current dyno type
   #
   # called with one argument sets the type
-  # where type is one of traditional|free|hobby|standard-1x|standard-2x|performance
+  # where type is one of free|hobby|standard-1x|standard-2x|performance
   #
   # called with 1..n DYNO=TYPE arguments sets the type per dyno
-  # this is only available when the app is on production and performance
   #
   def type
-    if args.any?{|arg| arg =~ /=/}
-      _original_resize
-      return
-    end
-
+    requires_preauth
     app
-    process_tier = shift_argument
-    process_tier.downcase! if process_tier
-    validate_arguments!
-
-    if %w[standard-1x standard-2x performance].include?(process_tier)
-      special_case_change_tier_and_resize(process_tier)
-      return
-    end
-
-    # get or update app.process_tier
-    app_resp = process_tier.nil? ? edge_app_info : change_dyno_type(process_tier)
-
-    # get, calculate and display app process type costs
-    formation_resp = edge_app_formation
-
-    display_dyno_type_and_costs(app_resp, formation_resp)
+    formation = get_formation
+    changes = if args.any?{|arg| arg =~ /=/}
+                args.map do |arg|
+                  if arg =~ /^([a-zA-Z0-9_]+)=([\w-]+)$/
+                    p = formation.find{|f| f["type"] == $1}.clone
+                    p["size"] = $2
+                    p
+                  end
+                end.compact
+              elsif args.any?
+                size = shift_argument.downcase
+                validate_arguments!
+                formation.map{|p| p["size"] = size; p}
+              end
+    scale_dynos(formation, changes) if changes
+    display_dyno_type_and_costs(get_formation)
   end
 
   alias_method :resize, :type
   alias_command "resize", "ps:type"
 
   private
-
-  def change_dyno_type(process_tier)
-    print "Changing dyno type... "
-
-    app_resp = patch_tier(process_tier)
-
-    if app_resp.status != 200
-      puts "failed"
-      error app_resp.body["message"] + " Please use `heroku ps:scale` to change process size and scale."
-    end
-
-    puts "done."
-
-    return app_resp
-  end
 
   def patch_tier(process_tier)
     api.request(
@@ -368,13 +319,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
     )
   end
 
-  def display_dyno_type_and_costs(app_resp, formation_resp)
-    tier_info = PROCESS_TIERS.detect { |t| t["tier"] == app_resp.body["process_tier"] }
-
-    formation = formation_resp.body.reject {|ps| ps['quantity'] < 1}
-
+  def display_dyno_type_and_costs(formation)
     annotated = formation.sort_by{|d| d['type']}.map do |dyno|
-      cost = tier_info["cost"][dyno["size"]] * dyno["quantity"] / 100
+      cost = COSTS[dyno["size"]] * dyno["quantity"]
       {
         'dyno'    => dyno['type'],
         'type'    => dyno['size'].rjust(4),
@@ -384,25 +331,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     if annotated.empty?
-      puts "No dynos active.\nUse `heroku ps:scale` to scale up dynos."
+      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
     else
       display_table(annotated, annotated.first.keys, annotated.first.keys)
     end
   end
 
-  def edge_app_info
-    api.request(
-      :expects => 200,
-      :method  => :get,
-      :path    => "/apps/#{app}",
-      :headers => {
-        "Accept"       => "application/vnd.heroku+json; version=edge",
-        "Content-Type" => "application/json"
-      }
-    )
-  end
-
-  def edge_app_formation
+  def get_formation
     api.request(
       :expects => 200,
       :method  => :get,
@@ -411,7 +346,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
         "Accept"       => "application/vnd.heroku+json; version=3",
         "Content-Type" => "application/json"
       }
-    )
+    ).body
   end
 
   def change_tier_if_needed(formation, changes)
@@ -477,64 +412,37 @@ class Heroku::Command::Ps < Heroku::Command::Base
   def pretend_changes_to_formation(formation, changes)
     formation = deep_clone(formation)
     changes.each do |change|
-      ps = formation.find{|p| p["type"] == change["process"]}
+      ps = formation.find{|p| p["type"] == change["type"]}
       next unless ps
       ps["size"] = change["size"] if change["size"]
       q = change["quantity"]
       if q.is_a? Fixnum
         ps["quantity"] = q
-      elsif q.start_with? '+'
+      elsif q.start_with?('+')
         ps["quantity"] += q[1..-1].to_i
-      elsif q.start_with? '-'
+      elsif q.start_with?('-')
         ps["quantity"] -= q[1..-1].to_i
       end
     end
     formation
   end
 
-  def special_case_change_tier_and_resize(type)
-    patch_tier("production")
-    override_args = edge_app_formation.body.map { |ps| "#{ps['type']}=#{type}" }
-    _original_resize(override_args)
-  end
+  def scale_dynos(formation, changes)
+    change_tier_if_needed(formation, changes)
 
-  def _original_resize(override_args=nil)
-    app
-    change_map = {}
-
-    changes = (override_args || args).map do |arg|
-      if arg =~ /^([a-zA-Z0-9_]+)=([\w-]+)$/
-        change_map[$1] = $2
-        { "process" => $1, "size" => $2 }
-      end
-    end.compact
-
-    if changes.empty?
-      message = [
-          "Usage: heroku dyno:type DYNO1=1X|2X|PX [DYNO2=1X|2X|PX ...]",
-          "Must specify DYNO and TYPE to resize."
-      ]
-      error(message.join("\n"))
-    end
-
-    resp = nil
-    action("Resizing and restarting the specified dynos") do
-      resp = api.request(
-        :expects => 200,
-        :method  => :patch,
-        :path    => "/apps/#{app}/formation",
-        :body    => json_encode("updates" => changes),
-        :headers => {
-          "Accept"       => "application/vnd.heroku+json; version=3",
-          "Content-Type" => "application/json"
-        }
-      )
-    end
-
-    resp.body.select {|p| change_map.key?(p['type']) }.each do |p|
-      size = p["size"]
-      display "#{p["type"]} dynos now #{size} ($#{COSTS[size]}/month)"
-    end
+    # The V3 API supports atomic scale+resize, so we make a raw request here
+    # since the heroku-api gem still only supports V2.
+    resp = api.request(
+      :expects => 200,
+      :method  => :patch,
+      :path    => "/apps/#{app}/formation",
+      :body    => json_encode("updates" => changes),
+      :headers => {
+        "Accept"       => "application/vnd.heroku+json; version=3",
+        "Content-Type" => "application/json"
+      }
+    )
+    resp.body.select {|p| changes.any?{|c| c["type"] == p["type"]} }
   end
 end
 
