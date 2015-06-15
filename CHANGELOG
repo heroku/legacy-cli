@@ -1,3 +1,8 @@
+3.38.1 2015-06-15
+=================
+Fix ps:type for new process types
+Made ps:type output consistent
+
 3.38.0 2015-06-15
 =================
 Fix ps:scale for new process types
