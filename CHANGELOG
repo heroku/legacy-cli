@@ -1,3 +1,7 @@
+3.38.0 2015-06-15
+=================
+Fix ps:scale for new process types
+
 3.37.7 2015-06-11
 =================
 pgbackups bug fixes https://github.com/heroku/heroku/pull/1604
