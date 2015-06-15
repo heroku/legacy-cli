@@ -302,7 +302,7 @@ STDOUT
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => 4, "size" => "2X"}]
+              "updates" => [{"type" => "web", "quantity" => 4, "size" => "2X"}]
             }.to_json
           },
           :body => [{"quantity" => 4, "size" => "2X", "type" => "web"}],
@@ -322,8 +322,8 @@ STDOUT
             :method => :patch, :path => "/apps/example/formation",
             :body => {
               "updates" => [
-                {"process" => "web",    "quantity" => 4, "size" => "1X"},
-                {"process" => "worker", "quantity" => 2, "size" => "2x"},
+                {"type" => "web",    "quantity" => 4, "size" => "1X"},
+                {"type" => "worker", "quantity" => 2, "size" => "2x"},
               ]
             }.to_json
           },
@@ -347,7 +347,7 @@ STDOUT
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "quantity" => 4, "size" => "PX"}]
+              "updates" => [{"type" => "web", "quantity" => 4, "size" => "PX"}]
             }.to_json
           },
           :body => [{"quantity" => 4, "size" => "PX", "type" => "web"}],
@@ -364,11 +364,12 @@ STDOUT
     describe "ps:resize" do
 
       it "can resize using a key/value format" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [{"type" => "web", "size" => "1X", "quantity" => 1}], status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
-              "updates" => [{"process" => "web", "size" => "2X"}]
+              "updates" => [{"type" => "web", "size" => "2X", "quantity" => 1}]
             }.to_json
           },
           :body => [{"quantity" => 2, "size" => "2X", "type" => "web"}],
@@ -377,19 +378,25 @@ STDOUT
         stderr, stdout = execute("ps:resize web=2X")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Resizing and restarting the specified dynos... done
-web dynos now 2X ($72/month)
+dyno  type  qty  cost/mo
+----  ----  ---  -------
+web     1X    1       36
 STDOUT
       end
 
       it "can resize multiple types in one call" do
+        formation = [
+          {"type" => "web", "size" => "1X", "quantity" => 1},
+          {"type" => "worker", "size" => "1X", "quantity" => 1},
+        ]
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: formation, status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
               "updates" => [
-                {"process" => "web", "size" => "4x"},
-                {"process" => "worker", "size" => "2X"}
+                {"type" => "web", "size" => "4x", "quantity" => 1},
+                {"type" => "worker", "size" => "2X", "quantity" => 1}
               ]
             }.to_json
           },
@@ -402,20 +409,26 @@ STDOUT
         stderr, stdout = execute("ps:resize web=4x worker=2X")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Resizing and restarting the specified dynos... done
-web dynos now 1X ($36/month)
-worker dynos now 2X ($72/month)
+dyno    type  qty  cost/mo
+------  ----  ---  -------
+web       1X    1       36
+worker    1X    1       36
 STDOUT
       end
 
-      it "accepts P as a valid size, with a price of $0.80/hour" do
+      it "accepts PX as a valid size, with a price of $0.80/hour" do
+        formation = [
+          {"type" => "web", "size" => "1X", "quantity" => 1},
+          {"type" => "worker", "size" => "1X", "quantity" => 1},
+        ]
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: formation, status: 200})
         Excon.stub(
           {
             :method => :patch, :path => "/apps/example/formation",
             :body => {
               "updates" => [
-                {"process" => "web", "size" => "PX"},
-                {"process" => "worker", "size" => "Px"}
+                {"type" => "web", "size" => "PX", "quantity" => 1},
+                {"type" => "worker", "size" => "Px", "quantity" => 1}
               ]
             }.to_json
           },
@@ -428,9 +441,10 @@ STDOUT
         stderr, stdout = execute("ps:resize web=PX worker=Px")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
-Resizing and restarting the specified dynos... done
-web dynos now PX ($576/month)
-worker dynos now PX ($576/month)
+dyno    type  qty  cost/mo
+------  ----  ---  -------
+web       1X    1       36
+worker    1X    1       36
 STDOUT
       end
 
