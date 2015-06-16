@@ -89,7 +89,7 @@ module Heroku::Command
       display_table(plans, %w[default name human_name price], [nil, 'Slug', 'Name', 'Price'])
     end
 
-    # addons:create {SERVICE,PLAN}
+    # addons:create SERVICE:PLAN
     #
     # create an add-on resource
     #
