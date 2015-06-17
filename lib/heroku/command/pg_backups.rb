@@ -6,13 +6,19 @@ require "heroku/helpers/heroku_postgresql"
 class Heroku::Command::Pg < Heroku::Command::Base
   # pg:copy SOURCE TARGET
   #
+  #   --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
+  #
   # Copy all data from source database to target. At least one of
   # these must be a Heroku Postgres database.
+  #
   def copy
     source_db = shift_argument
     target_db = shift_argument
 
     validate_arguments!
+
+    interval = options[:wait_interval].to_i || 3
+    interval = [3, interval].max
 
     source = resolve_db_or_url(source_db)
     target = resolve_db_or_url(target_db)
@@ -41,7 +47,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     if confirm_command(confirm_with, message)
       xfer = hpg_client(attachment).pg_copy(source.name, source.url,
                                             target.name, target.url)
-      poll_transfer('copy', xfer[:uuid])
+      poll_transfer('copy', xfer[:uuid], interval)
     end
   end
 
@@ -52,7 +58,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   #  info BACKUP_ID                 # get information about a specific backup
   #  capture DATABASE               # capture a new backup
+  #    --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
   #  restore [[BACKUP_ID] DATABASE] # restore a backup (default latest) to a database (default DATABASE_URL)
+  #    --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
   #  public-url BACKUP_ID           # get secret but publicly accessible URL for BACKUP_ID to download it
   #    -q, --quiet                  #   Hide expiration message (for use in scripts)
   #  cancel [BACKUP_ID]             # cancel an in-progress backup or restore (default newest)
@@ -346,6 +354,10 @@ EOF
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     validate_arguments!
 
+    interval = options[:wait_interval].to_i || 3
+    interval = [3, interval].max
+
+
     backup = hpg_client(attachment).backups_capture
     display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
@@ -355,7 +367,7 @@ Stop a running backup with heroku pg:backups cancel.
 #{attachment.name} ---backup---> #{transfer_name(backup)}
 
 EOF
-    poll_transfer('backup', backup[:uuid])
+    poll_transfer('backup', backup[:uuid], interval)
   end
 
   def restore_backup
@@ -373,6 +385,8 @@ EOF
 
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     validate_arguments!
+    interval = options[:wait_interval].to_i || 3
+    interval = [3, interval].max
 
     restore_url = nil
     if restore_from =~ %r{\Ahttps?://}
@@ -412,11 +426,11 @@ Stop a running restore with heroku pg:backups cancel.
 
 #{transfer_name(restore)} ---restore---> #{attachment.name}
 EOF
-      poll_transfer('restore', restore[:uuid])
+      poll_transfer('restore', restore[:uuid], interval)
     end
   end
 
-  def poll_transfer(action, transfer_id)
+  def poll_transfer(action, transfer_id, interval)
     # pending, running, complete--poll endpoint to get
     backup = nil
     ticks = 0
@@ -439,7 +453,7 @@ EOF
           raise
         end
       end
-      sleep 3
+      sleep interval
     end until backup[:finished_at]
     if backup[:succeeded]
       redisplay "#{action.capitalize} completed\n"
