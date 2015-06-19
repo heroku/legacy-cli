@@ -17,6 +17,11 @@ class Heroku::Auth
         api = Heroku::API.new(default_params.merge(:api_key => password))
 
         def api.request(params, &block)
+          if ENV['HEROKU_HEADERS']
+            headers = JSON.parse(ENV['HEROKU_HEADERS'])
+            params[:headers] ||= {}
+            params[:headers].merge!(headers)
+          end
           response = super
           if response.headers.has_key?('X-Heroku-Warning')
             Heroku::Command.warnings.concat(response.headers['X-Heroku-Warning'].split("\n"))
