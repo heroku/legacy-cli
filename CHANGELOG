@@ -1,3 +1,7 @@
+3.38.3 2015-06-19
+=================
+Added HEROKU_HEADERS to append extra request headers
+
 3.38.2 2015-06-19
 =================
 Added --wait-interval to pgbackups commands
