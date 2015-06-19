@@ -1,3 +1,9 @@
+3.38.2 2015-06-19
+=================
+Added --wait-interval to pgbackups commands
+Fixed minor display bug with ps:scale
+Added default flag for v4 commands
+
 3.38.1 2015-06-15
 =================
 Fix ps:type for new process types
