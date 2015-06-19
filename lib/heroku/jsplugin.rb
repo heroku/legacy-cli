@@ -8,11 +8,11 @@ class Heroku::JSPlugin
   end
 
   def self.try_takeover(command, args)
-    command = command.split(':')
-    if command.length == 1
-      command = commands.find { |t| t["topic"] == command[0] && t["command"] == nil }
+    topic, cmd = command.split(':')
+    if cmd
+      command = commands.find { |t| t["topic"] == topic && t["command"] == cmd }
     else
-      command = commands.find { |t| t["topic"] == command[0] && t["command"] == command[1] }
+      command = commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
     end
     return if !command || command["hidden"]
     run(command['topic'], command['command'], ARGV[1..-1])
