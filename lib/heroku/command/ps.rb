@@ -381,7 +381,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
       # some of the proposed changes are in a different tier than existing dyno types
       # this is not allowed
       from_type = formation[0]["size"]
-      to_type   = changes[0]["size"]
+      to_type   = changes.map{|c| c["size"]}.compact.first
       error("Cannot mix #{to_type} with #{from_type} dynos.\nTo change all dynos to #{to_type}, run `heroku ps:type #{to_type}`.")
     end
   end
