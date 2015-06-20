@@ -643,12 +643,16 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   end
 
   def heroku_headers   # :nodoc:
-    {
+    headers = {
       'X-Heroku-API-Version' => '2',
       'User-Agent'           => Heroku.user_agent,
       'X-Ruby-Version'       => RUBY_VERSION,
       'X-Ruby-Platform'      => RUBY_PLATFORM
     }
+    if ENV['HEROKU_HEADERS']
+      headers.merge! json_decode(ENV['HEROKU_HEADERS'])
+    end
+    headers
   end
 
   def xml(raw)   # :nodoc:
