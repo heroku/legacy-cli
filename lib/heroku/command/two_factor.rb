@@ -9,17 +9,8 @@ module Heroku::Command
     # Display whether two-factor authentication is enabled or not
     #
     def index
-      account = api.request(
-        :expects => 200,
-        :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
-        :method  => :get,
-        :path    => "/account").body
-
-      if account["two_factor_authentication"]
-        display "Two-factor authentication is enabled."
-      else
-        display "Two-factor authentication is not enabled."
-      end
+      Heroku::JSPlugin.setup
+      Heroku::JSPlugin.run('twofactor', nil, ARGV[1..-1])
     end
 
     alias_command "2fa", "twofactor"
@@ -29,22 +20,8 @@ module Heroku::Command
     # Disable two-factor authentication for your account
     #
     def disable
-      print "Password (typing will be hidden): "
-      password = Heroku::Auth.ask_for_password
-
-      update = MultiJson.dump(
-        :two_factor_authentication => false,
-        :password => password)
-
-      api.request(
-        :expects => 200,
-        :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
-        :method  => :patch,
-        :path    => "/account",
-        :body    => update)
-      display "Disabled two-factor authentication."
-    rescue Heroku::API::Errors::RequestFailed => e
-      error Heroku::Command.extract_error(e.response.body)
+      Heroku::JSPlugin.setup
+      Heroku::JSPlugin.run('twofactor', 'disable', ARGV[1..-1])
     end
 
     alias_command "2fa:disable", "twofactor:disable"
@@ -55,19 +32,8 @@ module Heroku::Command
     # Generates and replaces recovery codes
     #
     def generate_recovery_codes
-      code = Heroku::Auth.ask_for_second_factor
-
-      recovery_codes = api.request(
-        :expects => 200,
-        :method  => :post,
-        :path    => "/account/two-factor/recovery-codes",
-        :headers => { "Heroku-Two-Factor-Code" => code }
-      ).body
-
-      display "Recovery codes:"
-      recovery_codes.each { |c| display c }
-    rescue RestClient::Unauthorized => e
-      error Heroku::Command.extract_error(e.http_body)
+      Heroku::JSPlugin.setup
+      Heroku::JSPlugin.run('twofactor', 'generate-recovery-codes', ARGV[1..-1])
     end
 
     alias_command "2fa:generate-recovery-codes", "twofactor:generate_recovery_codes"
