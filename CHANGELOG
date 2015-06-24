@@ -1,3 +1,7 @@
+3.39.0 2015-06-24
+=================
+Add pg:links command
+
 3.38.3 2015-06-19
 =================
 Added HEROKU_HEADERS to append extra request headers
