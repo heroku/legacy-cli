@@ -488,9 +488,94 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
   end
 
+  # pg:links <create|destroy>
+  #
+  #  Create links between data stores.  Without a subcommand, it lists all
+  #  databases and information on the link.
+  #
+  #  create <REMOTE> <LOCAL>   # Create a data link
+  #    --as <LINK>              # override the default link name
+  #  destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
+  #
+  def links
+    mode = shift_argument || 'list'
 
+    if !(%w(list create destroy).include?(mode))
+      Heroku::Command.run(current_command, ["--help"])
+      exit(1)
+    end
 
-private
+    case mode
+    when 'list'
+      db = shift_argument
+      resolver = generate_resolver
+
+      if db
+        dbs = [resolver.resolve(db, "DATABASE_URL")]
+      else
+        dbs = resolver.all_databases.values
+      end
+
+      error("No database attached to this app.") if dbs.compact.empty?
+
+      dbs.each_with_index do |attachment, index|
+        response = hpg_client(attachment).link_list
+        display "\n" if index.nonzero?
+
+        styled_header("#{attachment.display_name} (#{attachment.resource_name})")
+
+        next display response[:message] if response.kind_of?(Hash)
+        next display "No data sources are linked into this database." if response.empty?
+
+        response.each do |link|
+          display "==== #{link[:name]}"
+
+          link[:created] = time_format(link[:created_at])
+          link[:remote] = "#{link[:remote]['attachment_name']} (#{link[:remote]['name']})"
+          link.reject! { |k,_| [:id, :created_at, :name].include?(k) }
+          styled_hash(Hash[link.map {|k, v| [humanize(k), v] }])
+        end
+      end
+    when 'create'
+      remote = shift_argument
+      local = shift_argument
+
+      error("Usage links <LOCAL> <REMOTE>") unless [local, remote].all?
+
+      local_attachment = generate_resolver.resolve(local, "DATABASE_URL")
+      remote_attachment = resolve_db_or_url(remote)
+
+      output_with_bang("No source database specified.") unless local_attachment
+      output_with_bang("No remote database specified.") unless remote_attachment
+
+      response = hpg_client(local_attachment).link_set(remote_attachment.url, options[:as])
+
+      display("New link '#{response[:name]}' successfully created.")
+    when 'destroy'
+      local = shift_argument
+      link = shift_argument
+
+      error("No local database specified.") unless local
+      error("No link name specified.") unless link
+
+      local_attachment = generate_resolver.resolve(local, "DATABASE_URL")
+
+      message = [
+        "WARNING: Destructive Action",
+        "This command will affect the database: #{local}",
+        "This will delete #{link} along with the tables and views created within it.",
+        "This may have adverse effects for software written against the #{link} schema."
+      ].join("\n")
+
+      if confirm_command(app, message)
+        action("Deleting link #{link} in #{local}") do
+          hpg_client(local_attachment).link_delete(link)
+        end
+      end
+    end
+  end
+
+  private
 
   def resolve_heroku_url(remote)
     generate_resolver.resolve(remote).url

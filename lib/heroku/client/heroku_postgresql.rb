@@ -98,6 +98,19 @@ class Heroku::Client::HerokuPostgresql
     http_put "#{resource_name}/maintenance_window", 'description' => description
   end
 
+  # links
+  def link_list
+    http_get "#{resource_name}/links"
+  end
+
+  def link_set(target, as = nil)
+    http_post "#{resource_name}/links", 'target' => target, 'as' => as
+  end
+
+  def link_delete(id)
+    http_delete "#{resource_name}/links/#{id}"
+  end
+
   # backups
   def backups
     http_get "#{resource_name}/transfers"
