@@ -543,7 +543,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
       error("Usage links <LOCAL> <REMOTE>") unless [local, remote].all?
 
       local_attachment = generate_resolver.resolve(local, "DATABASE_URL")
-      remote_attachment = resolve_db_or_url(remote)
+      remote_attachment = resolve_service_or_url(remote)
 
       output_with_bang("No source database specified.") unless local_attachment
       output_with_bang("No remote database specified.") unless remote_attachment
@@ -576,6 +576,28 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   private
+
+  def resolve_service_or_url(name_or_url, default=nil)
+    if name_or_url =~ %r{(postgres://|redis://)}
+      url = name_or_url
+      uri = URI.parse(url)
+      name = url_name(uri)
+      MaybeAttachment.new(name, url, nil)
+    else
+      attachment_name = name_or_url || default
+      attachment = (resolve_addon(attachment_name) || []).first
+
+      error("Remote database could not be found.") unless attachment
+      error("Remote database is invalid.") unless attachment['addon_service']['name'] =~ /heroku-(redis|postgresql)/
+
+      MaybeAttachment.new(attachment_name, get_config_var(attachment['config_vars'].first), attachment)
+    end
+  end
+
+  def get_config_var(name)
+    res = api.get_config_vars(app)
+    res.data[:body][name]
+  end
 
   def resolve_heroku_url(remote)
     generate_resolver.resolve(remote).url
