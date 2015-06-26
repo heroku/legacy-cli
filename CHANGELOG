@@ -1,3 +1,7 @@
+3.39.1 2015-06-26
+=================
+Fix pg:links remote resolver
+
 3.39.0 2015-06-24
 =================
 Add pg:links command
