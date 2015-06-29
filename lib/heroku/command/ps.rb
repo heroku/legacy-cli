@@ -321,12 +321,12 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   def display_dyno_type_and_costs(formation)
     annotated = formation.sort_by{|d| d['type']}.map do |dyno|
-      cost = COSTS[dyno["size"]] * dyno["quantity"]
+      cost = COSTS[dyno["size"]]
       {
         'dyno'    => dyno['type'],
         'type'    => dyno['size'].rjust(4),
         'qty'     => dyno['quantity'].to_s.rjust(3),
-        'cost/mo' => cost.to_s.rjust(7)
+        'cost/mo' => cost ? (cost * dyno["quantity"]).to_s.rjust(7) : ''
       }
     end
 
