@@ -197,6 +197,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #     --ssh-git              # Use SSH git protocol
   # -t, --tier TIER            # HIDDEN: the tier for this app
   #     --http-git             # HIDDEN: Use HTTP git protocol
+  # -k, --kernel KERNEL        # HIDDEN: Use a custom platform kernel
   #
   #Examples:
   #
@@ -231,6 +232,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       "region" => options[:region],
       "space" => options[:space],
       "stack" => Heroku::Command::Stack::Codex.in(options[:stack]),
+      "kernel" => options[:kernel],
       "locked" => options[:locked]
     }
 
