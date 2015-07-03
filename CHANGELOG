@@ -1,3 +1,10 @@
+3.39.2 2015-07-03
+=================
+Error out if v4 plugin fails to install
+Updated domains command
+Fix v4 commands with ':' in command name
+Fixed ps pricing for unknown types
+
 3.39.1 2015-06-26
 =================
 Fix pg:links remote resolver
