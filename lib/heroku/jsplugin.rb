@@ -87,6 +87,7 @@ class Heroku::JSPlugin
   def self.install(name, opts={})
     self.setup
     system "\"#{bin}\" plugins:install #{name}" if opts[:force] || !self.is_plugin_installed?(name)
+    error "error installing plugin #{name}" if $? != 0
   end
 
   def self.uninstall(name)
