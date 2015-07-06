@@ -677,9 +677,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
     # TODO: Make this the section title and list the current `name` as an
     # "Attachments" item here:
-    info[:info] << {"name" => "Add-on", "values" => [attachment.resource_name]}
-
-    info
+    info.merge(:info => info[:info] + [{"name" => "Add-on", "values" => [attachment.resource_name]}])
   end
 
   def hpg_info_display(item)
