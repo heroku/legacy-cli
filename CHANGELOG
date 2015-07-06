@@ -1,3 +1,7 @@
+3.39.4 2015-07-06
+=================
+Fixed bug with v4 command name splitting
+
 3.39.2 2015-07-03
 =================
 Error out if v4 plugin fails to install
