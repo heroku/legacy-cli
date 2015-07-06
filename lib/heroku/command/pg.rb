@@ -655,12 +655,20 @@ class Heroku::Command::Pg < Heroku::Command::Base
     mutex = Mutex.new
     threads = attachments_by_db.map do |resource, attachments|
       Thread.new do
-        name = attachments.map(&:config_var).sort.join(', ')
         begin
           info = hpg_info(attachments.first, options[:extended])
         rescue
           info = nil
         end
+
+        # Make headers as per heroku/heroku#1605
+        names = attachments.map(&:config_var)
+        names << 'DATABASE_URL' if attachments.any? { |att| att.primary_attachment? }
+        name = names.
+          uniq.
+          sort_by { |n| n=='DATABASE_URL' ? '{' : n }. # Weight DATABASE_URL last
+          join(', ')
+
         mutex.synchronize do
           db_infos[name] = info
         end
