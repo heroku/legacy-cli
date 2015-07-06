@@ -8,7 +8,7 @@ class Heroku::JSPlugin
   end
 
   def self.try_takeover(command, args)
-    topic, cmd = command.split(':', 1)
+    topic, cmd = command.split(':', 2)
     if cmd
       command = commands.find { |t| t["topic"] == topic && t["command"] == cmd }
     else
