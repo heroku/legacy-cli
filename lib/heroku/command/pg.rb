@@ -639,6 +639,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
     api.get_app_maintenance(app).body['maintenance']
   end
 
+  def time_format(time)
+    Time.parse(time).getutc.strftime("%Y-%m-%d %H:%M %Z")
+  end
+
   def hpg_client(attachment)
     Heroku::Client::HerokuPostgresql.new(attachment)
   end
