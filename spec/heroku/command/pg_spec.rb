@@ -94,8 +94,9 @@ PG Version:  9.1.4
 Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
+Add-on:      whatever-something-2323
 
-=== HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)
+=== HEROKU_POSTGRESQL_IVORY_URL, DATABASE_URL
 Plan:        Ronin
 Status:      available
 Data Size:   1 MB
@@ -104,6 +105,7 @@ PG Version:  9.1.4
 Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
+Add-on:      loudly-yelling-1232
 
 === HEROKU_POSTGRESQL_RONIN_URL
 Plan:        Ronin
@@ -114,6 +116,7 @@ PG Version:  9.1.4
 Fork/Follow: Available
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
+Add-on:      softly-mocking-123
 
 STDOUT
       end
@@ -146,6 +149,7 @@ Fork/Follow: Available
 Forked From: Database on postgreshost.com:5432/database_name
 Created:     2011-12-13 00:00 UTC
 Maintenance: not required
+Add-on:      softly-mocking-123
 
 STDOUT
       end

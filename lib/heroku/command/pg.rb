@@ -651,23 +651,30 @@ class Heroku::Command::Pg < Heroku::Command::Base
     return @hpg_databases_with_info if @hpg_databases_with_info
 
     @resolver = generate_resolver
-    dbs = @resolver.all_databases
+    attachments = @resolver.all_databases
 
-    has_promoted = dbs.any? { |_, att| att.primary_attachment? }
-    unique_dbs = dbs.reject { |var, _| has_promoted && 'DATABASE_URL' == var }.map{|_, att| att}.compact
+    attachments_by_db = attachments.values.group_by(&:resource_name)
 
     db_infos = {}
     mutex = Mutex.new
-    threads = (0..unique_dbs.size-1).map do |i|
+    threads = attachments_by_db.map do |resource, attachments|
       Thread.new do
-        att = unique_dbs[i]
         begin
-          info = hpg_info(att, options[:extended])
+          info = hpg_info(attachments.first, options[:extended])
         rescue
           info = nil
         end
+
+        # Make headers as per heroku/heroku#1605
+        names = attachments.map(&:config_var)
+        names << 'DATABASE_URL' if attachments.any? { |att| att.primary_attachment? }
+        name = names.
+          uniq.
+          sort_by { |n| n=='DATABASE_URL' ? '{' : n }. # Weight DATABASE_URL last
+          join(', ')
+
         mutex.synchronize do
-          db_infos[att.display_name] = info
+          db_infos[name] = info
         end
       end
     end
@@ -678,7 +685,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def hpg_info(attachment, extended=false)
-    hpg_client(attachment).get_database(extended)
+    info = hpg_client(attachment).get_database(extended)
+
+    # TODO: Make this the section title and list the current `name` as an
+    # "Attachments" item here:
+    info.merge(:info => info[:info] + [{"name" => "Add-on", "values" => [attachment.resource_name]}])
   end
 
   def hpg_info_display(item)
