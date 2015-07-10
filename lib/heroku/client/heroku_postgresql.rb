@@ -37,6 +37,9 @@ class Heroku::Client::HerokuPostgresql
   end
 
   def heroku_postgresql_resource
+    if ENV['HEROKU_HEADERS']
+      self.class.add_headers json_decode(ENV['HEROKU_HEADERS'])
+    end
     RestClient::Resource.new(
       "https://#{heroku_postgresql_host}/client/v11/databases",
       :user => Heroku::Auth.user,
