@@ -1,3 +1,11 @@
+3.39.5 2015-07-10
+=================
+Group attachments by resource in pg:info
+Added missing method used in pg:links
+Fixed pg for sudo commands
+Updated help for local
+Fixed SSL bug with devclouds and org api
+
 3.39.4 2015-07-06
 =================
 Fixed bug with v4 command name splitting
