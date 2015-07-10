@@ -5,23 +5,21 @@ module Heroku::Command
   # run heroku app locally
   class Local < Base
 
-    # local [PROCESSNAME]
+    # Usage: heroku local [PROCESSNAME]
     #
-    # run heroku app locally
+    #    -f, --procfile PROCFILE # use a different Procfile
+    #    -e, --env ENV       # location of env file (defaults to .env)
+    #    -c, --concurrency CONCURRENCY # number of processes to start
+    #    -p, --port PORT     # port to listen on
+    #    -r, --restart       # restart process if it dies
     #
-    # Start the application specified by a Procfile (defaults to ./Procfile)
+    #   Start the application specified by a Procfile (defaults to ./Procfile)
     #
-    # Examples:
+    #   Examples:
     #
-    #   heroku local
-    #   heroku local web
-    #   heroku local -f Procfile.test -e .env.test
-    #
-    # -f, --procfile PROCFILE
-    # -e, --env ENV
-    # -c, --concurrency CONCURRENCY
-    # -p, --port PORT
-    # -r, --r
+    #     heroku local
+    #     heroku local web
+    #     heroku local -f Procfile.test -e .env.test
     #
     def index
       Heroku::JSPlugin.install('heroku-local')
