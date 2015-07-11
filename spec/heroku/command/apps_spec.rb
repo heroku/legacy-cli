@@ -163,6 +163,35 @@ STDOUT
         api.delete_app("alternate-remote")
       end
 
+      it "with a space" do
+        Excon.stub(
+          :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood'},
+          :method => :post,
+          :path => '/organizations/apps') do
+          {
+            :status => 201,
+            :body => {
+              :name => 'spaceapp',
+              :space => {
+                :name => 'example-space'
+              },
+              :stack => 'cedar-14',
+              :web_url => 'http://spaceapp.herokuapp.com/'
+            }.to_json,
+          }
+        end
+
+        with_blank_git_repository do
+          stderr, stdout = execute("apps:create spaceapp --space example-space")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+Creating spaceapp in space example-space... done, stack is cedar-14
+http://spaceapp.herokuapp.com/ | https://git.heroku.com/spaceapp.git
+Git remote heroku added
+          STDOUT
+        end
+      end
+
     end
 
     context("index") do
