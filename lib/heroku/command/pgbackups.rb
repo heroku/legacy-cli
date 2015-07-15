@@ -256,7 +256,7 @@ module Heroku::Command
 
     def pgbackup_client
       pgbackups_url = config_vars["PGBACKUPS_URL"]
-      error("Please add the pgbackups addon first via:\nheroku addons:add pgbackups") unless pgbackups_url
+      error("Please add the pgbackups addon first via:\nheroku addons:create pgbackups") unless pgbackups_url
       @pgbackup_client ||= Heroku::Client::Pgbackups.new(pgbackups_url)
     end
 
