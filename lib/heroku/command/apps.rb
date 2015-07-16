@@ -170,6 +170,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
       data["Owner Email"] = app_data["owner_email"] if app_data["owner_email"]
       data["Owner"] = app_data["owner"] if app_data["owner"]
       data["Region"] = app_data["region"] if app_data["region"]
+      data["Space"] = app_data["space"]["name"] if app_data["space"] && app_data["space"]["name"]
       data["Repo Size"] = format_bytes(app_data["repo_size"]) if app_data["repo_size"]
       data["Slug Size"] = format_bytes(app_data["slug_size"]) if app_data["slug_size"]
       data["Cache Size"] = format_bytes(app_data["cache_size"]) if app_data["cache_size"]
