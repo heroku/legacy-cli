@@ -239,6 +239,69 @@ STDOUT
       end
     end
 
+    context("index with space") do
+      context("and the space has no apps") do
+        before(:each) do
+          @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+            {
+              :body   => MultiJson.dump([]),
+              :status => 200
+            }
+          end
+        end
+
+        after(:each) do
+          Excon.stubs.delete(@space_apps_stub)
+        end
+
+        it "displays a message when the space has no apps" do
+          stderr, stdout = execute("apps --space test-space")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+There are no apps available in space test-space.
+STDOUT
+        end
+      end
+
+      context("and the space has apps") do
+        before(:each) do
+          @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+            {
+              :body   => MultiJson.dump([
+                  {"name" => "space-app-1", "space" => {"id" => "test-space-id", "name" => "test-space"}},
+                  {"name" => "non-space-app-2", "space" => nil}
+                ]),
+              :status => 200
+            }
+          end
+        end
+
+        after(:each) do
+          Excon.stubs.delete(@space_apps_stub)
+        end
+
+        it "lists only apps in spaces by name" do
+          stderr, stdout = execute("apps --space test-space")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+=== Apps in space test-space
+space-app-1
+
+STDOUT
+        end
+
+        it "lists only apps in spaces by id" do
+          stderr, stdout = execute("apps --space test-space-id")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+=== Apps in space test-space-id
+space-app-1
+
+STDOUT
+        end
+      end
+    end
+
     context("rename") do
 
       context("success") do
