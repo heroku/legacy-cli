@@ -9,9 +9,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # list your apps
   #
-  # -o, --org ORG  # the org to list the apps for
-  # -A, --all      # list all apps in the org. Not just joined apps
-  # -p, --personal # list apps in personal account when a default org is set
+  # -o, --org ORG     # the org to list the apps for
+  #     --space SPACE # HIDDEN: list apps in a given space
+  # -A, --all         # list all apps in the org. Not just joined apps
+  # -p, --personal    # list apps in personal account when a default org is set
   #
   #Example:
   #
@@ -27,7 +28,11 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
     options[:ignore_no_org] = true
 
-    apps = if org
+    apps = if options[:space]
+      api.get_apps.body.select do |app|
+        app["space"] && [app["space"]["name"], app["space"]["id"]].include?(options[:space])
+      end
+    elsif org
       org_api.get_apps(org).body
     else
       api.get_apps.body.select { |app| options[:all] ? true : !org?(app["owner_email"]) }
@@ -55,6 +60,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
             display
           end
         end
+      elsif options[:space]
+        styled_header("Apps in space #{options[:space]}")
+        styled_array(apps.map { |app| regionized_app_name(app) })
       else
         my_apps, collaborated_apps = apps.partition { |app| app["owner_email"] == Heroku::Auth.user }
 
@@ -69,7 +77,13 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      org ? display("There are no apps in organization #{org}.") : display("You have no apps.")
+      if org then
+        display("There are no apps in organization #{org}.")
+      elsif options[:space]
+        display("There are no apps available in space #{options[:space]}.")
+      else
+        display("You have no apps.")
+      end
     end
   end
 
