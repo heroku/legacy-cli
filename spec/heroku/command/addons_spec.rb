@@ -529,6 +529,39 @@ OUTPUT
 
         Excon.stubs.shift(2)
       end
+
+      it "adds an addon with a price and multiline message" do
+        my_addon = build_addon(
+          name:          "my_addon",
+          plan:          { name: "my_plan" },
+          addon_service: { name: "my_service" },
+          app:           { name: "example" },
+          price:         { cents: 0, unit: "month" }
+        ).merge(provision_message: "foo\nbar")
+
+        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          { body: MultiJson.encode([my_addon]), status: 200 }
+        end
+
+        Excon.stub(method: :patch, path: %r(/apps/example/addons/my_addon)) do
+          { body: MultiJson.encode(my_addon), status: 200 }
+        end
+
+        stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
+        stderr, stdout = execute("addons:upgrade my_service")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-OUTPUT
+WARNING: No add-on name specified (see `heroku help addons:upgrade`)
+Finding add-on from service my_service on app example... done
+Found my_addon (my_plan) on example.
+Changing my_addon plan to my_service... done, (free)
+foo
+bar
+OUTPUT
+
+        Excon.stubs.shift(2)
+      end
+
     end
 
     describe 'downgrading' do
