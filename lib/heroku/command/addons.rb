@@ -256,20 +256,22 @@ module Heroku::Command
       raise CommandFailed.new("Missing add-on plan") if plan.nil?
 
       action("Changing #{addon_name} plan to #{plan}") do
-        addon = api.request(
+        @addon = api.request(
           :body     => json_encode({
             "plan"   => { "name" => plan }
           }),
           :expects  => 200..300,
           :headers  => {
             "Accept" => "application/vnd.heroku+json; version=3",
-            "Accept-Expansion" => "plan"
+            "Accept-Expansion" => "plan",
+            "X-Heroku-Legacy-Provider-Messages" => "true"
           },
           :method   => :patch,
           :path     => "/apps/#{app}/addons/#{addon_name}"
         ).body
-        @status = "(#{format_price addon['plan']['price']})" if addon['plan'].has_key?('price')
+        @status = "(#{format_price @addon['plan']['price']})" if @addon['plan'].has_key?('price')
       end
+      display @addon['provision_message'] unless @addon['provision_message'].to_s.strip == ""
     end
 
     # addons:downgrade ADDON_NAME ADDON_SERVICE:PLAN
