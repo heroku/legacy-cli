@@ -29,6 +29,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
     validate_arguments!
     options[:ignore_no_org] = true
 
+    if options[:space] && org
+      error "Specify option for space or org, but not both."
+    end
+
     apps = if options[:space]
       api.get_apps.body.select do |app|
         app["space"] && [app["space"]["name"], app["space"]["id"]].include?(options[:space])
