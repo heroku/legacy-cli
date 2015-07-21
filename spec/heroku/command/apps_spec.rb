@@ -331,6 +331,16 @@ STDOUT
       end
     end
 
+    context("index with space and org") do
+      it "displays error to not specify both" do
+        stderr, stdout = execute("apps --space test-space --org test-org")
+        expect(stdout).to eq("")
+        expect(stderr).to eq <<-STDERR
+ !    Specify option for space or org, but not both.
+STDERR
+      end
+    end
+
     context("rename") do
 
       context("success") do
