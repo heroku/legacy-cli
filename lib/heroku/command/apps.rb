@@ -1,5 +1,6 @@
 require "heroku/command/base"
 require "heroku/command/stack"
+require "heroku/api/organizations_apps_v3_dogwood"
 
 # manage apps (create, destroy)
 #
@@ -196,6 +197,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   # -b, --buildpack BUILDPACK  # a buildpack url to use for this app
   # -n, --no-remote            # don't create a git remote
   # -r, --remote REMOTE        # the git remote to create, default "heroku"
+  #     --space SPACE          # HIDDEN: the space in which to create the app
   # -s, --stack STACK          # the stack on which to create the app
   #     --region REGION        # specify region for this app to run in
   # -l, --locked               # lock the app
@@ -233,18 +235,22 @@ class Heroku::Command::Apps < Heroku::Command::Base
     params = {
       "name" => name,
       "region" => options[:region],
+      "space" => options[:space],
       "stack" => Heroku::Command::Stack::Codex.in(options[:stack]),
       "locked" => options[:locked]
     }
 
     info = if org
       org_api.post_app(params, org).body
+    elsif options[:space]
+      api.post_organizations_app_v3_dogwood(params).body
     else
       api.post_app(params).body
     end
 
     begin
-      action("Creating #{info['name']}", :org => !!org) do
+      space_action = info['space'] ? " in space #{info['space']['name']}" : ''
+      action("Creating #{info['name']}#{space_action}", :org => !!org) do
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
