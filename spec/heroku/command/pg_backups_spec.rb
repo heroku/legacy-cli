@@ -172,7 +172,7 @@ EOF
       it "schedules the requested database at the specified time" do
         stub_pg.schedule({ hour: '07', timezone: 'UTC',
                            schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
-        stderr, stdout = execute("pg:backups schedule RED --at 07:00UTC --app example")
+        stderr, stdout = execute("pg:backups schedule RED --at '07:00 UTC' --app example")
         expect(stderr).to be_empty
         expect(stdout).to match(/Scheduled automatic daily backups/)
       end
@@ -189,7 +189,7 @@ EOF
         example_attachments << additional_attachment
         stub_pg.schedule({ hour: '07', timezone: 'UTC',
                            schedule_name: 'HEROKU_POSTGRESQL_IVORY_URL' })
-        stderr, stdout = execute("pg:backups schedule HEROKU_POSTGRESQL_IVORY_URL --at 07:00UTC --app example")
+        stderr, stdout = execute("pg:backups schedule HEROKU_POSTGRESQL_IVORY_URL --at '07:00 UTC' --app example")
         expect(stderr).to be_empty
         expect(stdout).to match(/Scheduled automatic daily backups/)
       end
@@ -211,8 +211,8 @@ EOF
            it "translates #{common_but_ambiguous_abbreviation} to #{official_tz_db_name}" do
              stub_pg.schedule({ hour: '07', timezone: official_tz_db_name,
                                 schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
-             specified_time = "07:00#{common_but_ambiguous_abbreviation}"
-             stderr, stdout = execute("pg:backups schedule RED --at #{specified_time} --app example")
+             specified_time = "07:00 #{common_but_ambiguous_abbreviation}"
+             stderr, stdout = execute("pg:backups schedule RED --at '#{specified_time}' --app example")
              expect(stderr).to be_empty
              expect(stdout).to match(/Scheduled automatic daily backups/)
            end
