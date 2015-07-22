@@ -27,11 +27,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def index
     validate_arguments!
+    validate_space_xor_org!
     options[:ignore_no_org] = true
-
-    if options[:space] && org
-      error "Specify option for space or org, but not both."
-    end
 
     apps = if options[:space]
       api.get_apps.body.select do |app|
@@ -44,7 +41,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     unless apps.empty?
-      if org
+      if options[:space]
+        styled_header("Apps in space #{options[:space]}")
+        styled_array(apps.map { |app| regionized_app_name(app) })
+      elsif org
         joined, unjoined = apps.partition { |app| app['joined'] == true }
 
         styled_header("Apps joined in organization #{org}")
@@ -65,9 +65,6 @@ class Heroku::Command::Apps < Heroku::Command::Base
             display
           end
         end
-      elsif options[:space]
-        styled_header("Apps in space #{options[:space]}")
-        styled_array(apps.map { |app| regionized_app_name(app) })
       else
         my_apps, collaborated_apps = apps.partition { |app| app["owner_email"] == Heroku::Auth.user }
 
@@ -82,10 +79,10 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      if org then
-        display("There are no apps in organization #{org}.")
-      elsif options[:space]
+      if options[:space]
         display("There are no apps available in space #{options[:space]}.")
+      elsif org
+        display("There are no apps in organization #{org}.")
       else
         display("You have no apps.")
       end
@@ -248,6 +245,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
     validate_arguments!
+    validate_space_xor_org!
     options[:ignore_no_org] = true
 
     params = {
@@ -258,17 +256,21 @@ class Heroku::Command::Apps < Heroku::Command::Base
       "locked" => options[:locked]
     }
 
-    info = if org
-      org_api.post_app(params, org).body
-    elsif options[:space]
+    info = if options[:space]
       api.post_organizations_app_v3_dogwood(params).body
+    elsif org
+      org_api.post_app(params, org).body
     else
       api.post_app(params).body
     end
 
     begin
-      space_action = info['space'] ? " in space #{info['space']['name']}" : ''
-      action("Creating #{info['name']}#{space_action}", :org => !!org) do
+      display_org = !!org
+      if info['space']
+        space_name = info['space']['name']
+        display_org = false
+      end
+      action("Creating #{info['name']}", :space => space_name, :org => display_org) do
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
@@ -526,4 +528,9 @@ class Heroku::Command::Apps < Heroku::Command::Base
     region = app["region"].is_a?(Hash) ? app["region"]["name"] : app["region"]
   end
 
+  def validate_space_xor_org!
+    if options[:space] && options[:org]
+      error "Specify option for space or org, but not both."
+    end
+  end
 end
