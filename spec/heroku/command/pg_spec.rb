@@ -10,7 +10,8 @@ module Heroku::Command
       api.put_config_vars "example", {
         "DATABASE_URL" => "postgres://database_url",
         "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
-        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
+        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url",
+        'HEROKU_POSTGRESQL_FOLLOW_URL' => "postgres://follow_database_url"
       }
 
       any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
@@ -19,6 +20,13 @@ module Heroku::Command
             'app' => {'name' => 'sushi'},
             'name' => 'HEROKU_POSTGRESQL_IVORY',
             'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
+            'resource' => {'name'  => 'loudly-yelling-1232',
+                           'value' => 'postgres://database_url',
+                           'type'  => 'heroku-postgresql:ronin' }}),
+          Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => 'DATABASE_URL',
+            'config_var' => 'DATABASE',
             'resource' => {'name'  => 'loudly-yelling-1232',
                            'value' => 'postgres://database_url',
                            'type'  => 'heroku-postgresql:ronin' }}),

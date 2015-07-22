@@ -109,6 +109,11 @@ module Heroku::Helpers::HerokuPostgresql
       @hpg_databases = Hash[ pairs ]
 
       # TODO: don't bother doing this if DATABASE_URL is already present in hash!
+      # CB: this line is falsing from cb-rails 3 because i do have a DATABASE_URL attachment
+      # so it doesn't resolve to real
+      # Looks like the API is returning the DATABASE_URL as a separate attachment
+      # than the color attachment
+      # the UUIDs are different, but it's the same ["resource"]["id"]
       if !@hpg_databases.key?('DATABASE_URL') && find_database_url_real_attachment
         @hpg_databases['DATABASE_URL'] = find_database_url_real_attachment
       end
