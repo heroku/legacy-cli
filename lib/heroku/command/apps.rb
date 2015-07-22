@@ -27,8 +27,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    validate_space_xor_org!
     options[:ignore_no_org] = true
+    validate_space_xor_org!
 
     apps = if options[:space]
       api.get_apps.body.select do |app|
@@ -245,8 +245,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def create
     name    = shift_argument || options[:app] || ENV['HEROKU_APP']
     validate_arguments!
-    validate_space_xor_org!
     options[:ignore_no_org] = true
+    validate_space_xor_org!
 
     params = {
       "name" => name,
