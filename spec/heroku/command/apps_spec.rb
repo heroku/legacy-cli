@@ -7,6 +7,7 @@ module Heroku::Command
     before(:each) do
       stub_core
       stub_organizations
+      ENV.delete('HEROKU_ORGANIZATION')
     end
 
     context("info") do
@@ -163,35 +164,54 @@ STDOUT
         api.delete_app("alternate-remote")
       end
 
-      it "with a space" do
-        Excon.stub(
-          :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood'},
-          :method => :post,
-          :path => '/organizations/apps') do
-          {
-            :status => 201,
-            :body => {
-              :name => 'spaceapp',
-              :space => {
-                :name => 'example-space'
-              },
-              :stack => 'cedar-14',
-              :web_url => 'http://spaceapp.herokuapp.com/'
-            }.to_json,
-          }
-        end
+      context "with a space" do
+        shared_examples "create in a space" do
+          Excon.stub(
+            :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood'},
+            :method => :post,
+            :path => '/organizations/apps') do
+            {
+              :status => 201,
+              :body => {
+                :name => 'spaceapp',
+                :space => {
+                  :name => 'example-space'
+                },
+                :stack => 'cedar-14',
+                :web_url => 'http://spaceapp.herokuapp.com/'
+              }.to_json,
+            }
+          end
 
-        with_blank_git_repository do
-          stderr, stdout = execute("apps:create spaceapp --space example-space")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "creates app in space" do
+            with_blank_git_repository do
+              stderr, stdout = execute("apps:create spaceapp --space example-space")
+              expect(stderr).to eq("")
+              expect(stdout).to eq <<-STDOUT
 Creating spaceapp in space example-space... done, stack is cedar-14
 http://spaceapp.herokuapp.com/ | https://git.heroku.com/spaceapp.git
 Git remote heroku added
-          STDOUT
+              STDOUT
+            end
+          end
+        end
+
+        context "with default org" do
+          before(:each) do
+            ENV['HEROKU_ORGANIZATION'] = 'test-org'
+          end
+
+          it_behaves_like "create in a space"
+        end
+
+        context "without default org" do
+          before(:each) do
+            ENV.delete('HEROKU_ORGANIZATION')
+          end
+
+          it_behaves_like "create in a space"
         end
       end
-
     end
 
     context("index") do
@@ -269,65 +289,83 @@ STDOUT
     end
 
     context("index with space") do
-      context("and the space has no apps") do
-        before(:each) do
-          @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
-            {
-              :body   => MultiJson.dump([]),
-              :status => 200
-            }
+      shared_examples "index with space" do
+        context("and the space has no apps") do
+          before(:each) do
+            @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+              {
+                :body   => MultiJson.dump([]),
+                :status => 200
+              }
+            end
           end
-        end
 
-        after(:each) do
-          Excon.stubs.delete(@space_apps_stub)
-        end
+          after(:each) do
+            Excon.stubs.delete(@space_apps_stub)
+          end
 
-        it "displays a message when the space has no apps" do
-          stderr, stdout = execute("apps --space test-space")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "displays a message when the space has no apps" do
+            stderr, stdout = execute("apps --space test-space")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 There are no apps available in space test-space.
 STDOUT
-        end
-      end
-
-      context("and the space has apps") do
-        before(:each) do
-          @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
-            {
-              :body   => MultiJson.dump([
-                  {"name" => "space-app-1", "space" => {"id" => "test-space-id", "name" => "test-space"}},
-                  {"name" => "non-space-app-2", "space" => nil}
-                ]),
-              :status => 200
-            }
           end
         end
 
-        after(:each) do
-          Excon.stubs.delete(@space_apps_stub)
-        end
+        context("and the space has apps") do
+          before(:each) do
+            @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+              {
+                :body   => MultiJson.dump([
+                    {"name" => "space-app-1", "space" => {"id" => "test-space-id", "name" => "test-space"}},
+                    {"name" => "non-space-app-2", "space" => nil}
+                  ]),
+                :status => 200
+              }
+            end
+          end
 
-        it "lists only apps in spaces by name" do
-          stderr, stdout = execute("apps --space test-space")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          after(:each) do
+            Excon.stubs.delete(@space_apps_stub)
+          end
+
+          it "lists only apps in spaces by name" do
+            stderr, stdout = execute("apps --space test-space")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 === Apps in space test-space
 space-app-1
 
 STDOUT
-        end
+          end
 
-        it "lists only apps in spaces by id" do
-          stderr, stdout = execute("apps --space test-space-id")
-          expect(stderr).to eq("")
-          expect(stdout).to eq <<-STDOUT
+          it "lists only apps in spaces by id" do
+            stderr, stdout = execute("apps --space test-space-id")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
 === Apps in space test-space-id
 space-app-1
 
 STDOUT
+          end
         end
+      end
+
+      context "with default org" do
+        before(:each) do
+          ENV['HEROKU_ORGANIZATION'] = 'test-org'
+        end
+
+        it_behaves_like "index with space"
+      end
+
+      context "without default org" do
+        before(:each) do
+          ENV.delete('HEROKU_ORGANIZATION')
+        end
+
+        it_behaves_like "index with space"
       end
     end
 
@@ -338,6 +376,12 @@ STDOUT
         expect(stderr).to eq <<-STDERR
  !    Specify option for space or org, but not both.
 STDERR
+      end
+
+      it "does not display error if org specified via env" do
+        ENV['HEROKU_ORGANIZATION'] = 'test-org'
+        stderr, stdout = execute("apps --space test-space")
+        expect(stderr).to eq("")
       end
     end
 
