@@ -1,3 +1,12 @@
+3.40.5 2015-07-22
+=================
+Add space option to apps, apps:info, and apps:create
+Change addons:add to addons:create
+Clarify release guide
+Display provider messages for addons upgrade/downgrade
+block specifying both space and org to app list
+
+
 3.39.5 2015-07-10
 =================
 Group attachments by resource in pg:info
