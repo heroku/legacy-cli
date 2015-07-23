@@ -1,3 +1,7 @@
+3.40.6 2015-07-23
+=================
+Fix for space conflicts wrt HEROKU_ORGANIZATION
+
 3.40.5 2015-07-22
 =================
 Add space option to apps, apps:info, and apps:create
