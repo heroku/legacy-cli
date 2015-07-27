@@ -265,7 +265,7 @@ EOF
 
       it "lists successful backups" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/b001\s*Finished/)
+        expect(stdout).to match(/b001\s*Completed/)
       end
 
       it "list failed backups" do
@@ -275,12 +275,12 @@ EOF
 
       it "lists old pgbackups" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/ob047\s*Finished/)
+        expect(stdout).to match(/ob047\s*Completed/)
       end
 
       it "lists successful restores" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/r008\s*Completed with 4 warnings/)
+        expect(stdout).to match(/r008\s*Finished with 4 warnings/)
       end
 
       it "lists completed restores with warnings" do
@@ -297,7 +297,7 @@ EOF
       it "lists successful copies" do
         stderr, stdout = execute("pg:backups")
         expect(stdout).to match(/===\sCopies/)
-        expect(stdout).to match(/c005\s*Finished/)
+        expect(stdout).to match(/c005\s*Completed/)
       end
 
       it "lists failed copies" do
@@ -314,7 +314,7 @@ EOF
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -331,7 +331,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -348,7 +348,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -366,7 +366,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B
@@ -385,7 +385,7 @@ Backup Size:      #{backup_size}.0B
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      0.00B (0% compression)
@@ -404,7 +404,7 @@ Backup Size:      0.00B (0% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Backup Size: #{backup_size}.0B
 === Backup Logs

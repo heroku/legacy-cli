@@ -151,9 +151,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     if t[:finished_at] && t[:succeeded]
       warnings =  t[:warnings]
       if warnings && warnings > 0
-       "Completed with #{warnings} warnings" #{t[:finished_at]}"
+       "Finished with #{warnings} warnings" #{t[:finished_at]}"
       else
-       "Finished #{t[:finished_at]}"
+       "Completed #{t[:finished_at]}"
       end
     elsif t[:finished_at] && !t[:succeeded]
       "Failed #{t[:finished_at]}"
@@ -291,9 +291,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     status = if backup[:succeeded]
                warnings =  backup[:warnings]
                if warnings && warnings > 0
-                 "Completed with #{warnings} warnings"
+                 "Finished with #{warnings} warnings"
                else
-                 "Completed Successfully"
+                 "Completed"
                end
              elsif backup[:canceled_at]
                "Canceled"
