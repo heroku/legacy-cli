@@ -143,7 +143,16 @@ class Heroku::Command::Pg < Heroku::Command::Base
       prompt_expr = "#{shorthand}%R%# "
       prompt_flags = %Q(--set "PROMPT1=#{prompt_expr}" --set "PROMPT2=#{prompt_expr}")
       puts "---> Connecting to #{attachment.display_name}"
-      exec "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{set_commands} #{prompt_flags} #{command} #{uri.path[1..-1]}"
+      attachment.maybe_tunnel do |uri|
+        command = "psql -U #{uri.user} -h #{uri.host} -p #{uri.port || 5432} #{set_commands} #{prompt_flags} #{command} #{uri.path[1..-1]}"
+        if attachment.uses_bastion?
+          spawn(command)
+          Process.wait
+          exit($?.exitstatus)
+        else
+          exec(command)
+        end
+      end
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
       output_with_bang "For help installing psql, see http://devcenter.heroku.com/articles/local-postgresql"
@@ -360,15 +369,16 @@ class Heroku::Command::Pg < Heroku::Command::Base
       exit(1)
     end
 
-    target_uri = resolve_heroku_url(remote)
+    target_attachment = resolve_heroku_attachment(remote)
     source_uri = parse_db_url(local)
 
-    pgdr = PgDumpRestore.new(
-      source_uri,
-      target_uri,
-      self)
-
-    pgdr.execute
+    target_attachment.maybe_tunnel do |uri|
+      pgdr = PgDumpRestore.new(
+        source_uri,
+        uri.to_s,
+        self)
+      pgdr.execute
+    end
   end
 
   # pg:pull <REMOTE_SOURCE_DATABASE> <TARGET_DATABASE>
@@ -386,15 +396,16 @@ class Heroku::Command::Pg < Heroku::Command::Base
       exit(1)
     end
 
-    source_uri = resolve_heroku_url(remote)
+    source_attachment = resolve_heroku_attachment(remote)
     target_uri = parse_db_url(local)
 
-    pgdr = PgDumpRestore.new(
-      source_uri,
-      target_uri,
-      self)
-
-    pgdr.execute
+    source_attachment.maybe_tunnel do |uri|
+      pgdr = PgDumpRestore.new(
+        uri.to_s,
+        target_uri,
+        self)
+      pgdr.execute
+    end
   end
 
 
@@ -599,8 +610,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
     res.data[:body][name]
   end
 
-  def resolve_heroku_url(remote)
-    generate_resolver.resolve(remote).url
+  def resolve_heroku_attachment(remote)
+    generate_resolver.resolve(remote)
   end
 
   def generate_resolver
@@ -726,19 +737,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
   end
 
-  def find_uri
-    return @uri if defined? @uri
-
-    attachment =  generate_resolver.resolve(shift_argument, "DATABASE_URL")
-    if attachment.kind_of? Array
-      uri = URI.parse( attachment.last )
-    else
-      uri = URI.parse( attachment.url )
-    end
-
-    @uri = uri
-  end
-
   def version
     return @version if defined? @version
     result = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)
@@ -768,8 +766,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def exec_sql(sql)
-    uri = find_uri
-    exec_sql_on_uri(sql, uri)
+    attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
+    attachment.maybe_tunnel do |uri|
+      exec_sql_on_uri(sql, uri)
+    end
   end
 
   def exec_sql_on_uri(sql,uri)
