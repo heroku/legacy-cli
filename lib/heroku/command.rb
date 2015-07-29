@@ -213,8 +213,6 @@ module Heroku
     rescue Heroku::API::Errors::Unauthorized, RestClient::Unauthorized => e
       retry_login = handle_auth_error(e)
       retry if retry_login
-    rescue Heroku::API::Errors::VerificationRequired, RestClient::PaymentRequired => e
-      retry if Heroku::Helpers.confirm_billing
     rescue Heroku::API::Errors::NotFound => e
       error extract_error(e.response.body) {
         e.response.body =~ /^([\w\s]+ not found).?$/ ? $1 : "Resource not found"
