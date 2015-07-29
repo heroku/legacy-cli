@@ -7,6 +7,8 @@ module Heroku::Helpers::HerokuPostgresql
 
   class Attachment
     attr_reader :app, :name, :config_var, :resource_name, :url, :addon, :plan
+    attr_reader :bastions, :bastion_key
+
     def initialize(raw)
       @raw = raw
       @app           = raw['app']['name']
@@ -15,6 +17,14 @@ module Heroku::Helpers::HerokuPostgresql
       @resource_name = raw['resource']['name']
       @url           = raw['resource']['value']
       @addon, @plan  = raw['resource']['type'].split(':')
+
+      # Optional Bastion information for tunneling.
+      if config = raw['config']
+        @bastions = if maybe_hosts = config[@name + '_BASTIONS']
+                      maybe_hosts.split(',')
+                    end
+        @bastion_key = config[@name + '_BASTION_KEY']
+      end
     end
 
     def starter_plan?
@@ -31,6 +41,38 @@ module Heroku::Helpers::HerokuPostgresql
 
     def primary_attachment?
       @primary_attachment
+    end
+
+    def uses_bastion?
+      !!(bastions && bastion_key)
+    end
+
+    def maybe_tunnel
+      require "net/ssh/gateway"
+
+      uri = URI.parse(url)
+      if uses_bastion?
+        bastion_host = bastions.sample
+        gateway = Net::SSH::Gateway.new(bastion_host, 'bastion',
+          paranoid: false, timeout: 15, key_data: [bastion_key])
+        begin
+          local_port = rand(65535 - 49152) + 49152
+          gateway.open(uri.host, uri.port, local_port) do |actual_local_port|
+            uri.host = 'localhost'
+            uri.port = actual_local_port
+            yield uri
+          end
+        rescue Errno::EADDRINUSE
+          # Get a new random port if a local binding was not possible.
+          gateway && gateway.shutdown!
+          gateway = nil
+          retry
+        ensure
+          gateway && gateway.shutdown!
+        end
+      else
+        yield uri
+      end
     end
   end
 
