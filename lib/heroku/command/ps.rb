@@ -3,7 +3,7 @@ require "heroku/command/base"
 # manage dynos (dynos, workers)
 #
 class Heroku::Command::Ps < Heroku::Command::Base
-  COSTS = {"Free"=>0, "Hobby"=>7, "Standard-1X"=>25, "Standard-2X"=>50, "Performance"=>500, "1X"=>36, "2X"=>72, "PX"=>576}
+  COSTS = {"Free"=>0, "Hobby"=>7, "Standard-1X"=>25, "Standard-2X"=>50, "Performance-M"=>250, "Performance"=>500, "Performance-L"=>500, "1X"=>36, "2X"=>72, "PX"=>576}
 
   # ps:dynos [QTY]
   #
@@ -449,4 +449,3 @@ end
 %w[type restart scale stop].each do |cmd|
   Heroku::Command::Base.alias_command "dyno:#{cmd}", "ps:#{cmd}"
 end
-
