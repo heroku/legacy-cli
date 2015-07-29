@@ -345,13 +345,23 @@ STDOUT
 
         it 'executes dump restore with correct targets' do
           pg          = Heroku::Command::Pg.new
-          remote_url  = "postgres://someurl.test/#{remote}"
+          remote_attachment =
+            Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => remote,
+            'config_var' => remote + '_URL',
+            'resource' => {'name'  => 'loudly-yelling-1232',
+              'value' => "postgres://someurl.test/#{remote}",
+              'type'  => 'heroku-postgresql:ronin'}})
           local_url   = "postgres:///#{local}"
+
           dump_restore = double()
-          expect(pg).to receive(:resolve_heroku_url).and_return(remote_url)
+          expect(pg).to receive(:resolve_heroku_attachment).and_return(
+            remote_attachment)
           expect(dump_restore).to receive(:execute)
           expect(Heroku::Command).to receive(:shift_argument).and_return(local, remote)
-          expect(PgDumpRestore).to receive(:new).with(local_url, remote_url, pg).and_return(dump_restore)
+          expect(PgDumpRestore).to receive(:new).with(
+            local_url, remote_attachment.url, pg).and_return(dump_restore)
 
           pg.push
         end
@@ -375,13 +385,22 @@ STDOUT
 
         it 'executes dump restore with correct targets' do
           pg          = Heroku::Command::Pg.new
-          remote_url  = "postgres://someurl.test/#{remote}"
+          remote_attachment =
+            Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => remote,
+            'config_var' => remote + '_URL',
+            'resource' => {'name'  => 'loudly-yelling-1232',
+              'value' => "postgres://someurl.test/#{remote}",
+              'type'  => 'heroku-postgresql:ronin'}})
           local_url   = "postgres:///#{local}"
           dump_restore = double()
-          expect(pg).to receive(:resolve_heroku_url).and_return(remote_url)
+          expect(pg).to receive(:resolve_heroku_attachment).and_return(
+            remote_attachment)
           expect(dump_restore).to receive(:execute)
           expect(Heroku::Command).to receive(:shift_argument).and_return(remote, local)
-          expect(PgDumpRestore).to receive(:new).with(remote_url, local_url, pg).and_return(dump_restore)
+          expect(PgDumpRestore).to receive(:new).with(
+            remote_attachment.url, local_url, pg).and_return(dump_restore)
 
           pg.pull
         end

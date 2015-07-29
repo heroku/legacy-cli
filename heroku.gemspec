@@ -21,10 +21,11 @@ Gem::Specification.new do |gem|
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(LICENSE|README|bin/|data/|ext/|lib/|spec/|test/)} }
 
-  gem.add_dependency "heroku-api",     ">= 0.3.19"
-  gem.add_dependency "launchy",        ">= 0.3.2"
-  gem.add_dependency "netrc",          ">= 0.10.0"
-  gem.add_dependency "rest-client",    ">= 1.6.0"
-  gem.add_dependency "rubyzip",        ">= 0.9.9"
-  gem.add_dependency "multi_json",     ">= 1.10"
+  gem.add_dependency "heroku-api",      ">= 0.3.19"
+  gem.add_dependency "launchy",         ">= 0.3.2"
+  gem.add_dependency "netrc",           ">= 0.10.0"
+  gem.add_dependency "rest-client",     ">= 1.6.0"
+  gem.add_dependency "rubyzip",         ">= 0.9.9"
+  gem.add_dependency "multi_json",      ">= 1.10"
+  gem.add_dependency "net-ssh-gateway", ">= 1.2.0"
 end
