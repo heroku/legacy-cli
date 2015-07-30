@@ -554,12 +554,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
       error("Usage links <LOCAL> <REMOTE>") unless [local, remote].all?
 
       local_attachment = generate_resolver.resolve(local, "DATABASE_URL")
-      remote_attachment = resolve_service_or_url(remote)
+      remote_attachment = resolve_service(remote)
 
       output_with_bang("No source database specified.") unless local_attachment
       output_with_bang("No remote database specified.") unless remote_attachment
 
-      response = hpg_client(local_attachment).link_set(remote_attachment.url, options[:as])
+      response = hpg_client(local_attachment).link_set(remote_attachment.name, options[:as])
 
       display("New link '#{response[:name]}' successfully created.")
     when 'destroy'
@@ -588,21 +588,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   private
 
-  def resolve_service_or_url(name_or_url, default=nil)
-    if name_or_url =~ %r{(postgres://|redis://)}
-      url = name_or_url
-      uri = URI.parse(url)
-      name = url_name(uri)
-      MaybeAttachment.new(name, url, nil)
-    else
-      attachment_name = name_or_url || default
-      attachment = (resolve_addon(attachment_name) || []).first
+  def resolve_service(name)
+    attachment = (resolve_addon(name) || []).first
 
-      error("Remote database could not be found.") unless attachment
-      error("Remote database is invalid.") unless attachment['addon_service']['name'] =~ /heroku-(redis|postgresql)/
+    error("Remote database could not be found.") unless attachment
+    error("Remote database is invalid.") unless attachment['addon_service']['name'] =~ /heroku-(redis|postgresql)/
 
-      MaybeAttachment.new(attachment_name, get_config_var(attachment['config_vars'].first), attachment)
-    end
+    MaybeAttachment.new(attachment['name'], nil, attachment)
   end
 
   def get_config_var(name)
