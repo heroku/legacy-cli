@@ -160,7 +160,7 @@ c: c
 STDOUT
       end
 
-      it "exist with message that redirect can only be to one key" do
+      it "exits with message that redirect can only be to one key" do
         str_stdin = StringIO.new("b\n")
         class << str_stdin
           def tty?
