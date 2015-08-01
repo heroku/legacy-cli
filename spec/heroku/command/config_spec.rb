@@ -110,6 +110,71 @@ a: b
 STDOUT
       end
 
+      it "sets config vars without values" do
+        str_stdin = StringIO.new("b\n")
+        class << str_stdin
+          def tty?
+            true
+          end
+        end
+        stderr, stdout = execute("config:set a", {:stdin => str_stdin})
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+Enter value for 'a':Setting config vars and restarting example... done, v1
+a: b
+STDOUT
+      end
+
+      it "sets config vars with and without values" do
+        str_stdin = StringIO.new("b\nd\n")
+        class << str_stdin
+          def tty?
+            true
+          end
+        end
+        stderr, stdout = execute("config:set a=a b c=c d", {:stdin => str_stdin})
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+Enter value for 'b':Enter value for 'd':Setting config vars and restarting example... done, v1
+a: a
+b: b
+c: c
+d: d
+STDOUT
+      end
+
+      it "sets config vars from pipe" do
+        str_stdin = StringIO.new("b\n")
+        class << str_stdin
+          def tty?
+            false
+          end
+        end
+        stderr, stdout = execute("config:set a=a b c=c", {:stdin => str_stdin})
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+Setting config vars and restarting example... done, v1
+a: a
+b: b
+c: c
+STDOUT
+      end
+
+      it "exist with message that redirect can only be to one key" do
+        str_stdin = StringIO.new("b\n")
+        class << str_stdin
+          def tty?
+            false
+          end
+        end
+        stderr, stdout = execute("config:set a b", {:stdin => str_stdin})
+        expect(stderr).to eq <<-STDERR
+ !    Cannot redirect to multiple keys.
+STDERR
+        expect(stdout).to eq("")
+      end
+
+
     end
 
     describe "config:unset" do
