@@ -8,7 +8,7 @@ This is the normal guide on how to do a release. If you are not a member of the 
 * Run test suite: `bundle exec rake`
 * Update version number in `lib/heroku/version.rb` to `X.Y.Z`
   * Bump the patch level `Z` if the release contains bugfixes that do not change functionality
-  * Bump the minor level `Y` if the release contains new functionality or changes to existing functionality
+  * Bump the minor level `Y` if the release contains new functionality or changes to existing functionality (bumping minor will also show a message to non-autoupdateable clients that a new version is out)
 * Run `bundle install` to update the version of heroku in the `Gemfile.lock`
 * Update `CHANGELOG`
 * Commit the changes `git commit -m "vX.Y.Z" -a`
