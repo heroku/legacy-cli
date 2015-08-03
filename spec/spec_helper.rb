@@ -22,6 +22,8 @@ require 'tmpdir'
 require "webmock/rspec"
 require "shellwords"
 
+ENV['HEROKU_SKIP_ANALYTICS'] = '1'
+
 include WebMock::API
 
 WebMock::HttpLibAdapters::ExconAdapter.disable!

@@ -9,6 +9,8 @@ load('heroku/updater.rb') # reload updater after possible inject_loadpath
 
 require 'heroku'
 require 'heroku/jsplugin'
+require 'heroku/config'
+require 'heroku/analytics'
 require 'heroku/rollbar'
 require 'json'
 
@@ -21,6 +23,7 @@ class Heroku::CLI
     $stdout.sync = true if $stdout.isatty
     Heroku::Updater.warn_if_updating
     command = args.shift.strip rescue "help"
+    Heroku::Analytics.record(command)
     Heroku::JSPlugin.setup
     Heroku::JSPlugin.try_takeover(command, args)
     require 'heroku/command'
@@ -28,6 +31,7 @@ class Heroku::CLI
     Heroku::Command.load
     warn_if_using_heroku_accounts
     Heroku::Command.run(command, args)
+    Heroku::Analytics.submit
     Heroku::Updater.autoupdate
   rescue Errno::EPIPE => e
     error(e.message)
