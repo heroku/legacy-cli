@@ -14,6 +14,7 @@ require "rr"
 require "fakefs/safe"
 require 'tmpdir'
 require "webmock/rspec"
+require "shellwords"
 
 include WebMock::API
 
@@ -46,7 +47,7 @@ end
 def execute(command_line, opts={})
   extend RR::Adapters::RRMethods
 
-  args = command_line.split(" ")
+  args = command_line.shellsplit
   command = args.shift
 
   Heroku::Command.load
