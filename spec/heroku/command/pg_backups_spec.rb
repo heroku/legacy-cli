@@ -297,14 +297,18 @@ EOF
          :started_at => Time.now, :finished_at => Time.now,
          :from_name => "CRIMSON", :to_name => "CLOVER",
          :processed_bytes => 42, :succeeded => false },
-         { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
+        { :uuid => 'ffffffff-ffff-ffff-ffff-fffffffffffd',
           :from_name => from_name, :to_name => 'PGBACKUPS BACKUP',
           :num => 7, :logs => logs,
           :from_type => 'pg_dump', :to_type => 'gof3r',
           :started_at => started_at, :finished_at => finished_at,
           :processed_bytes => backup_size, :source_bytes => source_size,
           :options => { "pgbackups_name" => "b047" },
-          :succeeded => true }
+          :succeeded => true },
+        { :uuid => 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+          :from_type => 'gof3r', :to_type => 'pg_restore', num: 8,
+          :started_at => Time.now, :finished_at => Time.now,
+          :processed_bytes => 42, :succeeded => true, :warnings => 4},
         ]
       end
 
@@ -318,7 +322,7 @@ EOF
 
       it "lists successful backups" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/b001\s*Finished/)
+        expect(stdout).to match(/b001\s*Completed/)
       end
 
       it "list failed backups" do
@@ -328,13 +332,19 @@ EOF
 
       it "lists old pgbackups" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/ob047\s*Finished/)
+        expect(stdout).to match(/ob047\s*Completed/)
       end
 
       it "lists successful restores" do
         stderr, stdout = execute("pg:backups")
-        expect(stdout).to match(/r003\s*Finished/)
+        expect(stdout).to match(/r008\s*Finished with 4 warnings/)
       end
+
+      it "lists completed restores with warnings" do
+        stderr, stdout = execute("pg:backups")
+        expect(stdout).to match(/r004\s*Failed/)
+      end
+
 
       it "lists failed restores" do
         stderr, stdout = execute("pg:backups")
@@ -344,7 +354,7 @@ EOF
       it "lists successful copies" do
         stderr, stdout = execute("pg:backups")
         expect(stdout).to match(/===\sCopies/)
-        expect(stdout).to match(/c005\s*Finished/)
+        expect(stdout).to match(/c005\s*Completed/)
       end
 
       it "lists failed copies" do
@@ -361,7 +371,7 @@ EOF
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -378,7 +388,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -395,7 +405,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B (50% compression)
@@ -413,7 +423,7 @@ Backup Size:      #{backup_size}.0B (50% compression)
 === Backup info: b001
 Database:    #{from_name}
 Started:     #{started_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      #{backup_size}.0B
@@ -432,7 +442,7 @@ Backup Size:      #{backup_size}.0B
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Original DB Size: #{source_size}.0B
 Backup Size:      0.00B (0% compression)
@@ -451,7 +461,7 @@ Backup Size:      0.00B (0% compression)
 Database:    #{from_name}
 Started:     #{started_at}
 Finished:    #{finished_at}
-Status:      Completed Successfully
+Status:      Completed
 Type:        Manual
 Backup Size: #{backup_size}.0B
 === Backup Logs

@@ -149,7 +149,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   def transfer_status(t)
     if t[:finished_at] && t[:succeeded]
-      "Finished #{t[:finished_at]}"
+      warnings =  t[:warnings]
+      if warnings && warnings > 0
+       "Finished with #{warnings} warnings" #{t[:finished_at]}"
+      else
+       "Completed #{t[:finished_at]}"
+      end
     elsif t[:finished_at] && !t[:succeeded]
       "Failed #{t[:finished_at]}"
     elsif t[:started_at]
@@ -284,7 +289,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
                client.transfers_get(backup_num, verbose)
              end
     status = if backup[:succeeded]
-               "Completed Successfully"
+               warnings =  backup[:warnings]
+               if warnings && warnings > 0
+                 "Finished with #{warnings} warnings"
+               else
+                 "Completed"
+               end
              elsif backup[:canceled_at]
                "Canceled"
              elsif backup[:finished_at]
