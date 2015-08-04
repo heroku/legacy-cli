@@ -562,8 +562,10 @@ EOF
     # e.g., names like FOLLOWER_URL work. To do this, we look up the
     # app config vars and re-find one that looks like the user's
     # requested name.
-    db_name, alias_url = resolver.app_config_vars.find { |k,_| k =~ /#{db}/i }
-    if attachment.url != alias_url
+    db_name, alias_url = resolver.app_config_vars.find do |k,v|
+      k =~ /#{db}/i && v == attachment.url
+    end
+    if alias_url.nil?
       error("Could not find database to schedule for backups. Try using its full name.")
     end
 
@@ -628,7 +630,7 @@ EOF
   end
 
   def parse_schedule_time(time_str)
-    hour, tz = time_str.match(/([0-2][0-9]):00 (.*)/) && [ $1, $2 ]
+    hour, tz = time_str.match(/([0-2][0-9]):00 ?(.*)/) && [ $1, $2 ]
     if hour.nil? || tz.nil?
       abort("Invalid schedule format: expected '<hour>:00 <timezone>'")
     end

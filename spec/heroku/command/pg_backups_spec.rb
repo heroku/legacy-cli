@@ -163,6 +163,63 @@ EOF
       end
     end
 
+    describe "heroku pg:backups schedule" do
+      before do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments).and_return(example_attachments)
+      end
+
+      it "schedules the requested database at the specified time" do
+        stub_pg.schedule({ hour: '07', timezone: 'UTC',
+                           schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
+        stderr, stdout = execute("pg:backups schedule RED --at '07:00 UTC' --app example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/Scheduled automatic daily backups/)
+      end
+
+      it "finds the right database when there are similarly-named databases" do
+        additional_attachment = Heroku::Helpers::HerokuPostgresql::Attachment
+                               .new({
+                                      'app' => {'name' => 'example'},
+                                      'name' => 'ALSO_HEROKU_POSTGRESQL_IVORY',
+                                      'config_var' => 'ALSO_HEROKU_POSTGRESQL_IVORY_URL',
+                                      'resource' => {'name'  => 'loudly-yelling-1239',
+                                                     'value' => 'postgres:///not-actually-ivory',
+                                                     'type'  => 'heroku-postgresql:standard-0' }})
+        example_attachments << additional_attachment
+        stub_pg.schedule({ hour: '07', timezone: 'UTC',
+                           schedule_name: 'HEROKU_POSTGRESQL_IVORY_URL' })
+        stderr, stdout = execute("pg:backups schedule HEROKU_POSTGRESQL_IVORY_URL --at '07:00 UTC' --app example")
+        expect(stderr).to be_empty
+        expect(stdout).to match(/Scheduled automatic daily backups/)
+      end
+
+      context "demonstrating cultural imperialism" do
+         {
+          'PST' => 'America/Los_Angeles',
+          'PDT' => 'America/Los_Angeles',
+          'MST' => 'America/Boise',
+          'MDT' => 'America/Boise',
+          'CST' => 'America/Chicago',
+          'CDT' => 'America/Chicago',
+          'EST' => 'America/New_York',
+          'EDT' => 'America/New_York',
+          'Z'   => 'UTC',
+          'GMT' => 'Europe/London',
+          'BST' => 'Europe/London',
+         }.each do |common_but_ambiguous_abbreviation, official_tz_db_name|
+           it "translates #{common_but_ambiguous_abbreviation} to #{official_tz_db_name}" do
+             stub_pg.schedule({ hour: '07', timezone: official_tz_db_name,
+                                schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
+             specified_time = "07:00 #{common_but_ambiguous_abbreviation}"
+             stderr, stdout = execute("pg:backups schedule RED --at '#{specified_time}' --app example")
+             expect(stderr).to be_empty
+             expect(stdout).to match(/Scheduled automatic daily backups/)
+           end
+         end
+      end
+    end
+
     describe "heroku pg:backups unschedule" do
       let(:schedules) do
         [ { name: 'HEROKU_POSTGRESQL_GREEN_URL',
