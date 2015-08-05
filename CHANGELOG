@@ -1,3 +1,9 @@
+3.40.8 2015-08-04
+=================
+Update dyno costs
+Use resource name for pg services
+Fixed bugs with pgbackups
+
 3.40.7 2015-07-29
 =================
 Automatic SSH tunneling for HPG
