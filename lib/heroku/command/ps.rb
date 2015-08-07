@@ -298,7 +298,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
                 validate_arguments!
                 formation.map{|p| p["size"] = size; p}
               end
-    scale_dynos(formation, changes) if changes
+    scale_dynos(get_formation, changes) if changes
     display_dyno_type_and_costs(get_formation)
   end
 
