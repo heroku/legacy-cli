@@ -57,6 +57,7 @@ module Heroku::Command
     # $ heroku addons --resource @acme-inc-database
     #
     def index
+      try_js_command!
       validate_arguments!
       requires_preauth
 
@@ -79,6 +80,7 @@ module Heroku::Command
     #
     # list all available add-on services
     def services
+      try_js_command!
       if current_command == "addons:list"
         deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku addons:services` instead.")
       end
@@ -93,6 +95,7 @@ module Heroku::Command
     #
     # list all available plans for an add-on service
     def plans
+      try_js_command!
       service = args.shift
       raise CommandFailed.new("Missing add-on service") if service.nil?
 
@@ -122,6 +125,7 @@ module Heroku::Command
     # --confirm APP_NAME      # (optional) ovewrite existing config vars or existing add-on attachments
     #
     def create
+      try_js_command!
       if current_command == "addons:add"
         deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku addons:create` instead.")
       end
@@ -181,6 +185,7 @@ module Heroku::Command
     # --confirm APP_NAME    # overwrite existing add-on attachment with same name
     #
     def attach
+      try_js_command!
       unless addon_name = args.shift
         error("Usage: heroku addons:attach ADDON_NAME\nMust specify add-on resource to attach.")
       end
@@ -228,6 +233,7 @@ module Heroku::Command
     # detach add-on resource from an app
     #
     def detach
+      try_js_command!
       attachment_name = args.shift
       raise CommandFailed.new("Missing add-on attachment name") if attachment_name.nil?
       requires_preauth
@@ -256,6 +262,7 @@ module Heroku::Command
     # upgrade an existing add-on resource to PLAN
     #
     def upgrade
+      try_js_command!
       addon_name, plan = args.shift, args.shift
 
       if addon_name && !plan # If invocated as `addons:Xgrade service:plan`
@@ -313,6 +320,7 @@ module Heroku::Command
     # -f, --force # allow destruction even if add-on is attached to other apps
     #
     def destroy
+      try_js_command!
       if current_command == "addons:remove"
         deprecate("`heroku #{current_command}` has been deprecated. Please use `heroku addons:destroy` instead.")
       end
@@ -369,6 +377,7 @@ module Heroku::Command
     # open an add-on's documentation in your browser
     #
     def docs
+      try_js_command!
       unless identifier = shift_argument
         error("Usage: heroku addons:docs ADDON\nMust specify ADDON to open docs for.")
       end
@@ -404,6 +413,7 @@ module Heroku::Command
     # open an add-on's dashboard in your browser
     #
     def open
+      try_js_command!
       unless addon_name = shift_argument
         error("Usage: heroku addons:open ADDON\nMust specify ADDON to open.")
       end
@@ -466,6 +476,14 @@ module Heroku::Command
       end
 
       config
+    end
+
+    def try_js_command!
+      return unless ENV['JS_PLUGIN']
+      return unless Heroku::JSPlugin.is_plugin_installed?('heroku-cli-addons')
+      return unless cmd = Heroku::JSPlugin.find_js_command(current_command)
+      Heroku::JSPlugin.run(cmd['topic'], cmd['command'], args)
+      exit
     end
 
   end
