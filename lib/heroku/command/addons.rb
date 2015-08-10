@@ -19,12 +19,36 @@ module Heroku::Command
     #
     # list installed add-ons
     #
-    # NOTE: --all is the default unless in an application repository directory, in
-    # which case --all is inferred.
-    #
     # --all                  # list add-ons across all apps in account
     # --app APP_NAME         # list add-ons associated with a given app
-    # --resource ADDON_NAME  # view details about add-on and all of its attachments
+    # --resource ADDON_NAME  # view details about add-on and all its attachments
+    #
+    # The default filter applied depends on whether you are in a Heroku app
+    # directory. If so, the --app flag is implied. If not, the default of --all
+    # is implied. Explicitly providing either flag overrides the default
+    # behaviour.
+    #
+    #Identifying specific add-ons:
+    #
+    # Add-ons have canonical names (ADDON_NAME in these command help texts).
+    # They also application-specific names called aliases or attachments. In
+    # many cases, these names can be used interchangeably when unambiguous.
+    #
+    # For example, given a fictional `slowdb` add-on named `slowdb-cubed-1531`
+    # attached as `FOO_DB` to `app1` and BAR_DB to `app2`, the following
+    # invocations are considered equivalent:
+    #
+    # $ heroku addons:upgrade slowdb             slowdb:premium
+    # $ heroku addons:upgrade --app app1 FOO_DB  slowdb:premium
+    # $ heroku addons:upgrade app1::FOO_DB       slowdb:premium
+    # $ heroku addons:upgrade app2::BAR_DB       slowdb:premium
+    # $ heroku addons:upgrade acme-inc-datastore slowdb:premium
+    #
+    # If the name used is ambiguous (e.g. if you used `slowdb` with more than
+    # one add-on of that type installed), the command will error due to
+    # ambiguity and a more specific identifier will need to be chosen.
+    #
+    # For more information, read https://devcenter.heroku.com/articles/add-ons.
     #
     #Examples:
     #
