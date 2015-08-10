@@ -7,13 +7,17 @@ class Heroku::JSPlugin
     File.exists? bin
   end
 
-  def self.try_takeover(command, args)
+  def self.find_js_command(command)
     topic, cmd = command.split(':', 2)
     if cmd
-      command = commands.find { |t| t["topic"] == topic && t["command"] == cmd }
+      commands.find { |t| t["topic"] == topic && t["command"] == cmd }
     else
-      command = commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
+      commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
     end
+  end
+
+  def self.try_takeover(command, args)
+    command = find_js_command(command)
     return if !command || command["hidden"]
     run(command['topic'], command['command'], args)
   end
