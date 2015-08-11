@@ -1,3 +1,7 @@
+3.40.11 2015-08-11
+==================
+Removed auto-tier switching logic
+
 3.40.10 2015-08-11
 ==================
 Update dyno costs
