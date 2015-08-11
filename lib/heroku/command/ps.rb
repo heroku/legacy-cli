@@ -140,9 +140,9 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
       if type == "run"
         key  = "run: one-off processes"
-        item = "%s (%s): %s %s: `%s`" % [ process["name"], change_performance_l(size), process["state"], since, process["command"] ]
+        item = "%s (%s): %s %s: `%s`" % [ process["name"], size, process["state"], since, process["command"] ]
       else
-        key  = "#{type} (#{change_performance_l(size)}): `#{process["command"]}`"
+        key  = "#{type} (#{size}): `#{process["command"]}`"
         item = "%s: %s %s" % [ process['name'], process['state'], since ]
       end
 
@@ -443,14 +443,6 @@ class Heroku::Command::Ps < Heroku::Command::Base
       }
     )
     resp.body.select {|p| changes.any?{|c| c["type"] == p["type"]} }
-  end
-
-  def change_performance_l(size)
-    if size.downcase == "performance-l"
-      "Performance"
-    else
-      size
-    end
   end
 end
 
