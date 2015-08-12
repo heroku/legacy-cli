@@ -22,6 +22,7 @@ namespace :deb do
 
 
   file dist("heroku-toolbelt-#{version}.apt/heroku-#{version}.deb") => distribution_files("deb") do |t|
+    mkdir_p File.dirname(t.name)
     tempdir do
       mkdir_p "usr/local/heroku"
       cd "usr/local/heroku" do
