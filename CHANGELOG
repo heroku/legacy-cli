@@ -1,3 +1,8 @@
+3.41.0 2015-08-12
+=================
+Fixed OSX installer for El Capitan
+Removed foreman in place of heroku local
+
 3.40.11 2015-08-11
 ==================
 Removed auto-tier switching logic
