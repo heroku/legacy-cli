@@ -97,9 +97,7 @@ class Heroku::Client::Rendezvous
 
   def fixup(data)
     return nil if ! data
-    if data.respond_to?(:force_encoding)
-      data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
-    end
+    data.force_encoding('utf-8') if data.respond_to?(:force_encoding)
     if running_on_windows?
       begin
         data.gsub!(/\e\[[\d;]+m/, '')
