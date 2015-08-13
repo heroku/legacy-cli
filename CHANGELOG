@@ -1,3 +1,7 @@
+3.41.2 2015-08-12
+=================
+Fix OSX releases without homebrew
+
 3.41.1 2015-08-12
 =================
 Fix debian releases without foreman
