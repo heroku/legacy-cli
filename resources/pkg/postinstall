@@ -1,3 +1,4 @@
 #!/bin/sh
 
+sudo mkdir -p /usr/local/bin
 sudo ln -sf /usr/local/heroku/bin/heroku /usr/local/bin/heroku
