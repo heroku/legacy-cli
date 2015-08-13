@@ -1,3 +1,7 @@
+3.41.3 2015-08-12
+=================
+Fix incomplete release
+
 3.41.2 2015-08-12
 =================
 Fix OSX releases without homebrew
