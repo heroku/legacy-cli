@@ -253,9 +253,7 @@ module Heroku
     ## DISPLAY HELPERS
 
     def action(message, options={})
-      message = "#{message} in space #{options[:space]}" if options[:space]
-      message = "#{message} in organization #{org}" if options[:org]
-      display("#{message}... ", false)
+      display("#{in_message(message, options)}... ", false)
       Heroku::Helpers.error_with_failure = true
       ret = yield
       Heroku::Helpers.error_with_failure = false
@@ -266,6 +264,12 @@ module Heroku
       end
       display
       ret
+    end
+
+    def in_message(message, options={})
+      message = "#{message} in space #{options[:space]}" if options[:space]
+      message = "#{message} in organization #{org}" if options[:org]
+      message
     end
 
     def status(message)

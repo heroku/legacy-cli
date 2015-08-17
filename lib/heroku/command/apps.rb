@@ -28,26 +28,24 @@ class Heroku::Command::Apps < Heroku::Command::Base
   def index
     validate_arguments!
     options[:ignore_no_org] = true
-    validate_space_xor_org!
 
-    apps = if options[:space]
-      api.get_apps.body.select do |app|
-        app["space"] && [app["space"]["name"], app["space"]["id"]].include?(options[:space])
-      end
-    elsif org
+    apps = if org
       org_api.get_apps(org).body
     else
       api.get_apps.body.select { |app| options[:all] ? true : !org?(app["owner_email"]) }
     end
 
+    if options[:space]
+      apps.select! do |app|
+        app["space"] && [app["space"]["name"], app["space"]["id"]].include?(options[:space])
+      end
+    end
+
     unless apps.empty?
-      if options[:space]
-        styled_header("Apps in space #{options[:space]}")
-        styled_array(apps.map { |app| regionized_app_name(app) })
-      elsif org
+      if org
         joined, unjoined = apps.partition { |app| app['joined'] == true }
 
-        styled_header("Apps joined in organization #{org}")
+        styled_header(in_message("Apps joined", app_in_msg_opts))
         unless joined.empty?
           styled_array(joined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
         else
@@ -57,7 +55,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
 
         if options[:all]
-          styled_header("Apps available to join in organization #{org}")
+          styled_header(in_message("Apps available to join", app_in_msg_opts))
           unless unjoined.empty?
             styled_array(unjoined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
           else
@@ -79,10 +77,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
         end
       end
     else
-      if options[:space]
-        display("There are no apps available in space #{options[:space]}.")
-      elsif org
-        display("There are no apps in organization #{org}.")
+      if org
+        display("#{in_message("There are no apps", app_in_msg_opts)}.")
       else
         display("You have no apps.")
       end
@@ -265,12 +261,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     end
 
     begin
-      display_org = !!org
-      if info['space']
-        space_name = info['space']['name']
-        display_org = false
-      end
-      action("Creating #{info['name']}", :space => space_name, :org => display_org) do
+      action("Creating #{info['name']}", app_in_msg_opts) do
         if info['create_status'] == 'creating'
           Timeout::timeout(options[:timeout].to_i) do
             loop do
@@ -528,9 +519,12 @@ class Heroku::Command::Apps < Heroku::Command::Base
     region = app["region"].is_a?(Hash) ? app["region"]["name"] : app["region"]
   end
 
-  def validate_space_xor_org!
-    if options[:space] && options[:org]
-      error "Specify option for space or org, but not both."
+  def app_in_msg_opts
+    display_org = !!org
+    if options[:space]
+      space_name = options[:space]
+      display_org = false
     end
+   { :org => display_org, :space => space_name }
   end
 end

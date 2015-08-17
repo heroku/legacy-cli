@@ -6,6 +6,7 @@ module Heroku::Command
 
     before(:each) do
       stub_core
+      stub_get_space_v3_dogwood
       stub_organizations
       ENV.delete('HEROKU_ORGANIZATION')
     end
@@ -185,10 +186,10 @@ STDOUT
 
           it "creates app in space" do
             with_blank_git_repository do
-              stderr, stdout = execute("apps:create spaceapp --space example-space")
+              stderr, stdout = execute("apps:create spaceapp --space test-space")
               expect(stderr).to eq("")
               expect(stdout).to eq <<-STDOUT
-Creating spaceapp in space example-space... done, stack is cedar-14
+Creating spaceapp in space test-space... done, stack is cedar-14
 http://spaceapp.herokuapp.com/ | https://git.heroku.com/spaceapp.git
 Git remote heroku added
               STDOUT
@@ -292,7 +293,7 @@ STDOUT
       shared_examples "index with space" do
         context("and the space has no apps") do
           before(:each) do
-            @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+            Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }) do
               {
                 :body   => MultiJson.dump([]),
                 :status => 200
@@ -300,52 +301,38 @@ STDOUT
             end
           end
 
-          after(:each) do
-            Excon.stubs.delete(@space_apps_stub)
-          end
-
           it "displays a message when the space has no apps" do
             stderr, stdout = execute("apps --space test-space")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
-There are no apps available in space test-space.
+There are no apps in space test-space.
 STDOUT
           end
         end
 
         context("and the space has apps") do
           before(:each) do
-            @space_apps_stub = Excon.stub({ :method => :get, :path => '/apps' }) do
+            Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }) do
               {
                 :body   => MultiJson.dump([
-                    {"name" => "space-app-1", "space" => {"id" => "test-space-id", "name" => "test-space"}},
-                    {"name" => "non-space-app-2", "space" => nil}
+                    { :name => 'space-app-1', :space => {:id => 'test-space-id', :name => 'test-space'}, :joined => true },
+                    { :name => 'space-app-2', :space => {:id => 'test-space-id', :name => 'test-space'}, :joined => false },
+                    { :name => 'non-space-app-2', :space => nil, :joined => true }
                   ]),
                 :status => 200
               }
             end
           end
 
-          after(:each) do
-            Excon.stubs.delete(@space_apps_stub)
-          end
-
           it "lists only apps in spaces by name" do
-            stderr, stdout = execute("apps --space test-space")
+            stderr, stdout = execute("apps --space test-space --all")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
-=== Apps in space test-space
+=== Apps joined in space test-space
 space-app-1
 
-STDOUT
-          end
-
-          it "lists only apps in spaces by id" do
-            stderr, stdout = execute("apps --space test-space-id")
-            expect(stderr).to eq("")
-            expect(stdout).to eq <<-STDOUT
-=== Apps in space test-space-id
-space-app-1
+=== Apps available to join in space test-space
+space-app-2
 
 STDOUT
           end
@@ -370,6 +357,15 @@ STDOUT
     end
 
     context("index with space and org") do
+      before(:each) do
+        Excon.stub({ :method => :get, :path => '/v1/organization/test-org/app' }) do
+          {
+            :body   => MultiJson.dump([]),
+            :status => 200
+          }
+        end
+      end
+
       it "displays error to not specify both" do
         stderr, stdout = execute("apps --space test-space --org test-org")
         expect(stdout).to eq("")
@@ -543,6 +539,26 @@ REMOTES
 
           expect(`git remote`.strip).not_to include('heroku')
         end
+      end
+    end
+
+    def stub_get_space_v3_dogwood
+      Excon.stub(
+        :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood' },
+        :method => :get,
+        :path => '/spaces/test-space') do
+        {
+          :body => {
+            :created_at => '2015-08-12T19:37:02Z',
+            :id => '6989c417-304f-4394-b958-f42bc6e1fa4e',
+            :name => 'test1',
+            :organization => {
+              :name => 'test-org'
+            },
+            :state => 'allocated',
+            :updated_at => '2015-08-12T19:48:07Z'
+          }.to_json,
+        }
       end
     end
   end
