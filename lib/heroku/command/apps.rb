@@ -12,7 +12,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
   #
   # -o, --org ORG     # the org to list the apps for
   #     --space SPACE # HIDDEN: list apps in a given space
-  # -A, --all         # list all apps in the org. Not just joined apps
+  # -A, --all         # list all collaborated apps, including joined org apps in personal app list
   # -p, --personal    # list apps in personal account when a default org is set
   #
   #Example:
@@ -43,26 +43,8 @@ class Heroku::Command::Apps < Heroku::Command::Base
 
     unless apps.empty?
       if org
-        joined, unjoined = apps.partition { |app| app['joined'] == true }
-
-        styled_header(in_message("Apps joined", app_in_msg_opts))
-        unless joined.empty?
-          styled_array(joined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
-        else
-          display("You haven't joined any apps.")
-          display("Use --all to see unjoined apps.") unless options[:all]
-          display
-        end
-
-        if options[:all]
-          styled_header(in_message("Apps available to join", app_in_msg_opts))
-          unless unjoined.empty?
-            styled_array(unjoined.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
-          else
-            display("There are no apps to join.")
-            display
-          end
-        end
+        styled_header(in_message("Apps", app_in_msg_opts))
+        styled_array(apps.map {|app| regionized_app_name(app) + (app['locked'] ? ' (locked)' : '') })
       else
         my_apps, collaborated_apps = apps.partition { |app| app["owner_email"] == Heroku::Auth.user }
 
