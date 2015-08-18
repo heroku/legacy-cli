@@ -263,24 +263,12 @@ STDOUT
             )
           end
 
-          it "lists joined apps in an organization" do
+          it "list all in an organization" do
             stderr, stdout = execute("apps -o test-org")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
-=== Apps joined in organization test-org
+=== Apps in organization test-org
 org-app-1
-
-STDOUT
-          end
-
-          it "list all apps in an organization with the --all flag" do
-            stderr, stdout = execute("apps --all -o test-org")
-            expect(stderr).to eq("")
-            expect(stdout).to eq <<-STDOUT
-=== Apps joined in organization test-org
-org-app-1
-
-=== Apps available to join in organization test-org
 org-app-2
 
 STDOUT
@@ -325,13 +313,11 @@ STDOUT
           end
 
           it "lists only apps in spaces by name" do
-            stderr, stdout = execute("apps --space test-space --all")
+            stderr, stdout = execute("apps --space test-space")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
-=== Apps joined in space test-space
+=== Apps in space test-space
 space-app-1
-
-=== Apps available to join in space test-space
 space-app-2
 
 STDOUT
