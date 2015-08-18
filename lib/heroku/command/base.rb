@@ -3,6 +3,7 @@ require "heroku/auth"
 require "heroku/client/rendezvous"
 require "heroku/client/organizations"
 require "heroku/command"
+require "heroku/api/spaces_v3_dogwood"
 
 class Heroku::Command::Base
   include Heroku::Helpers
@@ -41,7 +42,10 @@ class Heroku::Command::Base
     @nil = false
     options[:ignore_no_app] = true
 
-    @org ||= if options[:org].is_a?(String)
+    @org ||= if options[:space].is_a?(String)
+       validate_space_xor_org!
+       api.get_space_v3_dogwood(options[:space]).body['organization']['name']
+    elsif options[:org].is_a?(String)
       options[:org]
     elsif options[:personal] || @nil
       nil
@@ -56,6 +60,12 @@ class Heroku::Command::Base
 
     @nil = true if @org == nil
     @org
+  end
+
+  def validate_space_xor_org!
+    if options[:space] && options[:org]
+      error "Specify option for space or org, but not both."
+    end
   end
 
   def api
