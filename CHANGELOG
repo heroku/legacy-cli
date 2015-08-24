@@ -1,3 +1,10 @@
+3.41.4 2015-08-24
+=================
+Always display unjoined org apps
+Ensure HEROKU_HEADERS are used for pg:backups commands
+HEROKU_DEBUG improvements
+Support custom kernels (internal only)
+
 3.41.3 2015-08-12
 =================
 Fix incomplete release
