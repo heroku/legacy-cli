@@ -360,6 +360,7 @@ EOF
   end
 
   def capture_backup
+    requires_preauth
     db = shift_argument
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     validate_arguments!
