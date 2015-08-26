@@ -20,7 +20,8 @@ class Heroku::CLI
     $stdout.sync = true if $stdout.isatty
     Heroku::Updater.warn_if_updating
     command = args.shift.strip rescue "help"
-    Heroku::JSPlugin.try_takeover(command, args) if Heroku::JSPlugin.setup?
+    Heroku::JSPlugin.setup
+    Heroku::JSPlugin.try_takeover(command, args)
     require 'heroku/command'
     Heroku::Git.check_git_version
     Heroku::Command.load
