@@ -66,7 +66,7 @@ module Heroku::Command
         action("Uninstalling #{plugin.name}") do
           plugin.uninstall
         end
-      elsif Heroku::JSPlugin.setup?
+      else
         Heroku::JSPlugin.uninstall(plugin.name)
       end
     end
