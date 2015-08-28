@@ -352,26 +352,13 @@ module Heroku::Command
 
       # If it looks like a plan, optimistically open docs, otherwise try to
       # lookup a corresponding add-on and open the docs for its service.
-      if identifier.include?(':')
-        service = identifier.split(':')[0]
-        launchy("Opening #{service} docs", addon_docs_url(service))
+      if identifier.include?(':') || get_service(identifier)
+        launchy("Opening #{identifier} docs", addon_docs_url(identifier))
       else
         # searching by any number of things
-        matches = resolve_addon(identifier)
-        services = matches.map { |m| m['addon_service']['name'] }.uniq
-
-        case services.count
-        when 0
-          # Optimistically open docs for whatever they passed in
-          launchy("Opening #{identifier} docs", addon_docs_url(identifier))
-        when 1
-          service = services.first
-          launchy("Opening #{service} docs", addon_docs_url(service))
-        else
-          error("Multiple add-ons match #{identifier.inspect}.\n" +
-                "Use the name of one of the add-on resources:\n\n" +
-                matches.map { |a| "- #{a['name']} (#{a['addon_service']['name']})" }.join("\n"))
-        end
+        addon = resolve_addon!(identifier)
+        service = addon['addon_service']['name']
+        launchy("Opening #{service} docs", addon_docs_url(service))
       end
     end
 

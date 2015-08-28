@@ -85,8 +85,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
     validate_arguments!
 
-    db = db.sub(/_URL$/, '') # allow promoting with a var name
-    addon = resolve_addon!(db) { |addon| addon['addon_service']['name'] == 'heroku-postgresql' }
+    addon = resolve_addon!(db)
+
+    if addon['addon_service']['name'] != 'heroku-postgresql'
+      name = db == addon['name'] ? db : "#{db} (#{addon['name']})"
+      error("Cannot promote #{name}. It needs to be heroku-postgresql, not #{addon['addon_service']['name']}.")
+    end
 
     promoted_name = 'DATABASE'
 
@@ -589,12 +593,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
   private
 
   def resolve_service(name)
-    attachment = (resolve_addon(name) || []).first
+    addon = resolve_addon!(name)
 
-    error("Remote database could not be found.") unless attachment
-    error("Remote database is invalid.") unless attachment['addon_service']['name'] =~ /heroku-(redis|postgresql)/
+    error("Remote database is invalid.") unless addon['addon_service']['name'] =~ /heroku-(redis|postgresql)/
 
-    MaybeAttachment.new(attachment['name'], nil, attachment)
+    MaybeAttachment.new(addon['name'], nil, addon)
+  rescue Heroku::API::Errors::NotFound
+    error("Remote database could not be found.")
   end
 
   def get_config_var(name)
