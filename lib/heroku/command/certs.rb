@@ -226,10 +226,6 @@ class Heroku::Command::Certs < Heroku::Command::Base
     end
   end
 
-  def display(msg = "", new_line = true)
-    super if $stdout.tty?
-  end
-
   def post_to_ssl_doctor(path, action_text = nil)
     raise UsageError if args.size < 1
     action_text ||= "Resolving trust chain"
