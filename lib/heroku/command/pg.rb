@@ -758,8 +758,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def exec_sql(sql)
-    attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
-    attachment.maybe_tunnel do |uri|
+    @attachment ||= generate_resolver.resolve(shift_argument, "DATABASE_URL")
+    @attachment.maybe_tunnel do |uri|
       exec_sql_on_uri(sql, uri)
     end
   end
