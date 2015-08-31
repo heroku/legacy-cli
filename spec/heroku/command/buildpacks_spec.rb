@@ -184,6 +184,22 @@ Run `git push heroku master` to create a new release using these buildpacks.
               "https://github.com/heroku/heroku-buildpack-java",
               "https://github.com/heroku/heroku-buildpack-nodejs",
               "https://github.com/heroku/heroku-buildpack-ruby")
+            stderr, stdout = execute("buildpacks:set -i 3 https://github.com/heroku/heroku-buildpack-ruby")
+            expect(stderr).to eq("")
+            expect(stdout).to eq <<-STDOUT
+Buildpack set. Next release on example will use:
+  1. https://github.com/heroku/heroku-buildpack-java
+  2. https://github.com/heroku/heroku-buildpack-nodejs
+  3. https://github.com/heroku/heroku-buildpack-ruby
+Run `git push heroku master` to create a new release using these buildpacks.
+            STDOUT
+          end
+
+          it "adds buildpack URL to the very end of list" do
+            stub_put(
+              "https://github.com/heroku/heroku-buildpack-java",
+              "https://github.com/heroku/heroku-buildpack-nodejs",
+              "https://github.com/heroku/heroku-buildpack-ruby")
             stderr, stdout = execute("buildpacks:set -i 99 https://github.com/heroku/heroku-buildpack-ruby")
             expect(stderr).to eq("")
             expect(stdout).to eq <<-STDOUT
