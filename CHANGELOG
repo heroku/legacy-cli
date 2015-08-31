@@ -1,3 +1,10 @@
+3.41.5 2015-08-31
+=================
+Added preauth to pg:backups capture
+Fixed buildpack set with buildpack at end of list
+Fix addons:open service plan resolution
+Remove extra SQL command for execsql
+
 3.41.4 2015-08-24
 =================
 Always display unjoined org apps
