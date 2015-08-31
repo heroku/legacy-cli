@@ -10,9 +10,6 @@ module Heroku::Helpers
       RESOURCE     = /^@?([a-z][a-z0-9-]+)$/
       SERVICE_PLAN = /^(?:([a-z0-9_-]+):)?([a-z0-9_-]+)$/ # service / service:plan
 
-      class AddonDoesNotExistError < Heroku::API::Errors::Error
-      end
-
       # Finds attachments that match provided identifier.
       #
       # Always returns an Array of 0 or more results.
@@ -85,16 +82,23 @@ module Heroku::Helpers
           if identifier =~ RESOURCE
             name = $1
 
-            addon = begin
-              get_addon(name)
+            begin
+              addon = get_addon(name)
+              return [addon] if addon
             rescue Heroku::API::Errors::Forbidden
               # treat permission error as no match because there might exist a
               # resource on someone else's app that has a name which
               # corresponds to a service name that we wish to check below (e.g.
               # "memcachier")
+            rescue Heroku::API::Errors::RequestFailed => e
+              error_id = (json_decode(e.response.body.to_s) || {})["id"]
+              if error_id == "multiple_matches"
+                # ignore; name-based matches are never ambiguous, so this
+                # identifier is probably a service/plan
+              else
+                raise
+              end
             end
-
-            return [addon] if addon
           end
 
           if identifier =~ SERVICE_PLAN
