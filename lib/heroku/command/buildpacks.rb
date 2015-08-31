@@ -155,7 +155,7 @@ module Heroku::Command
 
         # default behavior if index is out of range, or list is previously empty
         # is to add buildpack to the list
-        if app_buildpacks.empty? or index.nil? or app_buildpacks.size < index
+        if app_buildpacks.empty? or index.nil? or app_buildpacks.size <= index
           buildpack_urls << buildpack_url
         end
 
