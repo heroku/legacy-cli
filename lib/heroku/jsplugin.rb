@@ -8,12 +8,7 @@ class Heroku::JSPlugin
   end
 
   def self.try_takeover(command, args)
-    topic, cmd = command.split(':', 2)
-    if cmd
-      command = commands.find { |t| t["topic"] == topic && t["command"] == cmd }
-    else
-      command = commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
-    end
+    command = find_command(command)
     return if !command || command["hidden"]
     run(command['topic'], command['command'], args)
   end
@@ -184,5 +179,14 @@ class Heroku::JSPlugin
 
   def self.url
     manifest['builds'][os][arch]['url'] + ".gz"
+  end
+
+  def self.find_command(s)
+    topic, cmd = s.split(':', 2)
+    if cmd
+      commands.find { |t| t["topic"] == topic && t["command"] == cmd }
+    else
+      commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
+    end
   end
 end
