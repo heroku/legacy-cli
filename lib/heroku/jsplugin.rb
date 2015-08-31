@@ -15,7 +15,7 @@ class Heroku::JSPlugin
       command = commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
     end
     return if !command || command["hidden"]
-    run(command['topic'], command['command'], ARGV[1..-1])
+    run(command['topic'], command['command'], args)
   end
 
   def self.load!
