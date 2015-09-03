@@ -153,5 +153,24 @@ STDOUT
         end
       end
     end
+
+    describe "config:copy" do
+      it "exits with a help notice when target app is not provided" do
+        stderr, stdout = execute("config:copy")
+        expect(stderr).to eq <<-STDERR
+ !    Usage: heroku config:copy APP
+ !    Must specify target application.
+        STDERR
+      end
+
+      it "copies all config vars from example app to target app" do
+        stub_core
+        api.post_app("name" => "target_app", "stack" => "cedar")
+
+        stderr, stdout = execute("config:copy target_app")
+        expect(stdout).to eq "example config vars copied to target_app\n"
+      end
+    end
+
   end
 end
