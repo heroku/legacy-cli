@@ -647,17 +647,19 @@ EOF
     end
     # do-what-i-mean remapping, since transferatu is (rightfully) picky
     remap_tzs = {
-                 'PST' => 'America/Los_Angeles',
-                 'PDT' => 'America/Los_Angeles',
-                 'MST' => 'America/Boise',
-                 'MDT' => 'America/Boise',
-                 'CST' => 'America/Chicago',
-                 'CDT' => 'America/Chicago',
-                 'EST' => 'America/New_York',
-                 'EDT' => 'America/New_York',
-                 'Z'   => 'UTC',
-                 'GMT' => 'Europe/London',
-                 'BST' => 'Europe/London',
+                 'PST'  => 'America/Los_Angeles',
+                 'PDT'  => 'America/Los_Angeles',
+                 'MST'  => 'America/Boise',
+                 'MDT'  => 'America/Boise',
+                 'CST'  => 'America/Chicago',
+                 'CDT'  => 'America/Chicago',
+                 'EST'  => 'America/New_York',
+                 'EDT'  => 'America/New_York',
+                 'Z'    => 'UTC',
+                 'GMT'  => 'Europe/London',
+                 'BST'  => 'Europe/London',
+                 'CET'  => 'Europe/Paris',
+                 'CEST' => 'Europe/Paris'
                 }
     if remap_tzs.has_key? tz.upcase
       tz = remap_tzs[tz.upcase]
