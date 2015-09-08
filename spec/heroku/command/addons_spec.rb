@@ -22,11 +22,11 @@ module Heroku::Command
       end
 
       it "should display no addons when none are configured" do
-        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
           { body: "[]", status: 200 }
         end
 
-        Excon.stub(method: :get, path: %r(/apps/example/addon-attachments)) do
+        Excon.stub(method: :get, path: '/apps/example/addon-attachments') do
           { body: "[]", status: 200 }
         end
 
@@ -44,7 +44,7 @@ STDOUT
       end
 
       it "should list addons and attachments" do
-        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
           hooks = build_addon(
             name: "swimming-nicely-42",
             plan: { name: "deployhooks:http", price: { cents: 0, unit: "month" }},
@@ -58,7 +58,7 @@ STDOUT
           { body: MultiJson.encode([hooks, hpg]), status: 200 }
         end
 
-        Excon.stub(method: :get, path: %(/apps/example/addon-attachments)) do
+        Excon.stub(method: :get, path: '/apps/example/addon-attachments') do
           hpg = build_attachment(
             name:  "HEROKU_POSTGRESQL_CYAN",
             addon: { name: "heroku-postgresql-12345", app: { name: "example" }},
@@ -88,7 +88,7 @@ STDOUT
 
     describe "list" do
       before do
-        Excon.stub(method: :get, path: %r(/addon-services)) do
+        Excon.stub(method: :get, path: '/addon-services') do
           services = [
             { "name" => "cloudcounter:basic", "state" => "alpha" },
             { "name" => "cloudcounter:pro", "state" => "public" },
@@ -107,7 +107,7 @@ STDOUT
 
       # TODO: plugin code doesn't support this. Do we need it?
       xit "sends region option to the server" do
-        stub_request(:get, %r{/addon-services\?region=eu$}).
+        stub_request(:get, '/addon-services?region=eu').
           to_return(:body => MultiJson.dump([]))
         execute("addons:list --region=eu")
       end
@@ -141,7 +141,7 @@ See plans with `heroku addons:plans SERVICE`
 
     describe 'v1-style command line params' do
       before do
-        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           { body: MultiJson.encode(addon), status: 201 }
         end
       end
@@ -162,11 +162,11 @@ See plans with `heroku addons:plans SERVICE`
 
       describe "addons:add" do
         before do
-          Excon.stub(method: :get, path: %r{^/apps/example/releases/current}) do
+          Excon.stub(method: :get, path: '/apps/example/releases/current') do
             { body: MultiJson.dump({ 'name' => 'v99' }), status: 200 }
           end
 
-          Excon.stub(method: :post, path: %r{apps/example/addons/my_addon$}) do
+          Excon.stub(method: :post, path: '/apps/example/addons/my_addon') do
             { body: MultiJson.encode(price: "free"), status: 200 }
           end
         end
@@ -261,7 +261,7 @@ See plans with `heroku addons:plans SERVICE`
       end
 
       it "sends the variables to the server" do
-        Excon.stub(method: :post, path: %r{/apps/example/addons$}) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           { body: MultiJson.encode(addon), status: 201 }
         end
 
@@ -318,7 +318,7 @@ See plans with `heroku addons:plans SERVICE`
           {
             :expects => 200,
             :method => :get,
-            :path => %r{^/apps/example/releases/current}
+            :path => '/apps/example/releases/current'
           },
           {
             :body   => MultiJson.dump({ 'name' => 'v99' }),
@@ -360,7 +360,7 @@ See plans with `heroku addons:plans SERVICE`
       end
 
       it "adds an addon with a price" do
-        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           addon = build_addon(
             name:          "my_addon",
             addon_service: { name: "my_addon" },
@@ -377,7 +377,7 @@ See plans with `heroku addons:plans SERVICE`
       end
 
       it "adds an addon with a price and message" do
-        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           addon = build_addon(
             name:          "my_addon",
             addon_service: { name: "my_addon" },
@@ -400,7 +400,7 @@ OUTPUT
       end
 
       it "excludes addon plan from docs message" do
-        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           addon = build_addon(
             name:          "my_addon",
             addon_service: { name: "my_addon" },
@@ -421,7 +421,7 @@ OUTPUT
       end
 
       it "adds an addon with a price and multiline message" do
-        Excon.stub(method: :post, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :post, path: '/apps/example/addons') do
           addon = build_addon(
             name:          "my_addon",
             addon_service: { name: "my_addon" },
@@ -431,7 +431,6 @@ OUTPUT
           { body: MultiJson.encode(addon), status: 201 }
         end
 
-        stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
         stderr, stdout = execute("addons:create my_addon")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
@@ -454,8 +453,8 @@ OUTPUT
     describe 'upgrading' do
       let(:addon) do
         build_addon(name: "my_addon",
-                    app:  { name: "example" },
-                    plan: { name: "my_addon" })
+          app:  { name: "example" },
+          plan: { name: "my_addon" })
       end
 
       before do
@@ -464,7 +463,7 @@ OUTPUT
           {
             :expects => 200,
             :method => :get,
-            :path => %r{^/apps/example/releases/current}
+            :path => '/apps/example/releases/current'
           },
           {
             :body   => MultiJson.dump({ 'name' => 'v99' }),
@@ -510,11 +509,15 @@ OUTPUT
           app:           { name: "example" },
           price:         { cents: 0, unit: "month" })
 
-        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
           { body: MultiJson.encode([my_addon]), status: 200 }
         end
 
-        Excon.stub(method: :patch, path: %r(/apps/example/addons/my_addon)) do
+        Excon.stub(method: :get, path: '/apps/example/addons/my_service') do
+          { body: MultiJson.encode(my_addon), status: 200 }
+        end
+
+        Excon.stub(method: :patch, path: '/apps/example/addons/my_addon') do
           { body: MultiJson.encode(my_addon), status: 200 }
         end
 
@@ -539,15 +542,18 @@ OUTPUT
           price:         { cents: 0, unit: "month" }
         ).merge(provision_message: "foo\nbar")
 
-        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
           { body: MultiJson.encode([my_addon]), status: 200 }
         end
 
-        Excon.stub(method: :patch, path: %r(/apps/example/addons/my_addon)) do
+        Excon.stub(method: :get, path: '/apps/example/addons/my_service') do
           { body: MultiJson.encode(my_addon), status: 200 }
         end
 
-        stub_core.install_addon("example", "my_addon", {}).returns({ "price" => "$200/mo", "message" => "foo\nbar" })
+        Excon.stub(method: :patch, path: '/apps/example/addons/my_addon') do
+          { body: MultiJson.encode(my_addon), status: 200 }
+        end
+
         stderr, stdout = execute("addons:upgrade my_service")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-OUTPUT
@@ -575,7 +581,7 @@ OUTPUT
 
       before do
         Excon.stub(
-          { :expects => 200, :method => :get, :path => %r{^/apps/example/releases/current} },
+          { :expects => 200, :method => :get, :path => '/apps/example/releases/current' },
           { :body   => MultiJson.dump({ 'name' => 'v99' }), :status => 200, }
         )
       end
@@ -619,11 +625,15 @@ OUTPUT
             addon_service: { name: "my_service" },
             app:           { name: "example" })
 
-          Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+          Excon.stub(method: :get, path: '/apps/example/addons') do
             { body: MultiJson.encode([my_addon]), status: 200 }
           end
 
-          Excon.stub(method: :patch, path: %r(/apps/example/addons/my_service)) do
+          Excon.stub(method: :patch, path: '/apps/example/addons/my_service') do
+            { body: MultiJson.encode(my_addon), status: 200 }
+          end
+
+          Excon.stub(method: :patch, path: '/apps/example/addons/my_addon') do
             { body: MultiJson.encode(my_addon), status: 200 }
           end
         end
@@ -719,9 +729,25 @@ STDOUT
       it "complains when many_per_app" do
         addon1 = stringify(addon.merge(name: "my_addon1", addon_service: { name: "my_service" }))
         addon2 = stringify(addon.merge(name: "my_addon2", addon_service: { name: "my_service_2" }))
-        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([addon1, addon2])
 
-        stderr, stdout = execute('addons:docs my_service')
+        Excon.stub(method: :get, path: '/addon-services/thing') do
+          { status: 404, body:'{}' }
+        end
+        Excon.stub(method: :get, path: '/apps/example/addons/thing') do
+          { status: 404, body:'{}' }
+        end
+
+        Excon.stub(method: :get, path: '/addons/thing') do
+          {
+            status: 422,
+            body: MultiJson.encode(
+              id: "multiple_matches",
+              message: "Ambiguous identifier; multiple matching add-ons found: my_addon1 (my_service), my_addon2 (my_service_2)."
+            )
+          }
+        end
+
+        stderr, stdout = execute('addons:docs thing')
         expect(stdout).to eq('')
         expect(stderr).to eq <<-STDERR
  !    Multiple add-ons match "my_service".
@@ -737,7 +763,7 @@ STDERR
           { status: 404 }
         end
 
-        Excon.stub(method: :get, path: %r(/apps/example/addons)) do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
           { body: "[]", status: 200 }
         end
 
@@ -799,7 +825,6 @@ STDERR
       end
 
       it "complains if no such addon exists" do
-        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([])
         stderr, stdout = execute('addons:open unknown')
         expect(stderr).to eq <<-STDERR
  !    Can not find add-on with "unknown"
@@ -808,7 +833,6 @@ STDERR
       end
 
       it "complains if addon is not installed" do
-        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([])
         stderr, stdout = execute('addons:open deployhooks:http')
         expect(stderr).to eq <<-STDOUT
  !    Can not find add-on with "deployhooks:http"

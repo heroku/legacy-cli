@@ -353,6 +353,7 @@ module Heroku::Command
       # If it looks like a plan, optimistically open docs, otherwise try to
       # lookup a corresponding add-on and open the docs for its service.
       if identifier.include?(':') || get_service(identifier)
+        identifier = identifier.split(':').first
         launchy("Opening #{identifier} docs", addon_docs_url(identifier))
       else
         # searching by any number of things
