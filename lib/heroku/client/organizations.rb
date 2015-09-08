@@ -23,6 +23,9 @@ class Heroku::Client::Organizations
     end
 
     def headers
+      if ENV['HEROKU_HEADERS']
+        @headers.merge! Heroku::Helpers.json_decode(ENV['HEROKU_HEADERS'])
+      end
       @headers
     end
 
