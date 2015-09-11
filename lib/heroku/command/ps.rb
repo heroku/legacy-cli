@@ -325,6 +325,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
     )
   end
 
+  def error_no_process_types
+      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
+  end
+
   def display_dyno_type_and_costs(formation)
     annotated = formation.sort_by{|d| d['type']}.map do |dyno|
       cost = COSTS[dyno["size"]]
@@ -337,7 +341,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     if annotated.empty?
-      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
+      error_no_process_types
     else
       display_table(annotated, annotated.first.keys, annotated.first.keys)
     end
@@ -347,7 +351,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
     dynos = formation.sort_by{|d| d['type']}.map{|d| "#{d['type']}=#{d['quantity']}:#{d['size']}"}
 
     if dynos.empty?
-      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
+      error_no_process_types
     else
       display dynos.join(" ")
     end
