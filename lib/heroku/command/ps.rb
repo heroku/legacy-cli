@@ -348,7 +348,7 @@ class Heroku::Command::Ps < Heroku::Command::Base
   end
 
   def display_dyno_formation(formation)
-    dynos = formation.sort_by{|d| d['type']}.map{|d| "#{d['type']}=#{d['quantity']}:#{d['size']}"}
+    dynos = formation.map{|d| "#{d['type']}=#{d['quantity']}:#{d['size']}"}.sort
 
     if dynos.empty?
       error_no_process_types
