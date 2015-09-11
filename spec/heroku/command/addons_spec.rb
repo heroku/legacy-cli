@@ -42,7 +42,7 @@ STDOUT
 
         Excon.stubs.shift(2)
       end
-
+      
       it "should list addons and attachments" do
         Excon.stub(method: :get, path: '/apps/example/addons') do
           hooks = build_addon(
@@ -746,32 +746,8 @@ STDOUT
             )
           }
         end
-
-        stderr, stdout = execute('addons:docs thing')
-        expect(stdout).to eq('')
-        expect(stderr).to eq <<-STDERR
- !    Multiple add-ons match "my_service".
- !    Use the name of one of the add-on resources:
- !    
- !    - my_addon1 (my_service)
- !    - my_addon2 (my_service_2)
-STDERR
-      end
-
-      it "optimistically opens the page if nothing matches" do
-        Excon.stub(method: :get, path: %r(/addons/unknown)) do
-          { status: 404 }
-        end
-
-        Excon.stub(method: :get, path: '/apps/example/addons') do
-          { body: "[]", status: 200 }
-        end
-
-        expect(Launchy).to receive(:open).with("https://devcenter.heroku.com/articles/unknown").and_return(Thread.new {})
-        stderr, stdout = execute('addons:docs unknown')
-        expect(stdout).to eq "Opening unknown docs... done\n"
-
-        Excon.stubs.shift(2)
+        
+        expect { execute('addons:docs thing') }.to raise_error(Heroku::API::Errors::RequestFailed)
       end
     end
 
@@ -796,7 +772,7 @@ STDERR
 
       it "opens the addon if only one matches" do
         addon.merge!(addon_service: { name: "redistogo:nano" })
-        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([stringify(addon)])
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon!).and_return(stringify(addon))
         require("launchy")
         expect(Launchy).to receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/#{addon[:id]}").and_return(Thread.new {})
         stderr, stdout = execute('addons:open redistogo:nano')
@@ -806,38 +782,18 @@ Opening redistogo:nano (my_addon) for example... done
 STDOUT
       end
 
-      it "complains about ambiguity" do
-        addon.merge!(addon_service: { name: "deployhooks:email" })
-        email = stringify(addon.merge(name: "my_email", plan: { name: "email" }))
-        http  = stringify(addon.merge(name: "my_http",  plan: { name: "http" }))
-
-        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon).and_return([email, http])
-
-        stderr, stdout = execute('addons:open deployhooks')
-        expect(stderr).to eq <<-STDERR
- !    Multiple add-ons match "deployhooks".
- !    Use the name of add-on resource:
- !    
- !    - my_email (email)
- !    - my_http (http)
-STDERR
-        expect(stdout).to eq('')
-      end
-
       it "complains if no such addon exists" do
-        stderr, stdout = execute('addons:open unknown')
-        expect(stderr).to eq <<-STDERR
- !    Can not find add-on with "unknown"
-STDERR
-        expect(stdout).to eq('')
+        Excon.stub(method: :get, path: %r'(/apps/example)?/addons/unknown') do
+          { status: 404, body:'{"error": "hi"}' }
+        end
+        expect { execute('addons:open unknown') }.to raise_error(Heroku::API::Errors::NotFound)
       end
 
       it "complains if addon is not installed" do
-        stderr, stdout = execute('addons:open deployhooks:http')
-        expect(stderr).to eq <<-STDOUT
- !    Can not find add-on with "deployhooks:http"
-STDOUT
-        expect(stdout).to eq('')
+        Excon.stub(method: :get, path: %r'(/apps/example)?/addons/deployhooks:http') do
+          { status: 404, body:'{"error": "hi"}' }
+        end
+        expect { execute('addons:open deployhooks:http') }.to raise_error(Heroku::API::Errors::NotFound)
       end
     end
 
