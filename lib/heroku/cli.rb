@@ -24,6 +24,7 @@ class Heroku::CLI
     require 'heroku/command'
     Heroku::Git.check_git_version
     Heroku::Command.load
+    warn_if_using_heroku_accounts
     Heroku::Command.run(command, args)
     Heroku::Updater.autoupdate
   rescue Errno::EPIPE => e
@@ -40,4 +41,7 @@ class Heroku::CLI
     exit(1)
   end
 
+  def self.warn_if_using_heroku_accounts
+    warn "WARNING: deprecated ddollar/heroku-accounts plugin is installed." if defined?(Heroku::Command::Accounts)
+  end
 end
