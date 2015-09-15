@@ -588,6 +588,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   private
 
+  def humanize(key)
+    key.to_s.gsub(/_/, ' ').split(" ").map(&:capitalize).join(" ")
+  end
+
   def resolve_service(name)
     attachment = (resolve_addon(name) || []).first
 
