@@ -12,6 +12,7 @@ class Heroku::Client::Organizations
         auth = "Basic #{Base64.encode64(':' + key).gsub("\n", '')}"
         hdrs = headers.merge( {"Authorization" => auth } )
         options[:ssl_verify_peer] = Heroku::Auth.verify_host?(Heroku::Auth.host)
+        options[:instrumentor] = HTTPInstrumentor if Heroku::Helpers.debugging?
         @connection = Excon.new(manager_url, options.merge(:headers => hdrs))
       end
 
