@@ -64,6 +64,24 @@ module Heroku::Command
         "DATABASE_URL" => "postgres://database_url",
         "HEROKU_POSTGRESQL_TEAL_URL" => teal_url
       }
+
+      Excon.stub(method: :get, path: %r|^(/apps/example)?/addon-attachments/(example::)?|) do |req|
+        vars = %w[DATABASE_URL HEROKU_POSTGRESQL_GREEN_URL HEROKU_POSTGRESQL_IVORY_URL HEROKU_POSTGRESQL_RED_URL]
+        identifier = req[:path].scan(%r|[^/]+$|)[0]
+        matches = vars.grep(Regexp.new(identifier, "i"))
+
+        case matches.size
+        when 1
+          {status: 200, body: MultiJson.encode({
+            name: matches[0].gsub(/_URL$/,''),
+            app: {name: 'example'}
+          })}
+        when 0
+          {status: 404, body: '{}'}
+        else
+          {status: 422, body: '{}' }
+        end
+      end
     end
 
     after do
@@ -113,6 +131,10 @@ module Heroku::Command
       end
 
       it "copies across apps" do
+        Excon.stub(method: :get, path: %r|^(/apps/aux-example)?/addon-attachments/(aux-example::)?teal|) do
+          {status: 200, body: MultiJson.encode({name: 'HEROKU_POSTGRESQL_TEAL'})}
+        end
+
         stub_pg.pg_copy('TEAL', teal_url, 'RED', red_url).returns(copy_info)
         stub_pgapp.transfers_get.returns(copy_info)
 

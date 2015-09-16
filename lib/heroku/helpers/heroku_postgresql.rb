@@ -1,4 +1,5 @@
 require "heroku/helpers"
+require "heroku/helpers/addons/resolve"
 
 module Heroku::Helpers::HerokuPostgresql
 
@@ -150,7 +151,6 @@ module Heroku::Helpers::HerokuPostgresql
         }
       @hpg_databases = Hash[ pairs ]
 
-      # TODO: don't bother doing this if DATABASE_URL is already present in hash!
       if !@hpg_databases.key?('DATABASE_URL') && find_database_url_real_attachment
         @hpg_databases['DATABASE_URL'] = find_database_url_real_attachment
       end
@@ -189,10 +189,17 @@ module Heroku::Helpers::HerokuPostgresql
       end
     end
 
+    def api_resolver
+      Heroku::Helpers::Addons::Resolver.new(@api)
+    end
+
     def match_attachments_by_name(name)
        return [] if name.empty?
        return [name] if hpg_databases[name]
-       hpg_databases.keys.grep(%r{#{ name }}i)
+       att = api_resolver.resolve_attachment!(name, @app_name)
+       ["#{att['name']}_URL"]
+    rescue Heroku::API::Errors::NotFound
+      []
     end
 
     def hpg_resolve(name, default=nil)
