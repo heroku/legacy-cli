@@ -312,7 +312,7 @@ module Heroku::Command
         action("Destroying #{addon['name']} on #{app['name']}") do
           addon = api.request(
             :body     => json_encode({
-              "force" => options[:force],
+              "force" => options[:force] || ENV['HEROKU_FORCE'] == '1',
             }),
             :expects  => 200..300,
             :headers  => {
