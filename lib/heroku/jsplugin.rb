@@ -158,7 +158,7 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("https://d1gvo455cekpjp.cloudfront.net/master/manifest.json", excon_opts).body)
+    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/master/manifest.json", excon_opts).body)
   end
 
   def self.excon_opts
