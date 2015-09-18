@@ -411,11 +411,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:maintenance <info|run|set-window> <DATABASE>
   #
-  #  manage maintenance for <DATABASE>
-  #  info               # show current maintenance information
-  #  run                # start maintenance
-  #    -f, --force      #   run pg:maintenance without entering application maintenance mode
-  #  window="<window>"  # set weekly UTC maintenance window for DATABASE
+  # manage maintenance for <DATABASE>
+  # info               # show current maintenance information
+  # run                # start maintenance
+  #   -f, --force      #   run pg:maintenance without entering application maintenance mode
+  # window="<window>"  # set weekly UTC maintenance window for DATABASE
   #                     # eg: `heroku pg:maintenance window="Sunday 14:30"`
   def maintenance
     requires_preauth
@@ -501,12 +501,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:links <create|destroy>
   #
-  #  Create links between data stores.  Without a subcommand, it lists all
-  #  databases and information on the link.
+  # Create links between data stores.  Without a subcommand, it lists all
+  # databases and information on the link.
   #
-  #  create <REMOTE> <LOCAL>   # Create a data link
-  #    --as <LINK>              # override the default link name
-  #  destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
+  # create <REMOTE> <LOCAL>   # Create a data link
+  #   --as <LINK>              # override the default link name
+  # destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
   #
   def links
     mode = shift_argument || 'list'
