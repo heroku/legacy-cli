@@ -527,13 +527,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
         dbs = resolver.all_databases.values
       end
 
+      dbs_by_addons = dbs.group_by(&:resource_name)
+
       error("No database attached to this app.") if dbs.compact.empty?
 
-      dbs.each_with_index do |attachment, index|
-        response = hpg_client(attachment).link_list
+      dbs_by_addons.each_with_index do |(resource, attachments), index|
+        response = hpg_client(attachments.first).link_list
         display "\n" if index.nonzero?
 
-        styled_header("#{attachment.display_name} (#{attachment.resource_name})")
+        styled_header("#{attachments.map(&:config_var).join(", ")} (#{resource})")
 
         next display response[:message] if response.kind_of?(Hash)
         next display "No data sources are linked into this database." if response.empty?
