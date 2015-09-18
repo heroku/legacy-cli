@@ -42,9 +42,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:info [DATABASE]
   #
-  #   -x, --extended  # Show extended information
-  #
   # display database information
+  #
+  #   -x, --extended  # Show extended information
   #
   # If DATABASE is not specified, displays all databases
   #
@@ -118,9 +118,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:psql [DATABASE]
   #
-  #  -c, --command COMMAND      # optional SQL command to run
-  #
   # open a psql shell to the database
+  #
+  #  -c, --command COMMAND      # optional SQL command to run
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
@@ -501,7 +501,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:links <create|destroy>
   #
-  # Create links between data stores.  Without a subcommand, it lists all
+  # create links between data stores.  Without a subcommand, it lists all
   # databases and information on the link.
   #
   # create <REMOTE> <LOCAL>   # Create a data link
