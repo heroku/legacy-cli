@@ -322,7 +322,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     output_with_bang "procpid to kill is required" unless procpid && procpid.to_i != 0
     procpid = procpid.to_i
 
-    cmd = options[:force] ? 'pg_terminate_backend' : 'pg_cancel_backend'
+    cmd = force? ? 'pg_terminate_backend' : 'pg_cancel_backend'
     sql = %Q(SELECT #{cmd}(#{procpid});)
 
     puts exec_sql(sql)
@@ -423,7 +423,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     mode, mode_argument = mode_with_argument.split('=')
 
     db   = shift_argument
-    no_maintenance = options[:force]
+    no_maintenance = force?
     if mode.nil? || db.nil? || !(%w[info run window].include? mode)
       Heroku::Command.run(current_command, ["--help"])
       exit(1)
@@ -834,5 +834,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
         :path     => "/addon-attachments"
       )
     end
+  end
+
+  def force?
+    options[:force] || ENV['HEROKU_FORCE'] == '1'
   end
 end
