@@ -174,20 +174,18 @@ STDOUT
           app:   { id: 1, name: "example" },
           addon: { id: resource[:id], name: "dreaming-ably-42" })
 
-        Excon.stub(method: :get, path: "/addons/#{resource[:id]}") do
+        Excon.stub(method: :get, path: %r"(/apps/example)?/addons/#{resource[:name]}") do
           { body: MultiJson.encode(resource), status: 200 }
         end
 
-        Excon.stub(method: :get, path: "/addons/#{resource[:name]}") do
-          { body: MultiJson.encode(resource), status: 200 }
-        end
-
-        Excon.stub(method: :get, path: "/apps/example/addon-attachments/HEROKU_POSTGRESQL_RONIN") do
-          { body: MultiJson.encode(ronin), status: 200 }
-        end
-
-        Excon.stub(method: :get, path: "/apps/example/addon-attachments/RONIN") do
-          { body: MultiJson.encode({}), status: 404 }
+        Excon.stub(method: :get, path: %r"/apps/example/addons/([a-zA-Z0-9_]+)") do |request|
+          url = ronin[:name] + '_URL'
+          identifier = request[:captures][:path][0].upcase
+          if url[identifier]
+            { body: MultiJson.encode(resource), status: 200 }
+          else
+            { body: MultiJson.encode(resource), status: 404 }
+          end
         end
 
         Excon.stub(method: :get, path: "/apps/example/addon-attachments") do
