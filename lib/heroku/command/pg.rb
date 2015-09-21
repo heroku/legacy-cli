@@ -177,9 +177,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
     attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
     validate_arguments!
 
+    local_port = options[:port]
+    if local_port
+      # Port must be a number, not a string
+      local_port = local_port.to_i
+    end
+
     if attachment.uses_bastion?
       begin
-        attachment.maybe_tunnel(options[:port]) do |uri|
+        attachment.maybe_tunnel(local_port) do |uri|
           puts "---> Tunnel to #{attachment.display_name} open at #{uri.host}:#{uri.port}"
           puts "---> Press Ctrl-C to close the tunnel"
           sleep
