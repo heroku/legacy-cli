@@ -42,6 +42,6 @@ class Heroku::CLI
   end
 
   def self.warn_if_using_heroku_accounts
-    warn "WARNING: deprecated ddollar/heroku-accounts plugin is installed." if defined?(Heroku::Command::Accounts)
+    warn "WARNING: deprecated ddollar/heroku-accounts plugin is installed." if defined?(Heroku::Command::Accounts.account)
   end
 end
