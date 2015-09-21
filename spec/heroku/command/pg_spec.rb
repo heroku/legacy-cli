@@ -3,16 +3,7 @@ require "heroku/command/pg"
 
 module Heroku::Command
   describe Pg do
-    before do
-      stub_core
-
-      api.post_app "name" => "example"
-      api.put_config_vars "example", {
-        "DATABASE_URL" => "postgres://database_url",
-        "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
-        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
-      }
-
+    def stub_attachments(extra_attachments=[])
       any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
         stub(pg).app_attachments.returns([
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
@@ -36,8 +27,21 @@ module Heroku::Command
             'resource' => {'name'  => 'whatever-something-2323',
                            'value' => 'postgres://follow_database_url',
                            'type'  => 'heroku-postgresql:ronin' }})
-        ])
+        ].concat(extra_attachments))
       end
+    end
+
+    before do
+      stub_core
+
+      api.post_app "name" => "example"
+      api.put_config_vars "example", {
+        "DATABASE_URL" => "postgres://database_url",
+        "HEROKU_POSTGRESQL_IVORY_URL" => "postgres://database_url",
+        "HEROKU_POSTGRESQL_RONIN_URL" => "postgres://ronin_database_url"
+      }
+
+      stub_attachments
     end
 
     after do
@@ -429,6 +433,37 @@ STDOUT
         pg = Heroku::Command::Pg.new
         parsed_url = pg.send(:parse_db_url, url)
         expect(parsed_url).to eql url
+      end
+    end
+
+    describe "#links" do
+      it "returns attachments consolidated by resource" do
+        stub_pg.link_list.returns([])
+
+        # API now returns DATABASE as a regular, old, attachment.
+        # The test setup in this file does not account for that.
+        #
+        stub_attachments([
+          Heroku::Helpers::HerokuPostgresql::Attachment.new({
+            'app' => {'name' => 'sushi'},
+            'name' => 'DATABASE',
+            'config_var' => 'DATABASE_URL',
+            'resource' => {'name'  => 'loudly-yelling-1232',
+                           'value' => 'postgres://database_url',
+                           'type'  => 'heroku-postgresql:ronin' }})
+        ])
+
+        stderr, stdout = execute("pg:links")
+        expect(stdout).to eq <<-OUTPUT
+=== HEROKU_POSTGRESQL_IVORY_URL, DATABASE_URL (loudly-yelling-1232)
+No data sources are linked into this database.
+
+=== HEROKU_POSTGRESQL_RONIN_URL (softly-mocking-123)
+No data sources are linked into this database.
+
+=== HEROKU_POSTGRESQL_FOLLOW_URL (whatever-something-2323)
+No data sources are linked into this database.
+        OUTPUT
       end
     end
   end
