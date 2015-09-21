@@ -201,16 +201,22 @@ class Heroku::Command::Ps < Heroku::Command::Base
 
   alias_command "restart", "ps:restart"
 
-  # ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]
+  # ps:scale [DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]]
   #
   # scale dynos by the given amount
   #
   # appending a size (eg. web=2:2X) allows simultaneous scaling and resizing
   #
+  # omitting any arguments will display the app's current dyno formation, in a
+  # format suitable for passing back into ps:scale
+  #
   #Examples:
   #
   # $ heroku ps:scale web=3:2X worker+1
   # Scaling dynos... done, now running web at 3:2X, worker at 1:1X.
+  #
+  # $ heroku ps:scale
+  # web=3:2X worker=1:1X
   #
   def scale
     requires_preauth
@@ -224,13 +230,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end.compact
 
     if changes.empty?
-      error("Usage: heroku ps:scale DYNO1=AMOUNT1[:SIZE] [DYNO2=AMOUNT2 ...]\nMust specify DYNO and AMOUNT to scale.\nDYNO must be alphanumeric.")
-    end
-
-    action("Scaling dynos") do
-      new_scales = scale_dynos(get_formation, changes)
-                   .map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
-      status("now running " + new_scales.join(", ") + ".")
+      display_dyno_formation(get_formation)
+    else
+      action("Scaling dynos") do
+        new_scales = scale_dynos(get_formation, changes)
+                     .map {|p| "#{p["type"]} at #{p["quantity"]}:#{p["size"]}" }
+        status("now running " + new_scales.join(", ") + ".")
+      end
     end
   end
 
@@ -319,6 +325,10 @@ class Heroku::Command::Ps < Heroku::Command::Base
     )
   end
 
+  def error_no_process_types
+      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
+  end
+
   def display_dyno_type_and_costs(formation)
     annotated = formation.sort_by{|d| d['type']}.map do |dyno|
       cost = COSTS[dyno["size"]]
@@ -331,9 +341,19 @@ class Heroku::Command::Ps < Heroku::Command::Base
     end
 
     if annotated.empty?
-      error "No process types on #{app}.\nUpload a Procfile to add process types.\nhttps://devcenter.heroku.com/articles/procfile"
+      error_no_process_types
     else
       display_table(annotated, annotated.first.keys, annotated.first.keys)
+    end
+  end
+
+  def display_dyno_formation(formation)
+    dynos = formation.map{|d| "#{d['type']}=#{d['quantity']}:#{d['size']}"}.sort
+
+    if dynos.empty?
+      error_no_process_types
+    else
+      display dynos.join(" ")
     end
   end
 

@@ -272,6 +272,17 @@ STDOUT
 
     describe "ps:scale" do
 
+      it "displays existing dyno formation" do
+        Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [
+          {"quantity" => 1, "size" => "2X", "type" => "web"},
+          {"quantity" => 2, "size" => "1X", "type" => "worker"}], status: 200})
+        stderr, stdout = execute("ps:scale")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+web=1:2X worker=2:1X
+STDOUT
+      end
+
       it "can scale using key/value format" do
         Excon.stub({ method: :get, path: "/apps/example/formation" }, { body: [], status: 200})
         Excon.stub({ :method => :patch, :path => "/apps/example/formation" },
