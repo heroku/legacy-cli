@@ -24,7 +24,7 @@ module Heroku::Command
     #
     def index
       validate_arguments!
-      domains = api.get_domains_v3_domain_cname(app).body
+      domains = api.get_domains_v3_domain_cname(app)
 
       styled_header("#{app} Heroku Domain")
       heroku_domain = domains.detect { |d| d['kind'] == 'heroku' || d['kind'] == 'default' } # TODO: remove 'default' after API change
