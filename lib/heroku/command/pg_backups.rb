@@ -8,7 +8,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   #   --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
   #
-  # Copy all data from source database to target. At least one of
+  # copy all data from source database to target. At least one of
   # these must be a Heroku Postgres database.
   #
   def copy
@@ -53,7 +53,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:backups [subcommand]
   #
-  # Interact with built-in backups. Without a subcommand, it lists all
+  # interact with built-in backups. Without a subcommand, it lists all
   # available backups. The subcommands available are:
   #
   #  info BACKUP_ID                 # get information about a specific backup

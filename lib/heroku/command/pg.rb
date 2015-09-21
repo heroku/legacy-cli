@@ -42,9 +42,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:info [DATABASE]
   #
-  #   -x, --extended  # Show extended information
-  #
   # display database information
+  #
+  #   -x, --extended  # Show extended information
   #
   # If DATABASE is not specified, displays all databases
   #
@@ -118,9 +118,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:psql [DATABASE]
   #
-  #  -c, --command COMMAND      # optional SQL command to run
-  #
   # open a psql shell to the database
+  #
+  #  -c, --command COMMAND      # optional SQL command to run
   #
   # defaults to DATABASE_URL databases if no DATABASE is specified
   #
@@ -411,11 +411,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:maintenance <info|run|set-window> <DATABASE>
   #
-  #  manage maintenance for <DATABASE>
-  #  info               # show current maintenance information
-  #  run                # start maintenance
-  #    -f, --force      #   run pg:maintenance without entering application maintenance mode
-  #  window="<window>"  # set weekly UTC maintenance window for DATABASE
+  # manage maintenance for <DATABASE>
+  # info               # show current maintenance information
+  # run                # start maintenance
+  #   -f, --force      #   run pg:maintenance without entering application maintenance mode
+  # window="<window>"  # set weekly UTC maintenance window for DATABASE
   #                     # eg: `heroku pg:maintenance window="Sunday 14:30"`
   def maintenance
     requires_preauth
@@ -501,12 +501,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:links <create|destroy>
   #
-  #  Create links between data stores.  Without a subcommand, it lists all
-  #  databases and information on the link.
+  # create links between data stores.  Without a subcommand, it lists all
+  # databases and information on the link.
   #
-  #  create <REMOTE> <LOCAL>   # Create a data link
-  #    --as <LINK>              # override the default link name
-  #  destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
+  # create <REMOTE> <LOCAL>   # Create a data link
+  #   --as <LINK>              # override the default link name
+  # destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
   #
   def links
     mode = shift_argument || 'list'
@@ -527,13 +527,15 @@ class Heroku::Command::Pg < Heroku::Command::Base
         dbs = resolver.all_databases.values
       end
 
+      dbs_by_addons = dbs.group_by(&:resource_name)
+
       error("No database attached to this app.") if dbs.compact.empty?
 
-      dbs.each_with_index do |attachment, index|
-        response = hpg_client(attachment).link_list
+      dbs_by_addons.each_with_index do |(resource, attachments), index|
+        response = hpg_client(attachments.first).link_list
         display "\n" if index.nonzero?
 
-        styled_header("#{attachment.display_name} (#{attachment.resource_name})")
+        styled_header("#{attachments.map(&:config_var).join(", ")} (#{resource})")
 
         next display response[:message] if response.kind_of?(Hash)
         next display "No data sources are linked into this database." if response.empty?
