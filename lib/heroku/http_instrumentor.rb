@@ -15,10 +15,12 @@ class HTTPInstrumentor
         $stderr.print "[auth] " if headers['Authorization'] && headers['Authorization'] != 'Basic Og=='
         $stderr.print "[2fa] " if headers['Heroku-Two-Factor-Code']
         $stderr.puts filter(params[:query])
+        $stderr.puts headers if headers?
         $stderr.puts "--> #{params[:body]}" if params[:body]
       when "excon.response"
         $stderr.puts "<-- #{params[:status]} #{params[:reason_phrase]}"
         $stderr.puts "<-- request-id: #{headers['Request-id']}" if headers['Request-Id']
+        $stderr.puts headers if headers?
         if headers['Content-Encoding'] == 'gzip'
           $stderr.puts "<-- #{filter(ungzip(params[:body]))}"
         else
@@ -42,6 +44,10 @@ class HTTPInstrumentor
         string.gsub! parameter, '[FILTERED]'
       end
       string
+    end
+
+    def headers?
+      !!ENV['HEROKU_DEBUG_HEADERS']
     end
   end
 end
