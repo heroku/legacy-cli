@@ -1,3 +1,7 @@
+3.42.2 2015-09-21
+=================
+Fix heroku-account deprecation warning
+
 3.42.1 2015-09-21
 =================
 Re-release of 3.42.0
