@@ -58,7 +58,7 @@ module Heroku::Helpers
       end
 
       def get_service(service)
-        get_service!
+        get_service!(service)
       rescue Heroku::API::Errors::NotFound
       end
 
