@@ -294,8 +294,13 @@ class Heroku::Command::Ps < Heroku::Command::Base
     changes = if args.any?{|arg| arg =~ /=/}
                 args.map do |arg|
                   if arg =~ /^([a-zA-Z0-9_]+)=([\w-]+)$/
-                    p = formation.find{|f| f["type"] == $1}.clone
-                    p["size"] = $2
+                    type, new_size = $1, $2
+                    current_p = formation.find{|f| f["type"] == type}
+                    if current_p.nil?
+                      error("Type '#{type}' not found in process formation.")
+                    end
+                    p = current_p.clone
+                    p["size"] = new_size
                     p
                   end
                 end.compact
