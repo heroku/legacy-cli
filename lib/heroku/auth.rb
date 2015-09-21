@@ -267,7 +267,6 @@ class Heroku::Auth
     end
 
     def ask_for_and_save_credentials
-      warn "WARNING: heroku-accounts plugin is installed. This plugin is known to have problems with HTTP Git." if defined?(Heroku::Command::Accounts)
       @credentials = ask_for_credentials
       debug "Logged in as #{@credentials[0]} with key: #{@credentials[1][0,6]}..."
       write_credentials
