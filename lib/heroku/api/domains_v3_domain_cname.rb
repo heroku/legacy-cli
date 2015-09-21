@@ -2,15 +2,21 @@ module Heroku
   class API
     # TODO: rename methods and filename after 3.domain-cname is merged
 
-    def get_domains_v3_domain_cname(app)
-      request(
-        :expects => 200,
+    def get_domains_v3_domain_cname(app, range=nil)
+      rsp = request(
+        :expects => [200, 206],
         :method  => :get,
         :path    => "/apps/#{app}/domains",
         :headers => {
-          "Accept" => "application/vnd.heroku+json; version=3.domain-cname"
+          "Accept" => "application/vnd.heroku+json; version=3.domain-cname",
+          "Range"  => range
         }
       )
+      if rsp.headers['Next-Range']
+        rsp.body + get_domains_v3_domain_cname(app, rsp.headers['Next-Range'])
+      else
+        rsp.body
+      end
     end
 
     def post_domains_v3_domain_cname(app, hostname)
