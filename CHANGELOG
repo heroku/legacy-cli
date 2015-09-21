@@ -1,3 +1,19 @@
+3.42.0 2015-09-21
+=================
+Resolve addons with API
+Consolidate addon output
+Use HEROKU_FORCE for pg:* commands
+Add support for CET and CEST zones
+Added v4 2fa shim
+Fixed login under windows machines without crtdll
+Ensure HEROKU_HEADERS is used with orgs requests
+Make warning for using heroku-accounts more admonishing
+Display current dyno formation with ps:scale
+Added HEROKU_DEBUG_HEADERS flag
+Lock gem versions down
+Fix domains call with very large number of domains
+Removed redis shim
+
 3.41.5 2015-08-31
 =================
 Added preauth to pg:backups capture
