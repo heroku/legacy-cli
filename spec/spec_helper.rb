@@ -240,6 +240,16 @@ module Heroku::Rollbar
   def self.error(e); end
 end
 
+require "heroku/jsplugin"
+class Heroku::JSPlugin
+  def self.topics; [] end
+  def self.commands; [] end
+  def self.setup; end
+  def self.run; end
+  def self.plugins; [] end
+  def self.version; 'heroku-cli/4.0.0-4f2c5c5 (amd64-darwin) go1.5' end
+end
+
 require "support/display_message_matcher"
 require "support/organizations_mock_helper"
 require "support/addons_helper"

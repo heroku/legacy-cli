@@ -40,7 +40,6 @@ class Heroku::Command::Run < Heroku::Command::Base
   #
   def index
     if ARGV.include?('--') || ARGV.include?('--exit-code')
-      Heroku::JSPlugin.install('heroku-run')
       Heroku::JSPlugin.run('run', nil, ARGV[1..-1])
       return
     end
