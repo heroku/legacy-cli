@@ -1,3 +1,7 @@
+3.42.3 2015-09-22
+=================
+Require v4 CLI for all commands
+
 3.42.2 2015-09-21
 =================
 Fix heroku-account deprecation warning
