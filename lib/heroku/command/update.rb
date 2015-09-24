@@ -16,8 +16,8 @@ class Heroku::Command::Update < Heroku::Command::Base
   #
   def index
     validate_arguments!
-    update_from_url(false)
     Heroku::JSPlugin.update
+    update_from_url(false)
   end
 
   # update:beta
