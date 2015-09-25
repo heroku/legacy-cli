@@ -89,12 +89,16 @@ class Heroku::JSPlugin
     `"#{bin}" version`
   end
 
-  def self.bin
-    if os == 'windows'
-      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli.exe")
+  def self.app_dir
+    if os == 'windows' && ENV['LOCALAPPDIR']
+      File.join(ENV['LOCALAPPDIR'], 'heroku')
     else
-      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli")
+      File.join(Heroku::Helpers.home_directory, '.heroku')
     end
+  end
+
+  def self.bin
+    File.join(app_dir, ".heroku", os == 'windows' ? 'heroku-cli.exe' : 'heroku-cli')
   end
 
   def self.setup
@@ -117,7 +121,7 @@ class Heroku::JSPlugin
   end
 
   def self.copy_ca_cert
-    to = File.join(Heroku::Helpers.home_directory, ".heroku", "cacert.pem")
+    to = File.join(app_dir, "cacert.pem")
     return if File.exists?(to)
     from = File.expand_path("../../../data/cacert.pem", __FILE__)
     FileUtils.copy(from, to)
