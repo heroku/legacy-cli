@@ -4,9 +4,10 @@ class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.try_takeover(command, args)
+    return if command == 'help' || args.include?('--help')
     command = find_command(command)
     return if !command || command["hidden"]
-    run(command['topic'], command['command'], args)
+    run(ARGV[0], nil, ARGV[1..-1])
   end
 
   def self.load!
@@ -125,7 +126,6 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
-    debug("running #{cmd} on v4")
     exec self.bin, cmd, *args
   end
 
