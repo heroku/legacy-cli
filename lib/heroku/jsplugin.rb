@@ -4,7 +4,7 @@ class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.try_takeover(command, args)
-    return if command == 'help' || args.include?('--help')
+    return if command == 'help' || args.include?('--help') || args.include?('-h')
     command = find_command(command)
     return if !command || command["hidden"]
     run(ARGV[0], nil, ARGV[1..-1])
@@ -39,6 +39,18 @@ class Heroku::JSPlugin
         :help      => help,
         :hidden    => plugin['hidden'],
       )
+      if plugin['default']
+        Heroku::Command.register_command(
+          :command   => plugin['topic'],
+          :namespace => plugin['topic'],
+          :klass     => klass,
+          :method    => :run,
+          :banner    => plugin['usage'],
+          :summary   => " #{plugin['description']}",
+          :help      => help,
+          :hidden    => plugin['hidden'],
+        )
+      end
     end
   end
 
