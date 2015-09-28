@@ -1,5 +1,5 @@
 #!/bin/sh
-exec "heroku.bat"
+exec "heroku.bat" $@
 
 #!/usr/bin/env ruby
 # encoding: UTF-8
