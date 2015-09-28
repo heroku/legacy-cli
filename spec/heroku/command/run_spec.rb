@@ -15,19 +15,6 @@ describe Heroku::Command::Run do
     api.delete_app("example")
   end
 
-  describe "run" do
-    it "runs a command" do
-      stub_rendezvous.start { $stdout.puts "output" }
-
-      stderr, stdout = execute("run bin/foo")
-      expect(stderr).to eq("")
-      expect(stdout).to eq <<-STDOUT
-Running `bin/foo` attached to terminal... up, run.1
-output
-STDOUT
-    end
-  end
-
   describe "run:detached" do
     it "runs a command detached" do
       stderr, stdout = execute("run:detached bin/foo")
