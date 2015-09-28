@@ -1,4 +1,8 @@
-3.42.7 2015-09-29
+3.42.8 2015-09-28
+=================
+Fixed auto-login with --app flags
+
+3.42.7 2015-09-28
 =================
 Moved heroku-cli back to ~/.heroku/heroku-cli
 
