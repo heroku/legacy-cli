@@ -103,8 +103,8 @@ class Heroku::JSPlugin
   end
 
   def self.app_dir
-    if os == 'windows' && ENV['LOCALAPPDIR']
-      File.join(ENV['LOCALAPPDIR'], 'heroku')
+    if os == 'windows' && ENV['LOCALAPPDATA']
+      File.join(ENV['LOCALAPPDATA'], 'heroku')
     else
       File.join(Heroku::Helpers.home_directory, '.heroku')
     end
