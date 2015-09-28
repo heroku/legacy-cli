@@ -1,3 +1,7 @@
+3.42.7 2015-09-29
+=================
+Moved heroku-cli back to ~/.heroku/heroku-cli
+
 3.42.6 2015-09-28
 =================
 Fix cygwin exec
