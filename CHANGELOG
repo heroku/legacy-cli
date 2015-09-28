@@ -1,3 +1,12 @@
+3.42.4 2015-09-28
+=================
+Move v4 windows directory to LOCALAPPDIR
+Move help logic to v3
+Fix cygwin setup
+Fix for non-ascii windows home directories
+Allow debian users to manually update v4
+Fully deprecate ddollar/heroku-accounts
+
 3.42.3 2015-09-22
 =================
 Require v4 CLI for all commands
