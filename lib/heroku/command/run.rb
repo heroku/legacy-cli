@@ -22,33 +22,6 @@ require "heroku/helpers/log_displayer"
 #
 class Heroku::Command::Run < Heroku::Command::Base
 
-  # run COMMAND
-  #
-  # run an attached dyno
-  #
-  # -s, --size SIZE      # specify dyno size
-  # --exit-code          # return exit code from process
-  #
-  #Example:
-  #
-  # $ heroku run bash
-  # Running `bash` attached to terminal... up, run.1
-  # ~ $
-  #
-  # $ heroku run -s hobby -- myscript.sh -a arg1 -s arg2
-  # Running `myscript.sh -a arg1 -s arg2` attached to terminal... up, run.1
-  #
-  def index
-    if ARGV.include?('--') || ARGV.include?('--exit-code')
-      Heroku::JSPlugin.run('run', nil, ARGV[1..-1])
-      return
-    end
-    command = args.join(" ")
-    error("Usage: heroku run COMMAND") if command.empty?
-    warn_if_using_jruby
-    run_attached(command)
-  end
-
   # run:detached COMMAND
   #
   # run a detached dyno, where output is sent to your logs
