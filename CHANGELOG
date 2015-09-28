@@ -1,3 +1,7 @@
+3.42.6 2015-09-28
+=================
+Fix cygwin exec
+
 3.42.5 2015-09-28
 =================
 Move v4 windows directory to LOCALAPPDATA
