@@ -111,7 +111,7 @@ class Heroku::JSPlugin
   end
 
   def self.bin
-    File.join(app_dir, ".heroku", os == 'windows' ? 'heroku-cli.exe' : 'heroku-cli')
+    File.join(app_dir, os == 'windows' ? 'heroku-cli.exe' : 'heroku-cli')
   end
 
   def self.setup
