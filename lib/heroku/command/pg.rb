@@ -513,6 +513,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   # destroy <LOCAL> <LINK>    # Destroy a data link between a local and remote database
   #
   def links
+    requires_preauth
     mode = shift_argument || 'list'
 
     if !(%w(list create destroy).include?(mode))
