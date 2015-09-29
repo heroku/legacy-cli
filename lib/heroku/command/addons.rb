@@ -15,6 +15,42 @@ module Heroku::Command
     include Heroku::Helpers::Addons::Display
     include Heroku::Helpers::Addons::Resolve
 
+    # addons [{--all,--app APP_NAME,--resource ADDON_NAME}]
+    #
+    # list installed add-ons
+    #
+    # NOTE: --all is the default unless in an application repository directory, in
+    # which case --all is inferred.
+    #
+    # --all                  # list add-ons across all apps in account
+    # --app APP_NAME         # list add-ons associated with a given app
+    # --resource ADDON_NAME  # view details about add-on and all of its attachments
+    #
+    #Examples:
+    #
+    # $ heroku addons --all
+    # $ heroku addons --app acme-inc-website
+    # $ heroku addons --resource @acme-inc-database
+    #
+    def index
+      validate_arguments!
+      requires_preauth
+
+      # Filters are mutually exclusive
+      error("Can not use --all with --app")      if options[:app] && options[:all]
+      error("Can not use --all with --resource") if options[:resource] && options[:all]
+      error("Can not use --app with --resource") if options[:resource] && options[:app]
+
+      app = (self.app rescue nil)
+      if (resource = options[:resource])
+        show_for_resource(resource)
+      elsif app && !options[:all]
+        show_for_app(app)
+      else
+        show_all
+      end
+    end
+
     # addons:services
     #
     # list all available add-on services
