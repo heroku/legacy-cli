@@ -4,7 +4,11 @@ class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.try_takeover(command, args)
-    return if command == 'help' || args.include?('--help') || args.include?('-h')
+    if command == 'help' && args.length > 0
+      return help(find_command(args[0]))
+    elsif args.include?('--help') || args.include?('-h')
+      return help(find_command(command))
+    end
     command = find_command(command)
     return if !command || command["hidden"]
     run(ARGV[0], nil, ARGV[1..-1])
@@ -19,7 +23,7 @@ class Heroku::JSPlugin
       ) unless topic['hidden'] || Heroku::Command.namespaces.include?(topic['name'])
     end
     commands.each do |plugin|
-      help = "\n\n  #{plugin['fullHelp'].split("\n").join("\n  ")}"
+      help = "\n\n  #{plugin['fullHelp']}"
       klass = Class.new do
         def initialize(args, opts)
           @args = args
@@ -197,5 +201,11 @@ class Heroku::JSPlugin
     else
       commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
     end
+  end
+
+  def self.help(cmd)
+    return unless cmd
+    puts "Usage: heroku #{cmd['usage']}\n\n#{cmd['description']}\n\n#{cmd['fullHelp']}"
+    exit 0
   end
 end
