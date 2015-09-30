@@ -7,27 +7,34 @@ module Heroku::Command
       any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver) do |pg|
         stub(pg).app_attachments.returns([
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'app' => {'name' => 'sushi'},
+            'app' => {'name' => 'example'},
             'name' => 'HEROKU_POSTGRESQL_IVORY',
             'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
                            'value' => 'postgres://database_url',
                            'type'  => 'heroku-postgresql:ronin' }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'app' => {'name' => 'sushi'},
+            'app' => {'name' => 'example'},
             'name' => 'HEROKU_POSTGRESQL_RONIN',
             'config_var' => 'HEROKU_POSTGRESQL_RONIN_URL',
             'resource' => {'name'  => 'softly-mocking-123',
                            'value' => 'postgres://ronin_database_url',
                            'type'  => 'heroku-postgresql:ronin' }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'app' => {'name' => 'sushi'},
+            'app' => {'name' => 'example'},
             'name' => 'HEROKU_POSTGRESQL_FOLLOW',
             'config_var' => 'HEROKU_POSTGRESQL_FOLLOW_URL',
             'resource' => {'name'  => 'whatever-something-2323',
                            'value' => 'postgres://follow_database_url',
                            'type'  => 'heroku-postgresql:ronin' }})
         ].concat(extra_attachments))
+      end
+
+      Excon.stub(method: :get, path: %r|^(/apps/example)?/addon-attachments/(example::)?RONIN$|i) do
+        {status: 200, body: MultiJson.encode({
+          name: 'HEROKU_POSTGRESQL_RONIN',
+          app: {name: 'example'}
+        })}
       end
     end
 
@@ -237,6 +244,12 @@ STDERR
 
     context "credential resets" do
       it "resets credentials and promotes to DATABASE_URL if it's the main DB" do
+        Excon.stub(method: :get, path: %r|^(/apps/example)?/addon-attachments/(example::)?iv$|) do
+          {status: 200, body: MultiJson.encode({
+            name: 'HEROKU_POSTGRESQL_IVORY',
+            app: {name: 'example'}
+          })}
+        end
         stub_pg.rotate_credentials
         stderr, stdout = execute("pg:credentials iv --reset")
         expect(stderr).to eq('')
@@ -247,6 +260,12 @@ STDOUT
       end
 
       it "does not update DATABASE_URL if it's not the main db" do
+        Excon.stub(method: :get, path: %r|^(/apps/example)?/addon-attachments/(example::)?follo$|) do
+          {status: 200, body: MultiJson.encode({
+            name: 'HEROKU_POSTGRESQL_FOLLOW',
+            app: {name: 'example'}
+          })}
+        end
         stub_pg.rotate_credentials
         api.put_config_vars "example", {
           "DATABASE_URL" => "postgres://to_reset_credentials",
@@ -349,7 +368,7 @@ STDOUT
           pg          = Heroku::Command::Pg.new
           remote_attachment =
             Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'app' => {'name' => 'sushi'},
+            'app' => {'name' => 'example'},
             'name' => remote,
             'config_var' => remote + '_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
@@ -389,7 +408,7 @@ STDOUT
           pg          = Heroku::Command::Pg.new
           remote_attachment =
             Heroku::Helpers::HerokuPostgresql::Attachment.new({
-            'app' => {'name' => 'sushi'},
+            'app' => {'name' => 'example'},
             'name' => remote,
             'config_var' => remote + '_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',

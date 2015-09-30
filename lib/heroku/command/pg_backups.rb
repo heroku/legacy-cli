@@ -383,6 +383,7 @@ EOF
 
   def restore_backup
     # heroku pg:backups restore [[backup_id] database]
+    requires_preauth
     db = nil
     restore_from = :latest
 
@@ -393,6 +394,7 @@ EOF
       restore_from = shift_argument
       db = shift_argument
     end
+
 
     attachment = generate_resolver.resolve(db, "DATABASE_URL")
     validate_arguments!
