@@ -42,7 +42,7 @@ STDOUT
 
         Excon.stubs.shift(2)
       end
-      
+
       it "should list addons and attachments" do
         Excon.stub(method: :get, path: '/apps/example/addons') do
           hooks = build_addon(
@@ -665,7 +665,7 @@ OUTPUT
       expect(@addons).to receive(:confirm_command).once.and_return(true)
       allow(@addons).to receive(:get_attachments).and_return([])
       allow(@addons).to receive(:resolve_addon!).and_return({
-        "id"          => "abc123", 
+        "id"          => "abc123",
         "config_vars" => [],
         "app"         => { "id" => "123", "name" => "example" }
       })
@@ -682,7 +682,7 @@ OUTPUT
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
       allow(@addons).to receive(:get_attachments).and_return([])
       allow(@addons).to receive(:resolve_addon!).and_return({
-        "id"          => "abc123", 
+        "id"          => "abc123",
         "config_vars" => [],
         "app"         => { "id" => "123", "name" => "example" }
       })
@@ -746,7 +746,7 @@ STDOUT
             )
           }
         end
-        
+
         expect { execute('addons:docs thing') }.to raise_error(Heroku::API::Errors::RequestFailed)
       end
     end
