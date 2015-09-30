@@ -40,21 +40,21 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
     }
   end
 
-    let(:app_attachments) {
-      [ Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_IVORY',
-                         'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
-                         'app' => {'name' => 'sushi' },
-                         'resource' => {'name'  => 'softly-mocking-123',
-                                        'value' => 'postgres://default',
-                                        'type'  => 'heroku-postgresql:baku' }}),
-        Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_BLACK',
-                         'config_var' => 'HEROKU_POSTGRESQL_BLACK_URL',
-                         'app' => {'name' => 'sushi' },
-                         'resource' => {'name'  => 'quickly-yelling-2421',
-                                        'value' => 'postgres://black',
-                                        'type'  => 'heroku-postgresql:zilla' }})
-      ]
-    }
+  let(:app_attachments) {
+    [ Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_IVORY',
+                       'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
+                       'app' => {'name' => 'sushi' },
+                       'resource' => {'name'  => 'softly-mocking-123',
+                                      'value' => 'postgres://default',
+                                      'type'  => 'heroku-postgresql:baku' }}),
+      Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_BLACK',
+                       'config_var' => 'HEROKU_POSTGRESQL_BLACK_URL',
+                       'app' => {'name' => 'sushi' },
+                       'resource' => {'name'  => 'quickly-yelling-2421',
+                                      'value' => 'postgres://black',
+                                      'type'  => 'heroku-postgresql:zilla' }})
+    ]
+  }
 
   context "when the DATABASE_URL has query options" do
     let(:app_config_vars) do
@@ -201,7 +201,5 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
       expect(@resolver).to receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       att = @resolver.resolve('', "DATABASE_URL")
     end
-
-
   end
 end
