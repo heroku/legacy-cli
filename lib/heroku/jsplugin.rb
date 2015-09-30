@@ -107,7 +107,7 @@ class Heroku::JSPlugin
   end
 
   def self.app_dir
-    if os == 'windows' && ENV['LOCALAPPDATA']
+    if windows? && ENV['LOCALAPPDATA']
       File.join(ENV['LOCALAPPDATA'], 'heroku')
     else
       File.join(Heroku::Helpers.home_directory, '.heroku')
@@ -115,11 +115,12 @@ class Heroku::JSPlugin
   end
 
   def self.bin
-    File.join(app_dir, os == 'windows' ? 'heroku-cli.exe' : 'heroku-cli')
+    File.join(app_dir, windows? ? 'heroku-cli.exe' : 'heroku-cli')
   end
 
   def self.setup
-    return if File.exist? bin
+    check_if_old
+    return if setup?
     require 'excon'
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
@@ -135,6 +136,10 @@ class Heroku::JSPlugin
       raise 'SHA mismatch for heroku-cli'
     end
     $stderr.puts " done.\nFor more information on Toolbelt v4: https://github.com/heroku/heroku-cli"
+  end
+
+  def self.setup?
+    File.exist? bin
   end
 
   def self.copy_ca_cert
@@ -182,7 +187,7 @@ class Heroku::JSPlugin
   end
 
   def self.excon_opts
-    if os == 'windows' || ENV['HEROKU_SSL_VERIFY'] == 'disable'
+    if windows? || ENV['HEROKU_SSL_VERIFY'] == 'disable'
       # S3 SSL downloads do not work from ruby in Windows
       {:ssl_verify_peer => false}
     else
@@ -207,5 +212,16 @@ class Heroku::JSPlugin
     return unless cmd
     puts "Usage: heroku #{cmd['usage']}\n\n#{cmd['description']}\n\n#{cmd['fullHelp']}"
     exit 0
+  end
+
+  # check if release is one that isn't able to update on windows
+  def self.check_if_old
+    File.delete(bin) if windows? && setup? && version.start_with?("heroku-cli/4.24")
+  rescue e
+    $stderr.puts e
+  end
+
+  def self.windows?
+    os == 'windows'
   end
 end
