@@ -11,6 +11,81 @@ module Heroku::Command
       stub_core.release("example", "current").returns( "name" => "v99" )
     end
 
+    describe "#index" do
+      before(:each) do
+        stub_core
+        api.post_app("name" => "example", "stack" => "cedar")
+      end
+
+      after(:each) do
+        api.delete_app("example")
+      end
+
+      it "should display no addons when none are configured" do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
+          { body: "[]", status: 200 }
+        end
+
+        Excon.stub(method: :get, path: '/apps/example/addon-attachments') do
+          { body: "[]", status: 200 }
+        end
+
+        stderr, stdout = execute("addons")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+=== Resources for example
+There are no add-ons.
+
+=== Attachments for example
+There are no attachments.
+STDOUT
+
+        Excon.stubs.shift(2)
+      end
+
+      it "should list addons and attachments" do
+        Excon.stub(method: :get, path: '/apps/example/addons') do
+          hooks = build_addon(
+            name: "swimming-nicely-42",
+            plan: { name: "deployhooks:http", price: { cents: 0, unit: "month" }},
+            app:  { name: "example" })
+
+          hpg = build_addon(
+            name: "jumping-slowly-76",
+            plan: { name: "heroku-postgresql:ronin", price: { cents: 20000, unit: "month" }},
+            app:  { name: "example" })
+
+          { body: MultiJson.encode([hooks, hpg]), status: 200 }
+        end
+
+        Excon.stub(method: :get, path: '/apps/example/addon-attachments') do
+          hpg = build_attachment(
+            name:  "HEROKU_POSTGRESQL_CYAN",
+            addon: { name: "heroku-postgresql-12345", app: { name: "example" }},
+            app:   { name: "example" })
+
+          { body: MultiJson.encode([hpg]), status: 200 }
+        end
+
+        stderr, stdout = execute("addons")
+        expect(stderr).to eq("")
+        expect(stdout).to eq <<-STDOUT
+=== Resources for example
+Plan                     Name                Price
+-----------------------  ------------------  -------------
+deployhooks:http         swimming-nicely-42  free
+heroku-postgresql:ronin  jumping-slowly-76   $200.00/month
+
+=== Attachments for example
+Name                    Add-on                   Billing App
+----------------------  -----------------------  -----------
+HEROKU_POSTGRESQL_CYAN  heroku-postgresql-12345  example
+STDOUT
+        Excon.stubs.shift(2)
+      end
+
+    end
+
     describe "list" do
       before do
         Excon.stub(method: :get, path: '/addon-services') do
@@ -590,7 +665,7 @@ OUTPUT
       expect(@addons).to receive(:confirm_command).once.and_return(true)
       allow(@addons).to receive(:get_attachments).and_return([])
       allow(@addons).to receive(:resolve_addon!).and_return({
-        "id"          => "abc123", 
+        "id"          => "abc123",
         "config_vars" => [],
         "app"         => { "id" => "123", "name" => "example" }
       })
@@ -607,7 +682,7 @@ OUTPUT
       allow(@addons).to receive(:args).and_return(%w( addon1 ))
       allow(@addons).to receive(:get_attachments).and_return([])
       allow(@addons).to receive(:resolve_addon!).and_return({
-        "id"          => "abc123", 
+        "id"          => "abc123",
         "config_vars" => [],
         "app"         => { "id" => "123", "name" => "example" }
       })
@@ -671,7 +746,7 @@ STDOUT
             )
           }
         end
-        
+
         expect { execute('addons:docs thing') }.to raise_error(Heroku::API::Errors::RequestFailed)
       end
     end
