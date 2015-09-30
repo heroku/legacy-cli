@@ -1,3 +1,48 @@
+3.42.12 2015-09-29
+==================
+Fixed help for v4 commands that are overridden (such as `addons`)
+
+3.42.11 2015-09-28
+==================
+Reverted addon removal until all v4 clients have it
+
+3.42.10 2015-09-28
+==================
+Moved addons to v4
+
+3.42.9 2015-09-28
+=================
+Updated Gemfile.lock
+
+3.42.8 2015-09-28
+=================
+Fixed auto-login with --app flags
+
+3.42.7 2015-09-28
+=================
+Moved heroku-cli back to ~/.heroku/heroku-cli
+
+3.42.6 2015-09-28
+=================
+Fix cygwin exec
+
+3.42.5 2015-09-28
+=================
+Move v4 windows directory to LOCALAPPDATA
+
+3.42.4 2015-09-28
+=================
+Move v4 windows directory to LOCALAPPDIR
+Move help logic to v3
+Fix cygwin setup
+Fix for non-ascii windows home directories
+Allow debian users to manually update v4
+Fully deprecate ddollar/heroku-accounts
+
+3.42.3 2015-09-22
+=================
+Require v4 CLI for all commands
+
 3.42.2 2015-09-21
 =================
 Fix heroku-account deprecation warning

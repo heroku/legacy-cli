@@ -6,7 +6,7 @@ require "heroku/helpers/addons/resolve"
 
 module Heroku::Command
 
-  # manage addon resources
+  # manage add-on resources
   #
   class Addons < Base
 

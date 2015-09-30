@@ -11,63 +11,6 @@ module Heroku::Command
       ENV.delete('HEROKU_ORGANIZATION')
     end
 
-    context("info") do
-
-      before(:each) do
-        api.post_app("name" => "example", "stack" => "cedar")
-      end
-
-      after(:each) do
-        api.delete_app("example")
-      end
-
-      it "displays implicit app info" do
-        stderr, stdout = execute("apps:info")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-=== example
-Git URL:       https://git.heroku.com/example.git
-Owner Email:   email@example.com
-Stack:         cedar-10
-Web URL:       http://example.herokuapp.com/
-STDOUT
-      end
-
-      it "gets explicit app from --app" do
-        stderr, stdout = execute("apps:info --app example")
-        expect(stderr).to eq("")
-        expect(stdout).to eq <<-STDOUT
-=== example
-Git URL:       https://git.heroku.com/example.git
-Owner Email:   email@example.com
-Stack:         cedar-10
-Web URL:       http://example.herokuapp.com/
-STDOUT
-      end
-
-      it "shows shell app info when --shell option is used" do
-        stderr, stdout = execute("apps:info --shell")
-        expect(stderr).to eq("")
-        expect(stdout).to match Regexp.new(<<-STDOUT)
-create_status=complete
-created_at=\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} [+-]\\d{4}
-dynos=0
-git_url=https://git.heroku.com/example.git
-id=\\d{1,5}
-name=example
-owner_email=email@example.com
-repo_migrate_status=complete
-repo_size=
-requested_stack=
-slug_size=
-stack=cedar
-web_url=http://example.herokuapp.com/
-workers=0
-STDOUT
-      end
-
-    end
-
     context("create") do
 
       it "without a name" do
