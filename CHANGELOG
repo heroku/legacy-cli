@@ -1,3 +1,8 @@
+3.42.14 2015-09-30
+==================
+Ensure v4 is not 4.24.* which won't autoupdate on Windows
+Revert cygwin patch in 3.42.6 since it broke git bash
+
 3.42.13 2015-09-30
 ==================
 Resolve add-ons for pg:* commands with API
