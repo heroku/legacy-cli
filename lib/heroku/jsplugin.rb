@@ -3,18 +3,18 @@ require 'rbconfig'
 class Heroku::JSPlugin
   extend Heroku::Helpers
 
-  def self.setup?
-    File.exists? bin
-  end
-
   def self.try_takeover(command, args)
+    if command == 'help' && args.length > 0
+      return help(find_command(args[0]))
+    elsif args.include?('--help') || args.include?('-h')
+      return help(find_command(command))
+    end
     command = find_command(command)
     return if !command || command["hidden"]
-    run(command['topic'], command['command'], args)
+    run(ARGV[0], nil, ARGV[1..-1])
   end
 
   def self.load!
-    return unless setup?
     this = self
     topics.each do |topic|
       Heroku::Command.register_namespace(
@@ -23,7 +23,7 @@ class Heroku::JSPlugin
       ) unless topic['hidden'] || Heroku::Command.namespaces.include?(topic['name'])
     end
     commands.each do |plugin|
-      help = "\n\n  #{plugin['fullHelp'].split("\n").join("\n  ")}"
+      help = "\n\n  #{plugin['fullHelp']}"
       klass = Class.new do
         def initialize(args, opts)
           @args = args
@@ -43,11 +43,22 @@ class Heroku::JSPlugin
         :help      => help,
         :hidden    => plugin['hidden'],
       )
+      if plugin['default']
+        Heroku::Command.register_command(
+          :command   => plugin['topic'],
+          :namespace => plugin['topic'],
+          :klass     => klass,
+          :method    => :run,
+          :banner    => plugin['usage'],
+          :summary   => " #{plugin['description']}",
+          :help      => help,
+          :hidden    => plugin['hidden'],
+        )
+      end
     end
   end
 
   def self.plugins
-    return [] unless setup?
     @plugins ||= `"#{bin}" plugins`.lines.map do |line|
       name, version = line.split
       { :name => name, :version => version }
@@ -75,12 +86,10 @@ class Heroku::JSPlugin
   end
 
   def self.commands_info
-    copy_ca_cert rescue nil # TODO: remove this once most of the users have the cacert setup
     @commands_info ||= json_decode(`"#{bin}" commands --json`)
   end
 
   def self.install(name, opts={})
-    self.setup
     system "\"#{bin}\" plugins:install #{name}" if opts[:force] || !self.is_plugin_installed?(name)
     error "error installing plugin #{name}" if $? != 0
   end
@@ -97,16 +106,21 @@ class Heroku::JSPlugin
     `"#{bin}" version`
   end
 
-  def self.bin
-    if os == 'windows'
-      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli.exe")
+  def self.app_dir
+    if os == 'windows' && ENV['LOCALAPPDATA']
+      File.join(ENV['LOCALAPPDATA'], 'heroku')
     else
-      File.join(Heroku::Helpers.home_directory, ".heroku", "heroku-cli")
+      File.join(Heroku::Helpers.home_directory, '.heroku')
     end
+  end
+
+  def self.bin
+    File.join(app_dir, os == 'windows' ? 'heroku-cli.exe' : 'heroku-cli')
   end
 
   def self.setup
     return if File.exist? bin
+    require 'excon'
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
     copy_ca_cert
@@ -120,11 +134,11 @@ class Heroku::JSPlugin
       File.delete bin
       raise 'SHA mismatch for heroku-cli'
     end
-    $stderr.puts " done"
+    $stderr.puts " done.\nFor more information on Toolbelt v4: https://github.com/heroku/heroku-cli"
   end
 
   def self.copy_ca_cert
-    to = File.join(Heroku::Helpers.home_directory, ".heroku", "cacert.pem")
+    to = File.join(app_dir, "cacert.pem")
     return if File.exists?(to)
     from = File.expand_path("../../../data/cacert.pem", __FILE__)
     FileUtils.copy(from, to)
@@ -132,7 +146,6 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
-    debug("running #{cmd} on v4")
     exec self.bin, cmd, *args
   end
 
@@ -165,7 +178,7 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("https://d1gvo455cekpjp.cloudfront.net/master/manifest.json", excon_opts).body)
+    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/master/manifest.json", excon_opts).body)
   end
 
   def self.excon_opts
@@ -188,5 +201,11 @@ class Heroku::JSPlugin
     else
       commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
     end
+  end
+
+  def self.help(cmd)
+    return unless cmd
+    puts "Usage: heroku #{cmd['usage']}\n\n#{cmd['description']}\n\n#{cmd['fullHelp']}"
+    exit 0
   end
 end

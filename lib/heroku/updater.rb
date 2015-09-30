@@ -108,7 +108,7 @@ module Heroku
     def self.update(prerelease=false)
       return unless prerelease || needs_update?
 
-      stderr_print 'updating Heroku CLI...'
+      stderr_print 'Updating Heroku CLI...'
       wait_for_lock do
         require "tmpdir"
         require "zip"
