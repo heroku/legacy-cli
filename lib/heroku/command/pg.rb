@@ -568,7 +568,11 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
       response = hpg_client(local_attachment).link_set(remote_attachment.name, options[:as])
 
-      display("New link '#{response[:name]}' successfully created.")
+      if response.has_key?(:message)
+        output_with_bang(response[:message])
+      else
+        display("New link '#{response[:name]}' successfully created.")
+      end
     when 'destroy'
       local = shift_argument
       link = shift_argument
