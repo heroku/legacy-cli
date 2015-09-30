@@ -1,5 +1,7 @@
 #!/bin/sh
-exec "heroku.bat" $@
+# find embedded ruby relative to script
+bindir=`cd -P "${0%/*}/../ruby-1.9.3/bin" 2>/dev/null; pwd`
+exec "$bindir/ruby" -x "$0" "$@"
 
 #!/usr/bin/env ruby
 # encoding: UTF-8
