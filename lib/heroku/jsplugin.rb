@@ -217,6 +217,8 @@ class Heroku::JSPlugin
   # check if release is one that isn't able to update on windows
   def self.check_if_old
     File.delete(bin) if windows? && setup? && version.start_with?("heroku-cli/4.24")
+  rescue => e
+    Rollbar.error(e)
   rescue
   end
 
