@@ -98,7 +98,12 @@ module Heroku
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
       FileUtils.touch last_autoupdate_path
       return warn_if_out_of_date if disable
-      update
+      begin
+        fork { update }
+      rescue NotImplementedError
+        # cannot fork on windows
+        update
+      end
     end
 
     def self.warn_if_out_of_date
