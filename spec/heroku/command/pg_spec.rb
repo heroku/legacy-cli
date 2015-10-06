@@ -12,21 +12,24 @@ module Heroku::Command
             'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
                            'value' => 'postgres://database_url',
-                           'type'  => 'heroku-postgresql:ronin' }}),
+                           'type'  => 'heroku-postgresql:ronin',
+                           'billing_app' => { 'name' => 'example' } }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
             'app' => {'name' => 'example'},
             'name' => 'HEROKU_POSTGRESQL_RONIN',
             'config_var' => 'HEROKU_POSTGRESQL_RONIN_URL',
             'resource' => {'name'  => 'softly-mocking-123',
                            'value' => 'postgres://ronin_database_url',
-                           'type'  => 'heroku-postgresql:ronin' }}),
+                           'type'  => 'heroku-postgresql:ronin',
+                           'billing_app' => { 'name' => 'example' } }}),
           Heroku::Helpers::HerokuPostgresql::Attachment.new({
             'app' => {'name' => 'example'},
             'name' => 'HEROKU_POSTGRESQL_FOLLOW',
             'config_var' => 'HEROKU_POSTGRESQL_FOLLOW_URL',
             'resource' => {'name'  => 'whatever-something-2323',
                            'value' => 'postgres://follow_database_url',
-                           'type'  => 'heroku-postgresql:ronin' }})
+                           'type'  => 'heroku-postgresql:ronin',
+                           'billing_app' => { 'name' => 'example' } }})
         ].concat(extra_attachments))
       end
 
@@ -373,7 +376,8 @@ STDOUT
             'config_var' => remote + '_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
               'value' => "postgres://someurl.test/#{remote}",
-              'type'  => 'heroku-postgresql:ronin'}})
+              'type'  => 'heroku-postgresql:ronin',
+              'billing_app' => { 'name' => 'example' }}})
           local_url   = "postgres:///#{local}"
 
           dump_restore = double()
@@ -413,7 +417,8 @@ STDOUT
             'config_var' => remote + '_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
               'value' => "postgres://someurl.test/#{remote}",
-              'type'  => 'heroku-postgresql:ronin'}})
+              'type'  => 'heroku-postgresql:ronin',
+              'billing_app' => { 'name' => 'example' }}})
           local_url   = "postgres:///#{local}"
           dump_restore = double()
           expect(pg).to receive(:resolve_heroku_attachment).and_return(
@@ -467,7 +472,8 @@ STDOUT
             'config_var' => 'DATABASE_URL',
             'resource' => {'name'  => 'loudly-yelling-1232',
                            'value' => 'postgres://database_url',
-                           'type'  => 'heroku-postgresql:ronin' }})
+                           'type'  => 'heroku-postgresql:ronin',
+                           'billing_app' => { 'name' => 'sushi' } }})
         ])
 
         stderr, stdout = execute("pg:links")
