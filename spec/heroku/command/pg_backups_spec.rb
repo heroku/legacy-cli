@@ -187,6 +187,24 @@ EOF
         expect(stderr).to match(/example has no heroku-postgresql databases/)
         expect(stdout).to be_empty
       end
+
+      it "ignores attached databases that belong to other billing apps" do
+        allow_any_instance_of(Heroku::Helpers::HerokuPostgresql::Resolver)
+          .to receive(:app_attachments)
+               .and_return([ Heroku::Helpers::HerokuPostgresql::Attachment
+                             .new({
+                                    'app' => {'name' => 'example'},
+                                    'name' => 'HEROKU_POSTGRESQL_IVORY',
+                                    'config_var' => 'HEROKU_POSTGRESQL_IVORY_URL',
+                                    'resource' => {'name'  => 'loudly-yelling-1232',
+                                                   'value' => ivory_url,
+                                                   'type'  => 'heroku-postgresql:standard-0',
+                                                   'billing_app' => { 'name' => 'sushi' } }})
+                           ])
+        stderr, stdout = execute("pg:backups schedules")
+        expect(stderr).to match(/example has no heroku-postgresql databases/)
+        expect(stdout).to be_empty
+      end
     end
 
     describe "heroku pg:backups schedule" do
