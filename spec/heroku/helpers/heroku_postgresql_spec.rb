@@ -46,13 +46,15 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
                        'app' => {'name' => 'sushi' },
                        'resource' => {'name'  => 'softly-mocking-123',
                                       'value' => 'postgres://default',
-                                      'type'  => 'heroku-postgresql:baku' }}),
+                                      'type'  => 'heroku-postgresql:baku',
+                                      'billing_app' => { 'name' => 'sushi' }}}),
       Attachment.new({ 'name'  => 'HEROKU_POSTGRESQL_BLACK',
                        'config_var' => 'HEROKU_POSTGRESQL_BLACK_URL',
                        'app' => {'name' => 'sushi' },
                        'resource' => {'name'  => 'quickly-yelling-2421',
                                       'value' => 'postgres://black',
-                                      'type'  => 'heroku-postgresql:zilla' }})
+                                      'type'  => 'heroku-postgresql:zilla',
+                                      'billing_app' => { 'name' => 'sushi' } }})
     ]
   }
 
