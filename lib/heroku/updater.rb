@@ -113,7 +113,6 @@ module Heroku
     def self.update(prerelease=false)
       return unless prerelease || needs_update?
 
-      stderr_print 'Updating Heroku CLI...'
       wait_for_lock do
         require "tmpdir"
         require "zip"
@@ -144,7 +143,6 @@ module Heroku
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
-          stderr_puts "done. Updated to #{version}"
           version
         end
       end
