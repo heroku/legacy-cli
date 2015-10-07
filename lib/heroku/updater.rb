@@ -102,7 +102,9 @@ module Heroku
         fork { update }
       rescue NotImplementedError
         # cannot fork on windows
+        stderr_print 'Updating Heroku CLI...'
         update
+        stderr_puts ' done.'
       end
     end
 
