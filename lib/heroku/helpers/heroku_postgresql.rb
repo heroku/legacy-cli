@@ -7,7 +7,8 @@ module Heroku::Helpers::HerokuPostgresql
   extend Heroku::Helpers
 
   class Attachment
-    attr_reader :app, :name, :config_var, :resource_name, :url, :addon, :plan
+    attr_reader :app, :name, :config_var, :resource_name,
+                :url, :addon, :plan, :billing_app
     attr_reader :bastions, :bastion_key
 
     def initialize(raw)
@@ -18,6 +19,7 @@ module Heroku::Helpers::HerokuPostgresql
       @resource_name = raw['resource']['name']
       @url           = raw['resource']['value']
       @addon, @plan  = raw['resource']['type'].split(':')
+      @billing_app   = raw['resource']['billing_app']['name']
 
       # Optional Bastion information for tunneling.
       if config = raw['config']

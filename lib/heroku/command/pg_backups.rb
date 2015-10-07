@@ -112,7 +112,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
   def arbitrary_app_db
-    generate_resolver.all_databases.values.first
+    generate_resolver.all_databases.values.find do |attachment|
+      attachment.billing_app == app
+    end
   end
 
   def transfer_name(transfer)
