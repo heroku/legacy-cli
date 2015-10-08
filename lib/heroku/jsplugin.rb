@@ -136,6 +136,7 @@ class Heroku::JSPlugin
       raise 'SHA mismatch for heroku-cli'
     end
     $stderr.puts " done.\nFor more information on Toolbelt v4: https://github.com/heroku/heroku-cli"
+    version
   end
 
   def self.setup?
