@@ -1,3 +1,11 @@
+3.42.16 2015-10-08
+==================
+Improve handling of shareable addons with postgres
+Fix bug that deleted v4 if there was an issue reading commands
+Ensure windows uninstall will remove everything
+Update asynchronously
+Report errors in removing old versions to rollbar
+
 3.42.15 2015-09-31
 ==================
 Catch all errors when attempting to delete old v4 release
