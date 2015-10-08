@@ -47,6 +47,10 @@ Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocance
 Filename: "{tmp}\git.exe"; Parameters: "/silent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"
 
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\heroku"
+Type: filesandordirs; Name: "{%UserProfile}\.heroku"
+
 [Code]
 
 function NeedsAddPath(Param: string): boolean;
