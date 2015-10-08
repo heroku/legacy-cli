@@ -3,6 +3,7 @@ if RUBY_VERSION < '1.9.0' # this is a string comparison, but it should work for 
   exit 1
 end
 
+Encoding.default_internal, Encoding.default_external = ['utf-8'] * 2
 load('heroku/helpers.rb') # reload helpers after possible inject_loadpath
 load('heroku/updater.rb') # reload updater after possible inject_loadpath
 
