@@ -79,7 +79,7 @@ class Heroku::JSPlugin
 
   def self.commands_info
     @commands_info ||= begin
-                         info = json_decode(`"#{bin}" commands --json`.encode('utf-8'))
+                         info = json_decode(`"#{bin}" commands --json`)
                          error "error getting commands #{$?}" if $? != 0
                          info
                        end
