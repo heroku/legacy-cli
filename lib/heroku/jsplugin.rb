@@ -121,7 +121,10 @@ class Heroku::JSPlugin
     $stderr.print "Installing Heroku Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
     copy_ca_cert
-    opts = excon_opts.merge(:middlewares => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress])
+    opts = excon_opts.merge(
+      :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress],
+      :read_timeout => 300,
+    )
     resp = Excon.get(url, opts)
     open(bin, "wb") do |file|
       file.write(resp.body)
