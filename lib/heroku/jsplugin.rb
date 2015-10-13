@@ -10,7 +10,7 @@ class Heroku::JSPlugin
       return
     end
     command = find_command(command)
-    return if !command || command["hidden"]
+    return if !command || command[:hidden]
     run(ARGV[0], nil, ARGV[1..-1])
   end
 
