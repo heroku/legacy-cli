@@ -5,9 +5,9 @@ class Heroku::JSPlugin
 
   def self.try_takeover(command, args)
     if command == 'help' && args.length > 0
-      return help(find_command(args[0]))
+      return
     elsif args.include?('--help') || args.include?('-h')
-      return help(find_command(command))
+      return
     end
     command = find_command(command)
     return if !command || command["hidden"]
@@ -15,44 +15,24 @@ class Heroku::JSPlugin
   end
 
   def self.load!
-    this = self
     topics.each do |topic|
       Heroku::Command.register_namespace(
         :name => topic['name'],
         :description => " #{topic['description']}"
       ) unless topic['hidden'] || Heroku::Command.namespaces.include?(topic['name'])
     end
-    commands.each do |plugin|
-      help = "\n\n  #{plugin['fullHelp']}"
-      klass = Class.new do
-        def initialize(args, opts)
-          @args = args
-          @opts = opts
-        end
-      end
-      klass.send(:define_method, :run) do
-        this.run(plugin['topic'], plugin['command'], ARGV[1..-1])
-      end
-      Heroku::Command.register_command(
-        :command   => plugin['command'] ? "#{plugin['topic']}:#{plugin['command']}" : plugin['topic'],
-        :namespace => plugin['topic'],
-        :klass     => klass,
-        :method    => :run,
-        :banner    => plugin['usage'],
-        :summary   => " #{plugin['description']}",
-        :help      => help,
-        :hidden    => plugin['hidden'],
-      )
-      if plugin['default']
+    commands.each do |command|
+      Heroku::Command.register_command(command)
+      if command[:default]
         Heroku::Command.register_command(
-          :command   => plugin['topic'],
-          :namespace => plugin['topic'],
-          :klass     => klass,
+          :command   => command[:namespace],
+          :namespace => command[:namespace],
+          :klass     => command[:klass],
           :method    => :run,
-          :banner    => plugin['usage'],
-          :summary   => " #{plugin['description']}",
-          :help      => help,
-          :hidden    => plugin['hidden'],
+          :banner    => command[:banner],
+          :summary   => command[:summary],
+          :help      => command[:help],
+          :hidden    => command[:hidden],
         )
       end
     end
@@ -74,7 +54,32 @@ class Heroku::JSPlugin
   end
 
   def self.commands
-    commands_info['commands']
+    @commands ||= begin
+                    this = self
+                    commands_info['commands'].map do |command|
+                      help = "\n\n#{command['fullHelp']}"
+                      klass = Class.new do
+                        def initialize(args, opts)
+                          @args = args
+                          @opts = opts
+                        end
+                      end
+                      klass.send(:define_method, :run) do
+                        this.run(command['topic'], command['command'], ARGV[1..-1])
+                      end
+                      {
+                        :command   => command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic'],
+                        :namespace => command['topic'],
+                        :klass     => klass,
+                        :method    => :run,
+                        :banner    => command['usage'],
+                        :summary   => " #{command['description']}",
+                        :help      => help,
+                        :hidden    => command['hidden'],
+                        :default   => command['default'],
+                      }
+                    end
+                  end
   end
 
   def self.commands_info
@@ -200,18 +205,7 @@ class Heroku::JSPlugin
   end
 
   def self.find_command(s)
-    topic, cmd = s.split(':', 2)
-    if cmd
-      commands.find { |t| t["topic"] == topic && t["command"] == cmd }
-    else
-      commands.find { |t| t["topic"] == topic && (t["command"] == nil || t["default"]) }
-    end
-  end
-
-  def self.help(cmd)
-    return unless cmd
-    puts "Usage: heroku #{cmd['usage']}\n\n#{cmd['description']}\n\n#{cmd['fullHelp']}"
-    exit 0
+    commands.find { |c| c[:command] == s }
   end
 
   # check if release is one that isn't able to update on windows
