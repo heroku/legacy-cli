@@ -42,8 +42,6 @@ module Heroku::Helpers::PgDiagnose
     attachment = generate_resolver.resolve(db_id, "DATABASE_URL")
     validate_arguments!
 
-    warn_old_databases(attachment)
-
     metrics = get_metrics(attachment)
 
     params = {
@@ -58,13 +56,6 @@ module Heroku::Helpers::PgDiagnose
                       :expects => [200, 201],
                       :body => params.to_json,
                       :headers => {"Content-Type" => "application/json"})
-  end
-
-  def warn_old_databases(attachment)
-    @uri = URI.parse(attachment.url) # for #nine_two?
-    if !nine_two?
-      warn "WARNING: pg:diagnose is only fully supported on Postgres version >= 9.2. Some checks will be skipped.\n\n"
-    end
   end
 
   def get_metrics(attachment)
