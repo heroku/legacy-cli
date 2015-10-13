@@ -149,7 +149,7 @@ private
       display("Alias: #{name} redirects to #{command_alias}")
       name = command_alias
     end
-    if command = commands[name]
+    if command = Heroku::JSPlugin.find_command(name) || commands[name]
       puts "Usage: heroku #{command[:banner]}"
 
       if command[:help].strip.length > 0
