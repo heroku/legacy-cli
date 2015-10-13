@@ -1,4 +1,8 @@
-3.42.17 2015-10-09
+3.42.19 2015-10-10
+==================
+Fix help indices for v4 topics
+
+3.42.18 2015-10-09
 ==================
 Fix LOCALAPPDATA dir on Windows with non-ASCII characters
 Increase timeout when downloading v4
