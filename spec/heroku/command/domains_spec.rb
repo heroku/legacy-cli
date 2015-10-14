@@ -17,10 +17,9 @@ module Heroku::Command
       stub_core
     end
 
-    # TODO: rename after 3.domain-cname is merged
-    def stub_get_domains_v3_domain_cname(*custom_hostnames)
+    def stub_get_domains_v3(*custom_hostnames)
       Excon.stub(
-        :headers => { "Accept" => "application/vnd.heroku+json; version=3.domain-cname" },
+        :headers => { "Accept" => "application/vnd.heroku+json; version=3" },
         :method => :get,
         :path => '/apps/example/domains') do
         {
@@ -42,11 +41,10 @@ module Heroku::Command
       end
     end
 
-    # TODO: rename after 3.domain-cname is merged
-    def stub_post_domains_v3_domain_cname(custom_hostname)
+    def stub_post_domains_v3(custom_hostname)
       Excon.stub(
         :headers => {
-          "Accept" => "application/vnd.heroku+json; version=3.domain-cname",
+          "Accept" => "application/vnd.heroku+json; version=3",
           "Content-Type" => "application/json"
         },
         :method => :post,
@@ -80,7 +78,7 @@ STDOUT
       end
 
       it "lists message with development domain but no custom domains" do
-        stub_get_domains_v3_domain_cname()
+        stub_get_domains_v3()
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
@@ -94,7 +92,7 @@ STDOUT
       end
 
       it "lists development and custom domains when some exist" do
-        stub_get_domains_v3_domain_cname('example1.com', 'example2.com')
+        stub_get_domains_v3('example1.com', 'example2.com')
         stderr, stdout = execute("domains")
         expect(stderr).to eq("")
         expect(stdout).to eq <<-STDOUT
@@ -112,7 +110,7 @@ STDOUT
     end
 
     it "adds domain names" do
-      stub_post_domains_v3_domain_cname('example.com')
+      stub_post_domains_v3('example.com')
       stderr, stdout = execute("domains:add example.com")
       expect(stderr).to eq("")
       expect(stdout).to eq <<-STDOUT
