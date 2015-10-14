@@ -1,5 +1,5 @@
 require "heroku/command/base"
-require "heroku/api/domains_v3_domain_cname"
+require "heroku/api/domains_v3"
 
 module Heroku::Command
 
