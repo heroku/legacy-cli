@@ -36,6 +36,6 @@ class Heroku::Command::Update < Heroku::Command::Base
 
   def update_from_url(prerelease)
     Heroku::Updater.check_disabled!
-    Heroku::Updater.update(prerelease)
+    Heroku::Updater.update(prerelease, true)
   end
 end
