@@ -159,6 +159,11 @@ class Heroku::JSPlugin
     exec self.bin, cmd, *args
   end
 
+  def self.spawn(topic, command, args)
+    cmd = command ? "#{topic}:#{command}" : topic
+    system self.bin, cmd, *args
+  end
+
   def self.arch
     case RbConfig::CONFIG['host_cpu']
     when /x86_64/

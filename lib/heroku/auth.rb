@@ -42,7 +42,8 @@ class Heroku::Auth
     end
 
     def login
-      delete_credentials
+      Heroku::JSPlugin.spawn('login', '', []) or exit
+      @netrc, @api, @client, @credentials = nil
       get_credentials
     end
 
@@ -108,7 +109,7 @@ class Heroku::Auth
     end
 
     def get_credentials    # :nodoc:
-      @credentials ||= (read_credentials || ask_for_and_save_credentials)
+      @credentials ||= (read_credentials || login)
     end
 
     def delete_credentials

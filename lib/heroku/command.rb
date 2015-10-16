@@ -274,7 +274,7 @@ module Heroku
         false
       else
         puts "Authentication failure"
-        Heroku::JSPlugin.run('login', nil, [])
+        Heroku::Auth.login
         true
       end
     end
