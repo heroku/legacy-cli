@@ -91,19 +91,18 @@ module Heroku
     end
 
     def self.autoupdate
-      # if we've updated in the last hour, don't try again
+      # if we've updated in the last 4 hours, don't try again
       if File.exists?(last_autoupdate_path)
-        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60*60*4
       end
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
       FileUtils.touch last_autoupdate_path
       return warn_if_out_of_date if disable
       begin
-        fork { update }
+        fork { update(false, false) }
       rescue NotImplementedError
         # cannot fork on windows
-        stderr_print 'Updating Heroku CLI...'
-        update
+        update(false, true)
         stderr_puts ' done.'
       end
     end
@@ -112,9 +111,10 @@ module Heroku
       $stderr.puts "WARNING: Toolbelt v#{latest_version} update available." if needs_minor_update?
     end
 
-    def self.update(prerelease=false)
+    def self.update(prerelease=false, message=true)
       return unless prerelease || needs_update?
 
+      stderr_puts 'Updating Heroku CLI...'
       wait_for_lock do
         require "tmpdir"
         require "zip"
@@ -144,6 +144,8 @@ module Heroku
           FileUtils.rm_rf updated_client_path
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
+
+          stderr_puts ' done.'
 
           version
         end
