@@ -121,13 +121,6 @@ module Heroku
       end
     end
 
-    it "asks for credentials when the file doesn't exist" do
-      @cli.delete_credentials
-      expect(@cli).to receive(:ask_for_credentials).and_return(["u", "p"])
-      expect(@cli.user).to eq('u')
-      expect(@cli.password).to eq('p')
-    end
-
     it "writes credentials and uploads authkey when credentials are saved" do
       allow(@cli).to receive(:credentials)
       allow(@cli).to receive(:check)
