@@ -413,7 +413,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   end
 
 
-  # pg:maintenance <info|run|set-window> <DATABASE>
+  # pg:maintenance <info|run|window> <DATABASE>
   #
   # manage maintenance for <DATABASE>
   # info               # show current maintenance information
