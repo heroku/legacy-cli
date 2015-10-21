@@ -191,6 +191,7 @@ module Heroku::Command
     end
 
     def display_buildpacks(buildpacks, indent="  ")
+      buildpacks.map! { |bp| bp.gsub(/^urn:buildpack:/, '') }
       if (buildpacks.size == 1)
         display(buildpacks.first)
       else

@@ -53,6 +53,23 @@ https://github.com/heroku/heroku-buildpack-ruby
         STDOUT
       end
 
+      context "with buildpack URNs" do
+        before(:each) do
+          Excon.stubs.shift
+          stub_get("urn:buildpack:heroku/nodejs", "urn:buildpack:heroku/ruby")
+        end
+
+        it "displays the short-hand name" do
+          stderr, stdout = execute("buildpacks")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+=== example Buildpack URLs
+1. heroku/nodejs
+2. heroku/ruby
+          STDOUT
+        end
+      end
+
       context "with no buildpack URL set" do
         before(:each) do
           Excon.stubs.shift
