@@ -70,6 +70,23 @@ https://github.com/heroku/heroku-buildpack-ruby
         end
       end
 
+      context "with offical buildpack URLs" do
+        before(:each) do
+          Excon.stubs.shift
+          stub_get("https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/nodejs.tgz", "https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/ruby.tgz")
+        end
+
+        it "displays the short-hand name" do
+          stderr, stdout = execute("buildpacks")
+          expect(stderr).to eq("")
+          expect(stdout).to eq <<-STDOUT
+=== example Buildpack URLs
+1. heroku/nodejs
+2. heroku/ruby
+          STDOUT
+        end
+      end
+
       context "with no buildpack URL set" do
         before(:each) do
           Excon.stubs.shift

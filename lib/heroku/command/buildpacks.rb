@@ -228,7 +228,9 @@ module Heroku::Command
     end
 
     def to_buildpack_name(buildpack_url)
-      buildpack_url.gsub(/^urn:buildpack:/, '')
+      buildpack_url.
+        gsub(/^urn:buildpack:/, '').
+        gsub(%r{^https://codon-buildpacks\.s3\.amazonaws\.com/buildpacks/heroku/(.*)\.tgz$}, 'heroku/\1')
     end
 
   end
