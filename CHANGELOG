@@ -1,3 +1,11 @@
+3.42.21 2015-10-30
+==================
+Remove protocol prefix for buildpack URN
+Fix documentation for pg:maintenance
+Use v4 for login
+Hide updating on windows
+Remove v3 domain name variant
+
 3.42.20 2015-10-10
 ==================
 Prevent running v4 hidden commands by default
