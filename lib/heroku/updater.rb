@@ -103,7 +103,6 @@ module Heroku
       rescue NotImplementedError
         # cannot fork on windows
         update(false, true)
-        stderr_puts ' done.'
       end
     end
 
@@ -114,7 +113,7 @@ module Heroku
     def self.update(prerelease=false, message=true)
       return unless prerelease || needs_update?
 
-      stderr_puts 'Updating Heroku CLI...'
+      stderr_puts 'Updating Heroku CLI...' if message
       wait_for_lock do
         require "tmpdir"
         require "zip"
@@ -145,7 +144,7 @@ module Heroku
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
-          stderr_puts ' done.'
+          stderr_puts ' done.' if message
 
           version
         end
