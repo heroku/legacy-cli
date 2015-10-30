@@ -186,11 +186,12 @@ module Heroku::Command
     end
 
     def update_buildpacks(buildpack_urls, action)
-      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => url} }})
+      api.put_app_buildpacks_v3(app, {:updates => buildpack_urls.map{|url| {:buildpack => to_buildpack_name(url)} }})
       display_buildpack_change(buildpack_urls, action)
     end
 
     def display_buildpacks(buildpacks, indent="  ")
+      buildpacks.map!{|bp| to_buildpack_name(bp)}
       if (buildpacks.size == 1)
         display(buildpacks.first)
       else
@@ -224,6 +225,12 @@ module Heroku::Command
       else
         display "Buildpack#{plural ? "s" : ""} #{action}. Next release on #{app} will detect buildpack normally."
       end
+    end
+
+    def to_buildpack_name(buildpack_url)
+      buildpack_url.
+        gsub(/^urn:buildpack:/, '').
+        gsub(%r{^https://codon-buildpacks\.s3\.amazonaws\.com/buildpacks/heroku/(.*)\.tgz$}, 'heroku/\1')
     end
 
   end
