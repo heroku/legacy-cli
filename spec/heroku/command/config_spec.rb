@@ -80,6 +80,16 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 STDOUT
     end
 
+    it "redacts URI passwords" do
+      api.put_config_vars("example", { 'DATABASE_URL' => 'postgres://u:p@host' })
+      stderr, stdout = execute("config")
+      stderr.should == ""
+      stdout.should == <<-STDOUT
+=== example Config Vars
+DATABASE_URL: postgres://u:(redacted)@host
+STDOUT
+    end
+
     context("set") do
 
       it "sets config vars" do

@@ -1,3 +1,4 @@
+require "uri"
 require "heroku/command/base"
 require "shellwords"
 
@@ -12,15 +13,19 @@ class Heroku::Command::Config < Heroku::Command::Base
   #
   # -s, --shell  # output config vars in shell format
   #
+  # Without option -s, passwords in URLs will be hidden.
+  #
   #Examples:
   #
   # $ heroku config
-  # A: one
-  # B: two
+  # A:     one
+  # B:     two
+  # MYURL: http://user:(redacted)@example.com/
   #
   # $ heroku config --shell
   # A=one
   # B=two
+  # MYURL=http://user:pass@example.com/
   #
   def index
     validate_arguments!
@@ -46,8 +51,20 @@ class Heroku::Command::Config < Heroku::Command::Base
           display(%{#{key}=#{out}})
         end
       else
+        redacted = {}
+        vars.each do |k, v|
+          begin
+            u = URI.parse(v)
+            if !u.password.nil?
+              u.password = "(redacted)"
+            end
+            redacted[k] = u.to_s
+          rescue URI::Error
+            redacted[k] = v
+          end
+        end
         styled_header("#{app} Config Vars")
-        styled_hash(vars)
+        styled_hash(redacted)
       end
     end
   end
