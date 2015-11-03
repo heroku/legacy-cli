@@ -113,7 +113,7 @@ module Heroku
     def self.update(prerelease=false, message=true)
       return unless prerelease || needs_update?
 
-      stderr_puts 'Updating Heroku CLI...' if message
+      $stderr.print 'heroku-cli: Updating...' if message
       wait_for_lock do
         require "tmpdir"
         require "zip"
@@ -144,7 +144,7 @@ module Heroku
           FileUtils.mkdir_p File.dirname(updated_client_path)
           FileUtils.cp_r  download_dir, updated_client_path
 
-          stderr_puts ' done.' if message
+          $stderr.puts ' done.' if message
 
           version
         end
