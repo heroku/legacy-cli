@@ -123,7 +123,7 @@ class Heroku::JSPlugin
     check_if_old
     return if setup?
     require 'excon'
-    $stderr.print "Installing Heroku Toolbelt v4..."
+    $stderr.print "heroku-cli: Installing Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
     copy_ca_cert
     opts = excon_opts.merge(
