@@ -84,6 +84,7 @@ module Heroku::Command
     # Updating heroku-production-check... done
     #
     def update
+      Heroku::JSPlugin.update
       plugins = if plugin = shift_argument
         [plugin]
       else
