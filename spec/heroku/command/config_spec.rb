@@ -89,6 +89,15 @@ STDOUT
 STDOUT
     end
 
+    it "shows a single config for get --shell when missing" do
+      api.put_config_vars("example", { 'LONG' => 'A' * 60 })
+      stderr, stdout = execute("config:get --shell BLAH")
+      expect(stderr).to eq("")
+      expect(stdout).to eq <<-STDOUT
+
+STDOUT
+    end
+
     context("set") do
 
       it "sets config vars" do
