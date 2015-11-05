@@ -110,6 +110,8 @@ class Heroku::JSPlugin
   def self.app_dir
     if windows? && ENV['LOCALAPPDATA']
       File.join(ENV['LOCALAPPDATA'], 'heroku').encode('windows-1252')
+    elsif ENV['XDG_DATA_HOME']
+      File.join(ENV['XDG_DATA_HOME'], 'heroku')
     else
       File.join(Heroku::Helpers.home_directory, '.heroku')
     end
