@@ -771,7 +771,52 @@ STDERR
       end
 
       it "opens the addon if only one matches" do
+        Excon.stub(method: :get, path: %r'(/apps/example)?/addon-attachments/redistogo:nano') do
+          {status: 404}
+        end
         addon.merge!(addon_service: { name: "redistogo:nano" })
+
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon!).and_return(stringify(addon))
+        require("launchy")
+        expect(Launchy).to receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/#{addon[:id]}").and_return(Thread.new {})
+        stderr, stdout = execute('addons:open redistogo:nano')
+        expect(stderr).to eq('')
+        expect(stdout).to eq <<-STDOUT
+Opening redistogo:nano (my_addon) for example... done
+STDOUT
+      end
+
+      it "opens the addon using the attachment URL if a single unique attachment can be determined" do
+        addon.merge!(addon_service: { name: "redistogo:nano" })
+        attachment = build_attachment(
+          name:  "REDISTOGO",
+          addon: { name: "redistogo-angular", app: { name: "example" }},
+          app:   { name: "example" })
+
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon!).and_return(stringify(addon))
+        allow_any_instance_of(Heroku::Command::Addons).to receive(:get_attachment).and_return(stringify(attachment))
+        require("launchy")
+        expect(Launchy).to receive(:open).with("https://attachment-sso").and_return(Thread.new {})
+        stderr, stdout = execute('addons:open redistogo:nano')
+        expect(stderr).to eq('')
+        expect(stdout).to eq <<-STDOUT
+Opening redistogo:nano (my_addon) for example... done
+STDOUT
+      end
+
+      it "opens the add-on using the add-on URL if a single unique attachment can not be determined" do
+        Excon.stub(method: :get, path: '/apps/example/addon-attachments/redistogo:nano') do
+          {
+            status: 422,
+            body: MultiJson.encode(
+              id: "multiple_matches",
+              message: "Ambiguous identifier; ..."
+            )
+          }
+        end
+
+        addon.merge!(addon_service: { name: "redistogo:nano" })
+
         allow_any_instance_of(Heroku::Command::Addons).to receive(:resolve_addon!).and_return(stringify(addon))
         require("launchy")
         expect(Launchy).to receive(:open).with("https://addons-sso.heroku.com/apps/example/addons/#{addon[:id]}").and_return(Thread.new {})
