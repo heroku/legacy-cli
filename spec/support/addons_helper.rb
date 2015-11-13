@@ -42,7 +42,8 @@ module Support
         created_at: Time.now,
         id:         attachment.fetch(:id, SecureRandom.uuid),
         name:       attachment[:name],
-        updated_at: Time.now
+        updated_at: Time.now,
+        web_url:    "https://attachment-sso"
       }
     end
 

@@ -375,10 +375,21 @@ module Heroku::Command
       requires_preauth
 
       addon = resolve_addon!(addon_name)
-      return addon if addon.is_a?(String)
+      web_url = addon['web_url']
+
+      begin
+        attachment = resolve_attachment!(addon_name)
+        web_url = attachment['web_url']
+      rescue Heroku::API::Errors::NotFound
+        # no-op
+      rescue Heroku::API::Errors::RequestFailed => e
+        if MultiJson.decode(e.response.body)["id"] != "multiple_matches"
+          raise
+        end
+      end
 
       service = addon['addon_service']['name']
-      launchy("Opening #{service} (#{addon['name']}) for #{addon['app']['name']}", addon["web_url"])
+      launchy("Opening #{service} (#{addon['name']}) for #{addon['app']['name']}", web_url)
     end
 
     private
