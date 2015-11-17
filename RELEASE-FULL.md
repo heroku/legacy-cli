@@ -53,8 +53,7 @@ building; run the `exe:pvk` task for that.
 
 You'll have to ask the right person for the passphrase to the key.
 
-You then need to initialize a custom wine build environment. The `exe:init-wine`
-task will do that for you.
+* Initialize wine: `bundle exec rake exe:init-wine`
 
 To build for testing: `bundle exec rake exe:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.exe`.
 To release: `bundle exec rake pkg:release`.
