@@ -221,7 +221,11 @@ module Heroku::Helpers::HerokuPostgresql
       end
 
       if found_attachment.nil?
-        error("Unknown database#{': ' + name unless name.empty?}. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
+        if name.empty?
+          error("No default database configured in DATABASE_URL. Valid alternatives are: #{hpg_databases.keys.sort.join(", ")}")
+        else
+          error("Unknown database#{': ' + name unless name.empty?}. Valid options are: #{hpg_databases.keys.sort.join(", ")}")
+        end
       end
 
       return found_attachment
