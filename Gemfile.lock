@@ -5,6 +5,7 @@ PATH
       heroku-api (= 0.3.23)
       launchy (= 2.4.3)
       multi_json (= 1.11.2)
+      net-ssh (= 2.9.2)
       net-ssh-gateway (= 1.2.0)
       netrc (= 0.10.3)
       rest-client (= 1.6.8)
