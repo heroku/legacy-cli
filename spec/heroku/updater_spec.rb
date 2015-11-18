@@ -56,7 +56,7 @@ module Heroku
 
       describe 'non-beta' do
         before do
-          zip = File.read(File.expand_path('../../fixtures/heroku-client-3.9.7.zip', __FILE__))
+          zip = IO.binread(File.expand_path('../../fixtures/heroku-client-3.9.7.zip', __FILE__))
           hash = "615792e1f06800a6d744f518887b10c09aa914eab51d0f7fbbefd81a8a64af93"
           Excon.stub({:host => 'toolbelt.heroku.com', :path => '/download/zip'}, {:body => zip})
           Excon.stub({:host => 'toolbelt.heroku.com', :path => '/update/hash'}, {:body => "#{hash}\n"})
@@ -85,7 +85,7 @@ module Heroku
 
       describe 'beta' do
         before do
-          zip = File.read(File.expand_path('../../fixtures/heroku-client-3.9.7.zip', __FILE__))
+          zip = IO.binread(File.expand_path('../../fixtures/heroku-client-3.9.7.zip', __FILE__))
           Excon.stub({:host => 'toolbelt.heroku.com', :path => '/download/beta-zip'}, {:body => zip})
         end
 

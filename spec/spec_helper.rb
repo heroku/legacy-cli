@@ -1,4 +1,10 @@
-$stdin = File.new("/dev/null")
+require "heroku/helpers"
+
+if (Heroku::Helpers.running_on_windows?)
+  $stdin = File.new("nul")
+else 
+  $stdin = File.new("/dev/null")
+end
 
 require "rubygems"
 

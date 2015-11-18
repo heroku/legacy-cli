@@ -1,5 +1,6 @@
 require "spec_helper"
 require "heroku/plugin"
+require "tmpdir"
 
 module Heroku
   describe Plugin do
@@ -7,7 +8,7 @@ module Heroku
 
     it "lives in ~/.heroku/plugins" do
       allow(Plugin).to receive(:home_directory).and_return('/home/user')
-      expect(Plugin.directory).to eq('/home/user/.heroku/plugins')
+      expect(Plugin.directory).to eq(File.expand_path('/home/user/.heroku/plugins'))
     end
 
     it "extracts the name from git urls" do
@@ -16,14 +17,16 @@ module Heroku
 
     describe "management" do
       before(:each) do
-        @sandbox = "/tmp/heroku_plugins_spec_#{Process.pid}"
-        FileUtils.mkdir_p(@sandbox)
+        @sandbox = Dir.mktmpdir
+        @plugin_folder = File.join(Dir.mktmpdir, 'heroku_plugin')
+        FileUtils.mkdir_p(@plugin_folder)
         allow(Dir).to receive(:pwd).and_return(@sandbox)
         allow(Plugin).to receive(:directory).and_return(@sandbox)
       end
 
       after(:each) do
         FileUtils.rm_rf(@sandbox)
+        FileUtils.rm_rf(@plugin_folder)
       end
 
       it "lists installed plugins" do
@@ -34,43 +37,45 @@ module Heroku
       end
 
       it "installs pulling from the plugin url" do
-        plugin_folder = "/tmp/heroku_plugin"
-        FileUtils.mkdir_p(plugin_folder)
-        `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
-        Plugin.new(plugin_folder).install
+        `cd #{@plugin_folder} && git init && echo test > README && git add README && git commit -m my_plugin`
+        Plugin.new(@plugin_folder).install
         expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
-        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("test\n")
+        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq(File.read("#{@plugin_folder}/README"))
       end
 
       it "reinstalls over old copies" do
-        plugin_folder = "/tmp/heroku_plugin"
-        FileUtils.mkdir_p(plugin_folder)
-        `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
-        Plugin.new(plugin_folder).install
-        Plugin.new(plugin_folder).install
+        `cd #{@plugin_folder} && git init && echo test > README && git add . && git commit -m my_plugin`
+        Plugin.new(@plugin_folder).install
+        Plugin.new(@plugin_folder).install
         expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
-        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("test\n")
+        expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq(File.read("#{@plugin_folder}/README"))
       end
 
       context "update" do
 
         before(:each) do
-          plugin_folder = "/tmp/heroku_plugin"
-          FileUtils.mkdir_p(plugin_folder)
-          `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
-          Plugin.new(plugin_folder).install
-          `cd #{plugin_folder} && echo 'updated' > README && git add . && git commit -m 'my plugin update'`
+          @plugin_folder = File.join(Dir.mktmpdir, 'heroku_plugin')
+          FileUtils.mkdir_p(@plugin_folder)
+          `cd #{@plugin_folder} && git init && echo test > README && git add . && git commit -m my_plugin`
+          Plugin.new(@plugin_folder).install
+          `cd #{@plugin_folder} && echo updated > README && git add . && git commit -m my_plugin_update`
         end
 
         it "updates existing copies" do
           Plugin.new('heroku_plugin').update
           expect(File.directory?("#{@sandbox}/heroku_plugin")).to be_truthy
-          expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq("updated\n")
+          expect(File.read("#{@sandbox}/heroku_plugin/README")).to eq(File.read("#{@plugin_folder}/README"))
         end
 
-        it "raises exception on symlinked plugins" do
-          `cd #{@sandbox} && ln -s heroku_plugin heroku_plugin_symlink`
-          expect { Plugin.new('heroku_plugin_symlink').update }.to raise_error Heroku::Plugin::ErrorUpdatingSymlinkPlugin
+        if Heroku::Helpers.running_on_windows?
+          xit "raises exception on symlinked plugins" do
+            # using mklink is problematic & buggy
+          end
+        else
+          it "raises exception on symlinked plugins" do
+            `cd #{@sandbox} && ln -s heroku_plugin heroku_plugin_symlink`
+            expect { Plugin.new('heroku_plugin_symlink').update }.to raise_error Heroku::Plugin::ErrorUpdatingSymlinkPlugin
+          end
         end
 
       end
