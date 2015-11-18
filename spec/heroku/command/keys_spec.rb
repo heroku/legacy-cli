@@ -20,7 +20,8 @@ Could not find an existing public key at ~/.ssh/id_rsa.pub
 Would you like to generate one? [Yn] Generating new SSH public key.
 Uploading SSH public key #{Heroku::Auth.home_directory}/.ssh/id_rsa.pub... done
 STDOUT
-        api.delete_key(`whoami`.strip + '@' + `hostname`.strip)
+        id_rsa_pub = File.read("#{Heroku::Auth.home_directory}/.ssh/id_rsa.pub")
+        api.delete_key(id_rsa_pub.split(' ')[2])
       end
 
       it "adds a key from a specified keyfile path" do
