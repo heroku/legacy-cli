@@ -1,3 +1,15 @@
+3.42.22 2015-11-18
+==================
+prefix update messaging
+update v4 plugins when running plugins:update
+Adding verification test for config:get not found
+use $XDG_DATA_HOME if available
+Adding test for config:get --shell not found
+Use attachment SSO url if it can be determined
+Fixing tests so they can run under windows
+Making the required init-wine task more obvious
+Freeze net-ssh to 2.9.2 to preserve 1.9.3 support
+
 3.42.21 2015-10-30
 ==================
 Remove protocol prefix for buildpack URN
