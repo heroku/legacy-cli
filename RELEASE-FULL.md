@@ -9,6 +9,12 @@ Prerequisites:
 
 * OSX
 * Heroku Developer ID Installer Certificate in Keychain
+  * `gpg --decrypt-files resources/pkg/certificate.p12.gpg`
+    * Enter OSX .p12 Certificate password (LastPass Shared CLI Secure Note)
+  * open resources/pkg/certificate.p12
+    * There is no password on certificate.p12 (it was GPG encrypted instead)
+  * rm resources/pkg/certificate.p12 (you do not need it anymore) 
+
 * `HEROKU_RELEASE_ACCESS` and `HEROKU_RELEASE_SECRET`
 
 To build for testing: `bundle exec rake pkg:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.pkg`.
