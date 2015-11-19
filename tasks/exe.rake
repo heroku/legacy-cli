@@ -75,25 +75,21 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
     # this sets the version and the output filename
     File.write("#{installer_path}/heroku.iss", ERB.new(File.read(resource("exe/heroku.iss"))).result(binding))
 
-    # the codesign command used by inno to sign the installer and uninstaller
-    sign_cmd = 'c:\windows\mono\mono-2.0\lib\mono\4.5\signcode.exe' + %Q[
-      -spc "#{windows_path(resource('exe/heroku-codesign-cert.spc'))}"
-      -v   "#{windows_path(resource('exe/heroku-codesign-cert.pvk'))}"
-      -a   sha1 -$ commercial
-      -n   "Heroku Toolbelt"
-      $f ].            # $f gets replaced by iscc with the path to the file it wants to compile
-      gsub("\n", ' '). # everything on a single line now
-      gsub('"', '$q') # iscc requires quotes to be escaped this way, don't ask
-
     # compile installer under wine!
     setup_wine_env
-    system 'wine', 'C:\inno\ISCC.exe',
-      "/Smono-signcode=#{sign_cmd}", '/qp',
-      windows_path("#{installer_path}/heroku.iss")
+    system 'wine', 'C:\inno\ISCC.exe', windows_path("#{installer_path}/heroku.iss")
     cleanup_after_wine
 
     # move final installer from build_path to pkg dir
     mv File.basename(exe_task.name), exe_task.name
+
+    # sign executable
+    system "osslsigncode -pkcs12 #{resource('exe/heroku-codesign-cert.pfx')} \
+    -pass '#{ENV['HEROKU_WINDOWS_SIGNING_PASS']}' \
+    -n 'Heroku Toolbelt' \
+    -i https://toolbelt.heroku.com/ \
+    -in #{exe_task.name} \
+    -out #{exe_task.name}"
   end
 end
 
@@ -125,32 +121,4 @@ task "exe:init-wine" do
   isetup_path = windows_path(cache_file_from_bucket("isetup.exe")).shellescape
   system "wine #{isetup_path} /verysilent /suppressmsgboxes /nocancel /norestart /noicons /dir=c:\\inno"
   cleanup_after_wine
-end
-
-# Mono's signcode tool can't take the private key passphrase non-interactively (i.e. read file, or as a parameter), so
-# in order to run the build non-interactively we have to use a passphrase-less key. To keep the private key secure, the
-# key that comes from the repository is encrypted. You can either run exe:build and type in the passphrase manually
-# (twice!), or decode it for good with this task.
-#
-# Ensure your build environment is secure before leaving an unencrypted private key lying around.
-#
-# Additionally, Mac OS X's default openssl, as of Mavericks, is 0.9.8y, which doesn't support the pvk format. The 1.0.x
-# tree does, and you can install it via homebrew (brew install openssl), but it's keg-only, so it'll not be in your
-# PATH. You could `brew link` it, but it's safer to leave it alone. Instead, you can pass the full path to the openssl
-# binary to be used via the OPENSSL_PATH environment variable:
-#
-#    OPENSSL_PATH=`brew --prefix openssl`/bin/openssl rake exe:pvk-nocrypt
-desc "Remove passphrase from heroku-codesign-cert.pvk; see source comments"
-task "exe:pvk-nocrypt" do
-  openssl = (ENV["OPENSSL_PATH"] || "openssl").shellescape
-  version = `#{openssl} version`.chomp
-  keyfile_in  = resource('exe/heroku-codesign-cert.encrypted.pvk').shellescape
-  keyfile_out = resource('exe/heroku-codesign-cert.pvk').shellescape
-  raise "OpenSSL version should be 1.0.x; instead got: #{version}" if version !~ /^OpenSSL 1\./
-  system "#{openssl} rsa -inform PVK -outform PVK -pvk-none -in #{keyfile_in} -out #{keyfile_out}"
-end
-
-desc "Link the encrypted pvk"
-task "exe:pvk" do
-  symlink resource("exe/heroku-codesign-cert.encrypted.pvk"), resource("exe/heroku-codesign-cert.pvk")
 end
