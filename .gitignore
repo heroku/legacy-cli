@@ -7,4 +7,4 @@
 /vendor
 /.rbenv-version
 /.cache
-/resources/exe/heroku-codesign-cert.pvk
+/resources/exe/heroku-codesign-cert.pfx

@@ -27,8 +27,9 @@ This is run not from a Windows machine, but from a UNIX machine with Wine.
 Mac Prerequisites:
 
 * Heroku Developer ID Installer Certificate in Keychain
-* `HEROKU_RELEASE_ACCESS` and `HEROKU_RELEASE_SECRET`
+* `HEROKU_RELEASE_ACCESS`, `HEROKU_RELEASE_SECRET`, `HEROKU_WINDOWS_SIGNING_PASS` (from LastPass)
 * Install [XQuartz](http://xquartz.macosforge.org/) manually, or via the terminal (restart required):
+* `brew install osslsigncode`
 
 ```sh
 curl -O# http://xquartz-dl.macosforge.org/SL/XQuartz-2.7.6.dmg
@@ -40,25 +41,7 @@ rm XQuartz-2.7.6.dmg
 
 * `/opt/X11/bin` should be in your `$PATH` so `Xvfb` can be started.
 * Install wine: `brew install wine`
-* The pvk file:
-
-The certificate and private key for code signing are in the repo in:
-
-> dist/resources/exe/heroku-codesign-cert*
-
-which is in the format mono signcode wants.
-
-The pvk file is encrypted. If you want the build not to prompt you for
-its passphrase, you'll need to decrypt it. See the `exe:pvk-nocrypt` task.
-
-Bewake the openssl version on the Mac doesn't work with `exe:pvk-nocrypt`.
-See comments on the source code for details and solution.
-
-If you wanna leave the key encrypted, you still have to link it before
-building; run the `exe:pvk` task for that.
-
-You'll have to ask the right person for the passphrase to the key.
-
+* The pfx file decrypted from `resources/exe/heroku-codesign-cert.pfx.gpg` (password in LastPass)
 * Initialize wine: `bundle exec rake exe:init-wine`
 
 To build for testing: `bundle exec rake exe:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.exe`.

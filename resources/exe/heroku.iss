@@ -13,7 +13,6 @@ OutputDir=..
 ChangesEnvironment=yes
 UsePreviousSetupType=no
 AlwaysShowComponentsList=no
-SignTool=mono-signcode
 
 ; For Ruby expansion ~ 32MB (installed) - 12MB (installer)
 ExtraDiskSpaceRequired=20971520
