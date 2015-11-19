@@ -17,9 +17,6 @@ describe Heroku::Client, "rendezvous" do
     it "an empty string" do
       expect(@rendezvous.send(:fixup, "")).to eq ""
     end
-    it "hash" do
-      expect(@rendezvous.send(:fixup, { :x => :y })).to eq({ :x => :y })
-    end
     it "default English UTF-8 data" do
       expect(@rendezvous.send(:fixup, "heroku")).to eq "heroku"
     end
