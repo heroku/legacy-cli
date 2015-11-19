@@ -24,13 +24,13 @@ Name: custom; Description: "Custom Installation"; flags: iscustom
 [Components]
 Name: "toolbelt"; Description: "Heroku Toolbelt"; Types: "client custom"
 Name: "toolbelt/client"; Description: "Heroku Client"; Types: "client custom"; Flags: fixed
-Name: "toolbelt/git"; Description: "Git and SSH"; Types: "client custom"; Check: "not IsProgramInstalled('git.exe')"
-Name: "toolbelt/git"; Description: "Git and SSH"; Check: "IsProgramInstalled('git.exe')"
+Name: "toolbelt/git"; Description: "Git and SSH"; Types: "client custom"; Check: "not IsProgramInstalled('git-2.6.3.exe')"
+Name: "toolbelt/git"; Description: "Git and SSH"; Check: "IsProgramInstalled('git-2.6.3.exe')"
 
 [Files]
 Source: "heroku\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
-Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
-Source: "installers\git.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"
+Source: "installers\rubyinstaller-2.2.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
+Source: "installers\git-2.6.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "HerokuPath"; \
@@ -41,9 +41,9 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
   ValueData: "{olddata};{pf}\git\cmd"; Check: NeedsAddPath(ExpandConstant('{pf}\git\cmd'))
 
 [Run]
-Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-1.9.3"""; \
+Filename: "{tmp}\rubyinstaller-2.2.3.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-1.9.3"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
-Filename: "{tmp}\git.exe"; Parameters: "/silent /nocancel /noicons"; \
+Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/silent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"
 
 [UninstallDelete]
