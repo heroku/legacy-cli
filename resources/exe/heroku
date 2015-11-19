@@ -1,6 +1,6 @@
 #!/bin/sh
 # find embedded ruby relative to script
-bindir=`cd -P "${0%/*}/../ruby-2.2.3/bin" 2>/dev/null; pwd`
+bindir=`cd -P "${0%/*}/../ruby-2.1.7/bin" 2>/dev/null; pwd`
 exec "$bindir/ruby" -x "$0" "$@"
 
 #!/usr/bin/env ruby

@@ -29,7 +29,7 @@ Name: "toolbelt/git"; Description: "Git and SSH"; Check: "IsProgramInstalled('gi
 
 [Files]
 Source: "heroku\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
-Source: "installers\rubyinstaller-2.2.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
+Source: "installers\rubyinstaller-2.1.7.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
 Source: "installers\git-2.6.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"
 
 [Registry]
@@ -41,7 +41,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
   ValueData: "{olddata};{pf}\git\cmd"; Check: NeedsAddPath(ExpandConstant('{pf}\git\cmd'))
 
 [Run]
-Filename: "{tmp}\rubyinstaller-2.2.3.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-2.2.3"""; \
+Filename: "{tmp}\rubyinstaller-2.1.7.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-2.1.7"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
 Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/silent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"
