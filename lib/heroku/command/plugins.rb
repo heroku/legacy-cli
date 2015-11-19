@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/jsplugin"
 
 module Heroku::Command
 
@@ -118,6 +119,41 @@ module Heroku::Command
     def link
       Heroku::JSPlugin.setup
       Heroku::JSPlugin.run('plugins', 'link', ARGV[1..-1])
+    end
+
+    # HIDDEN: plugins:commands
+    # Prints a table of commands and location
+    def commands
+      ruby_cmd = Heroku::Command.commands.inject({}) {|h, (cmd, _)| h[cmd] = {:type => 'ruby'} ; h}
+
+      go_and_node_cmd = Heroku::JSPlugin.commands_info['commands'].inject({}) do |h, command| 
+        cmd = command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic']
+        if command['plugin'] == ''
+          h[cmd] = {:type => 'go'}
+        else 
+          h[cmd] = {:type => 'node', :plugin => command['plugin']}
+        end
+        h 
+      end
+
+      all_cmd = {}
+      all_cmd.merge!(ruby_cmd)
+      all_cmd.merge!(go_and_node_cmd)
+      all_cmd.each {|(cmd_str, cmd)| cmd[:command] = cmd_str}
+
+      sorted_cmd = all_cmd.sort do |a,b|
+        if a[1][:type] == b[1][:type]
+          a[0] <=> b[0]
+        else
+          a[1][:type] <=> b[1][:type]
+        end
+      end
+
+      display_table(sorted_cmd.map{|cmd| cmd[1]}, [:command, :type, :plugin], ["Command", "Type", "Plugin"])
+      display("============")
+
+      counts = all_cmd.inject(Hash.new(0)) {|h, (_, cmd)| h[cmd[:type]] += 1; h}
+      counts.keys.sort.each {|type| display("% #{type}: #{(counts[type].to_f / all_cmd.size).round(2)}") }
     end
 
     private
