@@ -141,7 +141,7 @@ class Heroku::JSPlugin
       File.delete bin
       raise 'SHA mismatch for heroku-cli'
     end
-    $stderr.puts " done.\nFor more information on Toolbelt v4: https://github.com/heroku/heroku-cli"
+    $stderr.puts " done\nFor more information on Toolbelt v4: https://github.com/heroku/heroku-cli"
     version
   end
 
