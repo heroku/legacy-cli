@@ -145,8 +145,11 @@ module Heroku::Command
       attrs  = [:command, :type, :plugin]
       header = attrs.map{|attr| attr.to_s.capitalize}
 
+      count_attrs  = [:type, :count]
+      count_header = count_attrs.map{|attr| attr.to_s.capitalize}
+
       counts = all_cmd.inject(Hash.new(0)) {|h, (_, cmd)| h[cmd[:type]] += 1; h}
-      type_and_percentage = counts.keys.sort.map{|type| [type, (counts[type].to_f / all_cmd.size).round(2)]}
+      type_and_percentage = counts.keys.sort.map{|type| {:type => type, :count => counts[type]}}
 
       if options[:csv]
         csv_str = CSV.generate do |csv| 
@@ -154,17 +157,14 @@ module Heroku::Command
           sorted_cmd.each {|cmd| csv << attrs.map{|attr| cmd[attr]}}
 
           csv << []
-          csv << ['Type', 'Percentage']
-          type_and_percentage.each {|type| 
-            csv << type
-          }
+          csv << count_header
+          type_and_percentage.each {|type| csv << count_attrs.map{|attr| type[attr]}}
         end
         display(csv_str)
       else
         display_table(sorted_cmd, attrs, header)
-        display("============")
-
-        type_and_percentage.each {|type| display("% #{type[0]}: #{type[1]}")}
+        display("")
+        display_table(type_and_percentage, count_attrs, count_header)
       end
     end
 
