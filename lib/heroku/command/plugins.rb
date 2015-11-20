@@ -141,13 +141,7 @@ module Heroku::Command
       all_cmd.merge!(go_and_node_cmd)
       all_cmd.each {|(cmd_str, cmd)| cmd[:command] = cmd_str}
 
-      sorted_cmd = all_cmd.sort do |a,b|
-        if a[1][:type] == b[1][:type]
-          a[0] <=> b[0]
-        else
-          a[1][:type] <=> b[1][:type]
-        end
-      end
+      sorted_cmd = all_cmd.sort { |a,b| a[0] <=> b[0] }
 
       display_table(sorted_cmd.map{|cmd| cmd[1]}, [:command, :type, :plugin], ["Command", "Type", "Plugin"])
       display("============")
