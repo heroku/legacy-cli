@@ -124,22 +124,15 @@ module Heroku::Command
     # HIDDEN: plugins:commands
     # Prints a table of commands and location
     def commands
-      ruby_cmd = Heroku::Command.commands.inject({}) {|h, (cmd, _)| h[cmd] = {:type => 'ruby'} ; h}
-
-      go_and_node_cmd = Heroku::JSPlugin.commands_info['commands'].inject({}) do |h, command| 
-        cmd = command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic']
-        if command['plugin'] == ''
-          h[cmd] = {:type => 'go'}
-        else 
-          h[cmd] = {:type => 'node', :plugin => command['plugin']}
-        end
-        h 
-      end
+      ruby_cmd = Heroku::Command.commands.inject({}) {|h, (cmd, command)| h[cmd] = command_to_hash('ruby', cmd, command) ; h}
+      commands = Heroku::JSPlugin.commands_info['commands']
+      node_cmd = command_list_to_hash(commands.select {|command| command['plugin'] != ''}, 'node')
+      go_cmd   = command_list_to_hash(commands.select {|command| command['plugin'] == ''}, 'go')
 
       all_cmd = {}
       all_cmd.merge!(ruby_cmd)
-      all_cmd.merge!(go_and_node_cmd)
-      all_cmd.each {|(cmd_str, cmd)| cmd[:command] = cmd_str}
+      all_cmd.merge!(node_cmd)
+      all_cmd.merge!(go_cmd)
 
       sorted_cmd = all_cmd.sort { |a,b| a[0] <=> b[0] }
 
@@ -151,6 +144,24 @@ module Heroku::Command
     end
 
     private
+
+    def command_to_hash(type, cmd, command)
+      command_hash = {:type => type, :command => cmd}
+      command_hash[:plugin] = command['plugin'] if command['plugin'] && command['plugin'] != ''
+      command_hash
+    end
+
+    def command_list_to_hash(commands, type)
+      commands.inject({}) do |h, command| 
+        cmd = command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic']
+        h[cmd] = command_to_hash(type, cmd, command)
+        if command['default']
+          cmd = command['topic']
+          h[cmd] = command_to_hash(type, cmd, command)
+        end
+        h
+      end
+    end
 
     def js_plugin_install(name)
       Heroku::JSPlugin.install(name, force: true)
