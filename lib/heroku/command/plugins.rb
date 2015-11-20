@@ -1,5 +1,6 @@
 require "heroku/command/base"
 require "heroku/jsplugin"
+require "csv"
 
 module Heroku::Command
 
@@ -122,8 +123,13 @@ module Heroku::Command
     end
 
     # HIDDEN: plugins:commands
+    #
     # Prints a table of commands and location
+    #
+    #   -c, --csv  # Show with csv formatting
     def commands
+      validate_arguments!
+
       ruby_cmd = Heroku::Command.commands.inject({}) {|h, (cmd, command)| h[cmd] = command_to_hash('ruby', cmd, command) ; h}
       commands = Heroku::JSPlugin.commands_info['commands']
       node_cmd = command_list_to_hash(commands.select {|command| command['plugin'] != ''}, 'node')
@@ -134,13 +140,32 @@ module Heroku::Command
       all_cmd.merge!(node_cmd)
       all_cmd.merge!(go_cmd)
 
-      sorted_cmd = all_cmd.sort { |a,b| a[0] <=> b[0] }
+      sorted_cmd = all_cmd.sort { |a,b| a[0] <=> b[0] }.map{|cmd| cmd[1]}
 
-      display_table(sorted_cmd.map{|cmd| cmd[1]}, [:command, :type, :plugin], ["Command", "Type", "Plugin"])
-      display("============")
+      attrs  = [:command, :type, :plugin]
+      header = attrs.map{|attr| attr.to_s.capitalize}
 
       counts = all_cmd.inject(Hash.new(0)) {|h, (_, cmd)| h[cmd[:type]] += 1; h}
-      counts.keys.sort.each {|type| display("% #{type}: #{(counts[type].to_f / all_cmd.size).round(2)}") }
+      type_and_percentage = counts.keys.sort.map{|type| [type, (counts[type].to_f / all_cmd.size).round(2)]}
+
+      if options[:csv]
+        csv_str = CSV.generate do |csv| 
+          csv << header
+          sorted_cmd.each {|cmd| csv << attrs.map{|attr| cmd[attr]}}
+
+          csv << []
+          csv << ['Type', 'Percentage']
+          type_and_percentage.each {|type| 
+            csv << type
+          }
+        end
+        display(csv_str)
+      else
+        display_table(sorted_cmd, attrs, header)
+        display("============")
+
+        type_and_percentage.each {|type| display("% #{type[0]}: #{type[1]}")}
+      end
     end
 
     private
