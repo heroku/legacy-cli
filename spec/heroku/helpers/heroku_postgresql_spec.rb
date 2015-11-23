@@ -176,7 +176,7 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
   context "default" do
 
     it "errors if there is no default" do
-      expect(@resolver).to receive(:error).with("Unknown database. Valid options are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      expect(@resolver).to receive(:error).with("No default database configured in DATABASE_URL. Valid alternatives are: DATABASE_URL, HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       @resolver.resolve(nil)
     end
 
@@ -194,13 +194,13 @@ describe Heroku::Helpers::HerokuPostgresql::Resolver do
 
     it 'throws an error if given an empty string and asked for the default and there is no default' do
       app_config_vars.delete 'DATABASE_URL'
-      expect(@resolver).to receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      expect(@resolver).to receive(:error).with("No default database configured in DATABASE_URL. Valid alternatives are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       att = @resolver.resolve('', "DATABASE_URL")
     end
 
     it 'throws an error if given an empty string and asked for the default and the default doesnt match' do
       app_config_vars['DATABASE_URL'] = 'something different'
-      expect(@resolver).to receive(:error).with("Unknown database. Valid options are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
+      expect(@resolver).to receive(:error).with("No default database configured in DATABASE_URL. Valid alternatives are: HEROKU_POSTGRESQL_BLACK_URL, HEROKU_POSTGRESQL_IVORY_URL")
       att = @resolver.resolve('', "DATABASE_URL")
     end
   end
