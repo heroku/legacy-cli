@@ -1,6 +1,6 @@
 require "heroku/command/base"
 require "heroku/command/stack"
-require "heroku/api/organizations_apps"
+require "heroku/api/organizations_apps_v3"
 
 # manage apps (create, destroy)
 #
@@ -124,7 +124,7 @@ class Heroku::Command::Apps < Heroku::Command::Base
     }
 
     info = if options[:space]
-      api.post_organizations_app(params).body
+      api.post_organizations_app_v3(params).body
     elsif org
       org_api.post_app(params, org).body
     else
