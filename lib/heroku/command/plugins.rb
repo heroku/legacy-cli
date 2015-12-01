@@ -1,4 +1,6 @@
 require "heroku/command/base"
+require "heroku/jsplugin"
+require "csv"
 
 module Heroku::Command
 
@@ -120,7 +122,71 @@ module Heroku::Command
       Heroku::JSPlugin.run('plugins', 'link', ARGV[1..-1])
     end
 
+    # HIDDEN: plugins:commands
+    #
+    # Prints a table of commands and location
+    #
+    #   -c, --csv  # Show with csv formatting
+    def commands
+      validate_arguments!
+
+      ruby_cmd = Heroku::Command.commands.inject({}) {|h, (cmd, command)| h[cmd] = command_to_hash('ruby', cmd, command) ; h}
+      commands = Heroku::JSPlugin.commands_info['commands']
+      node_cmd = command_list_to_hash(commands.select {|command| command['plugin'] != ''}, 'node')
+      go_cmd   = command_list_to_hash(commands.select {|command| command['plugin'] == ''}, 'go')
+
+      all_cmd = {}
+      all_cmd.merge!(ruby_cmd)
+      all_cmd.merge!(node_cmd)
+      all_cmd.merge!(go_cmd)
+
+      sorted_cmd = all_cmd.sort { |a,b| a[0] <=> b[0] }.map{|cmd| cmd[1]}
+
+      attrs  = [:command, :type, :plugin]
+      header = attrs.map{|attr| attr.to_s.capitalize}
+
+      count_attrs  = [:type, :count]
+      count_header = count_attrs.map{|attr| attr.to_s.capitalize}
+
+      counts = all_cmd.inject(Hash.new(0)) {|h, (_, cmd)| h[cmd[:type]] += 1; h}
+      type_and_percentage = counts.keys.sort.map{|type| {:type => type, :count => counts[type]}}
+
+      if options[:csv]
+        csv_str = CSV.generate do |csv| 
+          csv << header
+          sorted_cmd.each {|cmd| csv << attrs.map{|attr| cmd[attr]}}
+
+          csv << []
+          csv << count_header
+          type_and_percentage.each {|type| csv << count_attrs.map{|attr| type[attr]}}
+        end
+        display(csv_str)
+      else
+        display_table(sorted_cmd, attrs, header)
+        display("")
+        display_table(type_and_percentage, count_attrs, count_header)
+      end
+    end
+
     private
+
+    def command_to_hash(type, cmd, command)
+      command_hash = {:type => type, :command => cmd}
+      command_hash[:plugin] = command['plugin'] if command['plugin'] && command['plugin'] != ''
+      command_hash
+    end
+
+    def command_list_to_hash(commands, type)
+      commands.inject({}) do |h, command| 
+        cmd = command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic']
+        h[cmd] = command_to_hash(type, cmd, command)
+        if command['default']
+          cmd = command['topic']
+          h[cmd] = command_to_hash(type, cmd, command)
+        end
+        h
+      end
+    end
 
     def js_plugin_install(name)
       Heroku::JSPlugin.install(name, force: true)
