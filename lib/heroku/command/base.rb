@@ -3,7 +3,7 @@ require "heroku/auth"
 require "heroku/client/rendezvous"
 require "heroku/client/organizations"
 require "heroku/command"
-require "heroku/api/spaces_v3_dogwood"
+require "heroku/api/spaces_v3"
 
 class Heroku::Command::Base
   include Heroku::Helpers
@@ -44,7 +44,7 @@ class Heroku::Command::Base
 
     @org ||= if options[:space].is_a?(String)
        validate_space_xor_org!
-       api.get_space_v3_dogwood(options[:space]).body['organization']['name']
+       api.get_space_v3(options[:space]).body['organization']['name']
     elsif options[:org].is_a?(String)
       options[:org]
     elsif options[:personal] || @nil

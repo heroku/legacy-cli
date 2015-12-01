@@ -6,7 +6,7 @@ module Heroku::Command
 
     before(:each) do
       stub_core
-      stub_get_space_v3_dogwood
+      stub_get_space_v3
       stub_organizations
       ENV.delete('HEROKU_ORGANIZATION')
     end
@@ -111,7 +111,7 @@ STDOUT
       context "with a space" do
         shared_examples "create in a space" do
           Excon.stub(
-            :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood'},
+            :headers => {'Accept' => 'application/vnd.heroku+json; version=3'},
             :method => :post,
             :path => '/organizations/apps') do
             {
@@ -471,9 +471,9 @@ REMOTES
       end
     end
 
-    def stub_get_space_v3_dogwood
+    def stub_get_space_v3
       Excon.stub(
-        :headers => { 'Accept' => 'application/vnd.heroku+json; version=3.dogwood' },
+        :headers => {'Accept' => 'application/vnd.heroku+json; version=3'},
         :method => :get,
         :path => '/spaces/test-space') do
         {
