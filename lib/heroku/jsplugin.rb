@@ -186,7 +186,7 @@ class Heroku::JSPlugin
       str.encode!('utf-8')
 
       # escape while still preserving unicode characters
-      str.gsub!(/([^\p{L}\p{N}_\-.,:\/@\n])/, "\\\\\\1")
+      str.gsub!(/([^\p{L}\p{N}_\-.,:\/@\n])/u, "\\\\\\1")
     rescue Encoding::UndefinedConversionError
       # if it cannot be converted then fall back to normal behavior
       str.gsub!(/([^A-Za-z0-9_\-.,:\/@\n])/, "\\\\\\1")
