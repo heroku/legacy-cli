@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'heroku/helpers/env'
 
 class Heroku::JSPlugin
   extend Heroku::Helpers
@@ -108,10 +109,13 @@ class Heroku::JSPlugin
   end
 
   def self.app_dir
-    if windows? && ENV['LOCALAPPDATA']
-      File.join(ENV['LOCALAPPDATA'], 'heroku').encode('windows-1252')
-    elsif ENV['XDG_DATA_HOME']
-      File.join(ENV['XDG_DATA_HOME'], 'heroku')
+    localappdata = Heroku::Helpers::Env['LOCALAPPDATA']
+    xdg_data_home = Heroku::Helpers::Env['XDG_DATA_HOME']
+
+    if windows? && localappdata
+      File.join(localappdata, 'heroku')
+    elsif xdg_data_home
+      File.join(xdg_data_home, 'heroku')
     else
       File.join(Heroku::Helpers.home_directory, '.heroku')
     end
