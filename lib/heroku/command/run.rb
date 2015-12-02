@@ -1,20 +1,3 @@
-begin
-  require "readline"
-rescue LoadError
-  module Readline
-    def self.readline(prompt)
-      print prompt
-      $stdout.flush
-      gets
-    end
-
-    module HISTORY
-      def self.push(cmd)
-        # dummy
-      end
-    end
-  end
-end
 require "heroku/command/base"
 require "heroku/helpers/log_displayer"
 
@@ -140,47 +123,4 @@ protected
     end
   end
 
-  def console_history_dir
-    FileUtils.mkdir_p(path = "#{home_directory}/.heroku/console_history")
-    path
-  end
-
-  def console_session(app)
-    heroku.console(app) do |console|
-      console_history_read(app)
-
-      display "Ruby console for #{app}.#{heroku.host}"
-      while cmd = Readline.readline('>> ')
-        unless cmd.nil? || cmd.strip.empty?
-          console_history_add(app, cmd)
-          break if cmd.downcase.strip == 'exit'
-          display console.run(cmd)
-        end
-      end
-    end
-  end
-
-  def console_history_file(app)
-    "#{console_history_dir}/#{app}"
-  end
-
-  def console_history_read(app)
-    history = File.read(console_history_file(app)).split("\n")
-    if history.size > 50
-      history = history[(history.size - 51),(history.size - 1)]
-      File.open(console_history_file(app), "w") { |f| f.puts history.join("\n") }
-    end
-    history.each { |cmd| Readline::HISTORY.push(cmd) }
-  rescue Errno::ENOENT
-  rescue => ex
-    display "Error reading your console history: #{ex.message}"
-    if confirm("Would you like to clear it? (y/N):")
-      FileUtils.rm(console_history_file(app)) rescue nil
-    end
-  end
-
-  def console_history_add(app, cmd)
-    Readline::HISTORY.push(cmd)
-    File.open(console_history_file(app), "a") { |f| f.puts cmd + "\n" }
-  end
 end
