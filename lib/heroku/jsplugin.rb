@@ -40,8 +40,8 @@ class Heroku::JSPlugin
 
   def self.plugins
     @plugins ||= `"#{bin}" plugins`.lines.map do |line|
-      name, version = line.split
-      { :name => name, :version => version }
+      name, version, extra = line.split
+      { :name => name, :version => version, :extra => extra }
     end
   end
 

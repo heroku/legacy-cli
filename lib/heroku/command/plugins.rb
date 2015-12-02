@@ -18,7 +18,7 @@ module Heroku::Command
     def index
       validate_arguments!
 
-      plugins = ::Heroku::JSPlugin.plugins.map { |p| "#{p[:name]}@#{p[:version]}" }
+      plugins = ::Heroku::JSPlugin.plugins.map { |p| "#{p[:name]}@#{p[:version]} #{p[:extra]}" }
       plugins.concat(::Heroku::Plugin.list)
 
       if plugins.length > 0
