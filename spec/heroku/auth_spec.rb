@@ -23,6 +23,7 @@ module Heroku
         File.read(path).split("\n").map {|line| "#{line}\n"}
       end
 
+      allow(Heroku::Auth).to receive(:home_directory).and_return(Heroku::Helpers.home_directory)
       FileUtils.mkdir_p(@cli.netrc_path.split("/")[0..-2].join("/"))
 
       File.open(@cli.netrc_path, "w") do |file|
