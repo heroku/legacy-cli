@@ -47,7 +47,7 @@ class Heroku::CLI
     if defined?(Heroku::Command::Accounts.account)
       $stderr.print "Uninstalling deprecated ddollar/heroku-accounts plugin..."
       Heroku::Plugin.new('heroku-accounts').uninstall
-      $stderr.puts " done"
+      $stderr.print "Done. Use https://github.com/heroku/heroku-accounts instead."
     end
   end
 end
