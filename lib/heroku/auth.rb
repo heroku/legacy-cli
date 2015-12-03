@@ -2,6 +2,7 @@ require "cgi"
 require "heroku"
 require "heroku/client"
 require "heroku/helpers"
+require "heroku/helpers/env"
 
 require "netrc"
 
@@ -134,7 +135,10 @@ class Heroku::Auth
     end
 
     def netrc_path
-      default = Netrc.default_path
+      default = File.join(Heroku::Helpers::Env['NETRC'] || home_directory, Netrc.netrc_filename)
+      # note: the ruby client tries to drop in `pwd` if home does not exist
+      # but the go client does not, so we do not want the fallback logic
+
       encrypted = default + ".gpg"
       if File.exists?(encrypted)
         encrypted

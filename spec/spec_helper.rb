@@ -220,7 +220,7 @@ end
 require "heroku/helpers"
 module Heroku::Helpers
   @home_directory = Dir.mktmpdir
-  undef_method :home_directory
+  alias_method :orig_home_directory, :home_directory
   def home_directory
     @home_directory
   end

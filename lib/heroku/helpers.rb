@@ -1,13 +1,36 @@
 # encoding: utf-8
 
+require 'heroku/helpers/env'
+
 module Heroku
   module Helpers
 
     extend self
 
     def home_directory
-      if running_on_windows? && RUBY_VERSION == '1.9.3'
-        File.expand_path('~')
+      if running_on_windows?
+        # This used to be File.expand_path("~"), which should have worked but there was a bug
+        # when a user has a cryllic character in their username.  Their username gets mangled
+        # by a C code operation that does not respect multibyte characters
+        #
+        # see: https://github.com/ruby/ruby/blob/v2_2_3/win32/file.c#L47
+        home = Heroku::Helpers::Env["HOME"]
+        homedrive = Heroku::Helpers::Env["HOMEDRIVE"]
+        homepath = Heroku::Helpers::Env["HOMEPATH"]
+        userprofile = Heroku::Helpers::Env["USERPROFILE"]
+
+        home_dir = if home
+                     home
+                   elsif homedrive && homepath
+                     homedrive + homepath
+                   elsif userprofile
+                     userprofile
+                   else
+                     # The expanding `~' error here does not make much sense
+                     # just made it match File.expand_path when no env set
+                     raise ArgumentError.new("couldn't find HOME environment -- expanding `~'")
+                   end
+        home_dir.gsub(/\\/, '/')
       else
         Dir.home
       end
