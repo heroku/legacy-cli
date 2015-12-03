@@ -99,8 +99,8 @@ class Heroku::JSPlugin
     system "\"#{bin}\" plugins:uninstall #{name}"
   end
 
-  def self.update
-    system "\"#{bin}\" update"
+  def self.update(channel='')
+    system "\"#{bin}\" update #{channel}"
   end
 
   def self.version
