@@ -1,3 +1,19 @@
+3.42.23 2015-12-03
+==================
+Update RELEASE-FULL.md OSX notes
+switch to osslsigncode to fix windows installs
+upgrade ruby to 2.1.7 and git to 2.6.3 on windows
+small copy tweak
+clear up unknown database error
+Remove rendezvous spec that fails when not a tty
+Add plugins:command to track progress
+spaces: ensure we still request version 3
+Change exec(args) to exec(shelljoin(string))
+Remove readline dep & unused protected methods
+show extra plugin info
+Be more descriptive about uninstalling Accounts
+Fix Windows cryllic character from ENV issues
+
 3.42.22 2015-11-18
 ==================
 prefix update messaging
