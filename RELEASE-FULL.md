@@ -45,7 +45,7 @@ rm XQuartz-2.7.6.dmg
 * Initialize wine: `bundle exec rake exe:init-wine`
 
 To build for testing: `bundle exec rake exe:build`. Outputs to `./dist/heroku-toolbelt-X.Y.Z.exe`.
-To release: `bundle exec rake pkg:release`.
+To release: `bundle exec rake exe:release`.
 
 ## Main Release
 
