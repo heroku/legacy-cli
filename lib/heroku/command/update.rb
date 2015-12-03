@@ -15,8 +15,9 @@ class Heroku::Command::Update < Heroku::Command::Base
   # Updating... done, v1.2.3 updated to v2.3.4
   #
   def index
+    channel = shift_argument
     validate_arguments!
-    Heroku::JSPlugin.update
+    Heroku::JSPlugin.update(channel)
     update_from_url(false)
   end
 
