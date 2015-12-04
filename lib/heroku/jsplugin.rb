@@ -162,9 +162,7 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
-
-    # calling exec with multiple arguments mangles multibyte characters on windows
-    exec shelljoin([self.bin, cmd, *args])
+    exec self.bin, cmd, *args
   end
 
   def self.spawn(topic, command, args)
