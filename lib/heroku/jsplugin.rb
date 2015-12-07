@@ -162,41 +162,19 @@ class Heroku::JSPlugin
 
   def self.run(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
-    exec self.bin, cmd, *args
+    bin = self.bin
+
+    if windows? && [bin, cmd, *args].any? {|arg| ! arg.ascii_only?}
+      system bin, cmd, *args
+      exit $?.exitstatus
+    else
+      exec bin, cmd, *args
+    end
   end
 
   def self.spawn(topic, command, args)
     cmd = command ? "#{topic}:#{command}" : topic
     system self.bin, cmd, *args
-  end
-
-  # see https://github.com/ruby/ruby/blob/v2_2_3/lib/shellwords.rb#L149
-  def self.shelljoin(array)
-    array.map { |arg| shellescape(arg) }.join(' ')
-  end
-
-  # see https://github.com/ruby/ruby/blob/v2_2_3/lib/shellwords.rb#L93
-  def self.shellescape(str)
-    str = str.to_s
-
-    return "''" if str.empty?
-
-    str = str.dup
-
-    begin
-      # attempt to convert the duplicated string to utf-8
-      str.encode!('utf-8')
-
-      # escape while still preserving unicode characters
-      str.gsub!(/([^\p{L}\p{N}_\-.,:\/@\n])/u, "\\\\\\1")
-    rescue Encoding::UndefinedConversionError
-      # if it cannot be converted then fall back to normal behavior
-      str.gsub!(/([^A-Za-z0-9_\-.,:\/@\n])/, "\\\\\\1")
-    end
-
-    str.gsub!(/\n/, "'\n'")
-
-    return str
   end
 
   def self.arch
