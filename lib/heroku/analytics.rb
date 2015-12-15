@@ -3,24 +3,20 @@ class Heroku::Analytics
 
   def self.record(command)
     return if skip_analytics
-    File.open(path, 'a') do |f|
-      f.write("#{command}|#{Time.now.to_i}\n")
-    end
+    commands = json_decode(File.read(path)) || [] rescue []
+    commands << {command: command, timestamp: Time.now.to_i, version: Heroku.user_agent}
+    File.open(path, 'w') { |f| f.write(json_encode(commands)) }
   rescue
   end
 
   def self.submit
     return if skip_analytics
-    lines = File.read(path).split("\n")
-    return if lines.count < 10 # only submit if we have 10 entries to send
+    commands = json_decode(File.read(path))
+    return if commands.count < 10 # only submit if we have 10 entries to send
     fork do
-      commands = lines.map do |line|
-        line = line.split('|')
-        {command: line[0], timestamp: line[1].to_i}
-      end
       payload = {
         user:     user,
-        commands: commands
+        commands: commands,
       }
       Excon.post('https://heroku-cli-analytics.herokuapp.com/record', body: JSON.dump(payload))
       File.truncate(path, 0)
@@ -54,7 +50,7 @@ class Heroku::Analytics
   end
 
   def self.path
-    File.join(Heroku::Helpers.home_directory, ".heroku", "analytics")
+    File.join(Heroku::Helpers.home_directory, ".heroku", "analytics.json")
   end
 
   def self.user
