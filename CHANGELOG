@@ -1,3 +1,7 @@
+3.42.27 2016-01-07
+==================
+Bump version for release
+
 3.42.26 2016-01-07
 ==================
 Fix bug with international characters & createdb
