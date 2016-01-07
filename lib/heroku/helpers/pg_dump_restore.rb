@@ -40,7 +40,13 @@ class PgDumpRestore
     dbname = @target.path[1..-1]
     cdb_output = `createdb #{dbname} 2>&1`
     if $?.exitstatus != 0
-      if cdb_output =~ /already exists/
+      already_exists = false
+      begin
+        already_exists = cdb_output =~ /already exists/
+      rescue ArgumentError
+        # invalid byte sequence in UTF-8 on windows
+      end
+      if already_exists
         command.error(cdb_output + "\nPlease drop the local database (`dropdb #{dbname}`) and try again.")
       else
         command.error(cdb_output + "\nUnable to create new local database. Ensure your local Postgres is working and try again.")
