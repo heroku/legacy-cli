@@ -30,6 +30,7 @@ class Heroku::Analytics
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
     skip = Heroku::Config[:skip_analytics]
     if skip == nil
+      return false unless $stdin.isatty
       # user has not specified whether or not they want to submit usage information
       # prompt them to ask, but if they wait more than 20 seconds just assume they
       # want to skip analytics
