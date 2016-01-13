@@ -43,7 +43,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 [Run]
 Filename: "{tmp}\rubyinstaller-2.1.7.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-2.1.7"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
-Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/silent /nocancel /noicons"; \
+Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/verysilent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"
 
 [UninstallDelete]
