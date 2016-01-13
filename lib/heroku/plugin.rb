@@ -25,6 +25,7 @@ module Heroku
       heroku-push
       heroku-releases
       heroku-shared-postgresql
+      heroku-spaces
       heroku-sql-console
       heroku-status
       heroku-stop
