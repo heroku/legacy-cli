@@ -45,6 +45,7 @@ class Heroku::Analytics
       end
       Heroku::Config[:skip_analytics] = !['y', 'yes'].include?(input)
       Heroku::Config.save!
+      return Heroku::Config[:skip_analytics]
     end
 
     skip
