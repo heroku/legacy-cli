@@ -18,7 +18,7 @@ class Heroku::Analytics
         user:     user,
         commands: commands,
       }
-      Excon.post('https://heroku-cli-analytics.herokuapp.com/record', body: JSON.dump(payload))
+      Excon.post('https://cli-analytics.heroku.com/record', body: JSON.dump(payload))
       File.truncate(path, 0)
     end
   rescue
