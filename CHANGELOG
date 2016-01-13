@@ -1,3 +1,9 @@
+3.42.28 2016-01-13
+==================
+Added analytics
+Install git with /verysilent on windows
+Deprecate heroku-spaces ruby plugin
+
 3.42.27 2016-01-07
 ==================
 Bump version for release
