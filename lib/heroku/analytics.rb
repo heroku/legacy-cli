@@ -4,7 +4,7 @@ class Heroku::Analytics
   def self.record(command)
     return if skip_analytics
     commands = json_decode(File.read(path)) || [] rescue []
-    commands << {command: command, timestamp: Time.now.to_i, version: Heroku.user_agent}
+    commands << {command: command, timestamp: Time.now.to_i, version: Heroku::VERSION, platform: RUBY_PLATFORM, language: "ruby/#{RUBY_VERSION}"}
     File.open(path, 'w') { |f| f.write(json_encode(commands)) }
   rescue
   end
