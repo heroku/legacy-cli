@@ -226,9 +226,10 @@ class Heroku::JSPlugin
     commands.find { |c| c[:command] == s }
   end
 
-  # check if release is one that isn't able to update on windows
+  # check if release is one that isn't updateable
   def self.check_if_old
     File.delete(bin) if windows? && setup? && version.start_with?("heroku-cli/4.24")
+    File.delete(bin) if setup? && version.start_with?("heroku-cli/4.27.5-")
   rescue => e
     Rollbar.error(e)
   rescue
