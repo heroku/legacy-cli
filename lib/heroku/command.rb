@@ -201,7 +201,7 @@ module Heroku
       else
         error([
           "`#{cmd}` is not a heroku command.",
-          suggestion(cmd, commands.keys + command_aliases.keys),
+          suggestion(cmd, (commands.keys + command_aliases.keys).uniq),
           "See `heroku help` for a list of available commands."
         ].compact.join("\n"))
       end
