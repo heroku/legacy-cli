@@ -191,6 +191,7 @@ class Heroku::JSPlugin
   def self.os
     case RbConfig::CONFIG['host_os']
     when /darwin|mac os/
+      raise "#{arch} is not supported" unless arch == "amd64"
       "darwin"
     when /linux/
       "linux"
