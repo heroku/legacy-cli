@@ -135,7 +135,11 @@ class Heroku::Auth
     end
 
     def netrc_path
-      default = File.join(Heroku::Helpers::Env['NETRC'] || home_directory, Netrc.netrc_filename)
+      default = begin
+                  File.join(Heroku::Helpers::Env['NETRC'] || home_directory, Netrc.netrc_filename)
+                rescue NoMethodError # happens if old netrc gem is installed
+                  Netrc.default_path
+                end
       # note: the ruby client tries to drop in `pwd` if home does not exist
       # but the go client does not, so we do not want the fallback logic
 
