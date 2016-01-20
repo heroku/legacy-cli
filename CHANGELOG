@@ -1,3 +1,10 @@
+3.42.30 2016-01-18
+==================
+Fix for old netrc gem installs
+Remove duplicate commands from suggester
+Show better error for OSX PPC machines
+Allow updating to dev channel for v4
+
 3.42.29 2016-01-13
 ==================
 Fixed analytics to not report when not a tty
