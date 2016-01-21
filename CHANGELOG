@@ -1,3 +1,7 @@
+3.42.31 2016-01-21
+==================
+Submit analytics in the foreground on windows
+
 3.42.30 2016-01-18
 ==================
 Fix for old netrc gem installs
