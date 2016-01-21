@@ -13,18 +13,27 @@ class Heroku::Analytics
     return if skip_analytics
     commands = json_decode(File.read(path))
     return if commands.count < 10 # only submit if we have 10 entries to send
-    fork do
-      payload = {
-        user:     user,
-        commands: commands,
-      }
-      Excon.post('https://cli-analytics.heroku.com/record', body: JSON.dump(payload))
-      File.truncate(path, 0)
+    begin
+      fork do
+        submit_analytics(user, commands, path)
+      end
+    rescue NotImplementedError
+      # cannot fork on windows
+      submit_analytics(user, commands, path)
     end
   rescue
   end
 
   private
+
+  def self.submit_analytics(user, commands, path)
+    payload = {
+      user:     user,
+      commands: commands,
+    }
+    Excon.post('https://cli-analytics.heroku.com/record', body: JSON.dump(payload))
+    File.truncate(path, 0)
+  end
 
   def self.skip_analytics
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
