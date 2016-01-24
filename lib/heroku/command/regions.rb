@@ -1,4 +1,5 @@
 require "heroku/command/base"
+require "heroku/api/regions_v3"
 
 # list available regions
 #
@@ -11,13 +12,26 @@ class Heroku::Command::Regions < Heroku::Command::Base
   #Example:
   #
   # $ heroku regions
-  # === Regions
-  # us
-  # eu
+  # === Common Runtime
+  # eu         Europe
+  # us         United States
+  #
+  # === Private Spaces
+  # frankfurt  Frankfurt, Germany
+  # oregon     Oregon, United States
+  # tokyo      Tokyo, Japan
+  # virginia   Virginia, United States
   def index
-    regions = json_decode(heroku.get("/regions"))
-    styled_header("Regions")
-    styled_array(regions.map { |region| [region["slug"], region["name"]] })
+    ps, cr = api.get_regions_v3.body.partition { |r| r["private_capable"] }
+    styled_regions("Common Runtime", cr)
+    styled_regions("Private Spaces", ps)
+  end
+
+  private
+
+  def styled_regions(title, regions)
+    styled_header(title)
+    styled_array(regions.map { |r| [r["name"], r["description"]] })
   end
 end
 
