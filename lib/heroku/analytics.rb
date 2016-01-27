@@ -37,6 +37,7 @@ class Heroku::Analytics
 
   def self.skip_analytics
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
+    return true if ENV['CODESHIP'] == 'true'
     skip = Heroku::Config[:skip_analytics]
     if skip == nil
       return true unless $stdin.isatty
