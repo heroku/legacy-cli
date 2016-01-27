@@ -1,3 +1,7 @@
+3.42.32 2016-01-27
+==================
+Skip analytics for now
+
 3.42.31 2016-01-21
 ==================
 Submit analytics in the foreground on windows
