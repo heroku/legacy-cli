@@ -29,6 +29,7 @@ module Heroku
       heroku-sql-console
       heroku-status
       heroku-stop
+      heroku-sudo
       heroku-suggest
       heroku-symbol
       heroku-two-factor
