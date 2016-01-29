@@ -641,6 +641,14 @@ class Heroku::Command::Pg < Heroku::Command::Base
     styled_header(name)
 
     if db
+
+      unless db[:info].any? {|hash| hash["name"] === "Region"}
+        index = db[:info].find_index {|hash| hash["name"] === "Rollback"}
+        if index
+          db[:info].insert(index + 1, {"name" => "Region", "values" => ["US East"]})
+        end
+      end
+
       dsphash = db[:info].inject({}) do |hash, item|
         hash.update(item["name"] => hpg_info_display(item))
       end
