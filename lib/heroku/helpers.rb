@@ -433,9 +433,8 @@ module Heroku
       command = ARGV.map do |arg|
         if arg.include?(' ')
           arg = %{"#{arg}"}
-        else
-          arg
         end
+        arg.encode('utf-8')
       end.join(' ')
       formatted_error << "    Command:     heroku #{command}"
       require 'heroku/auth'
