@@ -1,3 +1,7 @@
+3.42.35 2016-02-10
+==================
+Scrub URI::InvalidURIError message for rollbar
+
 3.42.34 2016-02-08
 ==================
 Encode error as utf-8 before joining
