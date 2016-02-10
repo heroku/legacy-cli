@@ -1,3 +1,5 @@
+require 'uri'
+
 module Rollbar
   extend Heroku::Helpers
 
@@ -49,11 +51,16 @@ module Rollbar
   end
 
   def self.trace_from_exception(e)
+    message = if e.is_a?(URI::InvalidURIError)
+                "[scrubbed]"
+              else
+                e.message
+              end
     {
       :frames => frames_from_exception(e),
       :exception => {
         :class => e.class.to_s,
-        :message => e.message
+        :message => message
       }
     }
   end
