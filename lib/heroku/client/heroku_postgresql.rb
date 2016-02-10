@@ -124,10 +124,12 @@ class Heroku::Client::HerokuPostgresql
   end
 
   def backups_capture
+    # To bastion host
     http_post "#{resource_name}/backups"
   end
 
   def backups_restore(backup_url)
+    # From Bastion_host
     http_post "#{resource_name}/restores", 'backup_url' => backup_url
   end
 
@@ -136,6 +138,7 @@ class Heroku::Client::HerokuPostgresql
   end
 
   def pg_copy(source_name, source_url, target_name, target_url)
+    # To/From Bastion Host
     http_post "#{resource_name}/transfers", {
       'from_name' => source_name,
       'from_url' => source_url,

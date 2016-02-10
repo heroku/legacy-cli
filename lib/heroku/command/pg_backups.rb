@@ -39,6 +39,8 @@ class Heroku::Command::Pg < Heroku::Command::Base
       affected = "the app: #{target.attachment.app}"
     end
 
+    # Extract Bastions
+
     message = "WARNING: Destructive Action"
     message << "\nThis command will remove all data from #{target.name}"
     message << "\nData from #{source.name} will then be transferred to #{target.name}"
@@ -47,6 +49,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     if confirm_command(confirm_with, message)
       xfer = hpg_client(attachment).pg_copy(source.name, source.url,
                                             target.name, target.url)
+                                            # Pass in
       poll_transfer('copy', xfer[:uuid], interval)
     end
   end
@@ -371,6 +374,7 @@ EOF
     interval = [3, interval].max
 
 
+    # Bastion Pass in
     backup = hpg_client(attachment).backups_capture
     display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
@@ -431,9 +435,11 @@ EOF
       end
       restore_url = backup[:to_url]
     end
+      
+    # Bastion host
 
     if confirm_command(attachment.app)
-      restore = hpg_client(attachment).backups_restore(restore_url)
+      restore = hpg_client(attachment).backups_restore(restore_url) # Bastion
       display <<-EOF
 Use Ctrl-C at any time to stop monitoring progress; the backup
 will continue restoring. Use heroku pg:backups to check progress.
