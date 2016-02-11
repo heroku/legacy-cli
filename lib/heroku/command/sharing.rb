@@ -103,11 +103,11 @@ module Heroku::Command
 
       action("Transferring #{app} to #{target}") do
         if org || !target.include?('@')
-          locked = options[:locked]
-
-          org_api.transfer_app(target, app, locked)
-          display("App is locked. Organization members must be invited to access.") if locked
-
+          org_api.transfer_app(target, app)
+          if options[:locked]
+            org_api.lock_app(app)
+            display("App is locked. Organization members must be invited to access.")
+          end
         else
           api.put_app(app, "transfer_owner" => target)
         end
