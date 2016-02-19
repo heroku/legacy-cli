@@ -463,7 +463,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
   # pg:upgrade REPLICA
   #
-  # unfollow a database and upgrade it to the latest PostgreSQL version
+  # unfollow a database and upgrade it to the latest stable PostgreSQL version
+  #
+  # To upgrade to another PostgreSQL version, use pg:copy instead
   #
   def upgrade
     requires_preauth
