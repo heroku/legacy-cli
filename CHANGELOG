@@ -1,3 +1,7 @@
+3.42.38 2016-02-25
+==================
+Remove sharing commands (available as access now)
+
 3.42.37 2016-02-22
 ==================
 Add fix for Gem::Specification method_missing
