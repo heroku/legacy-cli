@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (3.42.37)
+    heroku (3.42.38)
       heroku-api (= 0.3.23)
       launchy (= 2.4.3)
       multi_json (= 1.11.2)
@@ -101,3 +101,6 @@ DEPENDENCIES
   rr
   rspec
   webmock
+
+BUNDLED WITH
+   1.10.6
