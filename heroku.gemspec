@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(LICENSE|README|bin/|data/|ext/|lib/|spec/|test/)} }
 
-  gem.add_dependency "heroku-api",      "0.3.23"
+  gem.add_dependency "heroku-api",      "0.4.2"
   gem.add_dependency "launchy",         "2.4.3"
   gem.add_dependency "netrc",           "0.10.3"
   gem.add_dependency "rest-client",     "1.6.8"
