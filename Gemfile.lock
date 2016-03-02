@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     heroku (3.42.38)
-      heroku-api (= 0.3.23)
+      heroku-api (= 0.4.2)
       launchy (= 2.4.3)
       multi_json (= 1.11.2)
       net-ssh (= 2.9.2)
@@ -31,10 +31,10 @@ GEM
       safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
-    excon (0.45.4)
+    excon (0.47.0)
     fakefs (0.6.7)
-    heroku-api (0.3.23)
-      excon (~> 0.44)
+    heroku-api (0.4.2)
+      excon (~> 0.45)
       multi_json (~> 1.8)
     json (1.8.2)
     launchy (2.4.3)
@@ -103,4 +103,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
