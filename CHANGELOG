@@ -1,3 +1,7 @@
+3.42.40 2016-03-07
+==================
+Add ruby 2.2 and 2.3 to package dependencies
+
 3.42.39 2016-03-02
 ==================
 Bump heroku-api dependency to 0.4.2
