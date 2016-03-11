@@ -646,8 +646,8 @@ EOF
   end
 
   def parse_schedule_time(time_str)
-    hour, tz = time_str.match(/([0-2][0-9]):00 ?(.*)/) && [ $1, $2 ]
-    if hour.nil? || tz.nil?
+    hour, tz = time_str.match(/^([0-2][0-9]):00 ?(\S*)$/) && [ $1, $2 ]
+    if hour.nil? || tz.nil? || hour.empty? || tz.empty?
       abort("Invalid schedule format: expected '<hour>:00 <timezone>'")
     end
     # do-what-i-mean remapping, since transferatu is (rightfully) picky
