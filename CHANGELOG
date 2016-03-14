@@ -1,3 +1,7 @@
+3.42.42 2016-03-14
+==================
+Bump version after fix in build server process
+
 3.42.41 2016-03-14
 ==================
 Treat empty HEROKU_API_KEY the same as not set
