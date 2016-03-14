@@ -1,3 +1,7 @@
+3.42.41 2016-03-14
+==================
+Treat empty HEROKU_API_KEY the same as not set
+
 3.42.40 2016-03-07
 ==================
 Add ruby 2.2 and 2.3 to package dependencies
