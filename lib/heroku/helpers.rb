@@ -300,7 +300,7 @@ module Heroku
 
     def format_with_bang(message)
       return '' if message.to_s.strip == ""
-      " !    " + message.split("\n").join("\n !    ")
+      " !    " + message.encode('utf-8', invalid: :replace, undef: :replace).split("\n").join("\n !    ")
     end
 
     def output_with_bang(message="", new_line=true)
