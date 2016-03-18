@@ -177,7 +177,7 @@ OUT
     context "format_with_bang" do
       it "should not fail with bad utf characters" do
         message = "hello joel\255".force_encoding('UTF-8')
-        expect(" !    hello joel�").to eq(format_with_bang(message))
+        expect(" !    hello joel\u{FFFD}").to eq(format_with_bang(message))
       end
     end
 
