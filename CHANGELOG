@@ -1,3 +1,7 @@
+3.42.44 2016-03-18
+==================
+Fix encode & unicode character for 1.9.3
+
 3.42.43 2016-03-18
 ==================
 Fix invalid byte sequence in format_with_bang
