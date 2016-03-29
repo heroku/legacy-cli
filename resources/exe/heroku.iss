@@ -24,13 +24,12 @@ Name: custom; Description: "Custom Installation"; flags: iscustom
 [Components]
 Name: "toolbelt"; Description: "Heroku Toolbelt"; Types: "client custom"
 Name: "toolbelt/client"; Description: "Heroku Client"; Types: "client custom"; Flags: fixed
-Name: "toolbelt/git"; Description: "Git and SSH"; Types: "client custom"; Check: "not IsProgramInstalled('git-2.6.3.exe')"
-Name: "toolbelt/git"; Description: "Git and SSH"; Check: "IsProgramInstalled('git-2.6.3.exe')"
+Name: "toolbelt/git"; Description: "Git and SSH"; Types: "client custom"; Check: IsGitNotInstalled()
 
 [Files]
 Source: "heroku\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
 Source: "installers\rubyinstaller-2.1.7.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
-Source: "installers\git-2.6.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"
+Source: "installers\git-2.6.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"; Check: IsGitNotInstalled()
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "HerokuPath"; \
@@ -38,13 +37,13 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "Path"; \
   ValueData: "{olddata};{app}\bin"; Check: NeedsAddPath(ExpandConstant('{app}\bin'))
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "Path"; \
-  ValueData: "{olddata};{pf}\git\cmd"; Check: NeedsAddPath(ExpandConstant('{pf}\git\cmd'))
+  ValueData: "{olddata};{pf}\git\cmd"; Check: IsGitNotInstalled() and NeedsAddPath(ExpandConstant('{pf}\git\cmd'))
 
 [Run]
 Filename: "{tmp}\rubyinstaller-2.1.7.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-2.1.7"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
 Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/verysilent /nocancel /noicons"; \
-  Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"
+  Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"; Check: IsGitNotInstalled()
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\heroku"
@@ -68,9 +67,7 @@ begin
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
 end;
 
-function IsProgramInstalled(Name: string): boolean;
-var
-  ResultCode: integer;
+function IsGitNotInstalled(): boolean;
 begin
-  Result := Exec(Name, 'version', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := not RegKeyExists(HKLM, 'Software\GitForWindows');
 end;
