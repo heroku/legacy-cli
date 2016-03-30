@@ -1,3 +1,8 @@
+3.42.45 2016-03-30
+==================
+Only execute git installer if no registry key
+Upgrading git installer from 2.6.3 to 2.8.0
+
 3.42.44 2016-03-18
 ==================
 Fix encode & unicode character for 1.9.3
