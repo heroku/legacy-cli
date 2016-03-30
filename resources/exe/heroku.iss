@@ -69,5 +69,5 @@ end;
 
 function IsGitNotInstalled(): boolean;
 begin
-  Result := not RegKeyExists(HKLM, 'Software\GitForWindows');
+  Result := not (RegKeyExists(HKLM, 'Software\GitForWindows') or RegKeyExists(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1') or RegKeyExists(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1'))
 end;
