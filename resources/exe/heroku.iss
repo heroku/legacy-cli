@@ -29,7 +29,7 @@ Name: "toolbelt/git"; Description: "Git and SSH"; Types: "client custom"; Check:
 [Files]
 Source: "heroku\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
 Source: "installers\rubyinstaller-2.1.7.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
-Source: "installers\git-2.6.3.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"; Check: IsGitNotInstalled()
+Source: "installers\git-2.8.0.exe"; DestDir: "{tmp}"; Components: "toolbelt/git"; Check: IsGitNotInstalled()
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "HerokuPath"; \
@@ -42,7 +42,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 [Run]
 Filename: "{tmp}\rubyinstaller-2.1.7.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-2.1.7"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
-Filename: "{tmp}\git-2.6.3.exe"; Parameters: "/verysilent /nocancel /noicons"; \
+Filename: "{tmp}\git-2.8.0.exe"; Parameters: "/verysilent /nocancel /noicons"; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Git"; Components: "toolbelt/git"; Check: IsGitNotInstalled()
 
 [UninstallDelete]
