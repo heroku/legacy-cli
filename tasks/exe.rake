@@ -44,7 +44,12 @@ end
 def cache_file_from_bucket(filename)
   FileUtils.mkdir_p $cache_path
   file_cache_path = File.join($cache_path, filename)
-  system "curl -# https://heroku-toolbelt.s3.amazonaws.com/#{filename} -o '#{file_cache_path}'" unless File.exists? file_cache_path
+  system "curl -f -# https://heroku-toolbelt.s3.amazonaws.com/#{filename} -o '#{file_cache_path}'" unless File.exists? file_cache_path
+  unless $?.exitstatus === 0
+    puts("Could not download #{filename}, please check permissions manually")
+    File.delete(file_cache_path) if File.exists?(file_cache_path)
+    exit(1)
+  end
   file_cache_path
 end
 
@@ -63,7 +68,7 @@ file dist("heroku-toolbelt-#{version}.exe") => "zip:build" do |exe_task|
     # gather the ruby and git installers, downlading from s3
     mkdir "#{installer_path}/installers"
     cd "#{installer_path}/installers" do
-      ["rubyinstaller-2.1.7.exe", "git-2.6.3.exe"].each { |i| cp cache_file_from_bucket(i), i }
+      ["rubyinstaller-2.1.7.exe", "git-2.8.0.exe"].each { |i| cp cache_file_from_bucket(i), i }
     end
 
     # add windows helper executables to the heroku cli
