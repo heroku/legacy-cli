@@ -36,30 +36,16 @@ class Heroku::Analytics
   end
 
   def self.skip_analytics
-    return true # skip analytics for now
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
     return true if ENV['CODESHIP'] == 'true'
-    skip = Heroku::Config[:skip_analytics]
-    if skip == nil
-      return true unless $stdin.isatty
-      # user has not specified whether or not they want to submit usage information
-      # prompt them to ask, but if they wait more than 20 seconds just assume they
-      # want to skip analytics
-      require 'timeout'
-      stderr_print "Would you like to submit Heroku CLI usage information to better improve the CLI user experience?\n[y/N] "
-      input = begin
-        Timeout::timeout(20) do
-          ask.downcase
-        end
-      rescue
-        stderr_puts 'n'
-      end
-      Heroku::Config[:skip_analytics] = !['y', 'yes'].include?(input)
+
+    if Heroku::Config[:skip_analytics] == nil
+      stderr_puts "Heroku CLI submits usage information back to Heroku. If you would like to disable this, set `skip_analytics: true` in #{Heroku::Config.path}"
+      Heroku::Config[:skip_analytics] = false
       Heroku::Config.save!
-      return Heroku::Config[:skip_analytics]
     end
 
-    skip
+    Heroku::Config[:skip_analytics]
   end
 
   def self.path
