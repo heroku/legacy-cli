@@ -1,3 +1,5 @@
+require 'heroku/auth'
+
 class Heroku::Analytics
   extend Heroku::Helpers
 
@@ -36,6 +38,7 @@ class Heroku::Analytics
   end
 
   def self.skip_analytics
+    return true unless user
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
     return true if ENV['CODESHIP'] == 'true'
 
@@ -54,6 +57,7 @@ class Heroku::Analytics
 
   def self.user
     credentials = Heroku::Auth.read_credentials
-    credentials[0] if credentials
+    return unless credentials
+    credentials[0] == '' ? nil : credentials[0]
   end
 end
