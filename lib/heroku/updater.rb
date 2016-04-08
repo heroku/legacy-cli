@@ -70,7 +70,8 @@ module Heroku
 
     def self.check_disabled!
       if disable
-        Heroku::Helpers.error(disable)
+        $stderr.puts(format_with_bang(disable))
+        exit(0)
       end
     end
 
