@@ -6,6 +6,8 @@ class Heroku::Analytics
   def self.record(command)
     return if skip_analytics
     commands = json_decode(File.read(path)) || [] rescue []
+    c = Heroku::Command.parse(command)
+    return if c && c[:js]
     commands << {
       command:       command,
       timestamp:     Time.now.to_i,
@@ -14,7 +16,7 @@ class Heroku::Analytics
       os:            Heroku::JSPlugin.os,
       arch:          Heroku::JSPlugin.arch,
       language:      "ruby/#{RUBY_VERSION}",
-      valid:         !!Heroku::Command.parse(command),
+      valid:         !!c,
     }
     File.open(path, 'w') { |f| f.write(json_encode(commands)) }
   rescue
