@@ -23,12 +23,13 @@ class Heroku::CLI
     $stdout.sync = true if $stdout.isatty
     Heroku::Updater.warn_if_updating
     command = args.shift.strip rescue "help"
-    Heroku::Analytics.record(command)
+    Heroku::Analytics.skip_analytics # just sets the config for the analytics
     Heroku::JSPlugin.setup
     Heroku::JSPlugin.try_takeover(command, args)
     require 'heroku/command'
     Heroku::Git.check_git_version
     Heroku::Command.load
+    Heroku::Analytics.record(command)
     warn_if_using_heroku_accounts
     Heroku::Command.run(command, args)
     Heroku::Analytics.submit
