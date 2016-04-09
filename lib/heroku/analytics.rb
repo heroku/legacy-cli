@@ -47,9 +47,9 @@ class Heroku::Analytics
   end
 
   def self.skip_analytics
-    return true unless user
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
     return true if ENV['CODESHIP'] == 'true'
+    return true unless user
 
     if Heroku::Config[:skip_analytics] == nil
       stderr_puts "Heroku CLI submits usage information back to Heroku. If you would like to disable this, set `skip_analytics: true` in #{Heroku::Config.path}"
