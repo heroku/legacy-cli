@@ -78,6 +78,7 @@ class Heroku::JSPlugin
                         :help      => help,
                         :hidden    => command['hidden'],
                         :default   => command['default'],
+                        :js        => true,
                       }
                     end
                   end
