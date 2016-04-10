@@ -18,6 +18,7 @@ class Heroku::Config
   private
 
   def self.config
+    FileUtils.mkdir_p File.dirname(path)
     @config ||= JSON.parse(File.read(path)) rescue {}
   end
 
