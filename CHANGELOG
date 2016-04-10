@@ -1,3 +1,7 @@
+3.42.50 2016-04-09
+==================
+Fix bug reading config on first load
+
 3.42.49 2016-04-09
 ==================
 Cleaned up output when installing v4 CLI
