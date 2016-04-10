@@ -133,20 +133,33 @@ class Heroku::JSPlugin
     $stderr.print "heroku-cli: Installing Toolbelt v4..."
     FileUtils.mkdir_p File.dirname(bin)
     copy_ca_cert
-    opts = excon_opts.merge(
-      :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::Decompress],
-      :read_timeout => 300,
-    )
-    resp = Excon.get(url, opts)
-    open(bin, "wb") do |file|
-      file.write(resp.body)
+
+    open("#{bin}.gz", "wb") do |file|
+      streamer = lambda do |chunk, remaining_bytes, total_bytes|
+        file.write(chunk)
+        $stderr.print "\rheroku-cli: Installing Toolbelt v4... #{((total_bytes-remaining_bytes)/1000.0/1000).round(2)}MB/#{(total_bytes/1000.0/1000).round(2)}MB"
+      end
+      opts = excon_opts.merge(
+        :chunk_size => 324000,
+        :read_timeout => 300,
+        :response_block => streamer
+      )
+      Excon.get(url, opts)
     end
+
+    Zlib::GzipReader.open("#{bin}.gz") do |gz|
+      File.open(bin, "wb") do |file|
+        IO.copy_stream gz, file
+      end
+    end
+    File.delete("#{bin}.gz")
+
     File.chmod(0755, bin)
     if Digest::SHA1.file(bin).hexdigest != manifest['builds'][os][arch]['sha1']
       File.delete bin
       raise 'SHA mismatch for heroku-cli'
     end
-    $stderr.puts " done"
+    $stderr.puts
     version
   end
 
