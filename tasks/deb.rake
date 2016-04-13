@@ -16,7 +16,7 @@ namespace :deb do
       sh "apt-ftparchive packages . > Packages"
       sh "gzip -c Packages > Packages.gz"
       sh "apt-ftparchive -c #{resource("deb/heroku-toolbelt/apt-ftparchive.conf")} release . > Release"
-      sh "gpg -abs -u 0F1B0520 -o Release.gpg Release"
+      sh "gpg --digest-algo SHA512 -abs -u 0F1B0520 -o Release.gpg Release"
     end
   end
 
