@@ -10,7 +10,7 @@ module Heroku
     def home_directory
       if running_on_windows?
         # This used to be File.expand_path("~"), which should have worked but there was a bug
-        # when a user has a cryllic character in their username.  Their username gets mangled
+        # when a user has a cyrillic character in their username.  Their username gets mangled
         # by a C code operation that does not respect multibyte characters
         #
         # see: https://github.com/ruby/ruby/blob/v2_2_3/win32/file.c#L47
