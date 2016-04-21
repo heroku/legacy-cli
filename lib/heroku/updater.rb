@@ -32,8 +32,11 @@ module Heroku
 
     def self.http_get(url)
       require 'excon'
-      require 'heroku/excon'
-      Excon.get_with_redirect(url, :nonblock => false).body
+      Excon.get(url, 
+                :nonblock => false, 
+                :middlewares  => Excon.defaults[:middlewares] + [Excon::Middleware::RedirectFollower], 
+                :expects => [200, 301, 302]
+               ).body
     end
 
     def self.latest_local_version
