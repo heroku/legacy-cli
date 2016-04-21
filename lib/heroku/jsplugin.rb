@@ -5,6 +5,7 @@ class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.try_takeover(command, args)
+    run('dashboard', nil, []) if ARGV.length == 0
     if command == 'help' && args.length > 0
       return
     elsif args.include?('--help') || args.include?('-h')
