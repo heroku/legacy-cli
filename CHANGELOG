@@ -1,3 +1,10 @@
+3.43.0  2016-04-21
+==================
+Added "dashboard" to be displayed when calling `heroku` with no args
+Show progress when installing v4
+Fix handling of bad HTTP codes when installing v4
+Use SHA512 to sign Debian package
+
 3.42.50 2016-04-09
 ==================
 Fix bug reading config on first load
