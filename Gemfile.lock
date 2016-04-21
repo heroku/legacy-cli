@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heroku (3.42.50)
+    heroku (3.43.0)
       heroku-api (= 0.4.2)
       launchy (= 2.4.3)
       multi_json (= 1.11.2)
