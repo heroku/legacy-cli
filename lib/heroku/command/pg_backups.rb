@@ -405,7 +405,7 @@ EOF
 
     restore_url = nil
     if restore_from =~ %r{\Ahttps?://}
-      restore_url = restore_from
+      restore_url = check_dropboxurl(restore_from)
     else
       # assume we're restoring from a backup
       if restore_from =~ /::/
@@ -670,5 +670,21 @@ EOF
       tz = remap_tzs[tz.upcase]
     end
     { :hour => hour, :timezone => tz }
+  end
+
+  def check_dropboxurl(url)
+    # Force a dump file to download instead of rendering as HTML file
+    # by specifying the dl=1 param for Dropbox URL
+    if url =~ /www.dropbox.com/ && !url.end_with?('dl=1')
+      if url.end_with?('dl=0')
+        url.sub('dl=0', 'dl=1')
+      elsif url.include?('?')
+        url + '&dl=1'
+      else
+        url + '?dl=1'
+      end
+    end
+
+    url
   end
 end
