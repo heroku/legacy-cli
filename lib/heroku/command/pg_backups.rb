@@ -482,6 +482,7 @@ An error occurred and your backup did not finish.
 Please run `heroku pg:backups info #{transfer_name(backup)}` for details.
 
 EOF
+      exit(1)
     end
   end
 
