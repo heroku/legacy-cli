@@ -102,7 +102,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
       else
         @status = "not needed"
       end
-
     end
 
     action "Promoting #{addon['name']} to #{promoted_name}_URL on #{app}" do
@@ -356,7 +355,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
     puts exec_sql(sql)
   end
 
-
   # pg:push <SOURCE_DATABASE> <REMOTE_TARGET_DATABASE>
   #
   # push from SOURCE_DATABASE to REMOTE_TARGET_DATABASE
@@ -412,7 +410,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
   end
 
-
   # pg:maintenance <info|run|window> <DATABASE>
   #
   # manage maintenance for <DATABASE>
@@ -426,7 +423,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     mode_with_argument = shift_argument || ''
     mode, mode_argument = mode_with_argument.split('=')
 
-    db   = shift_argument
+    db = shift_argument
     no_maintenance = force?
     if mode.nil? || db.nil? || !(%w[info run window].include? mode)
       Heroku::Command.run(current_command, ["--help"])
@@ -452,14 +449,13 @@ class Heroku::Command::Pg < Heroku::Command::Base
       end
     when 'window'
       unless mode_argument =~ /\A[A-Za-z]{3,10} \d\d?:[03]0\z/
-      error('Maintenance windows must be "Day HH:MM", where MM is 00 or 30.')
+        error('Maintenance windows must be "Day HH:MM", where MM is 00 or 30.')
       end
 
       response = hpg_client(attachment).maintenance_window_set(mode_argument)
       display "Maintenance window for #{attachment.display_name} set for #{response[:window]}."
     end
   end
-
 
   # pg:upgrade REPLICA
   #
@@ -544,7 +540,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
 
         styled_header("#{attachments.map(&:config_var).join(", ")} (#{resource})")
 
-        next display response[:message] if response.kind_of?(Hash)
+        next display response[:message] if response.is_a?(Hash)
         next display "No data sources are linked into this database." if response.empty?
 
         response.each do |link|
@@ -602,7 +598,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   private
 
   def humanize(key)
-    key.to_s.gsub(/_/, ' ').split(" ").map(&:capitalize).join(" ")
+    key.to_s.tr('_', ' ').split(" ").map(&:capitalize).join(" ")
   end
 
   def resolve_service(name)
@@ -689,10 +685,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
         # Make headers as per heroku/heroku#1605
         names = attachments.map(&:config_var)
         names << 'DATABASE_URL' if attachments.any? { |att| att.primary_attachment? }
-        name = names.
-          uniq.
-          sort_by { |n| n=='DATABASE_URL' ? '{' : n }. # Weight DATABASE_URL last
-          join(', ')
+        name = names
+          .uniq
+          .sort_by { |n| n=='DATABASE_URL' ? '{' : n } # Weight DATABASE_URL last
+          .join(', ')
 
         mutex.synchronize do
           db_infos[name] = info
@@ -702,7 +698,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
     threads.map(&:join)
 
     @hpg_databases_with_info = db_infos
-    return @hpg_databases_with_info
+    @hpg_databases_with_info
   end
 
   def hpg_info(attachment, extended=false)
@@ -785,7 +781,7 @@ class Heroku::Command::Pg < Heroku::Command::Base
   def exec_sql_on_uri(sql,uri)
     begin
       ENV["PGPASSWORD"] = uri.password
-      ENV["PGSSLMODE"]  = (uri.host == 'localhost' ?  'prefer' : 'require' )
+      ENV["PGSSLMODE"]  = (uri.host == 'localhost' ? 'prefer' : 'require' )
       ENV["PGAPPNAME"]  = "#{pgappname} non-interactive"
       user_part = uri.user ? "-U #{uri.user}" : ""
       output = `#{psql_cmd} -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
@@ -827,9 +823,9 @@ class Heroku::Command::Pg < Heroku::Command::Base
     current_addon      = current_attachment && current_attachment['addon']
 
     if current_addon
-      existing = attachments.
-        select { |att| att['addon']['id'] == current_addon['id'] }.
-        detect { |att| att['name'] != 'DATABASE' }
+      existing = attachments
+        .select { |att| att['addon']['id'] == current_addon['id'] }
+        .detect { |att| att['name'] != 'DATABASE' }
 
       return existing if existing
 
