@@ -1,3 +1,8 @@
+3.43.1  2016-05-04
+==================
+Check and update the restore_from URL if it is from Dropbox
+Exit non-zero code when pg:backups transfer fails
+
 3.43.0  2016-04-21
 ==================
 Added "dashboard" to be displayed when calling `heroku` with no args
