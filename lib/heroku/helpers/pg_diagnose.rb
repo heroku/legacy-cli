@@ -1,5 +1,6 @@
 module Heroku::Helpers::PgDiagnose
-  DIAGNOSE_URL = ENV.fetch('PGDIAGNOSE_URL', "https://pgdiagnose.herokuapp.com")
+  DIAGNOSE_URL = ENV.fetch('PGDIAGNOSE_URL', "https://pgdiagnose.herokai.com")
+
   private
 
   def run_diagnose(db_id)
@@ -52,10 +53,10 @@ module Heroku::Helpers::PgDiagnose
       'database' => attachment.config_var
     }
 
-    return Excon.post("#{DIAGNOSE_URL}/reports",
-                      :expects => [200, 201],
-                      :body => params.to_json,
-                      :headers => {"Content-Type" => "application/json"})
+    Excon.post("#{DIAGNOSE_URL}/reports",
+               :expects => [200, 201],
+               :body => params.to_json,
+               :headers => {"Content-Type" => "application/json"})
   end
 
   def get_metrics(attachment)
@@ -86,9 +87,9 @@ module Heroku::Helpers::PgDiagnose
       next if "green" == status
 
       results = check['results']
-      return unless results && results.size > 0
+      break unless results && results.size > 0
 
-      if results.first.kind_of? Array
+      if results.first.is_a?(Array)
         puts "  " + results.first.map(&:capitalize).join(" ")
       else
         display_table(
@@ -101,4 +102,3 @@ module Heroku::Helpers::PgDiagnose
     end
   end
 end
-
