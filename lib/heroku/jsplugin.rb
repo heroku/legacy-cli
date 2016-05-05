@@ -112,53 +112,70 @@ class Heroku::JSPlugin
 
   def self.app_dir
     localappdata = Heroku::Helpers::Env['LOCALAPPDATA']
-    xdg_data_home = Heroku::Helpers::Env['XDG_DATA_HOME']
+    xdg_data_home = Heroku::Helpers::Env['XDG_DATA_HOME'] || File.join(Heroku::Helpers.home_directory, '.local', 'share')
 
     if windows? && localappdata
       File.join(localappdata, 'heroku')
-    elsif xdg_data_home
-      File.join(xdg_data_home, 'heroku')
     else
-      File.join(Heroku::Helpers.home_directory, '.heroku')
+      File.join(xdg_data_home, 'heroku')
     end
   end
 
   def self.bin
-    File.join(app_dir, windows? ? 'heroku-cli.exe' : 'heroku-cli')
+    File.join(app_dir, 'cli', 'bin', windows? ? 'heroku.exe' : 'heroku')
   end
 
   def self.setup
     check_if_old
     return if setup?
     require 'excon'
-    $stderr.print "heroku-cli: Installing Toolbelt v4..."
-    FileUtils.mkdir_p File.dirname(bin)
-    copy_ca_cert
+    require 'rubygems/package'
+    $stderr.print "heroku-cli: Installing CLI..."
 
-    open("#{bin}.gz", "wb") do |file|
-      streamer = lambda do |chunk, remaining_bytes, total_bytes|
-        file.write(chunk)
-        $stderr.print "\rheroku-cli: Installing Toolbelt v4... #{((total_bytes-remaining_bytes)/1000.0/1000).round(2)}MB/#{(total_bytes/1000.0/1000).round(2)}MB"
+    Dir.mktmpdir do |tmp|
+      archive = File.join(tmp, "heroku.tar.gz")
+      open(archive, "wb") do |file|
+        streamer = lambda do |chunk, remaining_bytes, total_bytes|
+          file.write(chunk)
+          $stderr.print "\rheroku-cli: Installing CLI... #{((total_bytes-remaining_bytes)/1000.0/1000).round(2)}MB/#{(total_bytes/1000.0/1000).round(2)}MB"
+        end
+        opts = excon_opts.merge(
+          :chunk_size => 324000,
+          :read_timeout => 300,
+          :response_block => streamer
+        )
+        Excon.get(url, opts)
       end
-      opts = excon_opts.merge(
-        :chunk_size => 324000,
-        :read_timeout => 300,
-        :response_block => streamer
-      )
-      Excon.get(url, opts)
-    end
 
-    Zlib::GzipReader.open("#{bin}.gz") do |gz|
-      File.open(bin, "wb") do |file|
-        IO.copy_stream gz, file
+      if Digest::SHA256.file(archive).hexdigest != manifest['builds']["#{os}-#{arch}"]['sha256']
+        raise 'SHA mismatch for heroku.tar.gz'
       end
-    end
-    File.delete("#{bin}.gz")
 
-    File.chmod(0755, bin)
-    if Digest::SHA1.file(bin).hexdigest != manifest['builds'][os][arch]['sha1']
-      File.delete bin
-      raise 'SHA mismatch for heroku-cli'
+      FileUtils.mkdir_p(app_dir)
+      FileUtils.rm_rf(File.join(app_dir, 'cli'))
+      Zlib::GzipReader.open(archive) do |gz|
+        Gem::Package::TarReader.new(gz) do |tar|
+          dest = nil
+          tar.each do |entry|
+            if entry.full_name == '././@LongLink'
+              dest = File.join(app_dir, entry.read.strip.gsub(/^heroku/, 'cli'))
+              next
+            end
+            dest ||= File.join(app_dir, entry.full_name.gsub(/^heroku/, 'cli'))
+            if entry.directory?
+              FileUtils.mkdir_p(dest, mode: entry.header.mode)
+            elsif entry.file?
+              File.open(dest, 'wb') do |f|
+                f.print entry.read
+              end
+              FileUtils.chmod(entry.header.mode, dest)
+            elsif entry.header.typeflag == '2' && !windows?
+              File.symlink entry.header.linkname, dest
+            end
+            dest = nil
+          end
+        end
+      end
     end
     $stderr.puts
     version
@@ -166,13 +183,6 @@ class Heroku::JSPlugin
 
   def self.setup?
     File.exist? bin
-  end
-
-  def self.copy_ca_cert
-    to = File.join(app_dir, "cacert.pem")
-    return if File.exists?(to)
-    from = File.expand_path("../../../data/cacert.pem", __FILE__)
-    FileUtils.copy(from, to)
   end
 
   def self.run(topic, command, args)
@@ -222,7 +232,7 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/master/manifest.json", excon_opts).body)
+    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/branches/stable/gz/manifest.json", excon_opts).body)
   end
 
   def self.excon_opts
@@ -235,7 +245,7 @@ class Heroku::JSPlugin
   end
 
   def self.url
-    manifest['builds'][os][arch]['url'] + ".gz"
+    manifest['builds']["#{os}-#{arch}"]['url']
   end
 
   def self.find_command(s)
