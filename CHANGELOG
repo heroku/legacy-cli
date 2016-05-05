@@ -1,3 +1,8 @@
+3.43.2  2016-05-05
+==================
+Download v5 directly
+Change pg:diagnose endpoint
+
 3.43.1  2016-05-04
 ==================
 Check and update the restore_from URL if it is from Dropbox
