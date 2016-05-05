@@ -26,7 +26,7 @@ module Heroku
       end
 
       it "should default to home directory" do
-        expect(Heroku::JSPlugin.app_dir).to eq(File.join(Heroku::Helpers.home_directory, ".heroku"))
+        expect(Heroku::JSPlugin.app_dir).to eq(File.join(Heroku::Helpers.home_directory, ".local", "share", "heroku"))
       end
 
       after do
