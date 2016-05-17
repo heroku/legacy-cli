@@ -31,7 +31,7 @@ module Heroku::Command
       end
     end
 
-    # plugins:install URL
+    # plugins:install NAME
     #
     # install a plugin
     #
