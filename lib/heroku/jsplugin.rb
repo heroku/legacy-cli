@@ -144,7 +144,18 @@ class Heroku::JSPlugin
           :read_timeout => 300,
           :response_block => streamer
         )
-        Excon.get(url, opts)
+        retries = 5
+        begin
+          Excon.get(url, opts)
+        rescue => e
+          if retries > 0
+            $stderr.puts "\nError: #{e}\n#{e.backtrace.join("\n")}\n\nretrying...\n"
+            retries = retries - 1
+            retry
+          else
+            raise e
+          end
+        end
       end
 
       if Digest::SHA256.file(archive).hexdigest != manifest['builds']["#{os}-#{arch}"]['sha256']
