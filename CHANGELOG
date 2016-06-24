@@ -1,3 +1,7 @@
+3.43.4  2016-06-24
+==================
+Update pgdiagnose hostname
+
 3.43.3  2016-05-25
 ==================
 Retry v5 download on failure
