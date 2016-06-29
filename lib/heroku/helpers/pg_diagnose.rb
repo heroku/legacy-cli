@@ -1,5 +1,5 @@
 module Heroku::Helpers::PgDiagnose
-  DIAGNOSE_URL = ENV.fetch('PGDIAGNOSE_URL', "https://pgdiagnose.herokuapp.com")
+  DIAGNOSE_URL = ENV.fetch('PGDIAGNOSE_URL', "https://pgdiagnose.herokai.com")
 
   private
 
