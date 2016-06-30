@@ -1,3 +1,9 @@
+3.43.5  2016-06-30
+==================
+Add libssl1.0.2 to the debian dependencies
+Remove drains code
+Revert "repoint pg:diagnose to cedar pgdiagnose (#1971)"
+
 3.43.4  2016-06-24
 ==================
 Update pgdiagnose hostname
