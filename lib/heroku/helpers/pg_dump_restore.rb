@@ -55,9 +55,9 @@ class PgDumpRestore
   end
 
   def ensure_remote_db_empty
-    sql = 'select count(*) = 0 from pg_stat_user_tables;'
+    sql = 'select count(*) = 0 as empty from pg_stat_user_tables;'
     result = exec_sql_on_uri(sql, @target)
-    unless result == " ?column? \n----------\n t\n(1 row)\n\n"
+    unless result.start_with? " empty \n-------\n t"
       command.error("Remote database is not empty.\nPlease create a new database, or use `heroku pg:reset`")
     end
   end
