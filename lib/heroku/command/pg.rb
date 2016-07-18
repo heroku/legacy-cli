@@ -286,34 +286,32 @@ class Heroku::Command::Pg < Heroku::Command::Base
     requires_preauth
     sql = %Q(
     SELECT
-      #{pid_column},
-      #{"state," if nine_two?}
+      pid,
+      state,
       application_name AS source,
       age(now(),xact_start) AS running_for,
       waiting,
-      #{query_column} AS query
+      query
      FROM pg_stat_activity
      WHERE
-       #{query_column} <> '<insufficient privilege>'
+       query <> '<insufficient privilege>'
        #{
       # Apply idle-backend filter appropriate to versions and options.
       case
       when options[:verbose]
         ''
-      when nine_two?
-        "AND state <> 'idle'"
       else
-        "AND current_query <> '<IDLE>'"
+        "AND state <> 'idle'"
       end
        }
-       AND #{pid_column} <> pg_backend_pid()
+       AND pid <> pg_backend_pid()
        ORDER BY query_start DESC
      )
 
     puts exec_sql(sql)
   end
 
-  # pg:kill procpid [DATABASE]
+  # pg:kill pid [DATABASE]
   #
   # kill a query
   #
@@ -321,12 +319,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
   #
   def kill
     requires_preauth
-    procpid = shift_argument
-    output_with_bang "procpid to kill is required" unless procpid && procpid.to_i != 0
-    procpid = procpid.to_i
+    pid = shift_argument
+    output_with_bang "procpid to kill is required" unless pid && pid.to_i != 0
+    pid = pid.to_i
 
     cmd = force? ? 'pg_terminate_backend' : 'pg_cancel_backend'
-    sql = %Q(SELECT #{cmd}(#{procpid});)
+    sql = %Q(SELECT #{cmd}(#{pid});)
 
     puts exec_sql(sql)
   end
@@ -346,10 +344,10 @@ class Heroku::Command::Pg < Heroku::Command::Base
     # fall back to original mechanism if calling the reset endpoint
     # fails
     sql = %Q(
-      SELECT pg_terminate_backend(#{pid_column})
+      SELECT pg_terminate_backend(pid)
       FROM pg_stat_activity
-      WHERE #{pid_column} <> pg_backend_pid()
-      AND #{query_column} <> '<insufficient privilege>'
+      WHERE pid <> pg_backend_pid()
+      AND query <> '<insufficient privilege>'
     )
 
     puts exec_sql(sql)
@@ -748,27 +746,6 @@ class Heroku::Command::Pg < Heroku::Command::Base
     result = exec_sql("select version();").match(/PostgreSQL (\d+\.\d+\.\d+) on/)
     fail("Unable to determine Postgres version") unless result
     @version = result[1]
-  end
-
-  def nine_two?
-    return @nine_two if defined? @nine_two
-    @nine_two = version.to_f >= 9.2
-  end
-
-  def pid_column
-    if nine_two?
-      'pid'
-    else
-      'procpid'
-    end
-  end
-
-  def query_column
-    if nine_two?
-      'query'
-    else
-      'current_query'
-    end
   end
 
   def exec_sql(sql)
