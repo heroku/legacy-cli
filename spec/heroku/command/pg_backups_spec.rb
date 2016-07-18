@@ -240,7 +240,7 @@ EOF
       end
 
       context "demonstrating cultural imperialism" do
-         {
+        {
           'PST' => 'America/Los_Angeles',
           'PDT' => 'America/Los_Angeles',
           'MST' => 'America/Boise',
@@ -252,16 +252,28 @@ EOF
           'Z'   => 'UTC',
           'GMT' => 'Europe/London',
           'BST' => 'Europe/London',
-         }.each do |common_but_ambiguous_abbreviation, official_tz_db_name|
-           it "translates #{common_but_ambiguous_abbreviation} to #{official_tz_db_name}" do
-             stub_pg.schedule({ hour: '07', timezone: official_tz_db_name,
-                                schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
-             specified_time = "07:00 #{common_but_ambiguous_abbreviation}"
-             stderr, stdout = execute("pg:backups schedule RED --at '#{specified_time}' --app example")
-             expect(stderr).to be_empty
-             expect(stdout).to match(/Scheduled automatic daily backups/)
-           end
-         end
+        }.each do |common_but_ambiguous_abbreviation, official_tz_db_name|
+          it "translates #{common_but_ambiguous_abbreviation} to #{official_tz_db_name}" do
+            stub_pg.schedule({ hour: '07', timezone: official_tz_db_name,
+                               schedule_name: 'HEROKU_POSTGRESQL_RED_URL' })
+            specified_time = "07:00 #{common_but_ambiguous_abbreviation}"
+            stderr, stdout = execute("pg:backups schedule RED --at '#{specified_time}' --app example")
+            expect(stderr).to be_empty
+            expect(stdout).to match(/Scheduled automatic daily backups/)
+          end
+        end
+      end
+
+      [
+        "02:00:00 America/Bogota",
+        "12:00am EST",
+        "04:00"
+      ].each do |at|
+        it "complains when called with invalid at" do
+          stderr, stdout = execute("pg:backups schedule RED --at '#{at}' --app example")
+          expect(stderr).to match(/Invalid schedule format: expected '<hour>:00 <timezone>'/)
+          expect(stdout).to be_empty
+        end
       end
     end
 
