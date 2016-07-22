@@ -1,3 +1,10 @@
+3.43.6  2016-07-22
+==================
+Ensure database is empty regardless of LANG setting
+Improve pg:backups schedule time validation
+Remove special cases for pg9.1
+Ignore --help commands in analytics
+
 3.43.5  2016-06-30
 ==================
 Add libssl1.0.2 to the debian dependencies
