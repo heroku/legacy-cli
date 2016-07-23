@@ -52,6 +52,7 @@ class Heroku::Analytics
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
     return true if ENV['CODESHIP'] == 'true'
     return true if ARGV.include? "--help"
+    return true if ARGV.include? "-h"
     return true unless user
 
     if Heroku::Config[:skip_analytics] == nil
