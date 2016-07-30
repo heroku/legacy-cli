@@ -44,6 +44,7 @@ module Heroku
     end
 
     def self.register_command(command)
+      command[:plugin] = $currently_loading_plugin
       commands[command[:command]] = command
     end
 

@@ -5,48 +5,25 @@ class Heroku::Analytics
 
   def self.record(command)
     return if skip_analytics
-    commands = json_decode(File.read(path)) || [] rescue []
+    file = json_decode(File.read(path)) || new_file rescue new_file
     c = Heroku::Command.parse(command)
     return if c && c[:js]
-    commands << {
+    file["commands"] ||= []
+    file["commands"] << {
       command:       command,
       timestamp:     Time.now.to_i,
-      cli_version:   Heroku.user_agent,
       version:       Heroku::VERSION,
       os:            Heroku::JSPlugin.os,
       arch:          Heroku::JSPlugin.arch,
-      language:      "ruby/#{RUBY_VERSION}",
+      language:      "ruby",
       valid:         !!c,
+      plugin:        c[:plugin],
     }
-    File.open(path, 'w') { |f| f.write(json_encode(commands)) }
-  rescue
-  end
-
-  def self.submit
-    return if skip_analytics
-    commands = json_decode(File.read(path))
-    return if commands.count < 10 # only submit if we have 10 entries to send
-    begin
-      fork do
-        submit_analytics(user, commands, path)
-      end
-    rescue NotImplementedError
-      # cannot fork on windows
-      submit_analytics(user, commands, path)
-    end
+    File.open(path, 'w') { |f| f.write(json_encode(file)) }
   rescue
   end
 
   private
-
-  def self.submit_analytics(user, commands, path)
-    payload = {
-      user:     user,
-      commands: commands,
-    }
-    Excon.post('https://cli-analytics.heroku.com/record', body: JSON.dump(payload))
-    File.truncate(path, 0)
-  end
 
   def self.skip_analytics
     return true if ['1', 'true'].include?(ENV['HEROKU_SKIP_ANALYTICS'])
@@ -65,12 +42,20 @@ class Heroku::Analytics
   end
 
   def self.path
-    File.join(Heroku::Helpers.home_directory, ".heroku", "analytics.json")
+    home = Heroku::Helpers.home_directory
+    cache = Heroku::Helpers::Env['XDG_CACHE_HOME']
+    cache ||= File.join(Heroku::Helpers::Env['LOCALAPPDATA'], 'heroku') if Heroku::JSPlugin.windows?
+    cache ||= File.join(home, '.cache', 'heroku')
+    File.join(cache, "analytics.json")
   end
 
   def self.user
     credentials = Heroku::Auth.read_credentials
     return unless credentials
     credentials[0] == '' ? nil : credentials[0]
+  end
+
+  def self.new_file
+    {schema: 1}
   end
 end

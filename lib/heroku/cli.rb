@@ -32,7 +32,6 @@ class Heroku::CLI
     Heroku::Analytics.record(command)
     warn_if_using_heroku_accounts
     Heroku::Command.run(command, args)
-    Heroku::Analytics.submit
     Heroku::Updater.autoupdate
   rescue Errno::EPIPE => e
     error(e.message)
