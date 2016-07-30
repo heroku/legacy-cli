@@ -1,3 +1,7 @@
+3.43.8  2016-07-30
+==================
+New analytics schema
+
 3.43.6  2016-07-22
 ==================
 Ensure database is empty regardless of LANG setting
