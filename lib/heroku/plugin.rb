@@ -51,10 +51,12 @@ module Heroku
 
     def self.load!
       list.each do |plugin|
+        $currently_loading_plugin = plugin_remote(plugin) rescue plugin
         check_for_deprecation(plugin)
         next if skip_plugins.include?(plugin)
         load_plugin(plugin)
       end
+      $currently_loading_plugin = nil
     end
 
     def self.load_plugin(plugin)
@@ -91,6 +93,12 @@ module Heroku
 
     def self.skip_plugins
       @skip_plugins ||= ENV["SKIP_PLUGINS"].to_s.split(/[ ,]/)
+    end
+
+    def self.plugin_remote(plugin)
+      Dir.chdir(File.join(directory, plugin)) do
+        git('config --get remote.origin.url')
+      end
     end
 
     def initialize(uri)
