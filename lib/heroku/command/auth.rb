@@ -4,15 +4,6 @@ require "heroku/command/base"
 #
 class Heroku::Command::Auth < Heroku::Command::Base
 
-  # auth
-  #
-  # Authenticate, display token and current user
-  def index
-    validate_arguments!
-
-    Heroku::Command::Help.new.send(:help_for_command, current_command)
-  end
-
   # auth:login
   #
   # log in with your heroku credentials
