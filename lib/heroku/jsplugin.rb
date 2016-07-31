@@ -260,7 +260,7 @@ class Heroku::JSPlugin
   end
 
   def self.find_command(s)
-    commands.find { |c| c[:command] == s }
+    commands.find { |c| c[:command] == s || (c[:default] && c[:namespace] == s) }
   end
 
   # check if release is one that isn't updateable
