@@ -23,6 +23,10 @@ class Heroku::Config
   end
 
   def self.path
-    File.join(Heroku::Helpers.home_directory, ".heroku", "config.json")
+    home = Heroku::Helpers.home_directory
+    config = Heroku::Helpers::Env['XDG_CONFIG_HOME']
+    config ||= File.join(Heroku::Helpers::Env['LOCALAPPDATA'], 'heroku') if Heroku::JSPlugin.windows?
+    config ||= File.join(home, '.config', 'heroku')
+    File.join(config, "config.json")
   end
 end
