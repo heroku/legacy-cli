@@ -14,6 +14,7 @@ This is the normal guide on how to do a release. If you are not a member of the 
 * Commit the changes `git commit -m "vX.Y.Z" -a`
 * Push changes to master `git push origin master`
 * Go to the buildserver and release http://cli-build.herokai.com/. [Here is the code for the buildserver.](https://github.com/heroku/toolbelt-build-server)
+* Run `heroku config:add` command in build output.
 * [optional] Release the OSX pkg (instructions in [full release guide](./RELEASE-FULL.md))
 * [optional] Release the WIN pkg (instructions in [full release guide](./RELEASE-FULL.md))
 
