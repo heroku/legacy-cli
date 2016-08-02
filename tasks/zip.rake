@@ -13,7 +13,7 @@ namespace :zip do
     s3_store dist("heroku-#{version}.zip"), "heroku-client/heroku-client-beta.zip" if beta?
     s3_store dist("heroku-#{version}.zip"), "heroku-client/heroku-client.zip" unless beta?
 
-    sh "heroku config:add UPDATE_HASH=#{zip_signature} -a toolbelt" unless beta?
+    puts "RUN THIS: heroku config:add UPDATE_HASH=#{zip_signature} -a toolbelt" unless beta?
   end
 
   file dist("heroku-#{version}.zip") => distribution_files("zip") do |t|
