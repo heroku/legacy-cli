@@ -30,7 +30,7 @@ class Heroku::CLI
     Heroku::Git.check_git_version
     Heroku::Command.load
     Heroku::Analytics.record(command)
-    warn_if_using_heroku_accounts
+    warn_if_ruby_plugin(command)
     Heroku::Command.run(command, args)
     Heroku::Updater.autoupdate
   rescue Errno::EPIPE => e
@@ -47,11 +47,11 @@ class Heroku::CLI
     exit(1)
   end
 
-  def self.warn_if_using_heroku_accounts
-    if defined?(Heroku::Command::Accounts.account)
-      $stderr.print "Uninstalling deprecated ddollar/heroku-accounts plugin..."
-      Heroku::Plugin.new('heroku-accounts').uninstall
-      $stderr.print "Done. Use https://github.com/heroku/heroku-accounts instead."
+  def self.warn_if_ruby_plugin(command)
+    c = Heroku::Command.parse(command)
+    if c && c[:plugin]
+      $stderr.puts "WARNING: #{c[:plugin]} is a deprecated Ruby plugin"
+      $stderr.puts "WARNING: Check to see if there is a version of this plugin using the new Node.js Heroku CLI"
     end
   end
 end
