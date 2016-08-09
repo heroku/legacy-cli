@@ -1,10 +1,19 @@
 require 'rbconfig'
 require 'heroku/helpers/env'
 
+ALWAYS_RUBY_COMMANDS = [
+  'plugins',
+  'plugins:install',
+  'plugins:uninstall',
+  'version',
+  'update',
+]
+
 class Heroku::JSPlugin
   extend Heroku::Helpers
 
   def self.try_takeover(command, args)
+    return if ALWAYS_RUBY_COMMANDS.include?(command)
     run('dashboard', nil, []) if ARGV.length == 0
     if command == 'help' && args.length > 0
       return
