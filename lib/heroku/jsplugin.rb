@@ -131,7 +131,7 @@ class Heroku::JSPlugin
   end
 
   def self.bin
-    File.join(app_dir, 'cli', 'bin', windows? ? 'heroku.exe' : 'heroku')
+    File.join(app_dir, 'cli', windows? ? 'heroku.exe' : 'heroku')
   end
 
   def self.setup
@@ -225,18 +225,18 @@ class Heroku::JSPlugin
   def self.arch
     case RbConfig::CONFIG['host_cpu']
     when /x86_64/
-      "amd64"
+      "x64"
     when /arm/
       "arm"
     else
-      "386"
+      "x86"
     end
   end
 
   def self.os
     case RbConfig::CONFIG['host_os']
     when /darwin|mac os/
-      raise "#{arch} is not supported" unless arch == "amd64"
+      raise "#{arch} is not supported" unless arch == "x64"
       "darwin"
     when /linux/
       "linux"
@@ -252,7 +252,7 @@ class Heroku::JSPlugin
   end
 
   def self.manifest
-    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/branches/stable/gz/manifest.json", excon_opts).body)
+    @manifest ||= JSON.parse(Excon.get("https://cli-assets.heroku.com/dev/manifest.json", excon_opts).body)
   end
 
   def self.excon_opts
