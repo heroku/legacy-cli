@@ -461,7 +461,7 @@ EOF
                  end
         redisplay status
         ticks += 1
-      rescue RestClient::Exception
+      rescue RestClient::Exception, OpenSSL::SSL::SSLError
         backup = {}
         failed_count += 1
         if failed_count > 120
