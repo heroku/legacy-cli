@@ -2,7 +2,7 @@ require "heroku/helpers"
 
 if (Heroku::Helpers.running_on_windows?)
   $stdin = File.new("nul")
-else 
+else
   $stdin = File.new("/dev/null")
 end
 
@@ -38,7 +38,7 @@ def org_api
 end
 
 def stub_api_request(method, path)
-  stub_request(method, "https://api.heroku.com#{path}")
+  stub_request(method, /^https:\/\/(?<credentials>|.*@)api.heroku.com#{Regexp.escape(path)}$/)
 end
 
 def prepare_command(klass)
@@ -268,4 +268,3 @@ RSpec.configure do |config|
   config.before { Heroku::Helpers.error_with_failure = false }
   config.after { RR.reset }
 end
-
