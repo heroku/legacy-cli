@@ -1,3 +1,12 @@
+3.43.10 2016-09-01
+==================
+Take out auth command to fallback to help
+Take config:add step out of release
+Set commands to always run as ruby
+Fix location of config file
+Replace heroku-accounts warning with ruby plugin deprecation message
+Rescue openssl errors that appear transiently
+
 3.43.8  2016-07-30
 ==================
 New analytics schema
