@@ -716,7 +716,7 @@ Check the output of "heroku ps" and "heroku logs" for more information.
   def default_resource_options_for_uri(uri)
     if ENV["HEROKU_SSL_VERIFY"] == "disable"
       {}
-    elsif realize_full_uri(uri) =~ %r|^https://api.heroku.com|
+    elsif URI.parse(realize_full_uri(uri)).host == "api.heroku.com"
       { :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => local_ca_file }
     else
       {}
