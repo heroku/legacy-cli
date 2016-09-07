@@ -38,7 +38,7 @@ def org_api
 end
 
 def stub_api_request(method, path)
-  stub_request(method, /^https:\/\/(?<credentials>|.*@)api.heroku.com#{Regexp.escape(path)}$/)
+  stub_request(method, Addressable::Template.new("https://{user}:{pass}@api.heroku.com#{path}"))
 end
 
 def prepare_command(klass)

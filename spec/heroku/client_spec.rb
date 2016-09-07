@@ -545,4 +545,23 @@ describe Heroku::Client do
       end
     end
   end
+
+  describe "default_resource_options_for_uri" do
+    it "adds verify_ssl and ssl_ca_file for api.heroku.com" do
+      client = Heroku::Client.new("user", "password")
+      ssl_ca_file = client.send(:local_ca_file)
+      expect({ :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => ssl_ca_file}).to eq(client.send(:default_resource_options_for_uri, "https://api.heroku.com"))
+    end
+
+    it "adds verify_ssl and ssl_ca_file for foo:bar@api.heroku.com" do
+      client = Heroku::Client.new("user", "password")
+      ssl_ca_file = client.send(:local_ca_file)
+      expect({ :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => ssl_ca_file}).to eq(client.send(:default_resource_options_for_uri, "https://foo:bar@api.heroku.com"))
+    end
+
+    it "does not add verify_ssl and ssl_ca_file for others" do
+      client = Heroku::Client.new("user", "password")
+      expect({}).to eq(client.send(:default_resource_options_for_uri, "https://foo:bar@example.com"))
+    end
+  end
 end
