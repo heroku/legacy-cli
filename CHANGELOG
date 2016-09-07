@@ -1,3 +1,7 @@
+3.43.11 2016-09-07
+==================
+Update rest-client gem because security vulnerabilities
+
 3.43.10 2016-09-01
 ==================
 Take out auth command to fallback to help
