@@ -12,5 +12,4 @@ group :development, :test do
   gem "rspec"
   gem "webmock"
   gem "coveralls", :require => false
-  gem "pry"
 end

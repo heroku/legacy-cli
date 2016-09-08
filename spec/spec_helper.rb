@@ -8,8 +8,10 @@ end
 
 require "rubygems"
 
-require "coveralls"
-Coveralls.wear!
+unless ENV['APPVEYOR'] == 'True'
+  require "coveralls"
+  Coveralls.wear!
+end
 
 require "excon"
 
