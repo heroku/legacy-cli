@@ -2,7 +2,7 @@ require "heroku/helpers"
 
 if (Heroku::Helpers.running_on_windows?)
   $stdin = File.new("nul")
-else 
+else
   $stdin = File.new("/dev/null")
 end
 
@@ -23,6 +23,7 @@ require "fakefs/safe"
 require 'tmpdir'
 require "webmock/rspec"
 require "shellwords"
+require "netrc"
 
 ENV['HEROKU_SKIP_ANALYTICS'] = '1'
 
@@ -40,7 +41,12 @@ def org_api
 end
 
 def stub_api_request(method, path)
-  stub_request(method, "https://api.heroku.com#{path}")
+  user, password = Netrc.read["api.heroku.com"]
+  if (user || password)
+    stub_request(method, Addressable::Template.new("https://{user}:{pass}@api.heroku.com#{path}"))
+  else
+    stub_request(method, "https://api.heroku.com#{path}")
+  end
 end
 
 def prepare_command(klass)
@@ -270,4 +276,3 @@ RSpec.configure do |config|
   config.before { Heroku::Helpers.error_with_failure = false }
   config.after { RR.reset }
 end
-

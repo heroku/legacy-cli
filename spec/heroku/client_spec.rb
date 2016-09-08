@@ -256,7 +256,7 @@ describe Heroku::Client do
     end
 
     it "remove_collaborator(app_name, email) -> removes collaborator from app" do
-      stub_api_request(:delete, "/apps/example/collaborators/joe%40example%2Ecom")
+      stub_api_request(:delete, "/apps/example/collaborators/joe@example.com")
       capture_stderr do # capture deprecation message
         @client.remove_collaborator('example', 'joe@example.com')
       end
@@ -344,7 +344,7 @@ describe Heroku::Client do
     end
 
     it "remove_key(key) -> remove an SSH key by name (user@box)" do
-      stub_api_request(:delete, "/user/keys/joe%40workstation")
+      stub_api_request(:delete, "/user/keys/joe@workstation")
       capture_stderr do # capture deprecation message
         @client.remove_key('joe@workstation')
       end
@@ -436,7 +436,7 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name)" do
-      stub_api_request(:delete, "/apps/example/addons/addon1?").
+      stub_api_request(:delete, "/apps/example/addons/addon1").
         to_return(:body => json_encode({"message" => nil, "price" => "free", "status" => "uninstalled"}))
 
       expect(@client.uninstall_addon('example', 'addon1')).to be_truthy
@@ -450,7 +450,7 @@ describe Heroku::Client do
     end
 
     it "install_addon(app_name, addon_name) with response" do
-      stub_request(:post, "https://api.heroku.com/apps/example/addons/addon1").
+      stub_api_request(:post, "/apps/example/addons/addon1").
         to_return(:body => json_encode({'price' => 'free', 'message' => "Don't Panic"}))
 
       expect(@client.install_addon('example', 'addon1')).
@@ -458,7 +458,7 @@ describe Heroku::Client do
     end
 
     it "upgrade_addon(app_name, addon_name) with response" do
-      stub_request(:put, "https://api.heroku.com/apps/example/addons/addon1").
+      stub_api_request(:put, "/apps/example/addons/addon1").
         to_return(:body => json_encode('price' => 'free', 'message' => "Don't Panic"))
 
       expect(@client.upgrade_addon('example', 'addon1')).
@@ -466,7 +466,7 @@ describe Heroku::Client do
     end
 
     it "downgrade_addon(app_name, addon_name) with response" do
-      stub_request(:put, "https://api.heroku.com/apps/example/addons/addon1").
+      stub_api_request(:put, "/apps/example/addons/addon1").
         to_return(:body => json_encode('price' => 'free', 'message' => "Don't Panic"))
 
       expect(@client.downgrade_addon('example', 'addon1')).
@@ -474,7 +474,7 @@ describe Heroku::Client do
     end
 
     it "uninstall_addon(app_name, addon_name) with response" do
-      stub_api_request(:delete, "/apps/example/addons/addon1?").
+      stub_api_request(:delete, "/apps/example/addons/addon1").
         to_return(:body => json_encode('price'=> 'free', 'message'=> "Don't Panic"))
 
       expect(@client.uninstall_addon('example', 'addon1')).
@@ -543,6 +543,25 @@ describe Heroku::Client do
       capture_stderr do # capture deprecation message
         expect(@client.list_stacks("example", :include_deprecated => true)).to eq({ 'stack' => 'one' })
       end
+    end
+  end
+
+  describe "default_resource_options_for_uri" do
+    it "adds verify_ssl and ssl_ca_file for api.heroku.com" do
+      client = Heroku::Client.new("user", "password")
+      ssl_ca_file = client.send(:local_ca_file)
+      expect({ :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => ssl_ca_file}).to eq(client.send(:default_resource_options_for_uri, "https://api.heroku.com"))
+    end
+
+    it "adds verify_ssl and ssl_ca_file for foo:bar@api.heroku.com" do
+      client = Heroku::Client.new("user", "password")
+      ssl_ca_file = client.send(:local_ca_file)
+      expect({ :verify_ssl => OpenSSL::SSL::VERIFY_PEER, :ssl_ca_file => ssl_ca_file}).to eq(client.send(:default_resource_options_for_uri, "https://foo:bar@api.heroku.com"))
+    end
+
+    it "does not add verify_ssl and ssl_ca_file for others" do
+      client = Heroku::Client.new("user", "password")
+      expect({}).to eq(client.send(:default_resource_options_for_uri, "https://foo:bar@example.com"))
     end
   end
 end
