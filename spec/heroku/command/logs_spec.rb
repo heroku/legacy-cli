@@ -21,6 +21,12 @@ describe Heroku::Command::Logs do
     describe "with log output" do
       before(:each) do
         stub_core.read_logs("example", []).yields("2011-01-01T00:00:00+00:00 app[web.1]: test")
+        @term = ENV['TERM']
+        ENV['TERM'] = 'xterm-256color'
+      end
+
+      after(:each) do
+        ENV['TERM'] = @term
       end
 
       it "prettifies tty output" do
