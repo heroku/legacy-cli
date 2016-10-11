@@ -33,11 +33,7 @@ class Heroku::Client::HerokuPostgresqlApp
   end
 
   def heroku_postgresql_host
-    if ENV['SHOGUN']
-      "shogun-#{ENV['SHOGUN']}.herokuapp.com"
-    else
-      determine_host(ENV["HEROKU_POSTGRESQL_HOST"], "postgres-api.heroku.com")
-    end
+    ENV["HEROKU_POSTGRESQL_HOST"] || "postgres-api.heroku.com"
   end
 
   def heroku_postgresql_resource
@@ -45,8 +41,7 @@ class Heroku::Client::HerokuPostgresqlApp
       "https://#{heroku_postgresql_host}/client/v11/apps",
       :user => Heroku::Auth.user,
       :password => Heroku::Auth.password,
-      :headers => self.class.headers
-      )
+      :headers => self.class.headers)
   end
 
   def http_get(path)
@@ -82,14 +77,6 @@ class Heroku::Client::HerokuPostgresqlApp
   end
 
   private
-
-  def determine_host(value, default)
-    if value.nil?
-      default
-    else
-      "#{value}.herokuapp.com"
-    end
-  end
 
   def sym_keys(c)
     if c.is_a?(Array)
