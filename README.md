@@ -13,7 +13,7 @@ To get started see <https://devcenter.heroku.com/start>
 Setup
 -----
 
-First, [Install the Heroku CLI with the Toolbelt](https://toolbelt.heroku.com).
+First, [Install the Heroku CLI](https://devcenter.heroku.com/articles/heroku-command-line#download-and-install.
 
 Once installed, you'll have access to the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
