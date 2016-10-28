@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     heroku (3.43.12)
+      addressable (= 2.3.8)
       heroku-api (= 0.4.2)
       launchy (= 2.4.3)
       multi_json (= 1.11.2)
@@ -95,4 +96,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.12.5
+   1.13.6
