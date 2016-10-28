@@ -1,3 +1,8 @@
+3.43.13 2016-10-28
+==================
+Stop assuming domain for some private endpoints
+Fixes bug where proxy url had underscore in it
+
 3.43.12 2016-09-07
 ==================
 Revert: Update rest-client gem because security vulnerabilities
