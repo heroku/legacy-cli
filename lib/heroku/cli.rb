@@ -12,6 +12,7 @@ require 'heroku/jsplugin'
 require 'heroku/config'
 require 'heroku/analytics'
 require 'heroku/rollbar'
+require 'heroku/uri'
 require 'json'
 
 class Heroku::CLI
