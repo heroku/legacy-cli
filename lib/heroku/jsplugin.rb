@@ -274,8 +274,11 @@ class Heroku::JSPlugin
 
   # check if release is one that isn't updateable
   def self.check_if_old
-    File.delete(bin) if windows? && setup? && version.start_with?("heroku-cli/4.24")
-    File.delete(bin) if setup? && version.start_with?("heroku-cli/4.27.5-")
+    return unless setup?
+    v = version.gsub(/heroku-cli\/([.\d]+)-.+/, '\1').chomp.split('.').map(&:to_i)
+    File.delete(bin) if windows? && v[0] < 5 # delete older than 5.x
+    File.delete(bin) if windows? && v[0] == 5 && v[1] < 5 # delete older than 5.5.x
+    File.delete(bin) if v == [4, 27, 5]
   rescue => e
     Rollbar.error(e)
   rescue
