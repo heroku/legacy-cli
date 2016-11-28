@@ -6,10 +6,11 @@ require "heroku/helpers/heroku_postgresql"
 class Heroku::Command::Pg < Heroku::Command::Base
   # pg:copy SOURCE TARGET
   #
+  # copy all data from source database to target
+  #
   #   --wait-interval SECONDS      # how frequently to poll (to avoid rate-limiting)
   #
-  # copy all data from source database to target. At least one of
-  # these must be a Heroku Postgres database.
+  # At least one of these must be a Heroku Postgres database.
   #
   def copy
     source_db = shift_argument
