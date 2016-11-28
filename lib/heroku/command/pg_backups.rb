@@ -3,6 +3,8 @@ require "heroku/client/heroku_postgresql_backups"
 require "heroku/command/base"
 require "heroku/helpers/heroku_postgresql"
 
+# manage heroku-postgresql databases
+#
 class Heroku::Command::Pg < Heroku::Command::Base
   # pg:copy SOURCE TARGET
   #
