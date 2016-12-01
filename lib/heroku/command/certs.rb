@@ -5,7 +5,7 @@ require "excon"
 # manage ssl endpoints for an app
 #
 class Heroku::Command::Certs < Heroku::Command::Base
-  SSL_DOCTOR = Excon.new(ENV["SSL_DOCTOR_URL"] || "https://ssl-doctor.herokuapp.com/")
+  SSL_DOCTOR = Excon.new(ENV["SSL_DOCTOR_URL"] || "https://ssl-doctor.heroku.com/")
 
   class UsageError < StandardError; end
 
