@@ -1,3 +1,7 @@
+3.43.99 2017-02-22
+==================
+Show deprecation message when being used
+
 3.43.16 2016-12-11
 ==================
 Use heroku.com domain for SSL-Doctor
