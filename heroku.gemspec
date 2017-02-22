@@ -14,9 +14,8 @@ Gem::Specification.new do |gem|
   gem.license     = "MIT"
   gem.required_ruby_version = ">= 1.9.0"
   gem.post_install_message = <<-MESSAGE
- !    The `heroku` gem has been deprecated and replaced with the Heroku Toolbelt.
- !    Download and install from: https://toolbelt.heroku.com
- !    For API access, see: https://github.com/heroku/heroku.rb
+ !    The `heroku` ruby CLI has been deprecated and replaced
+ !    Download and install the new CLI from: https://cli.heroku.com
   MESSAGE
 
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(LICENSE|README|bin/|data/|ext/|lib/|spec/|test/)} }
