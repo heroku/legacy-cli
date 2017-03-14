@@ -15,7 +15,7 @@ class Gem::Specification
   def this; self; end
 end
 
-$stderr.puts "This is the legacy Heroku CLI. Install the new one from https://cli.heroku.com"
+$stderr.puts "This is the legacy Heroku CLI. Please install the new CLI from https://cli.heroku.com"
 
 require "heroku/updater"
 Heroku::Updater.disable("`heroku update` is only available from Heroku Toolbelt.\nDownload and install from https://toolbelt.heroku.com")
