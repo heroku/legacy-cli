@@ -1,5 +1,10 @@
+3.43.9999 2017-03-13
+====================
+Add deprecation message
+Use v5 CLI directly without analyzing commands
+
 3.43.999 2017-02-22
-==================
+===================
 Show deprecation message when being used
 
 3.43.99 2017-02-22

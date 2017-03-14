@@ -20,14 +20,11 @@ module Heroku::Command
     def index
       validate_arguments!
 
-      plugins = ::Heroku::JSPlugin.plugins.map { |p| "#{p[:name]}@#{p[:version]} #{p[:extra]}" }
-      plugins.concat(::Heroku::Plugin.list)
+      plugins = ::Heroku::Plugin.list
 
       if plugins.length > 0
         styled_header("Installed Plugins")
         styled_array(plugins)
-      else
-        display("You have no installed plugins.")
       end
     end
 
