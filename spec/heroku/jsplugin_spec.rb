@@ -34,5 +34,69 @@ module Heroku
         allow(ENV).to receive(:[]).and_call_original
       end
     end
+
+    context '.try_takeover' do
+      context 'global help' do
+        it 'displays via $ heroku' do
+          cmd = ['help'] # 'help' via cli.js:26
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('help', nil, [])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+
+        it 'displays via $ heroku help' do
+          cmd = ['help']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('help', nil, [])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+
+        it 'displays via $ heroku --help' do
+          cmd = ['--help']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('--help', nil, [])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+      end
+
+      context 'topic help' do
+        it 'displays via $ heroku help plugins' do
+          cmd = ['help', 'plugins']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('help', nil, ['plugins'])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+
+        it 'displays via $ heroku --help plugins' do
+          cmd = ['--help', 'plugins']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('--help', nil, ['plugins'])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+      end
+
+      context 'help help' do
+        it 'displays via $ heroku help help' do
+          cmd = ['help', 'help']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('help', nil, ['help'])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+
+        it 'displays via $ heroku --help help' do
+          cmd = ['--help', 'help']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('--help', nil, ['help'])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+
+        it 'displays via $ heroku help --help' do
+          cmd = ['help', '--help']
+          stub_argv(cmd)
+          expect(Heroku::JSPlugin).to receive(:run).with('help', nil, ['--help'])
+          Heroku::JSPlugin.try_takeover(cmd[0])
+        end
+      end
+    end
   end
 end

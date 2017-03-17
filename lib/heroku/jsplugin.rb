@@ -12,9 +12,13 @@ ALWAYS_RUBY_COMMANDS = [
 class Heroku::JSPlugin
   extend Heroku::Helpers
 
-  def self.try_takeover(command, args)
+  def self.list
+    system "\"#{bin}\" plugins"
+  end
+
+  def self.try_takeover(command)
     return if ALWAYS_RUBY_COMMANDS.include?(command)
-    run(ARGV[0], nil, ARGV[1..-1])
+    run((ARGV[0] || "help"), nil, ARGV[1..-1])
   end
 
   def self.install(name, opts={})
