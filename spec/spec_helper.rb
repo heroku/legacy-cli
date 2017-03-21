@@ -2,7 +2,7 @@ require "heroku/helpers"
 
 if (Heroku::Helpers.running_on_windows?)
   $stdin = File.new("nul")
-else 
+else
   $stdin = File.new("/dev/null")
 end
 
@@ -255,7 +255,7 @@ class Heroku::JSPlugin
   def self.topics; [] end
   def self.commands; [] end
   def self.setup; end
-  def self.run; end
+  def self.run (t=nil, c=nil, a=nil); end
   def self.plugins; [] end
   def self.version; 'heroku-cli/4.0.0-4f2c5c5 (amd64-darwin) go1.5' end
 end
@@ -271,3 +271,6 @@ RSpec.configure do |config|
   config.after { RR.reset }
 end
 
+def stub_argv cmd
+  allow(ARGV).to receive(:[]) { |i| cmd[i] }
+end

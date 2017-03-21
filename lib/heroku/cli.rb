@@ -26,7 +26,7 @@ class Heroku::CLI
     command = args.shift.strip rescue "help"
     Heroku::Analytics.skip_analytics # just sets the config for the analytics
     Heroku::JSPlugin.setup
-    Heroku::JSPlugin.try_takeover(command, args)
+    Heroku::JSPlugin.try_takeover(command)
     require 'heroku/command'
     Heroku::Git.check_git_version
     Heroku::Command.load

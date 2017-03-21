@@ -26,6 +26,7 @@ module Heroku::Command
         styled_header("Installed Plugins")
         styled_array(plugins)
       end
+      ::Heroku::JSPlugin.list
     end
 
     # plugins:install NAME
@@ -149,7 +150,7 @@ module Heroku::Command
       type_and_percentage = counts.keys.sort.map{|type| {:type => type, :count => counts[type]}}
 
       if options[:csv]
-        csv_str = CSV.generate do |csv| 
+        csv_str = CSV.generate do |csv|
           csv << header
           sorted_cmd.each {|cmd| csv << attrs.map{|attr| cmd[attr]}}
 
@@ -174,7 +175,7 @@ module Heroku::Command
     end
 
     def command_list_to_hash(commands, type)
-      commands.inject({}) do |h, command| 
+      commands.inject({}) do |h, command|
         cmd = command['command'] ? "#{command['topic']}:#{command['command']}" : command['topic']
         h[cmd] = command_to_hash(type, cmd, command)
         if command['default']
