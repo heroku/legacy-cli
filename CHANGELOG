@@ -1,4 +1,8 @@
-3.99.1 2017-3-17
+3.99.2 2017-04-05
+====================
+Fix duplicate command not found message
+
+3.99.1 2017-03-17
 ====================
 Fix help and listing plugins
 
