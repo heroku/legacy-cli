@@ -199,11 +199,7 @@ module Heroku
 
         [ command_instance, command[:method] ]
       else
-        error([
-          "`#{cmd}` is not a heroku command.",
-          suggestion(cmd, (commands.keys + command_aliases.keys).uniq),
-          "See `heroku help` for a list of available commands."
-        ].compact.join("\n"))
+        exit 1
       end
     end
 
