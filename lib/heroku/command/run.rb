@@ -107,8 +107,8 @@ protected
         :rendezvous_url => rendezvous_url,
         :connect_timeout => (ENV["HEROKU_CONNECT_TIMEOUT"] || 120).to_i,
         :activity_timeout => nil,
-        :input => $stdin,
-        :output => $stdout)
+        :input => options[:input] || $stdin,
+        :output => options[:output] || $stdout)
       rendezvous.on_connect(&on_connect)
       rendezvous.start
     rescue Timeout::Error, Errno::ETIMEDOUT
