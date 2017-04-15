@@ -156,4 +156,39 @@ class Heroku::Command::Config < Heroku::Command::Base
 
   alias_command "config:remove", "config:unset"
 
+  # config:rename OLD_KEY NEW_KEY
+  #
+  # rename one config var
+  #
+  #Example:
+  # $ heroku config:rename A B
+  # Renaming A to B and restarting example... done, v123
+  #
+  def rename
+    if args.empty? or args.size != 2
+      error("Usage: heroku config:rename OLD_KEY NEW_KEY\nMust specify OLD_KEY and NEW_KEY to rename.")
+    end
+  
+    old_key, new_key = args
+  
+    vars = api.get_config_vars(app).body
+    old_key, value = vars.detect {|k,v| k == old_key}
+    new_vars = { new_key => value }
+
+    action("Renaming #{old_key} to #{new_key} and restarting #{app}") do
+      api.put_config_vars(app, new_vars)
+      api.delete_config_var(app, old_key)
+
+      @status = begin
+        if release = api.get_release(app, 'current').body
+          release['name']
+        end
+      rescue Heroku::API::Errors::RequestFailed => e
+      end
+    end
+
+    new_vars[new_key] = new_vars[new_key].to_s
+    styled_hash(new_vars)
+  end
+
 end
