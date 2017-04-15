@@ -27,7 +27,7 @@ class Heroku::Command::Base
       end
       options[:confirm]
     elsif options[:app].is_a?(String)
-      options[:app]
+      options[:app].downcase
     elsif ENV.has_key?('HEROKU_APP')
       ENV['HEROKU_APP']
     elsif app_from_dir = extract_app_in_dir(Dir.pwd)
