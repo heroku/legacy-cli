@@ -47,6 +47,11 @@ STDERR
         expect(@base.app).to eq("example")
       end
 
+      it "attempts to find the app via the --app option case-insensitively" do
+        @base.stub!(:options).and_return(:app => "ExAmPlE")
+        @base.app.should == "example"
+      end
+
       it "attempts to find the app via the --confirm option" do
         allow(@base).to receive(:options).and_return(:confirm => "myconfirmapp")
         expect(@base.app).to eq("myconfirmapp")
