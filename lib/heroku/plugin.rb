@@ -102,8 +102,14 @@ module Heroku
     end
 
     def initialize(uri)
-      @uri = uri
-      guess_name(uri)
+      if uri =~ URI::regexp
+        @uri = uri
+      else
+        parts = uri.split("/")
+        parts.unshift "heroku" if parts.length == 1
+        @uri = "https://github.com/#{parts.join("/")}.git"
+      end
+      guess_name(@uri)
     end
 
     def to_s
