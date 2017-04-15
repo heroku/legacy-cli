@@ -152,7 +152,11 @@ class Heroku::Command::Ps < Heroku::Command::Base
     extract_run_id = /\.(\d+).*:/
     processes_by_command.keys.each do |key|
       processes_by_command[key] = processes_by_command[key].sort do |x,y|
-        x.match(extract_run_id).captures.first.to_i <=> y.match(extract_run_id).captures.first.to_i
+        begin
+          x.match(extract_run_id).captures.first.to_i <=> y.match(extract_run_id).captures.first.to_i
+        rescue
+          0
+        end
       end
     end
 
