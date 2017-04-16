@@ -53,6 +53,19 @@ Please see 'heroku pg:backups restore' instead.
 More Information: https://devcenter.heroku.com/articles/heroku-postgres-backups")
     end
 
+    # pgbackups:wait
+    #
+    # waits till all the transfers are over.
+    #
+    # Its pretty handy in scripts which needs to wait before all the restore/backup transfers are finished
+    def wait
+      ticking do |ticks|
+        transfers = pgbackup_client.get_transfers
+        finished_statuses = transfers.map{|m| m["finished_at"]}
+        return ticks if finished_statuses.compact.length ==  transfers.length #exit if all transfers are finished
+      end
+    end
+
     # pgbackups:destroy BACKUP_ID
     #
     # destroys a backup
