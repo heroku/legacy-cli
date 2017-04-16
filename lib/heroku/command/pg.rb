@@ -260,19 +260,12 @@ class Heroku::Command::Pg < Heroku::Command::Base
       action "Resetting credentials for #{attachment.display_name}" do
         hpg_client(attachment).rotate_credentials
       end
-      if attachment.primary_attachment?
-        attachment = generate_resolver.resolve(db)
-        action "Promoting #{attachment.display_name}" do
-          hpg_promote(attachment.url)
-        end
-      end
     else
       uri = URI.parse( attachment.url )
       display "Connection info string:"
       display "   \"dbname=#{uri.path[1..-1]} host=#{uri.host} port=#{uri.port || 5432} user=#{uri.user} password=#{uri.password} sslmode=require\""
       display "Connection URL:"
       display "    " + attachment.url
-
     end
   end
 

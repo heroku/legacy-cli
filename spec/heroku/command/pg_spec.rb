@@ -258,7 +258,6 @@ STDERR
         expect(stderr).to eq('')
         expect(stdout).to eq <<-STDOUT
 Resetting credentials for HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
-Promoting HEROKU_POSTGRESQL_IVORY_URL (DATABASE_URL)... done
 STDOUT
       end
 
@@ -278,7 +277,6 @@ STDOUT
         expect(stderr).to eq('')
         expect(stdout).not_to include("Promoting")
       end
-
     end
 
     context "unfollow" do
