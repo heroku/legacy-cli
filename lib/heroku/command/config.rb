@@ -156,4 +156,25 @@ class Heroku::Command::Config < Heroku::Command::Base
 
   alias_command "config:remove", "config:unset"
 
+  # config:copy APP2
+  #
+  # copy config variables from one application to another
+  #
+  # $ heroku config:copy APP2 --APP1
+  # App1 config vars copied to APP2
+  #
+  def copy
+    requires_preauth
+
+    if args.empty?
+      error("Usage: heroku config:copy APP\nMust specify target application.")
+    end
+
+    vars = api.get_config_vars(app).body
+    api.put_config_vars(args.first, vars)
+    copied_vars = api.get_config_vars(args.first).body
+
+    display("#{app} config vars copied to #{args.first}")
+  end
+
 end
