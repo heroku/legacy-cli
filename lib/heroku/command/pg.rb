@@ -163,6 +163,40 @@ class Heroku::Command::Pg < Heroku::Command::Base
     end
   end
 
+  # pg:tunnel [DATABASE]
+  #
+  # open an SSH tunnel to a database
+  #
+  #  -p, --port PORT      # optional local port to listen on
+  #
+  # defaults to DATABASE_URL databases if no DATABASE is specified
+  #
+  def tunnel
+    requires_preauth
+    attachment = generate_resolver.resolve(shift_argument, "DATABASE_URL")
+    validate_arguments!
+
+    local_port = options[:port]
+    if local_port
+      # Port must be a number, not a string
+      local_port = local_port.to_i
+    end
+
+    if attachment.uses_bastion?
+      begin
+        attachment.maybe_tunnel(local_port) do |uri|
+          puts "---> Tunnel to #{attachment.display_name} open at #{uri.host}:#{uri.port}"
+          puts "---> Press Ctrl-C to close the tunnel"
+          sleep
+        end
+      rescue Errno::EADDRINUSE
+        error("Local port #{local_port} is already in use")
+      end
+    else
+      error("#{attachment.display_name} does not use a bastion, so no tunnel is available")
+    end
+  end
+
   # pg:reset DATABASE
   #
   # delete all data in DATABASE

@@ -50,26 +50,33 @@ module Heroku::Helpers::HerokuPostgresql
       !!(bastions && bastion_key)
     end
 
-    def maybe_tunnel
+    def maybe_tunnel(local_port=nil)
       require "net/ssh/gateway"
 
+      local_port_specified = local_port != nil
       uri = URI.parse(url)
       if uses_bastion?
         bastion_host = bastions.sample
         gateway = Net::SSH::Gateway.new(bastion_host, 'bastion',
           paranoid: false, timeout: 15, key_data: [bastion_key])
         begin
-          local_port = rand(65535 - 49152) + 49152
+          if not local_port_specified
+            local_port = rand(65535 - 49152) + 49152
+          end
           gateway.open(uri.host, uri.port, local_port) do |actual_local_port|
             uri.host = 'localhost'
             uri.port = actual_local_port
             yield uri
           end
         rescue Errno::EADDRINUSE
-          # Get a new random port if a local binding was not possible.
-          gateway && gateway.shutdown!
-          gateway = nil
-          retry
+          if local_port_specified
+            raise
+          else
+            # Get a new random port if a local binding was not possible.
+            gateway && gateway.shutdown!
+            gateway = nil
+            retry
+          end
         ensure
           gateway && gateway.shutdown!
         end
