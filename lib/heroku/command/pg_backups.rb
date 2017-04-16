@@ -560,6 +560,7 @@ EOF
   end
 
   def schedule_backups
+    requires_preauth
     db = shift_argument
     validate_arguments!
 
