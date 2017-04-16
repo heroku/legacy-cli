@@ -45,6 +45,8 @@ module Heroku
     end
 
     def display(msg="", new_line=true)
+      msg = URI.unescape(msg)
+
       if new_line
         puts(msg)
       else
