@@ -22,6 +22,12 @@ class Heroku::CLI
   def self.start(*args)
     $stdin.sync = true if $stdin.isatty
     $stdout.sync = true if $stdout.isatty
+    $stderr.puts "WARNING: This is the legacy Heroku CLI with limited functionality. Please install the latest CLI."
+    if running_on_a_mac?
+      $stderr.puts "WARNING: On MacOS this can be done with 'brew install heroku' or with the MacOS package from https://cli.heroku.com\n"
+    else
+      $stderr.puts "WARNING: Installation instructions are at https://cli.heroku.com\n"
+    end
     Heroku::Updater.warn_if_updating
     command = args.shift.strip rescue "help"
     Heroku::Analytics.skip_analytics # just sets the config for the analytics
