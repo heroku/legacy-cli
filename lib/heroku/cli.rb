@@ -22,11 +22,19 @@ class Heroku::CLI
   def self.start(*args)
     $stdin.sync = true if $stdin.isatty
     $stdout.sync = true if $stdout.isatty
+    begin
     $stderr.puts "WARNING: This is the legacy Heroku CLI with limited functionality. Please install the latest CLI."
     if running_on_a_mac?
-      $stderr.puts "WARNING: On MacOS this can be done with 'brew install heroku' or with the MacOS package from https://cli.heroku.com\n"
+      `which brew`
+      if $?.success?
+        $stderr.puts "WARNING: On MacOS this can be done with 'brew install heroku' or with the MacOS package from https://cli.heroku.com\n"
+      else
+        $stderr.puts "WARNING: On MacOS this can be done with the MacOS package from https://cli.heroku.com\n"
+      end
     else
       $stderr.puts "WARNING: Installation instructions are at https://cli.heroku.com\n"
+    end
+    rescue
     end
     Heroku::Updater.warn_if_updating
     command = args.shift.strip rescue "help"

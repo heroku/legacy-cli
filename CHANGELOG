@@ -1,3 +1,7 @@
+3.99.3 2017-06-05
+====================
+Add deprecation message for all commands
+
 3.99.2 2017-04-05
 ====================
 Fix duplicate command not found message
