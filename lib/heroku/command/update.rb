@@ -15,6 +15,7 @@ class Heroku::Command::Update < Heroku::Command::Base
   # Updating... done, v1.2.3 updated to v2.3.4
   #
   def index
+    $stderr.puts "You must reinstall the CLI to get the latest version."
     channel = shift_argument
     validate_arguments!
     Heroku::JSPlugin.update(channel)
