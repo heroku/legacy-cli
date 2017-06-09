@@ -3,6 +3,5 @@ Version: <%= version %>
 Section: main
 Priority: standard
 Architecture: all
-Depends: ruby2.3|ruby2.2|ruby2.1|ruby2.0|libopenssl-ruby1.9.1, ruby2.3|ruby2.2|ruby2.1|ruby2.0|libreadline-ruby1.9.1, ruby2.3|ruby2.2|ruby2.1|ruby2.0|ruby1.9.1, libssl0.9.8 (>= 0.9.8k) | libssl1.0.0|libssl1.0.2
 Maintainer: Heroku
 Description: Client library and CLI to deploy apps on Heroku.

@@ -1,17 +1,17 @@
 #!/bin/sh
 
-# remove toolbelt
-rm -f /etc/apt/sources.list.d/heroku.list
-apt-get remove -y heroku-toolbelt heroku || true
+set -ex
 
-# add heroku repository to apt
-add-apt-repository "deb https://cli-assets.heroku.com/branches/stable/apt ./"
+MACHINE_TYPE=`uname -m`
+if [ $MACHINE_TYPE = 'x86_64' ]; then
+  ARCH=x64
+else
+  ARCH=x32
+fi
 
-# install heroku's release key for package verification
-wget -qO- https://cli-assets.heroku.com/apt/release.key | apt-key add -
-
-# update your sources
-apt-get update
-
-# install the toolbelt
-apt-get install -y heroku
+mkdir -p /usr/local
+cd /usr/local
+wget -qO- https://cli-assets.heroku.com/heroku-cli/channels/stable/heroku-cli-linux-$ARCH.tar.gz | tar xz
+rm -rf /usr/local/heroku
+mv /usr/local/heroku-cli-v* /usr/local/heroku
+ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
