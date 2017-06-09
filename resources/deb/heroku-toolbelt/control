@@ -3,7 +3,7 @@ Version: <%= version %>
 Section: main
 Priority: standard
 Architecture: all
-Depends: git-core, heroku (= <%= version %>)
+Depends: heroku (= <%= version %>)
 Installed-Size:
 Maintainer: Heroku
 Description: A metapackage for working with the Heroku platform.

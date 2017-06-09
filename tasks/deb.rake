@@ -7,17 +7,8 @@ namespace :deb do
     s3_store_dir dist("heroku-toolbelt-#{version}.apt"), "apt", "heroku-toolbelt"
   end
 
-  file dist("heroku-toolbelt-#{version}.apt") => [ dist("heroku-toolbelt-#{version}.apt/heroku-#{version}.deb"), dist("heroku-toolbelt-#{version}.apt/heroku-toolbelt-#{version}.deb") ] do |t|
-    abort "Don't publish .debs of pre-releases!" if version =~ /[a-zA-Z]$/
-
-    cd t.name do |dir|
-      touch "Sources"
-
-      sh "apt-ftparchive packages . > Packages"
-      sh "gzip -c Packages > Packages.gz"
-      sh "apt-ftparchive -c #{resource("deb/heroku-toolbelt/apt-ftparchive.conf")} release . > Release"
-      sh "gpg --digest-algo SHA512 -abs -u 0F1B0520 -o Release.gpg Release"
-    end
+  file dist("heroku-toolbelt-#{version}.apt") => [ dist("heroku-toolbelt-#{version}.apt/heroku-#{version}.deb")] do |t|
+    mkdir_p t.name
   end
 
 
@@ -25,12 +16,6 @@ namespace :deb do
     mkdir_p File.dirname(t.name)
     tempdir do
       mkdir_p "usr/local/heroku"
-      cd "usr/local/heroku" do
-        assemble_distribution
-        assemble_gems
-        assemble resource("deb/heroku/heroku"), "bin/heroku", 0755
-      end
-
       assemble resource("deb/heroku/control"), "control"
       assemble resource("deb/heroku/postinst"), "postinst"
 
@@ -43,12 +28,19 @@ namespace :deb do
 
       sh "ar -r #{t.name} debian-binary control.tar.gz data.tar.gz"
     end
-  end
 
-  file dist("heroku-toolbelt-#{version}.apt/heroku-toolbelt-#{version}.deb") do |t|
     tempdir do |dir|
       assemble resource("deb/heroku-toolbelt/control"), "DEBIAN/control"
-      sh "dpkg-deb --build . #{t.name}"
+      sh "dpkg-deb --build . #{File.dirname(t.name)}/heroku-toolbelt-#{version}.deb"
+    end
+
+    cd File.dirname(t.name) do |dir|
+      touch "Sources"
+
+      sh "apt-ftparchive packages . > Packages"
+      sh "gzip -c Packages > Packages.gz"
+      sh "apt-ftparchive -c #{resource("deb/heroku-toolbelt/apt-ftparchive.conf")} release . > Release"
+      sh "gpg --digest-algo SHA512 -abs -u 0F1B0520 -o Release.gpg Release"
     end
   end
 end
