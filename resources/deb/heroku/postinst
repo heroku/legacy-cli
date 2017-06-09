@@ -1,45 +1,17 @@
 #!/bin/sh
 
-usershell=$SHELL
+# remove toolbelt
+rm -f /etc/apt/sources.list.d/heroku.list
+apt-get remove -y heroku-toolbelt heroku || true
 
-startup_files() {
-  case $(basename $usershell) in
-    zsh)
-      echo ".zlogin .zshrc .zprofile .zshenv"
-      ;;
-    bash)
-      echo ".bashrc .bash_profile .bash_login .profile"
-      ;;
-    *)
-      echo ".bash_profile .zshrc .profile"
-      ;;
-  esac
-}
+# add heroku repository to apt
+add-apt-repository "deb https://cli-assets.heroku.com/branches/stable/apt ./"
 
-install_path() {
-  for file in $(startup_files); do
-    [ -f $HOME/$file ] || continue
-    (grep "Added by the Heroku" $HOME/$file >/dev/null) && break
+# install heroku's release key for package verification
+wget -qO- https://cli-assets.heroku.com/apt/release.key | apt-key add -
 
-    cat <<MESSAGE >>$HOME/$file
+# update your sources
+apt-get update
 
-### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:\$PATH"
-MESSAGE
-
-    # done after we add to one file
-    break
-  done
-}
-
-# if the toolbelt is not returned by `which`, let's add to the PATH
-case $(which heroku) in
-  /usr/bin/heroku|/usr/local/heroku/bin/heroku)
-    ;;
-  *)
-    install_path
-    ;;
-esac
-
-# symlink binary to /usr/bin/heroku
-ln -sf /usr/local/heroku/bin/heroku /usr/bin/heroku
+# install the toolbelt
+apt-get install -y heroku
