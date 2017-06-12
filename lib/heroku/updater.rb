@@ -23,7 +23,7 @@ module Heroku
     end
 
     def self.latest_version
-      http_get('http://assets.heroku.com/heroku-client/VERSION').chomp
+      http_get('https://assets.heroku.com/heroku-client/VERSION').chomp
     end
 
     def self.official_zip_hash
