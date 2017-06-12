@@ -52,7 +52,7 @@ class Heroku::Command::Config < Heroku::Command::Base
     end
   end
 
-  # config:set KEY1=VALUE1 [KEY2=VALUE2 ...]
+  # config:set KEY1[=VALUE1] [KEY2=VALUE2 ...]
   #
   # set one or more config vars
   #
@@ -67,14 +67,39 @@ class Heroku::Command::Config < Heroku::Command::Base
   # A: one
   # B: two
   #
+  # $ heroku config:set A
+  # Enter value for 'A': one
+  # Setting config vars and restarting example... done, v123
+  # A: one
+  # 
+  # $ echo 'A' > myfile
+  # $ heroku config:set A < myfile
+  # Setting config vars and restarting example... done, v123
+  # A: one
+  # 
   def set
     requires_preauth
-    unless args.size > 0 and args.all? { |a| a.include?('=') }
-      error("Usage: heroku config:set KEY1=VALUE1 [KEY2=VALUE2 ...]\nMust specify KEY and VALUE to set.")
+    unless args.size > 0
+      error("Usage: heroku config:set KEY1[=VALUE1] [KEY2=VALUE2 ...]\nMust specify at least one KEY to set.")
     end
 
-    vars = args.inject({}) do |v, arg|
-      key, value = arg.split('=', 2)
+    with_vals,without_vals = args.partition {|a| a.include?('=')}
+    if !$stdin.tty? and without_vals.length > 0
+      if without_vals.length == 1
+        with_vals.push("#{without_vals[0]}=#{$stdin.gets.chomp}")
+      else
+        error("Cannot redirect to multiple keys.")
+      end
+    else
+      without_vals.each do |key|
+        print "Enter value for '#{key}':"
+        value = ask
+        with_vals.push("#{key}=#{value}")
+      end
+    end
+
+    vars = with_vals.inject({}) do |v, arg|
+      key,value = arg.split('=', 2)
       v[key] = value
       v
     end
