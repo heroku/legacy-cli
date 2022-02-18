@@ -762,9 +762,19 @@ class Heroku::Command::Pg < Heroku::Command::Base
       ENV["PGAPPNAME"]  = "#{pgappname} non-interactive"
       user_part = uri.user ? "-U #{uri.user}" : ""
       output = `#{psql_cmd} -c "#{sql}" #{user_part} -h #{uri.host} -p #{uri.port || 5432} #{uri.path[1..-1]}`
-      if (! $?.success?) || output.nil? || output.empty?
-        raise "psql failed. exit status #{$?.to_i}, output: #{output.inspect}"
+
+      # assume that psql printed something helpful to stderr
+      # and that dumping stdout at this point would be confusing
+      unless $?.success?
+        exit $?.exitstatus
       end
+
+      # I do not know the use case for this but keeping 
+      # around for backward compatibility reasons
+      if output.nil? || output.empty?
+        raise "psql failed. exit status #{$?.to_i}"
+      end
+
       output
     rescue Errno::ENOENT
       output_with_bang "The local psql command could not be located"
