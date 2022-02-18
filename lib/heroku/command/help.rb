@@ -121,11 +121,14 @@ private
   def help_for_root
     puts "Usage: heroku COMMAND [--app APP] [command-specific-options]"
     puts
-    puts "Primary help topics, type \"heroku help TOPIC\" for more details:"
+    puts "Currently available heroku commands are:"
+    puts
+    puts
+    puts " Primary help topics, type \"heroku help TOPIC\" for more details:"
     puts
     summary_for_namespaces(primary_namespaces)
     puts
-    puts "Additional topics:"
+    puts " Additional topics:"
     puts
     summary_for_namespaces(additional_namespaces)
     puts
