@@ -506,6 +506,8 @@ Check the output of "heroku ps" and "heroku logs" for more information.
           http.ca_file = local_ca_file
           http.verify_callback = lambda do |preverify_ok, ssl_context|
             if (!preverify_ok) || ssl_context.error != 0
+              $stderr.puts "SSL_CERT_FILE is set. This is likely causing SSL verification to fail." if ENV['SSL_CERT_FILE']
+              $stderr.puts "HTTPS_PROXY is set. This is likely causing SSL verification to fail." if ENV['HTTPS_PROXY']
               error "WARNING: Unable to verify SSL certificate for #{host}\nTo disable SSL verification, run with HEROKU_SSL_VERIFY=disable"
             end
             true
